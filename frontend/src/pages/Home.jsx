@@ -171,14 +171,38 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
           <div>
-            <h1 className="leading-tight">
-              <span className="block text-white text-5xl md:text-7xl font-bold tracking-tight" style={{ fontFamily: "'Pacifico', cursive" }}>
-                Louez la voiture
-              </span>
-              <span className="block text-[#dc2626] text-5xl md:text-7xl font-bold tracking-tight" style={{ fontFamily: "'Pacifico', cursive" }}>
-                qui vous correspond
-              </span>
-            </h1>
+            <StrokeText
+              text="Louez la voiture"
+              strokeColor="#dc2626"
+              fillColor="#ffffff"
+              strokeWidth={1.2}
+              drawDuration={1.6}
+              fillDelay={0.3}
+              stagger={0.04}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="fade"
+              fontSize={72}
+              fontWeight={800}
+              letterSpacing={-2}
+            />
+            <StrokeText
+              text="qui vous correspond"
+              strokeColor="#a16a6a"
+              fillColor="#ff0000"
+              strokeWidth={0.5}
+              drawDuration={1}
+              fillDelay={0.2}
+              stagger={0.055}
+              ease="expo.out"
+              trigger="mount"
+              fillMode="fade"
+              fontSize={52}
+              fontWeight={800}
+              letterSpacing={0.5}
+              reverse
+              className="-mt-4"
+            />
             <div className="text-lg mt-6">
               <GradientText
                 colors={["#ff2727", "#FF9FFC", "#b1b1b1"]}
