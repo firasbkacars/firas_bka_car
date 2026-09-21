@@ -20,10 +20,12 @@ class Vehicule extends Model
         'puissance',
         'kilometrage',
         'prix_jour',
+        'montant_caution',
         'statut',
         'photos',
         'equipements',
         'populaire',
+        'agence_id',
     ];
 
     protected $casts = [
@@ -31,6 +33,7 @@ class Vehicule extends Model
         'equipements' => 'array',
         'populaire' => 'boolean',
         'prix_jour' => 'decimal:2',
+        'montant_caution' => 'decimal:2',
     ];
 
     public function reservations()
@@ -38,9 +41,23 @@ class Vehicule extends Model
         return $this->hasMany(Reservation::class);
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Vehicule $vehicule) {
+            if ($vehicule->reservations()->whereNotIn('statut', ['annulee'])->exists()) {
+                abort(422, 'Impossible de supprimer ce vehicule : des reservations actives existent.');
+            }
+        });
+    }
+
     public function avis()
     {
         return $this->hasMany(Avi::class);
+    }
+
+    public function agence()
+    {
+        return $this->belongsTo(Agence::class);
     }
 
     public function scopeDisponibles($query)
@@ -67,6 +84,9 @@ class Vehicule extends Model
         }
         if (!empty($filters['prix_max'])) {
             $query->where('prix_jour', '<=', $filters['prix_max']);
+        }
+        if (!empty($filters['agence_id'])) {
+            $query->where('agence_id', $filters['agence_id']);
         }
         return $query;
     }

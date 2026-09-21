@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Vehicule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VehiculeController extends Controller
 {
@@ -17,7 +18,7 @@ class VehiculeController extends Controller
         }
 
         $query->filtres($request->only([
-            'categorie', 'marque', 'transmission', 'carburant', 'prix_min', 'prix_max'
+            'categorie', 'marque', 'transmission', 'carburant', 'prix_min', 'prix_max', 'agence_id'
         ]));
 
         $tri = $request->get('tri', 'popularite');
@@ -35,12 +36,9 @@ class VehiculeController extends Controller
                 $query->orderBy('populaire', 'desc')->orderBy('created_at', 'desc');
         }
 
-        $vehicules = $query->get();
+        $vehicules = $query->paginate($request->get('per_page', 20));
 
-        return response()->json([
-            'vehicules' => $vehicules,
-            'total' => $vehicules->count(),
-        ]);
+        return response()->json($vehicules);
     }
 
     public function show($id)
@@ -91,7 +89,8 @@ class VehiculeController extends Controller
             'puissance' => 'nullable|string|max:50',
             'kilometrage' => 'nullable|integer|min:0',
             'prix_jour' => 'required|numeric|min:0',
-            'statut' => 'in:disponible,louee,maintenance',
+            'montant_caution' => 'nullable|numeric|min:0',
+            'statut' => 'in:disponible,en_location,louee,maintenance',
             'photos' => 'nullable|array',
             'equipements' => 'nullable|array',
             'populaire' => 'boolean',
@@ -117,7 +116,8 @@ class VehiculeController extends Controller
             'puissance' => 'nullable|string|max:50',
             'kilometrage' => 'nullable|integer|min:0',
             'prix_jour' => 'sometimes|numeric|min:0',
-            'statut' => 'sometimes|in:disponible,louee,maintenance',
+            'montant_caution' => 'sometimes|numeric|min:0',
+            'statut' => 'sometimes|in:disponible,en_location,louee,maintenance',
             'photos' => 'nullable|array',
             'equipements' => 'nullable|array',
             'populaire' => 'boolean',
@@ -131,6 +131,15 @@ class VehiculeController extends Controller
     public function destroy($id)
     {
         $vehicule = Vehicule::findOrFail($id);
+
+        if (!empty($vehicule->photos)) {
+            foreach ($vehicule->photos as $photo) {
+                if (Storage::disk('public')->exists($photo)) {
+                    Storage::disk('public')->delete($photo);
+                }
+            }
+        }
+
         $vehicule->delete();
 
         return response()->json(['message' => 'Véhicule supprimé']);

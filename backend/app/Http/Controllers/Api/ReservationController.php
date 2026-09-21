@@ -3,11 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreReservationRequest;
+use App\Jobs\SendReservationConfirmation;
+use App\Mail\AdminNewReservation;
 use App\Models\Client;
+use App\Models\CodePromo;
 use App\Models\Paiement;
+use App\Models\Parametre;
 use App\Models\Reservation;
 use App\Models\Vehicule;
+use App\Services\FideliteService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ReservationController extends Controller
 {
@@ -19,80 +27,157 @@ class ReservationController extends Controller
             $query->where('statut', $request->get('statut'));
         }
 
-        $reservations = $query->orderBy('created_at', 'desc')->get();
+        $reservations = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 20));
 
         return response()->json($reservations);
     }
 
-    public function store(Request $request)
+    public function store(StoreReservationRequest $request)
     {
         $client = $request->user();
 
         if (!$client) {
-            return response()->json(['message' => 'Vous devez être connecté pour réserver'], 401);
+            return response()->json(['message' => 'Vous devez etre connecte pour reserver'], 401);
         }
 
         if (empty($client->permis_conduire)) {
-            return response()->json(['message' => 'Vous devez télécharger votre permis de conduire avant de réserver'], 422);
+            return response()->json(['message' => 'Vous devez telecharger votre permis de conduire avant de reserver'], 422);
         }
 
-        $validated = $request->validate([
-            'vehicule_id' => 'required|exists:vehicules,id',
-            'date_debut' => 'required|date|after:now',
-            'date_fin' => 'required|date|after:date_debut',
-            'lieu_prise' => 'required|string|max:255',
-            'lieu_retour' => 'required|string|max:255',
-            'mode_paiement' => 'required|in:especes,visa,mastercard,cmi',
-            'notes' => 'nullable|string',
-        ]);
-
-        $vehicule = Vehicule::findOrFail($validated['vehicule_id']);
-
-        if ($vehicule->statut !== 'disponible') {
-            return response()->json(['message' => 'Véhicule non disponible'], 422);
+        if ($client->permis_statut !== 'valide') {
+            return response()->json(['message' => 'Votre permis de conduire doit etre valide par un agent avant de reserver'], 422);
         }
 
-        $dateDebut = \Carbon\Carbon::parse($validated['date_debut']);
-        $dateFin = \Carbon\Carbon::parse($validated['date_fin']);
-        $jours = $dateDebut->diffInDays($dateFin);
-        if ($jours < 1) $jours = 1;
+        $validated = $request->validated();
 
-        $prixTotal = $vehicule->prix_jour * $jours;
-        $acompte = $prixTotal * 0.30;
+        $reservation = DB::transaction(function () use ($validated, $client) {
+            $vehicule = Vehicule::where('id', $validated['vehicule_id'])
+                ->lockForUpdate()
+                ->first();
 
-        $reservation = Reservation::create([
-            'numero' => Reservation::genererNumero(),
-            'client_id' => $client->id,
-            'vehicule_id' => $vehicule->id,
-            'date_debut' => $validated['date_debut'],
-            'date_fin' => $validated['date_fin'],
-            'lieu_prise' => $validated['lieu_prise'],
-            'lieu_retour' => $validated['lieu_retour'],
-            'prix_total' => $prixTotal,
-            'acompte' => $acompte,
-            'statut' => 'confirmee',
-            'mode_paiement' => $validated['mode_paiement'],
-            'notes' => $validated['notes'] ?? null,
-        ]);
+            if ($vehicule->statut !== 'disponible') {
+                abort(422, 'Vehicule non disponible');
+            }
 
-        Paiement::create([
-            'reservation_id' => $reservation->id,
-            'montant' => $acompte,
-            'methode' => $validated['mode_paiement'],
-            'statut' => $validated['mode_paiement'] === 'especes' ? 'en_attente' : 'paye',
-            'date_paiement' => $validated['mode_paiement'] !== 'especes' ? now() : null,
-        ]);
+            $dateDebut = \Carbon\Carbon::parse($validated['date_debut']);
+            $dateFin = \Carbon\Carbon::parse($validated['date_fin']);
+            $jours = $dateDebut->diffInDays($dateFin);
+            if ($jours < 1) $jours = 1;
+
+            $conflit = Reservation::where('vehicule_id', $vehicule->id)
+                ->where('statut', '!=', 'annulee')
+                ->where('date_debut', '<', $dateFin)
+                ->where('date_fin', '>', $dateDebut)
+                ->exists();
+
+            if ($conflit) {
+                abort(422, 'Le vehicule n\'est pas disponible pour ces dates');
+            }
+
+            $prixTotal = $vehicule->prix_jour * $jours;
+            $remise = 0;
+            $codePromoValue = null;
+
+            if (!empty($validated['code_promo'])) {
+                $codePromo = CodePromo::where('code', strtoupper($validated['code_promo']))->first();
+
+                if ($codePromo && $codePromo->isValid()) {
+                    $remise = $codePromo->calculateDiscount($prixTotal);
+                    $prixTotal = max(0, $prixTotal - $remise);
+                    $codePromoValue = strtoupper($validated['code_promo']);
+                    $codePromo->increment('usage_actuel');
+                }
+            }
+
+            $tauxAcompte = Parametre::getNumeric('taux_acompte', 30) / 100;
+            $acompte = $prixTotal * $tauxAcompte;
+
+            $montantCaution = $vehicule->montant_caution ?? 0;
+
+            $supplementConducteur = 0;
+            if (!empty($validated['conducteur_additionnel_nom'])) {
+                $supplementParJour = Parametre::getNumeric('supplement_conducteur_jour', 50);
+                $supplementConducteur = $supplementParJour * $jours;
+                $prixTotal += $supplementConducteur;
+            }
+
+            $reservation = Reservation::create([
+                'numero' => Reservation::genererNumero(),
+                'client_id' => $client->id,
+                'vehicule_id' => $vehicule->id,
+                'agence_id' => $validated['agence_id'] ?? null,
+                'date_debut' => $validated['date_debut'],
+                'date_fin' => $validated['date_fin'],
+                'lieu_prise' => $validated['lieu_prise'],
+                'lieu_retour' => $validated['lieu_retour'],
+                'prix_total' => $prixTotal,
+                'acompte' => $acompte,
+                'montant_caution' => $montantCaution,
+                'statut' => 'confirmee',
+                'mode_paiement' => $validated['mode_paiement'],
+                'notes' => $validated['notes'] ?? null,
+                'code_promo' => $codePromoValue,
+                'remise' => $remise,
+                'conducteur_additionnel_nom' => $validated['conducteur_additionnel_nom'] ?? null,
+                'conducteur_additionnel_telephone' => $validated['conducteur_additionnel_telephone'] ?? null,
+                'conducteur_additionnel_permis' => $validated['conducteur_additionnel_permis'] ?? null,
+                'supplement_conducteur' => $supplementConducteur,
+            ]);
+
+            $paiementStatut = 'en_attente';
+            $paiementDate = null;
+            if ($validated['mode_paiement'] === 'especes') {
+                $paiementStatut = 'en_attente';
+            } elseif (in_array($validated['mode_paiement'], ['visa', 'mastercard'])) {
+                $paiementStatut = 'paye';
+                $paiementDate = now();
+            }
+
+            Paiement::create([
+                'reservation_id' => $reservation->id,
+                'montant' => $acompte,
+                'methode' => $validated['mode_paiement'],
+                'statut' => $paiementStatut,
+                'date_paiement' => $paiementDate,
+            ]);
+
+            return $reservation;
+        });
 
         $reservation->load(['client', 'vehicule']);
+
+        SendReservationConfirmation::dispatch($reservation->id);
+
+        $adminEmail = config('mail.from.address', 'admin@firasbkacar.com');
+        try {
+            Mail::to($adminEmail)->send(new AdminNewReservation($reservation));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send admin notification', ['error' => $e->getMessage()]);
+        }
 
         return response()->json($reservation, 201);
     }
 
-    public function show($numero)
+    public function show(Request $request, $numero)
     {
-        $reservation = Reservation::with(['client', 'vehicule', 'paiements'])
+        $reservation = Reservation::with(['client', 'vehicule', 'paiements', 'etatsLieux'])
             ->where('numero', $numero)
             ->firstOrFail();
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Non autorise'], 401);
+        }
+
+        if ($user instanceof \App\Models\User) {
+            return response()->json($reservation);
+        }
+
+        if ($reservation->client_id !== $user->id) {
+            return response()->json(['message' => 'Non autorise'], 403);
+        }
 
         return response()->json($reservation);
     }
@@ -115,10 +200,47 @@ class ReservationController extends Controller
 
         $validated = $request->validate([
             'statut' => 'sometimes|in:confirmee,en_cours,terminee,annulee',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
+            'date_fin' => 'sometimes|date|after:date_debut',
         ]);
 
+        $oldStatut = $reservation->statut;
+
+        if (isset($validated['date_fin']) && $validated['date_fin'] !== $reservation->date_fin) {
+            $newDateFin = \Carbon\Carbon::parse($validated['date_fin']);
+            $oldDateFin = \Carbon\Carbon::parse($reservation->date_fin);
+
+            if ($newDateFin->gt($oldDateFin)) {
+                $joursSupplementaires = $oldDateFin->diffInDays($newDateFin);
+                $vehicule = $reservation->vehicule;
+
+                $conflit = Reservation::where('vehicule_id', $reservation->vehicule_id)
+                    ->where('id', '!=', $reservation->id)
+                    ->where('statut', '!=', 'annulee')
+                    ->where('date_debut', '<', $newDateFin)
+                    ->where('date_fin', '>', $reservation->date_fin)
+                    ->exists();
+
+                if ($conflit) {
+                    return response()->json(['message' => 'Le vehicule n\'est pas disponible pour la periode etendue'], 422);
+                }
+
+                $prixSupplement = $vehicule->prix_jour * $joursSupplementaires;
+                $validated['prix_total'] = $reservation->prix_total + $prixSupplement;
+            }
+        }
+
         $reservation->update($validated);
+
+        if (isset($validated['statut']) && $validated['statut'] === 'terminee' && $oldStatut !== 'terminee') {
+            $fidelite = app(FideliteService::class);
+            $client = $reservation->client;
+
+            $fidelite->incrementerLocations($client);
+
+            $points = $fidelite->calculerPoints($client, $reservation->prix_total);
+            $fidelite->ajouterPoints($client, $points);
+        }
 
         return response()->json($reservation->load(['client', 'vehicule']));
     }
@@ -128,6 +250,117 @@ class ReservationController extends Controller
         $reservation = Reservation::findOrFail($id);
         $reservation->update(['statut' => 'annulee']);
 
-        return response()->json(['message' => 'Réservation annulée']);
+        return response()->json(['message' => 'Reservation annulee']);
+    }
+
+    public function updateCaution(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'caution_statut' => 'required|in:bloquee,restituee,retenue_partiellement',
+            'motif_rejet_caution' => 'nullable|string|max:500',
+        ]);
+
+        $reservation = Reservation::findOrFail($id);
+        $reservation->update($validated);
+
+        return response()->json([
+            'message' => 'Statut de la caution mis a jour',
+            'reservation' => $reservation->load(['client', 'vehicule']),
+        ]);
+    }
+
+    public function annulerParClient(Request $request, $id)
+    {
+        $client = $request->user();
+        $reservation = Reservation::where('id', $id)
+            ->where('client_id', $client->id)
+            ->firstOrFail();
+
+        if (!in_array($reservation->statut, ['confirmee', 'en_cours'])) {
+            return response()->json(['message' => 'Cette reservation ne peut plus etre annulee'], 422);
+        }
+
+        $montantRembourse = 0;
+        $dateDebut = \Carbon\Carbon::parse($reservation->date_debut);
+        $heuresAvant = now()->diffInHours($dateDebut, false);
+
+        if ($heuresAvant >= 48) {
+            $montantRembourse = $reservation->acompte;
+        } elseif ($heuresAvant >= 24) {
+            $montantRembourse = $reservation->acompte * 0.50;
+        } else {
+            $montantRembourse = 0;
+        }
+
+        $reservation->update([
+            'statut' => 'annulee',
+            'montant_rembourse' => $montantRembourse,
+            'politique_annulation' => $this->getPolitiqueAnnulation($heuresAvant),
+        ]);
+
+        if ($montantRembourse > 0) {
+            Paiement::create([
+                'reservation_id' => $reservation->id,
+                'montant' => $montantRembourse,
+                'methode' => $reservation->mode_paiement,
+                'statut' => 'paye',
+                'date_paiement' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Reservation annulee',
+            'montant_rembourse' => $montantRembourse,
+            'politique' => $reservation->politique_annulation,
+        ]);
+    }
+
+    public function prolonger(Request $request, $id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        $validated = $request->validate([
+            'date_fin' => 'required|date|after:' . $reservation->date_fin,
+        ]);
+
+        $newDateFin = \Carbon\Carbon::parse($validated['date_fin']);
+        $oldDateFin = \Carbon\Carbon::parse($reservation->date_fin);
+        $joursSupplementaires = $oldDateFin->diffInDays($newDateFin);
+
+        $conflit = Reservation::where('vehicule_id', $reservation->vehicule_id)
+            ->where('id', '!=', $reservation->id)
+            ->where('statut', '!=', 'annulee')
+            ->where('date_debut', '<', $newDateFin)
+            ->where('date_fin', '>', $reservation->date_fin)
+            ->exists();
+
+        if ($conflit) {
+            return response()->json(['message' => 'Le vehicule n\'est pas disponible pour la periode etendue'], 422);
+        }
+
+        $vehicule = $reservation->vehicule;
+        $prixSupplement = $vehicule->prix_jour * $joursSupplementaires;
+
+        $reservation->update([
+            'date_fin' => $validated['date_fin'],
+            'prix_total' => $reservation->prix_total + $prixSupplement,
+        ]);
+
+        return response()->json([
+            'message' => 'Reservation prolongee',
+            'reservation' => $reservation->load(['client', 'vehicule']),
+            'jours_supplementaires' => $joursSupplementaires,
+            'prix_supplement' => $prixSupplement,
+        ]);
+    }
+
+    private function getPolitiqueAnnulation(float $heuresAvant): string
+    {
+        if ($heuresAvant >= 48) {
+            return 'Annulation gratuite - Remboursement integral de l\'acompte';
+        } elseif ($heuresAvant >= 24) {
+            return 'Annulation partielle - Remboursement de 50% de l\'acompte';
+        }
+        return 'Annulation tardive - Acompte non remboursable';
     }
 }

@@ -1,58 +1,215 @@
-export default function Contact() {
-  return (
-    <div className="max-w-5xl mx-auto px-4 pt-24 pb-16">
-      <h1 className="text-3xl font-bold text-white mb-2">Contactez-nous</h1>
-      <p className="text-gray-400 mb-8">Nous sommes à votre disposition pour toute question.</p>
+import { useState } from 'react';
+import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck } from 'lucide-react';
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
-          <h3 className="text-white font-semibold mb-4">Nos coordonnées</h3>
-          <div className="space-y-4 text-gray-400 text-sm">
-            <div className="flex items-start gap-3">
-              <span className="text-[#dc2626] text-lg">📍</span>
-              <div>
-                <p className="text-white font-medium">Adresse</p>
-                <p>Branes 1, Lot 583N, 01 Rue 50 RDC - Tanger, Maroc</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-[#dc2626] text-lg">📞</span>
-              <div>
-                <p className="text-white font-medium">Téléphones</p>
-                <p>06 81 18 18 13 / 06 67 51 14 10</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-[#dc2626] text-lg">🕐</span>
-              <div>
-                <p className="text-white font-medium">Horaires</p>
-                <p>Lun - Sam: 8h00 - 20h00</p>
-                <p>Dimanche: 9h00 - 18h00</p>
-              </div>
-            </div>
-          </div>
-        </div>
+const AGENCE_ADDRESS = 'Q589+2QG, Branes, Tanger 90060, Maroc';
+const AGENCE_GPS = { lat: 35.7595, lng: -5.8340 };
+const GOOGLE_MAPS_EMBED = `https://www.google.com/maps?q=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&z=17&output=embed`;
+const GOOGLE_MAPS_directions = `https://www.google.com/maps/dir/?api=1&destination=${AGENCE_GPS.lat},${AGENCE_GPS.lng}`;
+const WAZE_url = `https://waze.com/ul?ll=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&navigate=yes`;
 
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
-          <h3 className="text-white font-semibold mb-4">Envoyez-nous un message</h3>
-          <a
-            href="https://wa.me/212681181813?text=Bonjour, je souhaite avoir des informations."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition w-full"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            Contacter sur WhatsApp
-          </a>
-          <div className="mt-4 text-center">
-            <a href="tel:+212681181813" className="text-[#dc2626] hover:underline text-sm">
-              Ou appelez-nous au 06 81 18 18 13
-            </a>
-          </div>
-        </div>
+function InputField({ label, type = 'text', name, placeholder, required, rows }) {
+  const base = 'w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#dc2626]/60 focus:ring-1 focus:ring-[#dc2626]/30 transition-colors text-sm';
+  if (rows) {
+    return (
+      <div>
+        <label className="block text-white/60 text-sm mb-1.5">{label}</label>
+        <textarea name={name} placeholder={placeholder} required={required} rows={rows} className={`${base} resize-none`} />
       </div>
+    );
+  }
+  return (
+    <div>
+      <label className="block text-white/60 text-sm mb-1.5">{label}</label>
+      <input type={type} name={name} placeholder={placeholder} required={required} className={base} />
+    </div>
+  );
+}
+
+function InfoCard({ icon: Icon, title, children }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="w-9 h-9 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0 mt-0.5">
+        <Icon size={16} className="text-[#dc2626]" />
+      </div>
+      <div>
+        <p className="text-white font-medium text-sm">{title}</p>
+        <div className="text-white/50 text-sm mt-0.5">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+export default function Contact() {
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 4000);
+  };
+
+  return (
+    <div className="min-h-screen bg-black">
+      {/* Hero */}
+      <section className="relative pt-28 pb-16 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#dc2626]/5 via-transparent to-transparent" />
+        <div className="max-w-6xl mx-auto px-4 relative z-10">
+          <div className="flex items-center gap-2 text-white/40 text-sm mb-4">
+            <span>Accueil</span>
+            <span>/</span>
+            <span className="text-white/70">Contact</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Contactez<span className="text-[#dc2626]">-nous</span>
+          </h1>
+          <p className="text-white/50 text-lg max-w-xl">
+            Nous sommes à votre disposition pour toute question. Notre équipe vous répond sous 24 heures.
+          </p>
+        </div>
+      </section>
+
+      {/* Main Grid */}
+      <section className="max-w-6xl mx-auto px-4 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+          {/* Left Column — Coordonnées + Carte (2 cols) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Coordonnées */}
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+              <h2 className="text-white font-semibold text-lg mb-5">Nos coordonnées</h2>
+              <div className="space-y-5">
+                <InfoCard icon={MapPin} title="Adresse">
+                  <p>{AGENCE_ADDRESS}</p>
+                </InfoCard>
+                <InfoCard icon={Phone} title="Téléphones">
+                  <p>06 81 18 18 13</p>
+                  <p>06 67 51 14 10</p>
+                </InfoCard>
+                <InfoCard icon={Clock} title="Horaires">
+                  <p>Lun – Sam : 8h00 – 20h00</p>
+                  <p>Dimanche : 9h00 – 18h00</p>
+                </InfoCard>
+              </div>
+            </div>
+
+            {/* Carte */}
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden">
+              <div className="h-72 w-full">
+                <iframe
+                  src={GOOGLE_MAPS_EMBED}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) saturate(0.5) brightness(0.8)' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Localisation FIRAS BKA CAR"
+                />
+              </div>
+              <div className="p-4 flex gap-3">
+                <a
+                  href={GOOGLE_MAPS_directions}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
+                >
+                  <Navigation size={15} />
+                  Itinéraire Google Maps
+                </a>
+                <a
+                  href={WAZE_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/10 text-white/70 hover:text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+                >
+                  Waze
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column — Formulaire (3 cols) */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Formulaire */}
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 md:p-8">
+              <h2 className="text-white font-semibold text-lg mb-1">Envoyez-nous un message</h2>
+              <p className="text-white/40 text-sm mb-6">Remplissez le formulaire et nous vous répondrons rapidement.</p>
+
+              {submitted ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
+                    <Send size={22} className="text-green-500" />
+                  </div>
+                  <p className="text-white font-semibold text-lg">Message envoyé !</p>
+                  <p className="text-white/40 text-sm mt-1">Nous vous répondrons dans les plus brefs délais.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField label="Nom complet" name="nom" placeholder="Votre nom" required />
+                    <InputField label="Téléphone ou email" name="contact" placeholder="06 XX XX XX XX" required />
+                  </div>
+                  <InputField label="Sujet" name="sujet" placeholder="Ex: Demande de réservation" required />
+                  <InputField label="Message" name="message" placeholder="Décrivez votre demande..." required rows={4} />
+                  <button
+                    type="submit"
+                    className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Send size={16} />
+                    Envoyer le message
+                  </button>
+                </form>
+              )}
+
+              {/* Séparateur WhatsApp */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/[0.06]" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-[#111] px-4 text-white/30 text-xs uppercase tracking-wider">ou</span>
+                </div>
+              </div>
+
+              <a
+                href="https://wa.me/212681181813?text=Bonjour, je souhaite avoir des informations."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] px-6 py-3 rounded-lg font-semibold hover:bg-[#25D366]/20 transition w-full text-sm"
+              >
+                <MessageCircle size={17} />
+                Contactez-nous directement sur WhatsApp
+              </a>
+            </div>
+
+            {/* Garanties */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 text-center">
+                <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
+                  <Headphones size={18} className="text-[#dc2626]" />
+                </div>
+                <p className="text-white font-medium text-sm">Réponse sous 24h</p>
+                <p className="text-white/40 text-xs mt-1">Nous traitons chaque demande rapidement</p>
+              </div>
+              <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 text-center">
+                <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
+                  <Shield size={18} className="text-[#dc2626]" />
+                </div>
+                <p className="text-white font-medium text-sm">Devis gratuit</p>
+                <p className="text-white/40 text-xs mt-1">Estimation sans engagement</p>
+              </div>
+              <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 text-center">
+                <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
+                  <FileCheck size={18} className="text-[#dc2626]" />
+                </div>
+                <p className="text-white font-medium text-sm">Support complet</p>
+                <p className="text-white/40 text-xs mt-1">Accompagnement de A à Z</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 
 export default function AdminLogin() {
@@ -15,10 +15,15 @@ export default function AdminLogin() {
 
     try {
       const { data } = await api.post('/admin/login', form);
+      localStorage.removeItem('client_token');
       localStorage.setItem('admin_token', data.token);
       navigate('/admin');
     } catch (err) {
-      setError(err.response?.data?.message || 'Identifiants incorrects');
+      if (err.response?.status === 429) {
+        setError('Trop de tentatives. Veuillez réessayer dans 1 minute.');
+      } else {
+        setError(err.response?.data?.message || 'Identifiants incorrects');
+      }
     } finally {
       setLoading(false);
     }
@@ -28,7 +33,9 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-16 mx-auto mb-4" />
+          <Link to="/">
+            <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-16 mx-auto mb-4" />
+          </Link>
           <p className="text-gray-400 text-sm mt-1">Administration</p>
         </div>
 
@@ -73,6 +80,12 @@ export default function AdminLogin() {
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
+
+        <div className="text-center mt-4">
+          <Link to="/" className="text-gray-500 hover:text-white text-sm transition-colors">
+            ← Retour à l'accueil
+          </Link>
+        </div>
       </div>
     </div>
   );

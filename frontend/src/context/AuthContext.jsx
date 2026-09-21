@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { data } = await api.post('/client/login', { email, password });
+    localStorage.removeItem('admin_token');
     localStorage.setItem('client_token', data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setToken(data.token);
@@ -42,6 +43,7 @@ export function AuthProvider({ children }) {
       ...form,
       password_confirmation: form.password_confirmation,
     });
+    localStorage.removeItem('admin_token');
     localStorage.setItem('client_token', data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setToken(data.token);

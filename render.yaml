@@ -12,13 +12,27 @@ services:
         sync: false
       - key: APP_KEY
         generateValue: true
+      - key: APP_LOCALE
+        value: fr
       - key: DB_CONNECTION
-        value: sqlite
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        value: firas_bka_car
+      - key: DB_HOST
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
         value: database
       - key: QUEUE_CONNECTION
         value: database
+      - key: MAIL_MAILER
+        value: log
     healthCheckPath: /
     autoDeploy: true

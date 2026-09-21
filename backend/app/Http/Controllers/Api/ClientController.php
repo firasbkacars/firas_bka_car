@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::with('reservations')->orderBy('created_at', 'desc')->get();
+        $clients = Client::with('reservations')
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 20));
 
         return response()->json($clients);
     }

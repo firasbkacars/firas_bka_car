@@ -20,7 +20,12 @@ class Client extends Authenticatable
         'passeport',
         'adresse',
         'permis_conduire',
+        'permis_statut',
+        'permis_rejet_motif',
         'statut',
+        'nombre_locations',
+        'points_fidelite',
+        'niveau_fidelite',
     ];
 
     protected $hidden = [
@@ -44,5 +49,14 @@ class Client extends Authenticatable
     public function avis()
     {
         return $this->hasMany(Avi::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Client $client) {
+            if ($client->reservations()->whereNotIn('statut', ['annulee'])->exists()) {
+                abort(422, 'Impossible de supprimer ce client : des reservations actives existent.');
+            }
+        });
     }
 }

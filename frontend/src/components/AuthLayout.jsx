@@ -1,13 +1,9 @@
 import { Link } from 'react-router-dom';
-
-const IC = {
-  back: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>,
-};
+import { ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout({ children, title, subtitle, image }) {
   return (
     <div className="flex min-h-screen">
-      {/* Left — Image */}
       {image && (
         <div className="hidden md:block w-1/2 relative">
           <img
@@ -29,26 +25,22 @@ export default function AuthLayout({ children, title, subtitle, image }) {
         </div>
       )}
 
-      {/* Right — Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-8 py-10">
         <div className="w-full max-w-md">
-          {/* Back link */}
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs mb-6 transition-colors"
           >
-            {IC.back}
+            <ArrowLeft size={14} />
             Retour à l'accueil
           </Link>
 
-          {/* Logo (mobile) */}
           <div className="md:hidden text-center mb-8">
             <Link to="/">
               <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-11 mx-auto" />
             </Link>
           </div>
 
-          {/* Title */}
           <div className="mb-7">
             <h1 className="text-xl sm:text-2xl font-bold text-white">{title}</h1>
             {subtitle && <p className="text-white/40 text-sm mt-1.5">{subtitle}</p>}

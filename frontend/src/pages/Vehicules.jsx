@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { GitCompareArrows, X, ChevronRight } from 'lucide-react';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
@@ -20,68 +21,87 @@ function SkeletonCard() {
   );
 }
 
-function VehicleCard({ v }) {
-  const [imgSrc, setImgSrc] = useState(v.photos?.[0] || FALLBACK_IMG);
+function VehicleCard({ v, isSelected, onToggleCompare }) {
+  const photo = v.photos?.[0];
+  const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
+  const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
-    <Link
-      to={`/vehicules/${v.id}`}
-      className="group bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-[#dc2626]/40 hover:shadow-xl hover:shadow-[#dc2626]/5 transition-all duration-300"
-    >
-      <div className="relative h-52 bg-white/[0.02] overflow-hidden">
-        {!imgLoaded && (
-          <div className="absolute inset-0 bg-white/[0.03] animate-pulse" />
+    <div className="group bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-[#dc2626]/40 hover:shadow-xl hover:shadow-[#dc2626]/5 transition-all duration-300 relative">
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          onToggleCompare(v);
+        }}
+        className={`absolute top-3 right-3 z-10 w-6 h-6 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all ${
+          isSelected
+            ? 'bg-[#dc2626] border-[#dc2626]'
+            : 'bg-black/50 border-white/30 hover:border-white/60'
+        }`}
+      >
+        {isSelected && (
+          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
         )}
-        <img
-          src={imgSrc}
-          alt={`${v.marque} ${v.modele}`}
-          loading="lazy"
-          onError={() => setImgSrc(FALLBACK_IMG)}
-          onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        {v.populaire && (
-          <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[11px] px-2.5 py-1 rounded-full font-semibold tracking-wide uppercase">
-            Populaire
-          </span>
-        )}
-        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
+      </div>
+
+      <Link to={`/vehicules/${v.id}`} className="block">
+        <div className="relative h-52 bg-white/[0.02] overflow-hidden">
+          {!imgLoaded && (
+            <div className="absolute inset-0 bg-white/[0.03] animate-pulse" />
+          )}
+          <img
+            src={imgSrc}
+            alt={`${v.marque} ${v.modele}`}
+            loading="lazy"
+            onError={() => setImgSrc(FALLBACK_IMG)}
+            onLoad={() => setImgLoaded(true)}
+            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {v.populaire && (
+            <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[11px] px-2.5 py-1 rounded-full font-semibold tracking-wide uppercase">
+              Populaire
+            </span>
+          )}
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-white font-semibold text-base group-hover:text-[#dc2626] transition-colors">
-            {v.marque} {v.modele}
-          </h3>
-          <span className="text-[#dc2626] font-bold text-lg whitespace-nowrap">
-            {v.prix_jour}
-            <span className="text-xs text-white/40 font-normal ml-0.5">DH</span>
-          </span>
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3 className="text-white font-semibold text-base group-hover:text-[#dc2626] transition-colors">
+              {v.marque} {v.modele}
+            </h3>
+            <span className="text-[#dc2626] font-bold text-lg whitespace-nowrap">
+              {v.prix_jour}
+              <span className="text-xs text-white/40 font-normal ml-0.5">DH</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-[13px] text-white/40">
+            <span className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {v.annee}
+            </span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span>{v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span>{v.carburant}</span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span>{v.places} places</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-[13px] text-white/40">
-          <span className="flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {v.annee}
-          </span>
-          <span className="w-1 h-1 rounded-full bg-white/20" />
-          <span>{v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
-          <span className="w-1 h-1 rounded-full bg-white/20" />
-          <span>{v.carburant}</span>
-          <span className="w-1 h-1 rounded-full bg-white/20" />
-          <span>{v.places} places</span>
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
@@ -109,6 +129,7 @@ function EmptyState({ onReset }) {
 
 export default function Vehicules() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [vehicules, setVehicules] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -119,13 +140,37 @@ export default function Vehicules() {
     transmission: searchParams.get('transmission') || '',
     carburant: searchParams.get('carburant') || '',
     prix_max: searchParams.get('prix_max') || '',
+    agence_id: searchParams.get('agence_id') || '',
   });
   const [tri, setTri] = useState('popularite');
+  const [compareList, setCompareList] = useState([]);
+  const [agences, setAgences] = useState([]);
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
+  const toggleCompare = (vehicule) => {
+    setCompareList(prev => {
+      const exists = prev.find(v => v.id === vehicule.id);
+      if (exists) {
+        return prev.filter(v => v.id !== vehicule.id);
+      }
+      if (prev.length >= 3) return prev;
+      return [...prev, vehicule];
+    });
+  };
+
+  const removeFromCompare = (id) => {
+    setCompareList(prev => prev.filter(v => v.id !== id));
+  };
+
+  const goToCompare = () => {
+    const ids = compareList.map(v => v.id).join(',');
+    navigate(`/vehicules?compare=${ids}`);
+  };
+
   useEffect(() => {
     fetchVehicules();
+    fetchAgences();
   }, [filters, tri]);
 
   const fetchVehicules = async () => {
@@ -136,7 +181,7 @@ export default function Vehicules() {
         if (v) params[k] = v;
       });
       const { data } = await api.get('/vehicules', { params });
-      setVehicules(data.vehicules);
+      setVehicules(data.data || data.vehicules || []);
       setTotal(data.total);
     } catch (err) {
       console.error(err);
@@ -145,8 +190,17 @@ export default function Vehicules() {
     }
   };
 
+  const fetchAgences = async () => {
+    try {
+      const { data } = await api.get('/agences');
+      setAgences(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const resetFilters = useCallback(() => {
-    setFilters({ categorie: '', marque: '', transmission: '', carburant: '', prix_max: '' });
+    setFilters({ categorie: '', marque: '', transmission: '', carburant: '', prix_max: '', agence_id: '' });
     setTri('popularite');
     setFiltersOpen(false);
   }, []);
@@ -157,6 +211,23 @@ export default function Vehicules() {
 
   const FiltersContent = () => (
     <div className="space-y-6">
+      <div>
+        <label htmlFor="f-agence" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-2 block">
+          Agence
+        </label>
+        <select
+          id="f-agence"
+          value={filters.agence_id}
+          onChange={(e) => updateFilter('agence_id', e.target.value)}
+          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+        >
+          <option value="">Toutes les agences</option>
+          {agences.map((agence) => (
+            <option key={agence.id} value={agence.id}>{agence.nom}</option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <label htmlFor="f-categorie" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-2 block">
           Catégorie
@@ -287,7 +358,7 @@ export default function Vehicules() {
           max="1500"
           step="50"
           value={filters.prix_max || 1500}
-          onChange={(e) => updateFilter('prix_max', e.target.value == 1500 ? '' : e.target.value)}
+          onChange={(e) => updateFilter('prix_max', e.target.value === '1500' ? '' : e.target.value)}
           className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#dc2626]"
         />
         <div className="flex justify-between text-[11px] text-white/30 mt-1">
@@ -436,13 +507,57 @@ export default function Vehicules() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {vehicules.map((v) => (
-                  <VehicleCard key={v.id} v={v} />
+                  <VehicleCard
+                    key={v.id}
+                    v={v}
+                    isSelected={compareList.some(c => c.id === v.id)}
+                    onToggleCompare={toggleCompare}
+                  />
                 ))}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Floating Compare Bar */}
+      {compareList.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#111] border-t border-white/[0.1] shadow-2xl shadow-black/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 overflow-x-auto">
+                <GitCompareArrows size={18} className="text-[#dc2626] shrink-0" />
+                <span className="text-white/60 text-sm shrink-0">
+                  {compareList.length}/3 selected
+                </span>
+                {compareList.map(v => (
+                  <div key={v.id} className="flex items-center gap-2 bg-white/[0.06] px-3 py-1.5 rounded-full shrink-0">
+                    <span className="text-white text-sm">{v.marque} {v.modele}</span>
+                    <button
+                      onClick={() => removeFromCompare(v.id)}
+                      className="text-white/40 hover:text-red-400 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={goToCompare}
+                disabled={compareList.length < 2}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shrink-0 ${
+                  compareList.length >= 2
+                    ? 'bg-[#dc2626] hover:bg-[#b91c1c] text-white'
+                    : 'bg-white/[0.06] text-white/30 cursor-not-allowed'
+                }`}
+              >
+                Comparer ({compareList.length})
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

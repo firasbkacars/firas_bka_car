@@ -1,3 +1,5 @@
+import { Check } from 'lucide-react';
+
 export default function APropos() {
   const engagements = [
     'Véhicules récents et bien entretenus',
@@ -40,7 +42,7 @@ export default function APropos() {
           <div className="space-y-3">
             {engagements.map((e, i) => (
               <div key={i} className="flex items-center gap-2 text-gray-300 text-sm">
-                <span className="text-[#dc2626]">✓</span>
+                <Check size={16} className="text-[#dc2626] shrink-0" />
                 {e}
               </div>
             ))}

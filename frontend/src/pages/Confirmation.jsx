@@ -1,4 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
+import { CheckCircle2, Phone, MessageCircle } from 'lucide-react';
 
 export default function Confirmation() {
   const { state } = useLocation();
@@ -7,7 +8,7 @@ export default function Confirmation() {
 
   if (!reservation) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
         <p className="text-gray-400 mb-4">Aucune réservation trouvée.</p>
         <Link to="/" className="text-[#dc2626] hover:underline">Retour à l'accueil</Link>
       </div>
@@ -15,13 +16,11 @@ export default function Confirmation() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
+    <div className="max-w-3xl mx-auto px-4 pt-24 pb-16">
       {/* Success Icon */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+          <CheckCircle2 size={40} className="text-green-500" />
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">Réservation confirmée !</h1>
         <p className="text-gray-400">Merci pour votre confiance. Votre réservation a été effectuée avec succès.</p>
@@ -91,10 +90,10 @@ export default function Confirmation() {
         <p className="text-gray-400 text-sm mb-4">Notre équipe est à votre disposition pour toute question.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a href="tel:+212681181813" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
-            📞 06 81 18 18 13
+            <Phone size={14} /> 06 81 18 18 13
           </a>
           <a href="tel:+212667511410" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
-            📞 06 67 51 14 10
+            <Phone size={14} /> 06 67 51 14 10
           </a>
           <a
             href="https://wa.me/212681181813"
@@ -102,7 +101,7 @@ export default function Confirmation() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
           >
-            💬 Discuter sur WhatsApp
+            <MessageCircle size={14} /> Discuter sur WhatsApp
           </a>
         </div>
       </div>

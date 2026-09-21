@@ -1,6 +1,8 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Hyperspeed from '../components/Hyperspeed';
+const Hyperspeed = lazy(() => import('../components/Hyperspeed'));
+import StrokeText from '../components/StrokeText';
+import GradientText from '../components/GradientText';
 import api from '../services/api';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
@@ -18,7 +20,9 @@ const BRANDS = [
 ];
 
 function HomeVehicleCard({ v }) {
-  const [imgSrc, setImgSrc] = useState(v.photos?.[0] || FALLBACK_IMG);
+  const photo = v.photos?.[0];
+  const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
+  const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
@@ -26,7 +30,6 @@ function HomeVehicleCard({ v }) {
       to={`/vehicules/${v.id}`}
       className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/[0.06] hover:border-[#dc2626]/50 transition-all duration-300"
     >
-      {/* Image */}
       <div className="relative h-64 overflow-hidden">
         {!imgLoaded && <div className="absolute inset-0 bg-white/[0.03] animate-pulse" />}
         <img
@@ -37,28 +40,23 @@ function HomeVehicleCard({ v }) {
           onLoad={() => setImgLoaded(true)}
           className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
         />
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-        {/* Badge populaire */}
-        {v.populaire ? (
+        {v.populaire && (
           <span className="absolute top-4 left-4 bg-[#dc2626] text-white text-xs px-3 py-1.5 rounded-full font-bold tracking-wide uppercase">
             Populaire
           </span>
-        ) : null}
-        {/* Price badge */}
+        )}
         <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-xl">
           <span className="text-[#dc2626] font-bold text-lg">{v.prix_jour}</span>
           <span className="text-white/50 text-sm ml-1">DH/jour</span>
         </div>
       </div>
-
-      {/* Content */}
       <div className="p-5">
         <h3 className="text-white font-bold text-lg group-hover:text-[#dc2626] transition-colors">
           {v.marque} {v.modele}
         </h3>
         <p className="text-white/40 text-sm mt-1.5">
-          {v.annee} • {v.transmission === 'automatique' ? 'Automatique' : 'Manuelle'} • {v.carburant} • {v.places} places
+          {v.annee} · {v.transmission === 'automatique' ? 'Automatique' : 'Manuelle'} · {v.carburant} · {v.places} places
         </p>
         <div className="mt-4 w-full py-2.5 rounded-xl bg-white/[0.06] text-white/60 text-sm font-medium text-center group-hover:bg-[#dc2626] group-hover:text-white transition-all duration-300">
           Voir le véhicule
@@ -157,66 +155,94 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative h-[700px] bg-black overflow-hidden pt-20">
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+        <img
+          src="/images/hero-bg.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
         <div className="absolute inset-0">
-          <Hyperspeed effectOptions={hyperspeedOptions} />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
+          <Suspense fallback={null}>
+            <Hyperspeed effectOptions={hyperspeedOptions} />
+          </Suspense>
         </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
 
-        <div className="relative max-w-7xl mx-auto px-4 h-full flex items-center">
-          <div className="flex-1 max-w-2xl">
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-4">
-              Louez la voiture
-              <br />
-              qui <span className="text-[#dc2626]">vous correspond</span>
-            </h1>
-            <p className="text-gray-300 text-lg mb-8">
-              Des véhicules premium, un service fiable et des prix transparents.
-            </p>
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+          <div>
+            <StrokeText
+              text="Louez la voiture"
+              strokeColor="#dc2626"
+              fillColor="#ffffff"
+              strokeWidth={1.2}
+              drawDuration={1.6}
+              fillDelay={0.3}
+              stagger={0.04}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="fade"
+              fontSize={72}
+              fontWeight={800}
+              letterSpacing={-2}
+            />
+            <StrokeText
+              text="qui vous correspond"
+              strokeColor="#a16a6a"
+              fillColor="#ff0000"
+              strokeWidth={0.5}
+              drawDuration={1}
+              fillDelay={0.2}
+              stagger={0.055}
+              ease="expo.out"
+              trigger="mount"
+              fillMode="fade"
+              fontSize={52}
+              fontWeight={800}
+              letterSpacing={0.5}
+              reverse
+              className="-mt-4"
+            />
+            <div className="text-lg mt-6">
+              <GradientText
+                colors={["#ff2727", "#FF9FFC", "#b1b1b1"]}
+                animationSpeed={3}
+                showBorder={false}
+              >
+                Des véhicules premium, un service fiable et des prix transparents.
+              </GradientText>
+            </div>
           </div>
 
-          {/* Search Form - Right Side */}
-          <div className="hidden lg:block w-[420px] shrink-0 ml-8">
-            <form onSubmit={handleSearch} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl">
-              <h3 className="text-white font-semibold mb-5 text-lg">Réservez votre voiture</h3>
-
-              <div className="space-y-3 mb-5">
+          <div className="bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+            <h2 className="text-white font-bold text-xl mb-6">Réservez votre voiture</h2>
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div>
+                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de prise en charge</label>
+                <select
+                  value={search.lieuPrise}
+                  onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
+                >
+                  <option value="Tanger">Tanger</option>
+                  <option value="Casablanca">Casablanca</option>
+                  <option value="Rabat">Rabat</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de prise en charge</label>
-                  <select
-                    value={search.lieuPrise}
-                    onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                  >
-                    <option value="Tanger">Tanger</option>
-                    <option value="Casablanca">Casablanca</option>
-                    <option value="Rabat">Rabat</option>
-                  </select>
+                  <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date</label>
+                  <input type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date</label>
-                    <input
-                      type="date"
-                      value={search.datePrise}
-                      onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure</label>
-                    <input
-                      type="time"
-                      value={search.heurePrise}
-                      onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                    />
-                  </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure</label>
+                  <input type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
                 </div>
               </div>
 
-              <div className="border-t border-white/10 pt-3 mb-4">
+              <div className="border-t border-white/10 pt-3">
                 <p className="text-gray-500 text-xs uppercase tracking-wider mb-3">Retour</p>
                 <div className="space-y-3">
                   <div>
@@ -233,22 +259,14 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date</label>
-                      <input
-                        type="date"
-                        value={search.dateRetour}
-                        onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                      />
+                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date retour</label>
+                      <input type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
                     </div>
                     <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure</label>
-                      <input
-                        type="time"
-                        value={search.heureRetour}
-                        onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                      />
+                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure retour</label>
+                      <input type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
                     </div>
                   </div>
                 </div>
@@ -256,69 +274,13 @@ export default function Home() {
 
               <button
                 type="submit"
-                className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition text-sm tracking-wide"
+                className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition text-sm tracking-wide mt-2"
               >
                 Réserver maintenant
               </button>
             </form>
           </div>
         </div>
-      </section>
-
-      {/* Mobile Search Form */}
-      <section className="lg:hidden relative -mt-16 z-10 max-w-xl mx-auto px-4">
-        <form onSubmit={handleSearch} className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl">
-          <h3 className="text-white font-semibold mb-4">Réservez votre voiture</h3>
-          <div className="space-y-3 mb-4">
-            <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de prise en charge</label>
-              <select
-                value={search.lieuPrise}
-                onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"
-              >
-                <option value="Tanger">Tanger</option>
-                <option value="Casablanca">Casablanca</option>
-                <option value="Rabat">Rabat</option>
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date</label>
-                <input type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none" />
-              </div>
-              <div>
-                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure</label>
-                <input type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none" />
-              </div>
-            </div>
-            <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de retour</label>
-              <select
-                value={search.lieuRetour}
-                onChange={(e) => setSearch({ ...search, lieuRetour: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"
-              >
-                <option value="Tanger">Tanger</option>
-                <option value="Casablanca">Casablanca</option>
-                <option value="Rabat">Rabat</option>
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date retour</label>
-                <input type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none" />
-              </div>
-              <div>
-                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure retour</label>
-                <input type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none" />
-              </div>
-            </div>
-          </div>
-          <button type="submit" className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition text-sm">
-            Réserver maintenant
-          </button>
-        </form>
       </section>
 
       {/* Brand Marquee */}

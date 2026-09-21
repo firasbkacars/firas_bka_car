@@ -1,21 +1,23 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=800&q=80';
 
 const IC = {
-  calendar: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>,
-  gauge: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>,
-  cog: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-  droplet: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /></svg>,
-  bolt: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>,
-  users: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>,
-  check: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>,
-  clock: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-  whatsapp: (cls) => <svg className={cls} viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>,
-  chevronL: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>,
-  chevronR: (cls) => <svg className={cls} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>,
+  calendar: (cls) => <Calendar className={cls} />,
+  gauge: (cls) => <Gauge className={cls} />,
+  cog: (cls) => <Settings className={cls} />,
+  droplet: (cls) => <Droplet className={cls} />,
+  bolt: (cls) => <Zap className={cls} />,
+  users: (cls) => <Users className={cls} />,
+  check: (cls) => <Check className={cls} />,
+  clock: (cls) => <Clock className={cls} />,
+  whatsapp: (cls) => <MessageCircle className={cls} />,
+  chevronL: (cls) => <ChevronLeft className={cls} />,
+  chevronR: (cls) => <ChevronRight className={cls} />,
 };
 
 function Thumbnail({ src, alt, active, onClick }) {
@@ -202,14 +204,22 @@ function MiniCalendar({ bookedDates = [] }) {
 export default function VehiculeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { client } = useAuth();
   const [vehicule, setVehicule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
   const [dates, setDates] = useState({ dateDebut: '', heureDebut: '10:00', dateFin: '', heureFin: '10:00' });
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [avisData, setAvisData] = useState({ avis: [], moyenne: 0, nombre: 0 });
+  const [avisLoading, setAvisLoading] = useState(true);
+  const [reviewForm, setReviewForm] = useState({ note: 5, commentaire: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
 
   useEffect(() => {
     fetchVehicule();
+    fetchAvis();
     setActiveImg(0);
     setImgLoaded(false);
   }, [id]);
@@ -225,7 +235,46 @@ export default function VehiculeDetail() {
     }
   };
 
-  const images = vehicule?.photos?.length ? vehicule.photos : [FALLBACK_IMG];
+  const fetchAvis = async () => {
+    try {
+      setAvisLoading(true);
+      const { data } = await api.get(`/vehicules/${id}/avis`);
+      setAvisData(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAvisLoading(false);
+    }
+  };
+
+  const submitReview = async () => {
+    if (!client) {
+      navigate('/client/login');
+      return;
+    }
+    setReviewError('');
+    setReviewSuccess('');
+    setSubmittingReview(true);
+    try {
+      await api.post('/avis', {
+        client_id: client.id,
+        vehicule_id: parseInt(id),
+        note: reviewForm.note,
+        commentaire: reviewForm.commentaire || null,
+      });
+      setReviewSuccess('Avis envoyé avec succès');
+      setReviewForm({ note: 5, commentaire: '' });
+      fetchAvis();
+    } catch (err) {
+      setReviewError(err.response?.data?.message || 'Erreur lors de l\'envoi de l\'avis');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const images = vehicule?.photos?.length
+    ? vehicule.photos.map(p => p && !p.startsWith('http') && !p.startsWith('/') ? `/storage/${p}` : p)
+    : [FALLBACK_IMG];
   const hasDates = dates.dateDebut && dates.dateFin;
 
   const { duree, total } = useMemo(() => {
@@ -237,7 +286,7 @@ export default function VehiculeDetail() {
   }, [dates.dateDebut, dates.dateFin, dates.heureDebut, dates.heureFin, vehicule]);
 
   const handleReserver = () => {
-    navigate(`/reservation/${vehicule.id}?date_debut=${dates.dateDebut} ${dates.heureDebut}&date_fin=${dates.dateFin} ${dates.heureFin}`);
+    navigate(`/reservation/${vehicule.id}?date_debut=${encodeURIComponent(dates.dateDebut + ' ' + dates.heureDebut)}&date_fin=${encodeURIComponent(dates.dateFin + ' ' + dates.heureFin)}`);
   };
 
   if (loading) {
@@ -264,9 +313,7 @@ export default function VehiculeDetail() {
     return (
       <div className="min-h-screen pt-24 pb-16 flex flex-col items-center justify-center text-center px-4">
         <div className="w-20 h-20 rounded-full bg-white/[0.04] flex items-center justify-center mb-6">
-          <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
+          <AlertTriangle size={40} className="text-white/20" />
         </div>
         <h2 className="text-white text-xl font-semibold mb-2">Véhicule non trouvé</h2>
         <p className="text-white/40 text-sm mb-6">Ce véhicule n'existe pas ou a été supprimé.</p>
@@ -355,6 +402,11 @@ export default function VehiculeDetail() {
                 <span className="text-[#dc2626] font-bold text-3xl">{vehicule.prix_jour}</span>
                 <span className="text-white/30 text-sm font-normal">DH / jour</span>
               </div>
+              {vehicule.montant_caution > 0 && (
+                <p className="text-yellow-400/80 text-xs mt-1">
+                  Caution remboursable : {vehicule.montant_caution} DH
+                </p>
+              )}
               <p className="text-white/40 text-sm mt-3 max-w-xl leading-relaxed">
                 Berline élégante, confortable et performante. Idéale pour vos déplacements professionnels ou personnels à Tanger.
               </p>
@@ -410,6 +462,134 @@ export default function VehiculeDetail() {
                 Disponibilité
               </h3>
               <MiniCalendar bookedDates={vehicule.reservations || []} />
+            </div>
+
+            {/* Avis clients */}
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-5 mb-6">
+              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-[#dc2626]" />
+                Avis clients
+              </h3>
+
+              {avisLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="animate-pulse bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-white/[0.06]" />
+                        <div className="h-4 bg-white/[0.06] rounded w-24" />
+                      </div>
+                      <div className="h-3 bg-white/[0.04] rounded w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {avisData.nombre > 0 && (
+                    <div className="flex items-center gap-4 mb-5 pb-5 border-b border-white/[0.06]">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white">{avisData.moyenne}</div>
+                        <div className="flex items-center gap-0.5 mt-1">
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <Star
+                              key={s}
+                              size={14}
+                              className={s <= Math.round(avisData.moyenne) ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'}
+                            />
+                          ))}
+                        </div>
+                        <div className="text-white/40 text-xs mt-1">{avisData.nombre} avis</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {avisData.avis.length === 0 ? (
+                    <p className="text-white/30 text-sm text-center py-4">Aucun avis pour ce véhicule.</p>
+                  ) : (
+                    <div className="space-y-3 mb-5">
+                      {avisData.avis.slice(0, 5).map((avi) => (
+                        <div key={avi.id} className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-[#dc2626]/20 flex items-center justify-center text-[#dc2626] text-xs font-bold">
+                              {avi.client_initiale}
+                            </div>
+                            <div>
+                              <div className="text-white text-sm font-medium">{avi.client_prenom}</div>
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map(s => (
+                                  <Star
+                                    key={s}
+                                    size={10}
+                                    className={s <= avi.note ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <span className="ml-auto text-white/30 text-xs">
+                              {new Date(avi.created_at).toLocaleDateString('fr-FR')}
+                            </span>
+                          </div>
+                          {avi.commentaire && (
+                            <p className="text-white/60 text-sm leading-relaxed">{avi.commentaire}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Formulaire d'avis */}
+                  <div className="border-t border-white/[0.06] pt-5">
+                    <h4 className="text-white/70 text-sm font-medium mb-3">Laisser un avis</h4>
+                    {!client ? (
+                      <p className="text-white/30 text-sm">
+                        <Link to="/client/login" className="text-[#dc2626] hover:underline">Connectez-vous</Link> pour laisser un avis.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-white/50 text-xs mb-2 block">Note</label>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map(s => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setReviewForm(p => ({ ...p, note: s }))}
+                                className="p-0.5 transition-colors"
+                              >
+                                <Star
+                                  size={20}
+                                  className={`transition-colors ${s <= reviewForm.note ? 'text-yellow-400 fill-yellow-400' : 'text-white/20 hover:text-white/40'}`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-white/50 text-xs mb-2 block">Commentaire (optionnel)</label>
+                          <textarea
+                            value={reviewForm.commentaire}
+                            onChange={(e) => setReviewForm(p => ({ ...p, commentaire: e.target.value }))}
+                            rows={3}
+                            maxLength={1000}
+                            placeholder="Partagez votre expérience..."
+                            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all resize-none placeholder:text-white/20"
+                          />
+                        </div>
+                        {reviewError && <p className="text-red-400 text-xs">{reviewError}</p>}
+                        {reviewSuccess && <p className="text-emerald-400 text-xs">{reviewSuccess}</p>}
+                        <button
+                          onClick={submitReview}
+                          disabled={submittingReview}
+                          className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          <Send size={14} />
+                          {submittingReview ? 'Envoi...' : 'Envoyer'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

@@ -12,10 +12,14 @@ primary_region = 'cdg'
   APP_ENV = 'production'
   APP_DEBUG = 'false'
   APP_URL = 'https://firas-bka-car.fly.dev'
-  DB_CONNECTION = 'sqlite'
+  APP_LOCALE = 'fr'
+  DB_CONNECTION = 'mysql'
+  DB_PORT = '3306'
+  DB_DATABASE = 'firas_bka_car'
   SESSION_DRIVER = 'database'
   CACHE_STORE = 'database'
   QUEUE_CONNECTION = 'database'
+  MAIL_MAILER = 'log'
 
 [http_service]
   internal_port = 8080
