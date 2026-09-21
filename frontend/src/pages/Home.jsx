@@ -1,8 +1,6 @@
-import { useMemo, useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-const Hyperspeed = lazy(() => import('../components/Hyperspeed'));
-import StrokeText from '../components/StrokeText';
-import GradientText from '../components/GradientText';
+import { Car, Shield, Headphones, MapPin, Calendar, Clock, ChevronRight, Star, Fuel, Users, Settings2 } from 'lucide-react';
 import api from '../services/api';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
@@ -19,47 +17,50 @@ const BRANDS = [
   { name: 'Dacia', logo: '/images/brands/dacia.svg' },
 ];
 
-function HomeVehicleCard({ v }) {
+function VehicleCard({ v }) {
   const photo = v.photos?.[0];
   const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
   const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
-  const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
     <Link
       to={`/vehicules/${v.id}`}
-      className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/[0.06] hover:border-[#dc2626]/50 transition-all duration-300"
+      className="group bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-[#dc2626]/40 transition-all duration-300 hover:-translate-y-1"
     >
-      <div className="relative h-64 overflow-hidden">
-        {!imgLoaded && <div className="absolute inset-0 bg-white/[0.03] animate-pulse" />}
+      <div className="relative h-56 overflow-hidden">
         <img
           src={imgSrc}
           alt={`${v.marque} ${v.modele}`}
           loading="lazy"
           onError={() => setImgSrc(FALLBACK_IMG)}
-          onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         {v.populaire && (
-          <span className="absolute top-4 left-4 bg-[#dc2626] text-white text-xs px-3 py-1.5 rounded-full font-bold tracking-wide uppercase">
-            Populaire
+          <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
+            <Star size={10} fill="currentColor" /> Populaire
           </span>
         )}
-        <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-xl">
-          <span className="text-[#dc2626] font-bold text-lg">{v.prix_jour}</span>
-          <span className="text-white/50 text-sm ml-1">DH/jour</span>
+        <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+          <span className="text-[#dc2626] font-bold text-base">{v.prix_jour}</span>
+          <span className="text-white/40 text-xs ml-0.5">DH/j</span>
         </div>
       </div>
-      <div className="p-5">
-        <h3 className="text-white font-bold text-lg group-hover:text-[#dc2626] transition-colors">
+      <div className="p-4">
+        <h3 className="text-white font-bold text-base group-hover:text-[#dc2626] transition-colors">
           {v.marque} {v.modele}
         </h3>
-        <p className="text-white/40 text-sm mt-1.5">
-          {v.annee} · {v.transmission === 'automatique' ? 'Automatique' : 'Manuelle'} · {v.carburant} · {v.places} places
-        </p>
-        <div className="mt-4 w-full py-2.5 rounded-xl bg-white/[0.06] text-white/60 text-sm font-medium text-center group-hover:bg-[#dc2626] group-hover:text-white transition-all duration-300">
-          Voir le véhicule
+        <div className="flex items-center gap-3 mt-2 text-white/30 text-xs">
+          <span className="flex items-center gap-1"><Calendar size={12} /> {v.annee}</span>
+          <span className="flex items-center gap-1"><Settings2 size={12} /> {v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
+          <span className="flex items-center gap-1"><Fuel size={12} /> {v.carburant}</span>
+          <span className="flex items-center gap-1"><Users size={12} /> {v.places}</span>
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-white/20 text-xs">Disponible</span>
+          <span className="text-[#dc2626] text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+            Details <ChevronRight size={12} />
+          </span>
         </div>
       </div>
     </Link>
@@ -87,42 +88,6 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  const hyperspeedOptions = useMemo(() => ({
-    distortion: 'turbulentDistortion',
-    length: 200,
-    roadWidth: 8,
-    islandWidth: 1.5,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 12,
-    lightPairsPerRoadWay: 16,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [200 * 0.03, 200 * 0.2],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.8, 0.8],
-    carFloorSeparation: [0, 5],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0xDC2626,
-      brokenLines: 0xDC2626,
-      leftCars: [0xDC2626, 0xB91C1C, 0xEF4444],
-      rightCars: [0xDC2626, 0xB91C1C, 0xEF4444],
-      sticks: 0xDC2626
-    }
-  }), []);
-
   const handleSearch = (e) => {
     e.preventDefault();
     const params = new URLSearchParams({
@@ -134,183 +99,136 @@ export default function Home() {
     navigate(`/vehicules?${params.toString()}`);
   };
 
-  const features = [
-    {
-      icon: <svg className="w-6 h-6 text-[#dc2626]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-      title: 'Meilleurs prix',
-      description: 'Tarifs compétitifs toute l\'année',
-    },
-    {
-      icon: <svg className="w-6 h-6 text-[#dc2626]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H18.75m-7.5-3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>,
-      title: 'Véhicules récents',
-      description: 'Confort, sécurité et performance',
-    },
-    {
-      icon: <svg className="w-6 h-6 text-[#dc2626]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" /></svg>,
-      title: 'Service client 7/7',
-      description: 'Nous sommes à votre écoute',
-    },
-  ];
-
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-end overflow-hidden">
         <img
           src="/images/hero-bg.jpg"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => { e.target.style.display = 'none'; }}
         />
-        <div className="absolute inset-0">
-          <Suspense fallback={null}>
-            <Hyperspeed effectOptions={hyperspeedOptions} />
-          </Suspense>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
-          <div>
-            <StrokeText
-              text="Louez la voiture"
-              strokeColor="#dc2626"
-              fillColor="#ffffff"
-              strokeWidth={1.2}
-              drawDuration={1.6}
-              fillDelay={0.3}
-              stagger={0.04}
-              ease="power2.out"
-              trigger="mount"
-              fillMode="fade"
-              fontSize={72}
-              fontWeight={800}
-              letterSpacing={-2}
-            />
-            <StrokeText
-              text="qui vous correspond"
-              strokeColor="#a16a6a"
-              fillColor="#ff0000"
-              strokeWidth={0.5}
-              drawDuration={1}
-              fillDelay={0.2}
-              stagger={0.055}
-              ease="expo.out"
-              trigger="mount"
-              fillMode="fade"
-              fontSize={52}
-              fontWeight={800}
-              letterSpacing={0.5}
-              reverse
-              className="-mt-4"
-            />
-            <div className="text-lg mt-6">
-              <GradientText
-                colors={["#ff2727", "#FF9FFC", "#b1b1b1"]}
-                animationSpeed={3}
-                showBorder={false}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pb-20 pt-32">
+          <div className="max-w-2xl">
+            <span className="inline-block bg-[#dc2626]/10 border border-[#dc2626]/30 text-[#dc2626] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-6">
+              Location de vehicules au Maroc
+            </span>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
+              Louez la
+              <br />
+              <span className="text-[#dc2626]">voiture</span>
+              <br />
+              qui vous correspond
+            </h1>
+            <p className="text-white/50 text-lg mt-6 max-w-md leading-relaxed">
+              Des vehicules premium, un service fiable et des prix transparents. Reservez en quelques clics.
+            </p>
+            <div className="flex items-center gap-4 mt-8">
+              <Link
+                to="/vehicules"
+                className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold px-8 py-3.5 rounded-xl transition text-sm"
               >
-                Des véhicules premium, un service fiable et des prix transparents.
-              </GradientText>
+                Voir les vehicules
+              </Link>
+              <a
+                href="#recherche"
+                className="bg-white/[0.06] hover:bg-white/[0.1] text-white/70 font-semibold px-8 py-3.5 rounded-xl transition text-sm border border-white/[0.06]"
+              >
+                Reserver maintenant
+              </a>
             </div>
-          </div>
-
-          <div className="bg-neutral-900/90 backdrop-blur-xl border border-neutral-800 rounded-2xl p-6 md:p-8 shadow-2xl">
-            <h2 className="text-white font-bold text-xl mb-6">Réservez votre voiture</h2>
-            <form onSubmit={handleSearch} className="space-y-4">
-              <div>
-                <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de prise en charge</label>
-                <select
-                  value={search.lieuPrise}
-                  onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                >
-                  <option value="Tanger">Tanger</option>
-                  <option value="Casablanca">Casablanca</option>
-                  <option value="Rabat">Rabat</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date</label>
-                  <input type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                </div>
-                <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure</label>
-                  <input type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                </div>
-              </div>
-
-              <div className="border-t border-white/10 pt-3">
-                <p className="text-gray-500 text-xs uppercase tracking-wider mb-3">Retour</p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Lieu de retour</label>
-                    <select
-                      value={search.lieuRetour}
-                      onChange={(e) => setSearch({ ...search, lieuRetour: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
-                    >
-                      <option value="Tanger">Tanger</option>
-                      <option value="Casablanca">Casablanca</option>
-                      <option value="Rabat">Rabat</option>
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Date retour</label>
-                      <input type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                    </div>
-                    <div>
-                      <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Heure retour</label>
-                      <input type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition text-sm tracking-wide mt-2"
-              >
-                Réserver maintenant
-              </button>
-            </form>
           </div>
         </div>
       </section>
 
-      {/* Brand Marquee */}
-      <section className="py-10 border-y border-white/[0.06] overflow-hidden bg-[#080808]">
-        <p className="text-center text-white/30 text-xs uppercase tracking-widest mb-6">Ils font partie de notre flotte</p>
-        <div className="flex animate-marquee gap-16 sm:gap-20 items-center whitespace-nowrap">
-          {[...BRANDS, ...BRANDS].map((brand, i) => (
-            <div key={i} className="flex items-center justify-center h-10 w-28 shrink-0">
-              <img
-                src={brand.logo}
-                alt={brand.name}
-                className="max-h-8 max-w-full object-contain grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition duration-300"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
+      {/* Search Bar - Overlapping */}
+      <section id="recherche" className="relative z-20 -mt-8 px-6 md:px-12">
+        <form onSubmit={handleSearch} className="max-w-7xl mx-auto bg-[#111] border border-white/[0.08] rounded-2xl p-6 md:p-8 shadow-2xl shadow-black/50">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <MapPin size={12} className="text-[#dc2626]" /> Lieu de prise
+              </label>
+              <select
+                value={search.lieuPrise}
+                onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition"
+              >
+                <option value="Tanger">Tanger</option>
+                <option value="Casablanca">Casablanca</option>
+                <option value="Rabat">Rabat</option>
+              </select>
             </div>
-          ))}
+            <div>
+              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Calendar size={12} className="text-[#dc2626]" /> Date & Heure
+              </label>
+              <div className="flex gap-2">
+                <input type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
+                  className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+                <input type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
+                  className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+              </div>
+            </div>
+            <div>
+              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <MapPin size={12} className="text-white/30" /> Retour
+              </label>
+              <div className="flex gap-2">
+                <input type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
+                  className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+                <input type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
+                  className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-3 rounded-lg transition text-sm tracking-wide h-[46px]"
+            >
+              Rechercher
+            </button>
+          </div>
+        </form>
+      </section>
+
+      {/* Brands */}
+      <section className="py-14 px-6 md:px-12 mt-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-white/20 text-[10px] uppercase tracking-[0.3em] font-medium mb-8">Nos marques partenaires</p>
+          <div className="flex flex-wrap justify-center gap-8 md:gap-14">
+            {BRANDS.map((brand, i) => (
+              <div key={i} className="flex items-center justify-center h-10 w-24 shrink-0">
+                <img
+                  src={brand.logo}
+                  alt={brand.name}
+                  className="max-h-7 max-w-full object-contain grayscale opacity-30 hover:opacity-80 hover:grayscale-0 transition duration-300"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Features - Horizontal Compact */}
-      <section className="py-12 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/[0.06] bg-white/[0.02] rounded-2xl border border-white/[0.06]">
-          {features.map((f) => (
-            <div key={f.title} className="flex items-center gap-4 p-6">
-              <div className="shrink-0 w-12 h-12 rounded-full bg-[#dc2626]/10 border border-[#dc2626]/30 flex items-center justify-center">
+      {/* Features */}
+      <section className="py-8 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { icon: <Car size={20} className="text-[#dc2626]" />, title: 'Meilleurs prix', desc: 'Tarifs competitifs toute l\'annee, sans frais caches.' },
+            { icon: <Shield size={20} className="text-[#dc2626]" />, title: 'Vehicules recents', desc: 'Confort, securite et performance garantis.' },
+            { icon: <Headphones size={20} className="text-[#dc2626]" />, title: 'Support 7j/7', desc: 'Une equipe disponible pour vous accompagner.' },
+          ].map((f, i) => (
+            <div key={i} className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-[#dc2626]/20 transition">
+              <div className="shrink-0 w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center">
                 {f.icon}
               </div>
               <div>
                 <h3 className="text-white font-semibold text-sm">{f.title}</h3>
-                <p className="text-white/40 text-xs mt-0.5">{f.description}</p>
+                <p className="text-white/30 text-xs mt-0.5">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -321,28 +239,53 @@ export default function Home() {
       {vehiculesPopulaires.length > 0 && (
         <section className="py-16 px-6 md:px-12">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white">Nos véhicules populaires</h2>
-                <p className="text-white/40 mt-2 text-base">Une sélection de nos voitures les plus demandées</p>
+                <span className="text-[#dc2626] text-xs font-bold uppercase tracking-wider">Flotte</span>
+                <h2 className="text-3xl sm:text-4xl font-black text-white mt-1">Vehicules populaires</h2>
               </div>
-              <Link to="/vehicules" className="text-[#dc2626] font-semibold text-sm hover:underline hidden sm:block">
-                Voir toute la flotte →
+              <Link
+                to="/vehicules"
+                className="hidden sm:flex items-center gap-1.5 text-[#dc2626] font-semibold text-sm hover:gap-2.5 transition-all"
+              >
+                Tout voir <ChevronRight size={16} />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {vehiculesPopulaires.slice(0, 4).map((v) => (
-                <HomeVehicleCard key={v.id} v={v} />
+                <VehicleCard key={v.id} v={v} />
               ))}
             </div>
 
-            <Link to="/vehicules" className="sm:hidden block text-center text-[#dc2626] font-semibold text-sm mt-8 hover:underline">
-              Voir toute la flotte →
+            <Link
+              to="/vehicules"
+              className="sm:hidden flex items-center justify-center gap-1.5 text-[#dc2626] font-semibold text-sm mt-8"
+            >
+              Tout voir <ChevronRight size={16} />
             </Link>
           </div>
         </section>
       )}
+
+      {/* CTA */}
+      <section className="px-6 md:px-12 pb-20">
+        <div className="max-w-7xl mx-auto bg-gradient-to-br from-[#dc2626] to-[#991b1b] rounded-2xl p-10 md:p-14 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover opacity-10 mix-blend-overlay" />
+          <div className="relative z-10">
+            <h2 className="text-white text-3xl md:text-4xl font-black">Pret a rouler ?</h2>
+            <p className="text-white/70 mt-3 max-w-md mx-auto">
+              Parcourez notre flotte et trouvez le vehicule ideal pour votre prochain trajet.
+            </p>
+            <Link
+              to="/vehicules"
+              className="inline-block bg-white text-[#dc2626] font-bold px-10 py-3.5 rounded-xl mt-8 hover:bg-gray-100 transition text-sm"
+            >
+              Explorer la flotte
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
