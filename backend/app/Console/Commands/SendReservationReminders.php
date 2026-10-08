@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class SendReservationReminders extends Command
 {
     protected $signature = 'reservations:reminders';
+
     protected $description = 'Send reservation reminders (24h before pickup and day of return)';
 
     public function handle(): int

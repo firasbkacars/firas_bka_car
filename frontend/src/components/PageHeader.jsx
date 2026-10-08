@@ -6,7 +6,7 @@ export default function PageHeader({ title, breadcrumbs = [] }) {
     <div className="pt-24 pb-8 px-6 md:px-12 border-b border-white/[0.06]">
       <div className="max-w-7xl mx-auto">
         {breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1.5 text-xs text-white/40 mb-3">
+          <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-xs text-white/40 mb-3">
             <Link to="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Home size={12} />
               Accueil

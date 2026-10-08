@@ -18,8 +18,31 @@ class VehiculeController extends Controller
         }
 
         $query->filtres($request->only([
-            'categorie', 'marque', 'transmission', 'carburant', 'prix_min', 'prix_max', 'agence_id'
+            'categorie', 'marque', 'transmission', 'carburant', 'prix_min', 'prix_max', 'agence_id',
         ]));
+
+        // Recherche par lieu (formulaire d'accueil) : filtre via l'agence.
+        if ($request->filled('ville')) {
+            $query->whereHas('agence', function ($q) use ($request) {
+                $q->where('ville', $request->get('ville'))->where('active', true);
+            });
+        }
+
+        // Lien "Vehicules populaires" du footer.
+        if ($request->get('populaire')) {
+            $query->where('populaire', true);
+        }
+
+        // Periode demandee : exclut les vehicules deja reserves sur ce creneau.
+        $dateDebut = $request->get('date_debut');
+        $dateFin = $request->get('date_fin');
+        if ($dateDebut && $dateFin) {
+            $query->whereDoesntHave('reservations', function ($q) use ($dateDebut, $dateFin) {
+                $q->where('statut', '!=', 'annulee')
+                    ->where('date_debut', '<', $dateFin)
+                    ->where('date_fin', '>', $dateDebut);
+            });
+        }
 
         $tri = $request->get('tri', 'popularite');
         switch ($tri) {
@@ -36,14 +59,17 @@ class VehiculeController extends Controller
                 $query->orderBy('populaire', 'desc')->orderBy('created_at', 'desc');
         }
 
-        $vehicules = $query->paginate($request->get('per_page', 20));
+        $vehicules = $query->paginate(min(max((int) $request->get('per_page', 20), 1), 100));
 
         return response()->json($vehicules);
     }
 
     public function show($id)
     {
-        $vehicule = Vehicule::findOrFail($id);
+        $vehicule = Vehicule::with(['reservations' => function ($q) {
+            $q->where('statut', '!=', 'annulee')
+                ->select('id', 'vehicule_id', 'date_debut', 'date_fin', 'statut');
+        }])->findOrFail($id);
 
         return response()->json($vehicule);
     }
@@ -67,7 +93,8 @@ class VehiculeController extends Controller
                         });
                 });
             })
-            ->pluck('date_debut', 'date_fin');
+            // Map: date_debut => date_fin (periode reservee)
+            ->pluck('date_fin', 'date_debut');
 
         return response()->json([
             'vehicule_id' => $id,
@@ -132,7 +159,7 @@ class VehiculeController extends Controller
     {
         $vehicule = Vehicule::findOrFail($id);
 
-        if (!empty($vehicule->photos)) {
+        if (! empty($vehicule->photos)) {
             foreach ($vehicule->photos as $photo) {
                 if (Storage::disk('public')->exists($photo)) {
                     Storage::disk('public')->delete($photo);

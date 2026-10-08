@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Wrench, Plus, X, Loader2, Calendar, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { Wrench, Plus, X, Loader2, Calendar, AlertTriangle } from 'lucide-react';
 
 const TYPE_OPTIONS = [
   'Vidange',

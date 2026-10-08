@@ -4,16 +4,16 @@
 
 ### Corrections critiques a implementer en premier
 
-| ID | Priorite | Description | Fichiers concerns |
-|----|----------|-------------|-------------------|
-| S1 | CRITIQUE | Supprimer `.env` du git, rotater APP_KEY, ajouter a `.gitignore` | `backend/.env`, `.gitignore` |
-| S2 | CRITIQUE | Ajouter middleware admin sur toutes les routes admin | `backend/routes/api.php`, nouveau `AdminMiddleware` |
-| S3 | CRITIQUE | Corriger race condition reservation (double booking) | `ReservationController@store` — `DB::transaction()` + `lockForUpdate()` |
-| S4 | CRITIQUE | Securiser endpoint `validerPermis` (admin uniquement) | `ClientAuthController`, routes |
-| S5 | CRITIQUE | Securiser `GET /reservations/{numero}` — ajouter auth | `routes/api.php` |
-| S6 | CRITIQUE | Ajouter signature webhook WhatsApp | `WhatsAppController` |
-| S7 | CRITIQUE | Creer vues PDF manquantes ou desactiver | `resources/views/pdf/` |
-| S8 | CRITIQUE | Corriger `downloadContrat` — verifier role utilisateur | `FactureController` |
+| ID | Priorite | Description | Fichiers concerns | Statut |
+|----|----------|-------------|-------------------|--------|
+| S1 | CRITIQUE | Supprimer `.env` du git, rotater APP_KEY, ajouter a `.gitignore` | `backend/.env`, `.gitignore` | FAIT (.env non tracke, gitignore OK; APP_KEY a rotater en prod) |
+| S2 | CRITIQUE | Ajouter middleware admin sur toutes les routes admin | `backend/routes/api.php`, `AdminMiddleware` | FAIT |
+| S3 | CRITIQUE | Corriger race condition reservation (double booking) | `ReservationController@store` | FAIT (DB::transaction + lockForUpdate + conflit dates) |
+| S4 | CRITIQUE | Securiser endpoint `validerPermis` (admin uniquement) | `ClientAuthController`, routes | FAIT (groupe admin) |
+| S5 | CRITIQUE | Securiser `GET /reservations/{numero}` — ajouter auth | `routes/api.php` | FAIT (auth + ownership) |
+| S6 | CRITIQUE | Ajouter signature webhook WhatsApp | `WhatsAppController` | FAIT (HMAC X-Hub-Signature-256) |
+| S7 | CRITIQUE | Creer vues PDF manquantes ou desactiver | `resources/views/pdf/` | FAIT (facture + contrat) |
+| S8 | CRITIQUE | Corriger `downloadContrat` — verifier role utilisateur | `FactureController` | FAIT (admin ou proprietaire) |
 
 ---
 
@@ -23,22 +23,22 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| A1 | Middleware admin (verifier `instanceof User` vs `Client`) | A FAIRE |
-| A2 | Roles & permissions (admin, employe, client) | A FAIRE |
-| A3 | Verification email a l'inscription client | A FAIRE |
+| A1 | Middleware admin (verifier `instanceof User` vs `Client`) | FAIT |
+| A2 | Roles & permissions (admin, employe, client) | A FAIRE (admin vs client via User/Client) |
+| A3 | Verification email a l'inscription client | FAIT |
 | A4 | Token expiration Sanctum (ex: 24h client, 8h admin) | A FAIRE |
-| A5 | Journalisation des tentatives de connexion echouees | A FAIRE |
-| A6 | Blocage apres 5 tentatives echouees | A FAIRE |
+| A5 | Journalisation des tentatives de connexion echouees | FAIT |
+| A6 | Blocage apres 5 tentatives echouees | FAIT (5 essais / 15 min, admin + client) |
 
 ### Validation & Securite des donnees
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| D1 | Ajouter indexes SQL sur `reservations.statut`, `paiements.statut`, `paiements.date_paiement`, `reservations.code_promo` | A FAIRE |
-| D2 | Transaction atomique sur creation reservation | A FAIRE |
-| D3 | Sanitisation entrees utilisateur (WhatsApp, notes) | A FAIRE |
-| D4 | Headers securite (CSP, X-Frame-Options, HSTS) | A FAIRE |
-| D5 | Protection CSRF sur routes web | A FAIRE |
+| D1 | Ajouter indexes SQL sur `reservations.statut`, `paiements.statut`, `paiements.date_paiement`, `reservations.code_promo` | FAIT |
+| D2 | Transaction atomique sur creation reservation | FAIT |
+| D3 | Sanitisation entrees utilisateur (WhatsApp, notes) | PARTIEL (validation FormRequest) |
+| D4 | Headers securite (CSP, X-Frame-Options, HSTS) | FAIT (SecurityHeaders) |
+| D5 | Protection CSRF sur routes web | FAIT (middleware web Laravel) |
 
 ---
 
@@ -82,8 +82,8 @@
 
 | ID | Page | Description | Statut |
 |----|------|-------------|--------|
-| U1 | Confirmation | Recuperer reservation par numero si refresh (pas de state) | A FAIRE |
-| U2 | Contact | Implementer le vrai formulaire de contact (API + email) | A FAIRE |
+| U1 | Confirmation | Recuperer reservation par numero si refresh (pas de state) | FAIT (`?numero=`) |
+| U2 | Contact | Implementer le vrai formulaire de contact (API + email) | FAIT |
 | U3 | Home | Ajouter skeleton loading pour vehicules populaires | A FAIRE |
 | U4 | VehiculeDetail | Afficher disponibilite en temps reel | EXISTANT |
 | U5 | Profil | Afficher photo profil (colonne manquante) | A FAIRE |
@@ -92,9 +92,9 @@
 
 | ID | Page | Description | Statut |
 |----|------|-------------|--------|
-| U6 | 404 | Page d'erreur personnalisee | A FAIRE |
-| U7 | ErrorBoundary | Composant React pour erreurs runtime | A FAIRE |
-| U8 | Admin Agences | Gestion des agences | A FAIRE |
+| U6 | 404 | Page d'erreur personnalisee | FAIT |
+| U7 | ErrorBoundary | Composant React pour erreurs runtime | FAIT |
+| U8 | Admin Agences | Gestion des agences | FAIT (CRUD) |
 | U9 | Client Dashboard | Historique depenses, vehicules favoris | A FAIRE |
 
 ### UX/UI
@@ -198,8 +198,8 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| T1 | Tests unitaires modeles | A FAIRE |
-| T2 | Tests feature controllers | A FAIRE |
+| T1 | Tests unitaires modeles | FAIT (ReservationTest) |
+| T2 | Tests feature controllers | FAIT (ReservationApi + Security, 29 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -238,13 +238,13 @@
 
 | Phase | Termines | En cours | A faire |
 |-------|----------|----------|---------|
-| Phase 0 (Securite) | 2 | 0 | 6 |
-| Phase 1 (Robustesse) | 0 | 0 | 11 |
+| Phase 0 (Securite) | 8 | 0 | 0 |
+| Phase 1 (Robustesse) | 7 | 0 | 4 |
 | Phase 2 (Fonctions manquantes) | 3 | 0 | 15 |
-| Phase 3 (Frontend) | 5 | 0 | 9 |
+| Phase 3 (Frontend) | 8 | 0 | 6 |
 | Phase 4 (Metier avance) | 3 | 0 | 11 |
 | Phase 5 (Rapports) | 2 | 0 | 10 |
 | Phase 6 (Infra) | 0 | 0 | 12 |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 15 terminees | 0 en cours | 74 a faire**
+**Total : 89 taches | 31 terminees | 0 en cours | 58 a faire**

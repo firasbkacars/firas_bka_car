@@ -1,1 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 40" fill="white"><text x="40" y="28" font-family="Arial,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="4">BMW</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="chrome" x1="200" y1="20" x2="200" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f5f5f5"/>
+      <stop offset="18%" stop-color="#d4d4d4"/>
+      <stop offset="42%" stop-color="#6b6b6b"/>
+      <stop offset="50%" stop-color="#eeeeee"/>
+      <stop offset="58%" stop-color="#8a8a8a"/>
+      <stop offset="82%" stop-color="#cfcfcf"/>
+      <stop offset="100%" stop-color="#5a5a5a"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="200" y1="30" x2="200" y2="370" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9a9a9a"/>
+      <stop offset="25%" stop-color="#6a6a6a"/>
+      <stop offset="50%" stop-color="#b8b8b8"/>
+      <stop offset="75%" stop-color="#555555"/>
+      <stop offset="100%" stop-color="#7a7a7a"/>
+    </linearGradient>
+    <radialGradient id="qLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d8d8d8"/>
+      <stop offset="100%" stop-color="#a8a8a8"/>
+    </radialGradient>
+    <radialGradient id="qDark" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#0d0d0d"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fond -->
+  <circle cx="200" cy="200" r="200" fill="#0a0a0a"/>
+
+  <!-- Anneau extérieur chrome -->
+  <circle cx="200" cy="200" r="175" stroke="url(#chrome)" stroke-width="28" fill="none"/>
+  <circle cx="200" cy="200" r="189" stroke="url(#ring)" stroke-width="4" fill="none"/>
+  <circle cx="200" cy="200" r="161" stroke="url(#ring)" stroke-width="4" fill="none"/>
+
+  <!-- Texte BMW sur l'anneau -->
+  <path id="bmwArc" d="M 78 250 A 140 140 0 0 1 322 250" fill="none"/>
+  <text fill="url(#chrome)" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" letter-spacing="18">
+    <textPath href="#bmwArc" startOffset="50%" text-anchor="middle">BMW</textPath>
+  </text>
+
+  <!-- Cercle central -->
+  <circle cx="200" cy="200" r="120" fill="#0a0a0a" stroke="url(#chrome)" stroke-width="8"/>
+
+  <!-- 4 quadrants (hélice BMW) monochromes -->
+  <!-- Haut-gauche : clair -->
+  <path d="M200 200 L200 80 A120 120 0 0 0 80 200 Z" fill="url(#qLight)"/>
+  <!-- Haut-droite : sombre -->
+  <path d="M200 200 L200 80 A120 120 0 0 1 320 200 Z" fill="url(#qDark)"/>
+  <!-- Bas-gauche : sombre -->
+  <path d="M200 200 L80 200 A120 120 0 0 0 200 320 Z" fill="url(#qDark)"/>
+  <!-- Bas-droite : clair -->
+  <path d="M200 200 L320 200 A120 120 0 0 1 200 320 Z" fill="url(#qLight)"/>
+
+  <!-- Séparateurs -->
+  <line x1="200" y1="80" x2="200" y2="320" stroke="#0a0a0a" stroke-width="3"/>
+  <line x1="80" y1="200" x2="320" y2="200" stroke="#0a0a0a" stroke-width="3"/>
+
+  <!-- Cercle central fin -->
+  <circle cx="200" cy="200" r="120" stroke="url(#chrome)" stroke-width="7" fill="none"/>
+  <circle cx="200" cy="200" r="175" stroke="url(#chrome)" stroke-width="10" fill="none"/>
+</svg>

@@ -28,7 +28,7 @@ class CmiPaymentController extends Controller
             return response()->json(['message' => 'Non autorise'], 403);
         }
 
-        if (!$this->cmiService->isConfigured()) {
+        if (! $this->cmiService->isConfigured()) {
             return response()->json([
                 'message' => 'Le paiement en ligne n\'est pas encore configure. Veuillez choisir le paiement en especes.',
             ], 422);
@@ -53,7 +53,7 @@ class CmiPaymentController extends Controller
                 ->where('statut', 'en_attente')
                 ->first();
 
-            if (!$existingPending) {
+            if (! $existingPending) {
                 Paiement::create([
                     'reservation_id' => $reservation->id,
                     'montant' => $montantAcompte,
@@ -92,6 +92,16 @@ class CmiPaymentController extends Controller
 
         Log::info('CMI webhook received', ['payload' => $payload]);
 
+        $signature = $request->header('X-Signature')
+            ?? $request->header('X-Hub-Signature-256')
+            ?? ($payload['signature'] ?? null);
+
+        if (empty($signature) || ! $this->cmiService->verifyWebhookSignature($payload, $signature)) {
+            Log::warning('CMI webhook rejected: invalid or missing signature');
+
+            return response()->json(['error' => 'Invalid signature'], 403);
+        }
+
         $result = $this->cmiService->handleWebhook($payload);
 
         return response()->json($result);
@@ -104,7 +114,7 @@ class CmiPaymentController extends Controller
         if ($transactionId) {
             $result = $this->cmiService->verifyPayment($transactionId);
 
-            $reservation = Reservation::where('numero', 'like', '%' . $transactionId . '%')->first();
+            $reservation = Reservation::where('numero', 'like', '%'.$transactionId.'%')->first();
 
             if ($reservation) {
                 return redirect('/client/profil');

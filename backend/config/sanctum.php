@@ -34,9 +34,13 @@ return [
     | are able to authenticate the request, Sanctum will use the bearer
     | token that's present on an incoming request for authentication.
     |
-    */
+    | Le frontend est un SPA authentifie par bearer token uniquement. On
+    | desactive la garde 'web' (session) : sinon la session admin ecrase le
+    | token client et /client/* recoit un App\Models\User au lieu d'un
+    | App\Models\Client.
+    |
 
-    'guard' => ['web'],
+    'guard' => [],
 
     /*
     |--------------------------------------------------------------------------

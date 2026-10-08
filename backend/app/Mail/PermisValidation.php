@@ -23,6 +23,7 @@ class PermisValidation extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $statutText = $this->statut === 'valide' ? 'valide' : 'rejete';
+
         return new Envelope(
             subject: "Votre permis a ete {$statutText} - FIRAS BKA CAR",
         );
@@ -45,12 +46,12 @@ class PermisValidation extends Mailable implements ShouldQueue
         $statutText = $isValide ? 'valide' : 'rejete';
 
         $motifHtml = '';
-        if (!$isValide && $this->motif) {
+        if (! $isValide && $this->motif) {
             $motifHtml = "
             <div style='background: {$bgColor}; border: 1px solid {$borderColor}; border-radius: 8px; padding: 15px; margin: 15px 0;'>
                 <p style='color: #666; font-size: 12px; margin: 0 0 5px;'>Motif du rejet :</p>
-                <p style='color: {$color}; font-size: 14px; margin: 0; font-weight: 500;'>".e($this->motif)."</p>
-            </div>";
+                <p style='color: {$color}; font-size: 14px; margin: 0; font-weight: 500;'>".e($this->motif).'</p>
+            </div>';
         }
 
         $message = $isValide

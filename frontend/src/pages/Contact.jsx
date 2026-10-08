@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck } from 'lucide-react';
+import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const AGENCE_ADDRESS = 'Q589+2QG, Branes, Tanger 90060, Maroc';
 const AGENCE_GPS = { lat: 35.7595, lng: -5.8340 };
@@ -8,19 +9,20 @@ const GOOGLE_MAPS_directions = `https://www.google.com/maps/dir/?api=1&destinati
 const WAZE_url = `https://waze.com/ul?ll=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&navigate=yes`;
 
 function InputField({ label, type = 'text', name, placeholder, required, rows }) {
+  const id = `contact-${name}`;
   const base = 'w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#dc2626]/60 focus:ring-1 focus:ring-[#dc2626]/30 transition-colors text-sm';
   if (rows) {
     return (
       <div>
-        <label className="block text-white/60 text-sm mb-1.5">{label}</label>
-        <textarea name={name} placeholder={placeholder} required={required} rows={rows} className={`${base} resize-none`} />
+        <label htmlFor={id} className="block text-white/60 text-sm mb-1.5">{label}</label>
+        <textarea id={id} name={name} placeholder={placeholder} required={required} rows={rows} className={`${base} resize-none`} />
       </div>
     );
   }
   return (
     <div>
-      <label className="block text-white/60 text-sm mb-1.5">{label}</label>
-      <input type={type} name={name} placeholder={placeholder} required={required} className={base} />
+      <label htmlFor={id} className="block text-white/60 text-sm mb-1.5">{label}</label>
+      <input id={id} type={type} name={name} placeholder={placeholder} required={required} className={base} />
     </div>
   );
 }
@@ -41,11 +43,34 @@ function InfoCard({ icon: Icon, title, children }) {
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    if (sending) return;
+
+    const form = new FormData(e.currentTarget);
+    const payload = {
+      nom: form.get('nom'),
+      contact: form.get('contact'),
+      sujet: form.get('sujet'),
+      message: form.get('message'),
+    };
+
+    setSending(true);
+    setError('');
+
+    try {
+      await api.post('/contact', payload);
+      setSubmitted(true);
+      e.target.reset();
+      setTimeout(() => setSubmitted(false), 6000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Impossible d'envoyer le message. Réessayez ou contactez-nous sur WhatsApp.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -136,7 +161,7 @@ export default function Contact() {
               <p className="text-white/40 text-sm mb-6">Remplissez le formulaire et nous vous répondrons rapidement.</p>
 
               {submitted ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="flex flex-col items-center justify-center py-12 text-center" role="status">
                   <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
                     <Send size={22} className="text-green-500" />
                   </div>
@@ -145,6 +170,11 @@ export default function Contact() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
+                    <div role="alert" className="bg-[#dc2626]/10 border border-[#dc2626]/20 text-[#dc2626] text-sm px-4 py-3 rounded-lg">
+                      {error}
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField label="Nom complet" name="nom" placeholder="Votre nom" required />
                     <InputField label="Téléphone ou email" name="contact" placeholder="06 XX XX XX XX" required />
@@ -153,10 +183,11 @@ export default function Contact() {
                   <InputField label="Message" name="message" placeholder="Décrivez votre demande..." required rows={4} />
                   <button
                     type="submit"
-                    className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    disabled={sending}
+                    className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-white/30 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    <Send size={16} />
-                    Envoyer le message
+                    {sending && <Loader2 size={16} className="animate-spin" />}
+                    {sending ? 'Envoi en cours...' : 'Envoyer le message'}
                   </button>
                 </form>
               )}

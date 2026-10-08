@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ClipboardCheck, Plus, X, Upload, Image, Loader2, Eye, Filter } from 'lucide-react';
+import { ClipboardCheck, Plus, X, Upload, Loader2, Eye } from 'lucide-react';
 import api from '../../services/api';
 
 export default function EtatsLieux() {

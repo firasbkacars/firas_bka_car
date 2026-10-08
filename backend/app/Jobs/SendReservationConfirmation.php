@@ -16,6 +16,7 @@ class SendReservationConfirmation implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -26,7 +27,7 @@ class SendReservationConfirmation implements ShouldQueue
     {
         $reservation = Reservation::with(['client', 'vehicule'])->find($this->reservationId);
 
-        if (!$reservation || !$reservation->client->email) {
+        if (! $reservation || ! $reservation->client->email) {
             return;
         }
 

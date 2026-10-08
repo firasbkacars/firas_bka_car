@@ -131,7 +131,7 @@ class ReservationConfirmation extends Mailable implements ShouldQueue
                             <span class='info-label'>Remise (".e($r->code_promo).")</span>
                             <span class='info-value' style='color: #16a34a;'>-{$r->remise} DH</span>
                         </div>
-                        " : "")."
+                        " : '')."
                         <div class='total-box'>
                             <p style='color: #666; font-size: 12px; margin: 0 0 5px;'>Montant total</p>
                             <div class='total-amount'>{$r->prix_total} DH</div>

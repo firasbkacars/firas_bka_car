@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Agence;
 use App\Models\Client;
 use App\Models\CodePromo;
 use App\Models\Maintenance;
@@ -25,7 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AgenceSeeder::class);
         $this->call(ParametreSeeder::class);
 
-        $agence = \App\Models\Agence::first();
+        $agence = Agence::first();
 
         $vehicules = [
             [

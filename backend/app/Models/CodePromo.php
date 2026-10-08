@@ -31,7 +31,7 @@ class CodePromo extends Model
 
     public function isValid(): bool
     {
-        if (!$this->actif) {
+        if (! $this->actif) {
             return false;
         }
 

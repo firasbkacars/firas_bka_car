@@ -9,8 +9,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Un ancien build pouvait laisser un Authorization global qui court-circuite
+    // la selection de token par route (api.js). On le nettoie au demarrage.
+    delete api.defaults.headers.common['Authorization'];
+
     if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchProfile();
     } else {
       setLoading(false);
@@ -21,8 +24,11 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await api.get('/client/profile');
       setClient(data);
-    } catch {
-      logout();
+    } catch (err) {
+      // Ne pas déconnecter sur erreur réseau, uniquement sur session invalide.
+      if (err.response?.status === 401) {
+        logout();
+      }
     } finally {
       setLoading(false);
     }
@@ -32,7 +38,6 @@ export function AuthProvider({ children }) {
     const { data } = await api.post('/client/login', { email, password });
     localStorage.removeItem('admin_token');
     localStorage.setItem('client_token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setToken(data.token);
     setClient(data.client);
     return data;
@@ -45,7 +50,6 @@ export function AuthProvider({ children }) {
     });
     localStorage.removeItem('admin_token');
     localStorage.setItem('client_token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setToken(data.token);
     setClient(data.client);
     return data;

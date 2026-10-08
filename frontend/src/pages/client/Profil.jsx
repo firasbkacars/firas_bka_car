@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Star, Trophy, AlertTriangle, Clock } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Trophy, AlertTriangle, Clock } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 
 const STATUS_COLORS = {
@@ -20,16 +20,16 @@ const STATUS_LABELS = {
 };
 
 export default function ClientProfil() {
-  const { client, logout, updateProfile, uploadPermis } = useAuth();
+  const { client, token, loading: authLoading, logout, updateProfile, uploadPermis } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
-    nom_complet: client?.nom_complet || '',
-    telephone: client?.telephone || '',
-    email: client?.email || '',
-    cin: client?.cin || '',
-    adresse: client?.adresse || '',
+    nom_complet: '',
+    telephone: '',
+    email: '',
+    cin: '',
+    adresse: '',
   });
 
   const [permisFile, setPermisFile] = useState(null);
@@ -48,16 +48,34 @@ export default function ClientProfil() {
 
   const [cancellingId, setCancellingId] = useState(null);
   const [cancelConfirm, setCancelConfirm] = useState(null);
-  const [cancelResult, setCancelResult] = useState(null);
 
   const [prolongingId, setProlongingId] = useState(null);
   const [prolongDate, setProlongDate] = useState('');
-  const [prolongResult, setProlongResult] = useState(null);
 
   useEffect(() => {
+    if (!authLoading && !token) {
+      navigate('/client/login', { state: { from: '/client/profil' }, replace: true });
+    }
+  }, [authLoading, token, navigate]);
+
+  useEffect(() => {
+    if (client) {
+      setForm({
+        nom_complet: client.nom_complet || '',
+        telephone: client.telephone || '',
+        email: client.email || '',
+        cin: client.cin || '',
+        adresse: client.adresse || '',
+      });
+    }
+  }, [client]);
+
+  useEffect(() => {
+    if (!token) return;
     fetchReservations();
     fetchFidelite();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const fetchReservations = async () => {
     try {
@@ -186,7 +204,6 @@ export default function ClientProfil() {
       const { data } = await api.put(`/client/reservations/${id}/prolonger`, {
         date_fin: prolongDate,
       });
-      setProlongResult({ id, ...data });
       setProlongingId(null);
       setProlongDate('');
       fetchReservations();
@@ -210,7 +227,7 @@ export default function ClientProfil() {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       showToast('Erreur lors du telechargement de la facture', 'error');
     }
   };
@@ -219,7 +236,6 @@ export default function ClientProfil() {
     setCancellingId(id);
     try {
       const { data } = await api.put(`/client/reservations/${id}/annuler`);
-      setCancelResult({ id, ...data });
       setCancelConfirm(null);
       fetchReservations();
       showToast(`Reservation annulee. Remboursement: ${data.montant_rembourse} DH`);
@@ -502,7 +518,7 @@ export default function ClientProfil() {
             ) : (
               <span className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-full text-sm font-medium">
                 <XCircle size={14} />
-                Permis non upload\u00e9
+                Permis non uploadé
               </span>
             )}
           </div>

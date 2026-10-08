@@ -16,6 +16,7 @@ class SendReservationReminder implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -27,11 +28,11 @@ class SendReservationReminder implements ShouldQueue
     {
         $reservation = Reservation::with(['client', 'vehicule'])->find($this->reservationId);
 
-        if (!$reservation || !$reservation->client->email) {
+        if (! $reservation || ! $reservation->client->email) {
             return;
         }
 
-        if (!in_array($reservation->statut, ['confirmee', 'en_cours'])) {
+        if (! in_array($reservation->statut, ['confirmee', 'en_cours'])) {
             return;
         }
 

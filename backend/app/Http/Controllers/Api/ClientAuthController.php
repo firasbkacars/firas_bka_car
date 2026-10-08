@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginClientRequest;
 use App\Http\Requests\RegisterClientRequest;
+use App\Mail\PermisValidation;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ClientAuthController extends Controller
 {
     private const MAX_ATTEMPTS = 5;
+
     private const LOCKOUT_MINUTES = 15;
 
     public function register(RegisterClientRequest $request)
@@ -49,15 +52,16 @@ class ClientAuthController extends Controller
 
         if (Cache::has($lockKey)) {
             $ttl = Cache::get($lockKey);
+
             return response()->json([
-                'message' => 'Trop de tentatives. Reessayez dans ' . self::LOCKOUT_MINUTES . ' minutes.',
+                'message' => 'Trop de tentatives. Reessayez dans '.self::LOCKOUT_MINUTES.' minutes.',
                 'locked_until' => $ttl,
             ], 429);
         }
 
         $client = Client::where('email', $email)->first();
 
-        if (!$client || !Hash::check($validated['password'], $client->password)) {
+        if (! $client || ! Hash::check($validated['password'], $client->password)) {
             $attempts = Cache::increment($attemptsKey);
 
             if ($attempts === 1) {
@@ -100,7 +104,11 @@ class ClientAuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Déconnecté']);
     }
@@ -117,7 +125,7 @@ class ClientAuthController extends Controller
         $validated = $request->validate([
             'nom_complet' => 'sometimes|string|max:255|min:2',
             'telephone' => 'sometimes|string|regex:/^(\+212|0)[5-7]\d{8}$/',
-            'email' => 'sometimes|email:rfc,dns|max:255',
+            'email' => 'sometimes|email:rfc|max:255|unique:clients,email,'.$client->id,
             'cin' => 'nullable|string|regex:/^[A-Z]{2}\d{6}$/|max:20',
             'adresse' => 'nullable|string|max:255',
         ]);
@@ -174,15 +182,15 @@ class ClientAuthController extends Controller
 
         if ($client->email) {
             try {
-                \Illuminate\Support\Facades\Mail::to($client->email)
-                    ->send(new \App\Mail\PermisValidation($client, $validated['statut'], $validated['motif'] ?? null));
+                Mail::to($client->email)
+                    ->send(new PermisValidation($client, $validated['statut'], $validated['motif'] ?? null));
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send permis validation email', ['error' => $e->getMessage()]);
+                Log::error('Failed to send permis validation email', ['error' => $e->getMessage()]);
             }
         }
 
         return response()->json([
-            'message' => 'Permis ' . ($validated['statut'] === 'valide' ? 'valide' : 'rejete'),
+            'message' => 'Permis '.($validated['statut'] === 'valide' ? 'valide' : 'rejete'),
             'client' => $client,
         ]);
     }

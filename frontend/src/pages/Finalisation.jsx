@@ -8,7 +8,7 @@ export default function Finalisation() {
   const { vehiculeId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { client, updateProfile, uploadPermis } = useAuth();
+  const { client, loading: authLoading, uploadPermis } = useAuth();
   const [vehicule, setVehicule] = useState(null);
   const [agences, setAgences] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,13 +37,15 @@ export default function Finalisation() {
   const [permisFile, setPermisFile] = useState(null);
   const [uploadingPermis, setUploadingPermis] = useState(false);
   const [acceptConditions, setAcceptConditions] = useState(false);
-  const [cmiLoading, setCmiLoading] = useState(false);
   const [cmiPaymentUrl, setCmiPaymentUrl] = useState(null);
 
   const dateDebut = searchParams.get('date_debut') || '';
   const dateFin = searchParams.get('date_fin') || '';
 
   useEffect(() => {
+    // Tant que le profil n'est pas charge, client est null : ne pas rediriger
+    // sinon un rafraichissement de la page renvoie vers la connexion.
+    if (authLoading) return;
     if (!client) {
       navigate('/client/login', { state: { from: `/reservation/${vehiculeId}?${searchParams.toString()}` } });
       return;
@@ -51,7 +53,7 @@ export default function Finalisation() {
     fetchVehicule();
     fetchParametres();
     fetchAgences();
-  }, [vehiculeId, client]);
+  }, [vehiculeId, client, authLoading]);
 
   const fetchVehicule = async () => {
     try {
@@ -189,7 +191,7 @@ export default function Finalisation() {
         }
       }
 
-      navigate('/confirmation', {
+      navigate(`/confirmation?numero=${encodeURIComponent(data.numero)}`, {
         state: {
           reservation: data,
           vehicule,
@@ -211,6 +213,11 @@ export default function Finalisation() {
   const hasPermis = client?.permis_conduire && client?.permis_statut === 'valide';
   const permisEnAttente = client?.permis_conduire && client?.permis_statut === 'en_attente';
   const permisRejete = client?.permis_statut === 'rejete';
+
+  const vehiculePhoto = vehicule.photos?.[0];
+  const vehiculePhotoSrc = vehiculePhoto && !vehiculePhoto.startsWith('http') && !vehiculePhoto.startsWith('/')
+    ? `/storage/${vehiculePhoto}`
+    : vehiculePhoto;
 
   return (
     <div className="max-w-6xl mx-auto px-4 pt-24 pb-16">
@@ -336,7 +343,7 @@ export default function Finalisation() {
                     ) : permisEnAttente ? (
                       <span className="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-sm"><Info size={14} /> En attente</span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-sm"><XCircle size={14} /> Non upload\u00e9</span>
+                      <span className="inline-flex items-center gap-1.5 bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-sm"><XCircle size={14} /> Non uploadé</span>
                     )}
                   </div>
                 </div>
@@ -397,7 +404,7 @@ export default function Finalisation() {
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">N\u00b0 Permis</label>
+                  <label className="text-gray-400 text-xs mb-1 block">N° Permis</label>
                   <input
                     type="text"
                     value={form.conducteur_additionnel_permis}
@@ -454,13 +461,13 @@ export default function Finalisation() {
               <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-3">
                   <img
-                    src={vehicule.photos?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
+                    src={vehiculePhotoSrc || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
                     alt={vehicule.modele}
                     className="w-20 h-14 object-cover rounded"
                   />
                   <div>
                     <h4 className="text-white font-medium text-sm">{vehicule.marque} {vehicule.modele}</h4>
-                    <p className="text-gray-400 text-xs">{vehicule.transmission} \u2022 {vehicule.carburant} \u2022 {vehicule.places} places</p>
+                    <p className="text-gray-400 text-xs">{vehicule.transmission} • {vehicule.carburant} • {vehicule.places} places</p>
                     <p className="text-[#dc2626] font-bold text-sm mt-1">{vehicule.prix_jour} DH/jour</p>
                   </div>
                 </div>
@@ -580,12 +587,12 @@ export default function Finalisation() {
                 <div>
                   <h3 className="text-yellow-500 font-semibold text-sm mb-2">Conditions de location</h3>
                   <ul className="text-gray-400 text-xs space-y-1.5">
-                    <li>\u2022 Penalite de retard : {penaliteRetard}% du prix journalier par jour de retard</li>
-                    <li>\u2022 Annulation gratuite si &gt; {delaiGratuit}h avant la prise en charge</li>
-                    <li>\u2022 Remboursement 50% si entre {delaiPartiel}h et {delaiGratuit}h avant</li>
-                    <li>\u2022 Acompte non remboursable si &lt; {delaiPartiel}h avant</li>
+                    <li>• Penalite de retard : {penaliteRetard}% du prix journalier par jour de retard</li>
+                    <li>• Annulation gratuite si &gt; {delaiGratuit}h avant la prise en charge</li>
+                    <li>• Remboursement 50% si entre {delaiPartiel}h et {delaiGratuit}h avant</li>
+                    <li>• Acompte non remboursable si &lt; {delaiPartiel}h avant</li>
                     {details.caution > 0 && (
-                      <li>\u2022 Caution de {details.caution} DH remboursee apres verification de l'\u00e9tat du vehicule</li>
+                      <li>• Caution de {details.caution} DH remboursee apres verification de l'état du vehicule</li>
                     )}
                   </ul>
                 </div>

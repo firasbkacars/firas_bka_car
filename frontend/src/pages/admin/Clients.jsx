@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Edit2, Trash2, X, CheckCircle2, XCircle, Eye, Shield } from 'lucide-react';
+import { Users, Search, Edit2, Trash2, X, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import api from '../../services/api';
 
 export default function Clients() {
@@ -10,6 +10,7 @@ export default function Clients() {
   const [showModal, setShowModal] = useState(false);
   const [showPermisModal, setShowPermisModal] = useState(null);
   const [rejetMotif, setRejetMotif] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { fetchClients(); }, []);
 
@@ -31,11 +32,14 @@ export default function Clients() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
       await api.put(`/clients/${editClient.id}`, editClient);
       setShowModal(false);
       fetchClients();
     } catch (err) { console.error(err); }
+    finally { setSaving(false); }
   };
 
   const handleValiderPermis = async (id) => {
@@ -201,7 +205,7 @@ export default function Clients() {
               <input type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
-                <button type="submit" className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition">Enregistrer</button>
+                <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
               </div>
             </form>
           </div>

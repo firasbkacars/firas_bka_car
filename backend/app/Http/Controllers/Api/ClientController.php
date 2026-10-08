@@ -12,7 +12,7 @@ class ClientController extends Controller
     {
         $clients = Client::with('reservations')
             ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 20));
+            ->get();
 
         return response()->json($clients);
     }

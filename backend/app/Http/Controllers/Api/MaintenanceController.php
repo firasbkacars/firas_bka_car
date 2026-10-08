@@ -29,6 +29,13 @@ class MaintenanceController extends Controller
         return response()->json($maintenances);
     }
 
+    public function aVenir(Request $request)
+    {
+        $request->merge(['a_venir' => '1']);
+
+        return $this->index($request);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

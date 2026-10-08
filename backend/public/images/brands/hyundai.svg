@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 280" fill="none">
+  <defs>
+    <linearGradient id="c1" x1="210" y1="20" x2="210" y2="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="18%" stop-color="#e8e8e8"/>
+      <stop offset="40%" stop-color="#8a8a8a"/>
+      <stop offset="50%" stop-color="#f7f7f7"/>
+      <stop offset="60%" stop-color="#9a9a9a"/>
+      <stop offset="82%" stop-color="#d6d6d6"/>
+      <stop offset="100%" stop-color="#5a5a5a"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="40" y1="140" x2="380" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6a6a6a"/>
+      <stop offset="28%" stop-color="#c4c4c4"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="72%" stop-color="#b4b4b4"/>
+      <stop offset="100%" stop-color="#5e5e5e"/>
+    </linearGradient>
+    <linearGradient id="c3" x1="120" y1="50" x2="300" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#d0d0d0"/>
+      <stop offset="55%" stop-color="#7a7a7a"/>
+      <stop offset="75%" stop-color="#e0e0e0"/>
+      <stop offset="100%" stop-color="#4a4a4a"/>
+    </linearGradient>
+    <linearGradient id="c4" x1="300" y1="60" x2="120" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3a3a3a"/>
+      <stop offset="50%" stop-color="#6e6e6e"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+    <filter id="g" x="-8%" y="-8%" width="116%" height="116%">
+      <feGaussianBlur stdDeviation="1.1" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ovale extérieur -->
+  <ellipse cx="210" cy="140" rx="185" ry="112" transform="rotate(-8 210 140)"
+           stroke="url(#c1)" stroke-width="22" fill="none" filter="url(#g)"/>
+  <ellipse cx="210" cy="140" rx="185" ry="112" transform="rotate(-8 210 140)"
+           stroke="url(#c2)" stroke-width="6" fill="none" opacity="0.55"/>
+  <ellipse cx="210" cy="140" rx="174" ry="101" transform="rotate(-8 210 140)"
+           stroke="#333" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- H stylisé incliné Hyundai -->
+  <!-- Branche gauche (haut-gauche → bas-gauche), légèrement courbe -->
+  <path d="M118 78
+           C118 78 128 72 138 78
+           L168 168
+           C172 182 168 198 154 204
+           C142 208 130 202 126 190
+           L108 128
+           C104 114 108 96 118 78 Z"
+        fill="url(#c3)" filter="url(#g)"/>
+
+  <!-- Branche droite (haut-droite → bas-droite) -->
+  <path d="M302 78
+           C302 78 292 72 282 78
+           L252 168
+           C248 182 252 198 266 204
+           C278 208 290 202 294 190
+           L312 128
+           C316 114 312 96 302 78 Z"
+        fill="url(#c4)" opacity="0.95" filter="url(#g)"/>
+
+  <!-- Barre médiane inclinée (le "crochet" characteristic) -->
+  <path d="M145 105
+           C155 92 175 88 195 95
+           L275 130
+           C292 138 300 155 292 170
+           C284 184 264 188 248 180
+           L168 145
+           C150 137 138 120 145 105 Z"
+        fill="url(#c3)" filter="url(#g)"/>
+
+  <!-- Reflets chrome sur le H -->
+  <path d="M130 95 C145 88 165 95 175 115" stroke="rgba(255,255,255,0.7)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M160 115 C185 105 230 125 265 145" stroke="rgba(255,255,255,0.55)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Reflet ovale haut -->
+  <path d="M55 105 A180 105 0 0 1 200 32" stroke="rgba(255,255,255,0.55)" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+  <!-- Ombre bas ovale -->
+  <path d="M60 195 A180 105 0 0 0 360 185" stroke="url(#c4)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.4"/>
+</svg>

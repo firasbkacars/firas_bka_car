@@ -26,8 +26,7 @@ class PaiementController extends Controller
             $query->where('date_paiement', '<=', $request->get('date_fin'));
         }
 
-        $paiements = $query->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 20));
+        $paiements = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json($paiements);
     }
@@ -55,7 +54,7 @@ class PaiementController extends Controller
         if ($format === 'csv') {
             $headers = [
                 'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="paiements_' . now()->format('Y-m-d') . '.csv"',
+                'Content-Disposition' => 'attachment; filename="paiements_'.now()->format('Y-m-d').'.csv"',
             ];
 
             $callback = function () use ($paiements) {
@@ -67,7 +66,7 @@ class PaiementController extends Controller
                         $paiement->date_paiement ? $paiement->date_paiement->format('d/m/Y H:i') : '',
                         $paiement->reservation->numero ?? '',
                         $paiement->reservation->client->nom_complet ?? '',
-                        ($paiement->reservation->vehicule->marque ?? '') . ' ' . ($paiement->reservation->vehicule->modele ?? ''),
+                        ($paiement->reservation->vehicule->marque ?? '').' '.($paiement->reservation->vehicule->modele ?? ''),
                         $paiement->montant,
                         ucfirst(str_replace('_', ' ', $paiement->methode)),
                         ucfirst(str_replace('_', ' ', $paiement->statut)),

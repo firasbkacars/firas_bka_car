@@ -23,7 +23,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from 'recharts';
 import api from '../../services/api';
 

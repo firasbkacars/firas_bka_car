@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import PageHeader from '../components/PageHeader';
-import { Check, X, ArrowLeft } from 'lucide-react';
+import { Check, ArrowLeft } from 'lucide-react';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=400&q=80';
 

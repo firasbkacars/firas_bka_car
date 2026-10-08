@@ -10,11 +10,17 @@ use Illuminate\Support\Facades\Log;
 class CmiPaymentService
 {
     private string $merchantKey;
+
     private string $merchantSecret;
+
     private string $gatewayUrl;
+
     private string $statusUrl;
+
     private string $returnUrl;
+
     private string $cancelUrl;
+
     private string $notifyUrl;
 
     public function __construct()
@@ -30,17 +36,17 @@ class CmiPaymentService
 
     public function isConfigured(): bool
     {
-        return !empty($this->merchantKey) && !empty($this->merchantSecret);
+        return ! empty($this->merchantKey) && ! empty($this->merchantSecret);
     }
 
     public function generateTransactionId(Reservation $reservation): string
     {
-        return 'FBC-' . $reservation->numero . '-' . time();
+        return 'FBC-'.$reservation->numero.'-'.time();
     }
 
     public function createPaymentUrl(Reservation $reservation, float $montant): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \RuntimeException('CMI payment gateway is not configured');
         }
 
@@ -111,7 +117,7 @@ class CmiPaymentService
 
     public function verifyPayment(string $transactionId): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \RuntimeException('CMI payment gateway is not configured');
         }
 
@@ -162,24 +168,25 @@ class CmiPaymentService
         $transactionId = $payload['order_id'] ?? null;
         $status = $payload['status'] ?? null;
 
-        if (!$transactionId || !$status) {
+        if (! $transactionId || ! $status) {
             return ['processed' => false, 'reason' => 'missing_fields'];
         }
 
-        $reservation = Reservation::where('numero', 'like', '%' . $transactionId . '%')
+        $reservation = Reservation::where('numero', 'like', '%'.$transactionId.'%')
             ->orWhere('numero', $transactionId)
             ->first();
 
-        if (!$reservation) {
+        if (! $reservation) {
             $parts = explode('-', $transactionId);
             if (count($parts) >= 3) {
-                $numero = $parts[0] . '-' . $parts[1] . '-' . $parts[2];
+                $numero = $parts[0].'-'.$parts[1].'-'.$parts[2];
                 $reservation = Reservation::where('numero', $numero)->first();
             }
         }
 
-        if (!$reservation) {
+        if (! $reservation) {
             Log::warning('CMI webhook: reservation not found', ['transaction_id' => $transactionId]);
+
             return ['processed' => false, 'reason' => 'reservation_not_found'];
         }
 
@@ -189,7 +196,7 @@ class CmiPaymentService
             ->latest()
             ->first();
 
-        if (!$paiement) {
+        if (! $paiement) {
             $paiement = Paiement::create([
                 'reservation_id' => $reservation->id,
                 'montant' => $reservation->acompte,
@@ -235,6 +242,36 @@ class CmiPaymentService
     {
         ksort($data);
         $query = http_build_query($data);
+
         return hash_hmac('sha256', $query, $this->merchantSecret);
+    }
+
+    /**
+     * Verifie la signature HMAC d'un webhook CMI recu.
+     * Accepte la signature brute ou prefixee par "sha256=".
+     */
+    public function verifyWebhookSignature(array $payload, string $signature): bool
+    {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $provided = $payload;
+        unset($provided['signature']);
+
+        $expected = $this->generateSignature($provided);
+
+        $candidates = [
+            $expected,
+            'sha256='.$expected,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (hash_equals($candidate, $signature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

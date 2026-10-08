@@ -11,6 +11,7 @@ class ParametreController extends Controller
     public function index()
     {
         $parametres = Parametre::all();
+
         return response()->json($parametres);
     }
 

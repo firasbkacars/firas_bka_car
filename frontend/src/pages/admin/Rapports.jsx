@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Car, Users, Wallet, Calendar, ArrowUpDown } from 'lucide-react';
+import { BarChart3, Car, Users, Wallet, Calendar } from 'lucide-react';
 import api from '../../services/api';
 
 export default function Rapports() {

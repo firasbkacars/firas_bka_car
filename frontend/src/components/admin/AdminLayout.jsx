@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
   Wrench,
   Tag,
   Building2,
@@ -37,34 +36,8 @@ const sidebarLinks = [
   { path: '/admin/parametres', label: 'Parametres', icon: Settings },
 ];
 
-export default function AdminLayout() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const token = localStorage.getItem('admin_token');
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    if (!token) navigate('/admin/login');
-  }, [token, navigate]);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  const handleLogout = async () => {
-    try { await api.post('/admin/logout'); } catch (e) {}
-    localStorage.removeItem('admin_token');
-    navigate('/admin/login');
-  };
-
-  if (!token) return null;
-
-  const isActive = (path) => {
-    if (path === '/admin') return location.pathname === '/admin';
-    return location.pathname.startsWith(path);
-  };
-
-  const SidebarContent = () => (
+function SidebarContent({ isActive, onLogout }) {
+  return (
     <>
       <div className="p-5 border-b border-neutral-800">
         <Link to="/admin" className="flex items-center gap-2.5">
@@ -72,7 +45,7 @@ export default function AdminLayout() {
         </Link>
       </div>
 
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav className="flex-1 py-4 overflow-y-auto" aria-label="Navigation admin">
         {sidebarLinks.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.path);
@@ -95,7 +68,7 @@ export default function AdminLayout() {
 
       <div className="p-4 border-t border-neutral-800">
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-400 hover:text-red-500 w-full transition"
         >
           <LogOut size={18} />
@@ -104,12 +77,82 @@ export default function AdminLayout() {
       </div>
     </>
   );
+}
+
+export default function AdminLayout() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [adminUser, setAdminUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { data } = await api.get('/admin/user');
+        if (!cancelled) setAdminUser(data);
+      } catch {
+        if (cancelled) return;
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login', { replace: true });
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/admin/logout');
+    } catch {
+      // token peut déjà être invalide
+    }
+    localStorage.removeItem('admin_token');
+    delete api.defaults.headers.common['Authorization'];
+    navigate('/admin/login');
+  };
+
+  const isActive = useCallback((path) => {
+    if (path === '/admin') return location.pathname === '/admin';
+    return location.pathname.startsWith(path);
+  }, [location.pathname]);
+
+  if (checking) {
+    return (
+      <div className="flex h-screen bg-neutral-950 items-center justify-center">
+        <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin" role="status" aria-label="Vérification de la session" />
+      </div>
+    );
+  }
+
+  if (!adminUser) return null;
+
+  const pageTitle =
+    sidebarLinks.find((l) => isActive(l.path))?.label ||
+    sidebarLinks.find((l) => l.path !== '/admin' && location.pathname.startsWith(l.path))?.label ||
+    'Admin';
 
   return (
     <div className="flex h-screen bg-neutral-950">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-64 bg-neutral-900 border-r border-neutral-800 flex-col">
-        <SidebarContent />
+        <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -123,10 +166,11 @@ export default function AdminLayout() {
             <button
               onClick={() => setMobileOpen(false)}
               className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+              aria-label="Fermer le menu"
             >
               <X size={20} />
             </button>
-            <SidebarContent />
+            <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} />
           </aside>
         </div>
       )}
@@ -138,20 +182,21 @@ export default function AdminLayout() {
             <button
               onClick={() => setMobileOpen(true)}
               className="lg:hidden text-neutral-400 hover:text-white p-1"
+              aria-label="Ouvrir le menu"
             >
               <Menu size={22} />
             </button>
-            <h2 className="text-white font-semibold text-sm sm:text-base">
-              {sidebarLinks.find((l) => l.path === location.pathname)?.label || 'Admin'}
-            </h2>
+            <h2 className="text-white font-semibold text-sm sm:text-base">{pageTitle}</h2>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative text-neutral-400 hover:text-white p-1">
-              <Bell size={20} />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-              A
+            <span className="text-neutral-400 text-sm hidden sm:inline" title={adminUser?.email}>
+              {adminUser?.name || 'Admin'}
+            </span>
+            <div
+              className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              aria-hidden="true"
+            >
+              {(adminUser?.name || 'A').charAt(0).toUpperCase()}
             </div>
           </div>
         </header>

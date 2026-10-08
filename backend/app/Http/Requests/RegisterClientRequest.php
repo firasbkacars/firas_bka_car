@@ -15,7 +15,7 @@ class RegisterClientRequest extends FormRequest
     {
         return [
             'nom_complet' => ['required', 'string', 'max:255', 'min:2'],
-            'email' => ['required', 'email:rfc,dns', 'max:255', 'unique:clients,email'],
+            'email' => ['required', 'email:rfc', 'max:255', 'unique:clients,email'],
             'telephone' => ['required', 'string', 'regex:/^(\+212|0)[5-7]\d{8}$/', 'unique:clients,telephone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'cin' => ['nullable', 'string', 'regex:/^[A-Z]{2}\d{6}$/', 'max:20'],

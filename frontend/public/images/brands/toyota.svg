@@ -1,1 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40" fill="white"><text x="50" y="28" font-family="Arial,sans-serif" font-size="22" font-weight="bold" text-anchor="middle" letter-spacing="3">TOYOTA</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 260" fill="none">
+  <defs>
+    <linearGradient id="c1" x1="180" y1="18" x2="180" y2="242" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="20%" stop-color="#e6e6e6"/>
+      <stop offset="42%" stop-color="#8f8f8f"/>
+      <stop offset="50%" stop-color="#fafafa"/>
+      <stop offset="58%" stop-color="#9c9c9c"/>
+      <stop offset="80%" stop-color="#d4d4d4"/>
+      <stop offset="100%" stop-color="#5a5a5a"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="30" y1="130" x2="330" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6e6e6e"/>
+      <stop offset="30%" stop-color="#c8c8c8"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#b8b8b8"/>
+      <stop offset="100%" stop-color="#606060"/>
+    </linearGradient>
+    <linearGradient id="c3" x1="180" y1="30" x2="180" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3f3f3f"/>
+      <stop offset="45%" stop-color="#7a7a7a"/>
+      <stop offset="100%" stop-color="#2c2c2c"/>
+    </linearGradient>
+    <filter id="g" x="-8%" y="-8%" width="116%" height="116%">
+      <feGaussianBlur stdDeviation="1.1" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1) Grande ellipse externe -->
+  <ellipse cx="180" cy="130" rx="158" ry="108"
+           stroke="url(#c1)" stroke-width="24" fill="none" filter="url(#g)"/>
+  <ellipse cx="180" cy="130" rx="158" ry="108"
+           stroke="url(#c2)" stroke-width="7" fill="none" opacity="0.55"/>
+  <!-- liseré intérieur -->
+  <ellipse cx="180" cy="130" rx="146" ry="96"
+           stroke="#333" stroke-width="2" fill="none" opacity="0.45"/>
+
+  <!-- 2) Ellipse verticale (axe T) — centrée haut/bas -->
+  <ellipse cx="180" cy="122" rx="52" ry="92"
+           stroke="url(#c1)" stroke-width="22" fill="none" filter="url(#g)"/>
+  <ellipse cx="180" cy="122" rx="52" ry="92"
+           stroke="url(#c2)" stroke-width="6" fill="none" opacity="0.5"/>
+  <ellipse cx="180" cy="122" rx="41" ry="81"
+           stroke="#333" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- 3) Ellipse horizontale interne (barre du T) -->
+  <ellipse cx="180" cy="130" rx="98" ry="50"
+           stroke="url(#c1)" stroke-width="22" fill="none" filter="url(#g)"/>
+  <ellipse cx="180" cy="130" rx="98" ry="50"
+           stroke="url(#c2)" stroke-width="6" fill="none" opacity="0.5"/>
+  <ellipse cx="180" cy="130" rx="87" ry="39"
+           stroke="#333" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- Reflets chrome -->
+  <path d="M48 88 A155 105 0 0 1 150 28" stroke="rgba(255,255,255,0.65)" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M148 38 A50 88 0 0 1 180 32" stroke="rgba(255,255,255,0.75)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M100 118 A95 46 0 0 1 175 82" stroke="rgba(255,255,255,0.55)" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+  <!-- Ombre bas (profondeur) -->
+  <path d="M55 195 A155 105 0 0 0 305 195" stroke="url(#c3)" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.4"/>
+</svg>

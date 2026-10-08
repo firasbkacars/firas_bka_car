@@ -5,8 +5,6 @@ import {
   UploadCloud,
   X,
   Trash2,
-  Star,
-  Image as ImageIcon,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -243,7 +241,7 @@ export default function AdminVehicules() {
       }
       setShowModal(false);
       fetchVehicules();
-    } catch (err) {
+    } catch {
       alert('Erreur lors de la sauvegarde');
     } finally {
       setUploading(false);

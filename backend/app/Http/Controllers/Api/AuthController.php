@@ -7,12 +7,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
     private const MAX_ATTEMPTS = 5;
+
     private const LOCKOUT_MINUTES = 15;
 
     public function login(Request $request)
@@ -30,13 +31,14 @@ class AuthController extends Controller
 
         if (Cache::has($lockKey)) {
             $ttl = Cache::get($lockKey);
+
             return response()->json([
-                'message' => 'Trop de tentatives. Reessayez dans ' . self::LOCKOUT_MINUTES . ' minutes.',
+                'message' => 'Trop de tentatives. Reessayez dans '.self::LOCKOUT_MINUTES.' minutes.',
                 'locked_until' => $ttl,
             ], 429);
         }
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::validate($credentials)) {
             $attempts = Cache::increment($attemptsKey);
 
             if ($attempts === 1) {
@@ -64,7 +66,7 @@ class AuthController extends Controller
 
         Cache::forget($attemptsKey);
 
-        $user = Auth::user();
+        $user = User::where('email', $email)->first();
         $token = $user->createToken('admin-token')->plainTextToken;
 
         Log::info('Admin login successful', [
@@ -80,7 +82,11 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Deconnecte']);
     }

@@ -17,6 +17,7 @@ export default function AdminLogin() {
       const { data } = await api.post('/admin/login', form);
       localStorage.removeItem('client_token');
       localStorage.setItem('admin_token', data.token);
+      delete api.defaults.headers.common['Authorization'];
       navigate('/admin');
     } catch (err) {
       if (err.response?.status === 429) {
@@ -49,10 +50,12 @@ export default function AdminLogin() {
           )}
 
           <div className="mb-4">
-            <label className="text-gray-400 text-xs mb-1 block">Email</label>
+            <label htmlFor="admin-email" className="text-gray-400 text-xs mb-1 block">Email</label>
             <input
+              id="admin-email"
               type="email"
               required
+              autoComplete="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"
@@ -61,10 +64,12 @@ export default function AdminLogin() {
           </div>
 
           <div className="mb-6">
-            <label className="text-gray-400 text-xs mb-1 block">Mot de passe</label>
+            <label htmlFor="admin-password" className="text-gray-400 text-xs mb-1 block">Mot de passe</label>
             <input
+              id="admin-password"
               type="password"
               required
+              autoComplete="current-password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"

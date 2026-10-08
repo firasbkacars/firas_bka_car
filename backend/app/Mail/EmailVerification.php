@@ -22,7 +22,7 @@ class EmailVerification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Verifier votre email - FIRAS BKA CAR",
+            subject: 'Verifier votre email - FIRAS BKA CAR',
         );
     }
 

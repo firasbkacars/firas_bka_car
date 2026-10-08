@@ -31,6 +31,7 @@ class AviController extends Controller
                 $nomParts = explode(' ', $avi->client->nom_complet);
                 $prenom = $nomParts[0] ?? '';
                 $initiale = strtoupper(substr($prenom, 0, 1));
+
                 return [
                     'id' => $avi->id,
                     'note' => $avi->note,
@@ -54,11 +55,13 @@ class AviController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'client_id' => ['required', 'exists:clients,id'],
             'vehicule_id' => ['required', 'exists:vehicules,id'],
             'note' => ['required', 'integer', 'min:1', 'max:5'],
             'commentaire' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        // L'identité vient toujours du token, jamais du payload client (anti-impersonation).
+        $validated['client_id'] = $request->user()->id;
 
         $existingAvi = Avi::where('client_id', $validated['client_id'])
             ->where('vehicule_id', $validated['vehicule_id'])

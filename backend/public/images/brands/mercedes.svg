@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="chrome" x1="200" y1="20" x2="200" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="15%" stop-color="#e8e8e8"/>
+      <stop offset="35%" stop-color="#7a7a7a"/>
+      <stop offset="50%" stop-color="#f2f2f2"/>
+      <stop offset="65%" stop-color="#8a8a8a"/>
+      <stop offset="85%" stop-color="#d0d0d0"/>
+      <stop offset="100%" stop-color="#5a5a5a"/>
+    </linearGradient>
+    <linearGradient id="chromeRing" x1="80" y1="40" x2="320" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f8f8f8"/>
+      <stop offset="20%" stop-color="#a0a0a0"/>
+      <stop offset="40%" stop-color="#eaeaea"/>
+      <stop offset="55%" stop-color="#606060"/>
+      <stop offset="75%" stop-color="#d4d4d4"/>
+      <stop offset="100%" stop-color="#4a4a4a"/>
+    </linearGradient>
+    <linearGradient id="starFace" x1="140" y1="60" x2="260" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#c8c8c8"/>
+      <stop offset="50%" stop-color="#8a8a8a"/>
+      <stop offset="70%" stop-color="#e0e0e0"/>
+      <stop offset="100%" stop-color="#6a6a6a"/>
+    </linearGradient>
+    <linearGradient id="starEdge" x1="200" y1="70" x2="200" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#9a9a9a"/>
+      <stop offset="100%" stop-color="#404040"/>
+    </linearGradient>
+    <linearGradient id="starShade" x1="260" y1="100" x2="140" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3a3a3a"/>
+      <stop offset="50%" stop-color="#707070"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Anneau extérieur chrome -->
+  <circle cx="200" cy="200" r="155" stroke="url(#chromeRing)" stroke-width="22" fill="none"/>
+  <circle cx="200" cy="200" r="166" stroke="#3a3a3a" stroke-width="2" fill="none"/>
+  <circle cx="200" cy="200" r="144" stroke="#2a2a2a" stroke-width="2" fill="none"/>
+
+  <!-- Reflet haut de l'anneau -->
+  <path d="M60 160 A155 155 0 0 1 340 160" stroke="rgba(255,255,255,0.35)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+  <!-- Étoile 3 branches Mercedes -->
+  <!-- Face claire : pointe haute -->
+  <path d="M200 55 L215 175 L200 200 L185 175 Z" fill="url(#starFace)" filter="url(#glow)"/>
+  <!-- Face claire : pointe bas-droite -->
+  <path d="M330 275 L215 215 L200 200 L230 195 Z" fill="url(#starFace)" filter="url(#glow)"/>
+  <!-- Face claire : pointe bas-gauche -->
+  <path d="M70 275 L170 195 L200 200 L185 215 Z" fill="url(#starFace)" filter="url(#glow)"/>
+
+  <!-- Ombres / faces sombres -->
+  <!-- Pointe haute - côté droit sombre -->
+  <path d="M200 55 L215 175 L200 200 L200 55 Z" fill="url(#starShade)" opacity="0.85"/>
+  <!-- Pointe bas-droite - côté bas sombre -->
+  <path d="M330 275 L215 215 L200 200 L330 275 Z" fill="url(#starShade)" opacity="0.75"/>
+  <!-- Pointe bas-gauche - côté gauche sombre -->
+  <path d="M70 275 L170 195 L200 200 L70 275 Z" fill="url(#starShade)" opacity="0.7"/>
+
+  <!-- Arêtes vives de l'étoile -->
+  <path d="M200 55 L200 200 L330 275" stroke="url(#starEdge)" stroke-width="3" fill="none" stroke-linejoin="round" opacity="0.9"/>
+  <path d="M200 55 L200 200 L70 275" stroke="url(#starEdge)" stroke-width="3" fill="none" stroke-linejoin="round" opacity="0.9"/>
+  <path d="M70 275 L200 200 L330 275" stroke="url(#starEdge)" stroke-width="3" fill="none" stroke-linejoin="round" opacity="0.9"/>
+
+  <!-- Centre de l'étoile -->
+  <circle cx="200" cy="200" r="8" fill="url(#chrome)"/>
+  <circle cx="200" cy="200" r="4" fill="#e8e8e8"/>
+
+  <!-- Reflet spéculaire étoile -->
+  <path d="M200 70 L208 170 L200 185 L192 170 Z" fill="rgba(255,255,255,0.55)"/>
+</svg>

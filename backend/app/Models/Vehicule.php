@@ -67,27 +67,28 @@ class Vehicule extends Model
 
     public function scopeFiltres($query, $filters)
     {
-        if (!empty($filters['categorie'])) {
+        if (! empty($filters['categorie'])) {
             $query->where('categorie', $filters['categorie']);
         }
-        if (!empty($filters['marque'])) {
+        if (! empty($filters['marque'])) {
             $query->where('marque', $filters['marque']);
         }
-        if (!empty($filters['transmission'])) {
+        if (! empty($filters['transmission'])) {
             $query->where('transmission', $filters['transmission']);
         }
-        if (!empty($filters['carburant'])) {
+        if (! empty($filters['carburant'])) {
             $query->where('carburant', $filters['carburant']);
         }
-        if (!empty($filters['prix_min'])) {
+        if (! empty($filters['prix_min'])) {
             $query->where('prix_jour', '>=', $filters['prix_min']);
         }
-        if (!empty($filters['prix_max'])) {
+        if (! empty($filters['prix_max'])) {
             $query->where('prix_jour', '<=', $filters['prix_max']);
         }
-        if (!empty($filters['agence_id'])) {
+        if (! empty($filters['agence_id'])) {
             $query->where('agence_id', $filters['agence_id']);
         }
+
         return $query;
     }
 }

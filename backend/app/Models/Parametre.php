@@ -13,6 +13,7 @@ class Parametre extends Model
     {
         return Cache::remember("parametre_{$cle}", 3600, function () use ($cle, $defaut) {
             $param = static::where('cle', $cle)->first();
+
             return $param ? $param->valeur : $defaut;
         });
     }
@@ -24,6 +25,7 @@ class Parametre extends Model
             'description' => $description,
         ]);
         Cache::forget("parametre_{$cle}");
+
         return $param;
     }
 

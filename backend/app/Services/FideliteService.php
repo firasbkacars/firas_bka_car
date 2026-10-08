@@ -35,6 +35,7 @@ class FideliteService
     public function getReduction(Client $client): float
     {
         $niveau = $this->getNiveau($client);
+
         return $this->niveaux[$niveau]['reduction'];
     }
 
@@ -72,6 +73,7 @@ class FideliteService
                 $niveau = $nom;
             }
         }
+
         return $niveau;
     }
 

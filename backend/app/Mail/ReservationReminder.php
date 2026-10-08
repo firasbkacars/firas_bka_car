@@ -23,7 +23,7 @@ class ReservationReminder extends Mailable implements ShouldQueue
     {
         $subject = $this->type === '24h'
             ? "Rappel : Votre vehicule {$this->reservation->vehicule->marque} {$this->reservation->vehicule->modele} est attendu demain"
-            : "Rappel : Jour de retour de votre vehicule";
+            : 'Rappel : Jour de retour de votre vehicule';
 
         return new Envelope(
             subject: $subject,
@@ -44,7 +44,7 @@ class ReservationReminder extends Mailable implements ShouldQueue
         $vehicule = $r->vehicule;
 
         $message = $this->type === '24h'
-            ? "Nous vous informons que votre vehicule sera disponible des demain."
+            ? 'Nous vous informons que votre vehicule sera disponible des demain.'
             : "Nous vous rappelons que aujourd'hui est le jour du retour de votre vehicule.";
 
         $dateInfo = $this->type === '24h'

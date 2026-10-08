@@ -39,6 +39,7 @@ class ReservationApiTest extends TestCase
             'email' => 'mohammed@gmail.com',
             'password' => 'password123',
             'permis_conduire' => 'permis/mohammed.jpg',
+            'permis_statut' => 'valide',
         ], $overrides));
     }
 
@@ -55,7 +56,7 @@ class ReservationApiTest extends TestCase
     {
         $vehicule = $this->createVehicule();
 
-        $response = $this->getJson("/api/vehicules/{$vehicule->id}/disponibilite?date_debut=" . now()->addDays(10)->toDateString() . '&date_fin=' . now()->addDays(15)->toDateString());
+        $response = $this->getJson("/api/vehicules/{$vehicule->id}/disponibilite?date_debut=".now()->addDays(10)->toDateString().'&date_fin='.now()->addDays(15)->toDateString());
 
         $response->assertOk();
         $response->assertJson([
@@ -86,7 +87,7 @@ class ReservationApiTest extends TestCase
             'mode_paiement' => 'especes',
         ]);
 
-        $response = $this->getJson("/api/vehicules/{$vehicule->id}/disponibilite?date_debut=" . $dateDebut->toDateString() . '&date_fin=' . $dateFin->toDateString());
+        $response = $this->getJson("/api/vehicules/{$vehicule->id}/disponibilite?date_debut=".$dateDebut->toDateString().'&date_fin='.$dateFin->toDateString());
 
         $response->assertOk();
         $this->assertNotEmpty($response->json('reservations'));
@@ -99,8 +100,8 @@ class ReservationApiTest extends TestCase
 
         $response = $this->actingAs($client, 'sanctum')->postJson('/api/reservations', [
             'vehicule_id' => $vehicule->id,
-            'date_debut' => now()->addDays(20)->toDateString() . ' 09:00:00',
-            'date_fin' => now()->addDays(23)->toDateString() . ' 09:00:00',
+            'date_debut' => now()->addDays(20)->toDateString().' 09:00:00',
+            'date_fin' => now()->addDays(23)->toDateString().' 09:00:00',
             'lieu_prise' => 'Tanger',
             'lieu_retour' => 'Tanger',
             'mode_paiement' => 'especes',
@@ -121,8 +122,8 @@ class ReservationApiTest extends TestCase
 
         $response = $this->actingAs($client, 'sanctum')->postJson('/api/reservations', [
             'vehicule_id' => $vehicule->id,
-            'date_debut' => now()->addDays(20)->toDateString() . ' 09:00:00',
-            'date_fin' => now()->addDays(23)->toDateString() . ' 09:00:00',
+            'date_debut' => now()->addDays(20)->toDateString().' 09:00:00',
+            'date_fin' => now()->addDays(23)->toDateString().' 09:00:00',
             'lieu_prise' => 'Tanger',
             'lieu_retour' => 'Tanger',
             'mode_paiement' => 'especes',
@@ -138,8 +139,8 @@ class ReservationApiTest extends TestCase
 
         $response = $this->actingAs($client, 'sanctum')->postJson('/api/reservations', [
             'vehicule_id' => $vehicule->id,
-            'date_debut' => now()->addDays(20)->toDateString() . ' 09:00:00',
-            'date_fin' => now()->addDays(25)->toDateString() . ' 09:00:00',
+            'date_debut' => now()->addDays(20)->toDateString().' 09:00:00',
+            'date_fin' => now()->addDays(25)->toDateString().' 09:00:00',
             'lieu_prise' => 'Tanger',
             'lieu_retour' => 'Tanger',
             'mode_paiement' => 'visa',
@@ -147,8 +148,9 @@ class ReservationApiTest extends TestCase
 
         $response->assertCreated();
         $data = $response->json();
-        $this->assertEquals(3000, $data['prix_total']); // 500 * 6 jours
-        $this->assertEquals(900, $data['acompte']); // 30% de 3000
+        // +20j -> +25j = 5 jours
+        $this->assertEquals(2500, $data['prix_total']); // 500 * 5 jours
+        $this->assertEquals(750, $data['acompte']); // 30% de 2500
     }
 
     public function test_payment_completes_reservation(): void
@@ -222,7 +224,7 @@ class ReservationApiTest extends TestCase
 
         $response->assertOk();
         $data = $response->json();
-        $this->assertNotEmpty($data['vehicules']);
+        $this->assertNotEmpty($data['data']);
     }
 
     public function test_client_registration(): void

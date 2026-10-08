@@ -8,6 +8,7 @@ use App\Models\Maintenance;
 use App\Models\Paiement;
 use App\Models\Reservation;
 use App\Models\Vehicule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -155,13 +156,15 @@ class DashboardController extends Controller
         $dateDebut = $request->get('date_debut', now()->subDays(30)->toDateString());
         $dateFin = $request->get('date_fin', now()->toDateString());
 
-        $totalJours = \Carbon\Carbon::parse($dateDebut)->diffInDays(\Carbon\Carbon::parse($dateFin));
-        if ($totalJours < 1) $totalJours = 1;
+        $totalJours = Carbon::parse($dateDebut)->diffInDays(Carbon::parse($dateFin));
+        if ($totalJours < 1) {
+            $totalJours = 1;
+        }
 
         $vehicules = Vehicule::with(['reservations' => function ($q) use ($dateDebut, $dateFin) {
             $q->where('statut', '!=', 'annulee')
-              ->where('date_debut', '<', $dateFin)
-              ->where('date_fin', '>', $dateDebut);
+                ->where('date_debut', '<', $dateFin)
+                ->where('date_fin', '>', $dateDebut);
         }, 'reservations.paiements'])->get();
 
         $result = [];
@@ -172,6 +175,7 @@ class DashboardController extends Controller
                     $debut = max(strtotime($dateDebut), strtotime($r->date_debut));
                     $fin = min(strtotime($dateFin), strtotime($r->date_fin));
                     $jours = ($fin - $debut) / (60 * 60 * 24);
+
                     return max(0, $jours);
                 });
 
@@ -193,7 +197,7 @@ class DashboardController extends Controller
             ];
         }
 
-        usort($result, fn($a, $b) => $b['revenu_total'] <=> $a['revenu_total']);
+        usort($result, fn ($a, $b) => $b['revenu_total'] <=> $a['revenu_total']);
 
         return response()->json([
             'periode' => ['debut' => $dateDebut, 'fin' => $dateFin, 'total_jours' => $totalJours],

@@ -8,10 +8,95 @@
   --color-dark-border: #2a2a2a;
 }
 
+/* Forces native form controls (select dropdown, date/time pickers) to dark */
+:root {
+  color-scheme: dark;
+}
+
 body {
   background-color: #0a0a0a;
   color: #ffffff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* —— Selects (toute l'application) —— */
+select {
+  color-scheme: dark;
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #2a2a2a;
+  appearance: auto;
+}
+
+select:focus,
+select:focus-visible {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+select option {
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #2a2a2a;
+  padding: 8px 12px;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* Firefox dropdown */
+select::-ms-expand {
+  display: none;
+}
+
+@-moz-document url-prefix() {
+  select {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+  }
+  select option {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+  }
+  select option:hover,
+  select option:checked {
+    background-color: #dc2626 !important;
+  }
+}
+
+/* Date / time inputs compatibles thème sombre */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+  color-scheme: dark;
+  background-color: #111111;
+  color: #ffffff;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.7);
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(1);
+}
+
+/* Scrollbar selects ouverts */
+select option::-moz-selection {
+  background: #dc2626;
+  color: #fff;
 }
 
 ::-webkit-scrollbar {

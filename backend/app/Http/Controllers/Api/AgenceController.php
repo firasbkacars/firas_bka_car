@@ -11,12 +11,14 @@ class AgenceController extends Controller
     public function index()
     {
         $agences = Agence::withCount('vehicules')->orderBy('nom')->get();
+
         return response()->json($agences);
     }
 
     public function indexActive()
     {
         $agences = Agence::where('active', true)->orderBy('nom')->get();
+
         return response()->json($agences);
     }
 
@@ -39,6 +41,7 @@ class AgenceController extends Controller
     public function show($id)
     {
         $agence = Agence::withCount('vehicules')->findOrFail($id);
+
         return response()->json($agence);
     }
 
@@ -66,7 +69,7 @@ class AgenceController extends Controller
 
         if ($agence->vehicules()->count() > 0) {
             return response()->json([
-                'message' => 'Impossible de supprimer cette agence. Des vehicules y sont rattaches.'
+                'message' => 'Impossible de supprimer cette agence. Des vehicules y sont rattaches.',
             ], 422);
         }
 

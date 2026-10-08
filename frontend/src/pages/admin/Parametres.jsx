@@ -28,7 +28,7 @@ export default function Parametres() {
       await api.put('/parametres', { parametres: parametresArray });
       setToast({ type: 'success', message: 'Parametres sauvegardes' });
       setTimeout(() => setToast(null), 3000);
-    } catch (err) {
+    } catch {
       setToast({ type: 'error', message: 'Erreur lors de la sauvegarde' });
       setTimeout(() => setToast(null), 3000);
     } finally { setSaving(false); }

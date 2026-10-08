@@ -44,7 +44,7 @@ function Thumbnail({ src, alt, active, onClick }) {
   );
 }
 
-function DatePicker({ label, id, value, onChange, min }) {
+function DatePicker({ label, id, value, onChange }) {
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(value ? new Date(value + 'T00:00:00') : new Date());
   const today = new Date();
@@ -249,7 +249,7 @@ export default function VehiculeDetail() {
 
   const submitReview = async () => {
     if (!client) {
-      navigate('/client/login');
+      navigate('/client/login', { state: { from: `/vehicules/${id}` } });
       return;
     }
     setReviewError('');
@@ -257,7 +257,6 @@ export default function VehiculeDetail() {
     setSubmittingReview(true);
     try {
       await api.post('/avis', {
-        client_id: client.id,
         vehicule_id: parseInt(id),
         note: reviewForm.note,
         commentaire: reviewForm.commentaire || null,

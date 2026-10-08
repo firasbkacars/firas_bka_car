@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Reservation;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -21,7 +21,7 @@ class FactureController extends Controller
 
         $pdf = Pdf::loadView('pdf.facture', ['reservation' => $reservation]);
 
-        return $pdf->download('facture-' . $reservation->numero . '.pdf');
+        return $pdf->download('facture-'.$reservation->numero.'.pdf');
     }
 
     public function preview($reservationId, Request $request)
@@ -35,7 +35,7 @@ class FactureController extends Controller
 
         $pdf = Pdf::loadView('pdf.facture', ['reservation' => $reservation]);
 
-        return $pdf->inline('facture-' . $reservation->numero . '.pdf');
+        return $pdf->inline('facture-'.$reservation->numero.'.pdf');
     }
 
     public function downloadContrat($reservationId, Request $request)
@@ -56,6 +56,6 @@ class FactureController extends Controller
 
         $pdf = Pdf::loadView('pdf.contrat', ['reservation' => $reservation]);
 
-        return $pdf->download('contrat-location-' . $reservation->numero . '.pdf');
+        return $pdf->download('contrat-location-'.$reservation->numero.'.pdf');
     }
 }

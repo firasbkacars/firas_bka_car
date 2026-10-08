@@ -24,13 +24,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 
-    # Send Admin Requests To Front Controller...
-    RewriteCond %{REQUEST_URI} ^/admin
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-
     # Send All Other Requests To React SPA...
+    # (/admin est une route React, pas Laravel — ne pas réécrire vers index.php)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.html [L]

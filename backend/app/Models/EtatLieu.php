@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EtatLieu extends Model
 {
+    protected $table = 'etats_lieux';
+
     protected $fillable = [
         'reservation_id',
         'type',

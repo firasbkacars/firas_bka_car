@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" fill="white"><text x="60" y="28" font-family="Arial,sans-serif" font-size="22" font-weight="bold" text-anchor="middle" letter-spacing="2">PEUGEOT</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="ch" x1="40" y1="8" x2="40" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="22%" stop-color="#e8e8e8"/>
+      <stop offset="45%" stop-color="#9a9a9a"/>
+      <stop offset="52%" stop-color="#f5f5f5"/>
+      <stop offset="70%" stop-color="#b0b0b0"/>
+      <stop offset="100%" stop-color="#6e6e6e"/>
+    </linearGradient>
+  </defs>
+  <path d="M40 8 L62 18 V40 C62 55 52 66 40 72 C28 66 18 55 18 40 V18 Z" stroke="url(#ch)" stroke-width="5" fill="none" stroke-linejoin="round"/>
+  <path d="M48 28 C44 24 36 24 33 30 C30 36 34 42 30 48 C26 54 30 62 38 62 C34 56 36 50 40 46 C44 42 48 36 46 30 C45 27 42 26 40 28 C38 30 40 34 42 36" stroke="url(#ch)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 24 L50 20 L48 28 Z" fill="url(#ch)"/>
+  <path d="M36 58 L44 58 L40 66 Z" fill="url(#ch)"/>
+</svg>

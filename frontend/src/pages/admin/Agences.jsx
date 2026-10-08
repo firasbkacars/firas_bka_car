@@ -22,7 +22,7 @@ export default function Agences() {
 
   const fetchAgences = async () => {
     try {
-      const { data } = await api.get('/agences');
+      const { data } = await api.get('/agences-admin');
       setAgences(data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }

@@ -30,7 +30,7 @@ class VehiculePhotoController extends Controller
 
         return response()->json([
             'photos' => $vehicule->photos,
-            'message' => count($paths) . ' photo(s) ajoutée(s)',
+            'message' => count($paths).' photo(s) ajoutée(s)',
         ]);
     }
 

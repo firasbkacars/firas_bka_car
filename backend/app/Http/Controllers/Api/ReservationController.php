@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReservationRequest;
 use App\Jobs\SendReservationConfirmation;
 use App\Mail\AdminNewReservation;
-use App\Models\Client;
 use App\Models\CodePromo;
 use App\Models\Paiement;
 use App\Models\Parametre;
 use App\Models\Reservation;
+use App\Models\User;
 use App\Models\Vehicule;
 use App\Services\FideliteService;
+use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class ReservationController extends Controller
@@ -27,8 +30,7 @@ class ReservationController extends Controller
             $query->where('statut', $request->get('statut'));
         }
 
-        $reservations = $query->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 20));
+        $reservations = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json($reservations);
     }
@@ -37,7 +39,7 @@ class ReservationController extends Controller
     {
         $client = $request->user();
 
-        if (!$client) {
+        if (! $client) {
             return response()->json(['message' => 'Vous devez etre connecte pour reserver'], 401);
         }
 
@@ -56,14 +58,20 @@ class ReservationController extends Controller
                 ->lockForUpdate()
                 ->first();
 
+            if (! $vehicule) {
+                abort(422, 'Vehicule introuvable');
+            }
+
             if ($vehicule->statut !== 'disponible') {
                 abort(422, 'Vehicule non disponible');
             }
 
-            $dateDebut = \Carbon\Carbon::parse($validated['date_debut']);
-            $dateFin = \Carbon\Carbon::parse($validated['date_fin']);
-            $jours = $dateDebut->diffInDays($dateFin);
-            if ($jours < 1) $jours = 1;
+            $dateDebut = Carbon::parse($validated['date_debut']);
+            $dateFin = Carbon::parse($validated['date_fin']);
+            $jours = (int) $dateDebut->diffInDays($dateFin);
+            if ($jours < 1) {
+                $jours = 1;
+            }
 
             $conflit = Reservation::where('vehicule_id', $vehicule->id)
                 ->where('statut', '!=', 'annulee')
@@ -79,7 +87,7 @@ class ReservationController extends Controller
             $remise = 0;
             $codePromoValue = null;
 
-            if (!empty($validated['code_promo'])) {
+            if (! empty($validated['code_promo'])) {
                 $codePromo = CodePromo::where('code', strtoupper($validated['code_promo']))->first();
 
                 if ($codePromo && $codePromo->isValid()) {
@@ -90,20 +98,20 @@ class ReservationController extends Controller
                 }
             }
 
-            $tauxAcompte = Parametre::getNumeric('taux_acompte', 30) / 100;
-            $acompte = $prixTotal * $tauxAcompte;
-
             $montantCaution = $vehicule->montant_caution ?? 0;
 
             $supplementConducteur = 0;
-            if (!empty($validated['conducteur_additionnel_nom'])) {
+            if (! empty($validated['conducteur_additionnel_nom'])) {
                 $supplementParJour = Parametre::getNumeric('supplement_conducteur_jour', 50);
                 $supplementConducteur = $supplementParJour * $jours;
                 $prixTotal += $supplementConducteur;
             }
 
-            $reservation = Reservation::create([
-                'numero' => Reservation::genererNumero(),
+            // L'acompte est calcule APRES le supplement pour rester coherent avec prix_total.
+            $tauxAcompte = Parametre::getNumeric('taux_acompte', 30) / 100;
+            $acompte = $prixTotal * $tauxAcompte;
+
+            $reservation = $this->createWithUniqueNumero([
                 'client_id' => $client->id,
                 'vehicule_id' => $vehicule->id,
                 'agence_id' => $validated['agence_id'] ?? null,
@@ -153,7 +161,7 @@ class ReservationController extends Controller
         try {
             Mail::to($adminEmail)->send(new AdminNewReservation($reservation));
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send admin notification', ['error' => $e->getMessage()]);
+            Log::error('Failed to send admin notification', ['error' => $e->getMessage()]);
         }
 
         return response()->json($reservation, 201);
@@ -167,11 +175,11 @@ class ReservationController extends Controller
 
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Non autorise'], 401);
         }
 
-        if ($user instanceof \App\Models\User) {
+        if ($user instanceof User) {
             return response()->json($reservation);
         }
 
@@ -207,8 +215,8 @@ class ReservationController extends Controller
         $oldStatut = $reservation->statut;
 
         if (isset($validated['date_fin']) && $validated['date_fin'] !== $reservation->date_fin) {
-            $newDateFin = \Carbon\Carbon::parse($validated['date_fin']);
-            $oldDateFin = \Carbon\Carbon::parse($reservation->date_fin);
+            $newDateFin = Carbon::parse($validated['date_fin']);
+            $oldDateFin = Carbon::parse($reservation->date_fin);
 
             if ($newDateFin->gt($oldDateFin)) {
                 $joursSupplementaires = $oldDateFin->diffInDays($newDateFin);
@@ -276,12 +284,12 @@ class ReservationController extends Controller
             ->where('client_id', $client->id)
             ->firstOrFail();
 
-        if (!in_array($reservation->statut, ['confirmee', 'en_cours'])) {
+        if (! in_array($reservation->statut, ['confirmee', 'en_cours'])) {
             return response()->json(['message' => 'Cette reservation ne peut plus etre annulee'], 422);
         }
 
         $montantRembourse = 0;
-        $dateDebut = \Carbon\Carbon::parse($reservation->date_debut);
+        $dateDebut = Carbon::parse($reservation->date_debut);
         $heuresAvant = now()->diffInHours($dateDebut, false);
 
         if ($heuresAvant >= 48) {
@@ -317,14 +325,21 @@ class ReservationController extends Controller
 
     public function prolonger(Request $request, $id)
     {
-        $reservation = Reservation::findOrFail($id);
+        $user = $request->user();
+
+        $query = Reservation::query();
+        if (! $user instanceof User) {
+            $query->where('client_id', $user->id);
+        }
+
+        $reservation = $query->findOrFail($id);
 
         $validated = $request->validate([
-            'date_fin' => 'required|date|after:' . $reservation->date_fin,
+            'date_fin' => 'required|date|after:'.$reservation->date_fin,
         ]);
 
-        $newDateFin = \Carbon\Carbon::parse($validated['date_fin']);
-        $oldDateFin = \Carbon\Carbon::parse($reservation->date_fin);
+        $newDateFin = Carbon::parse($validated['date_fin']);
+        $oldDateFin = Carbon::parse($reservation->date_fin);
         $joursSupplementaires = $oldDateFin->diffInDays($newDateFin);
 
         $conflit = Reservation::where('vehicule_id', $reservation->vehicule_id)
@@ -361,6 +376,35 @@ class ReservationController extends Controller
         } elseif ($heuresAvant >= 24) {
             return 'Annulation partielle - Remboursement de 50% de l\'acompte';
         }
+
         return 'Annulation tardive - Acompte non remboursable';
+    }
+
+    /**
+     * Cree une reservation en regenerant le numero en cas de collision
+     * (index unique sur reservations.numero, generateur non atomique).
+     */
+    private function createWithUniqueNumero(array $attributes): Reservation
+    {
+        $lastException = null;
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            try {
+                return Reservation::create(array_merge($attributes, [
+                    'numero' => Reservation::genererNumero(),
+                ]));
+            } catch (QueryException $e) {
+                $lastException = $e;
+
+                $isUniqueViolation = (string) $e->getCode() === '23000'
+                    || str_contains(strtolower($e->getMessage()), 'unique');
+
+                if (! $isUniqueViolation) {
+                    throw $e;
+                }
+            }
+        }
+
+        throw $lastException;
     }
 }

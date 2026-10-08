@@ -141,12 +141,22 @@ export default function Vehicules() {
     carburant: searchParams.get('carburant') || '',
     prix_max: searchParams.get('prix_max') || '',
     agence_id: searchParams.get('agence_id') || '',
+    ville: searchParams.get('lieu_prise') || '',
+  });
+  // Parametres issus de la barre de recherche d'accueil / liens du footer.
+  // Sans etat, ils seraient ignores et la recherche perdrait ses criteres.
+  const [search, setSearch] = useState({
+    date_debut: searchParams.get('date_prise') || '',
+    date_fin: searchParams.get('date_retour') || '',
+    populaire: searchParams.get('populaire') || '',
   });
   const [tri, setTri] = useState('popularite');
   const [compareList, setCompareList] = useState([]);
   const [agences, setAgences] = useState([]);
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + Object.values(search).filter(Boolean).length;
+
+  const villes = [...new Set(agences.map((a) => a.ville).filter(Boolean))];
 
   const toggleCompare = (vehicule) => {
     setCompareList(prev => {
@@ -165,19 +175,22 @@ export default function Vehicules() {
 
   const goToCompare = () => {
     const ids = compareList.map(v => v.id).join(',');
-    navigate(`/vehicules?compare=${ids}`);
+    navigate(`/vehicules/compare?compare=${ids}`);
   };
 
   useEffect(() => {
     fetchVehicules();
     fetchAgences();
-  }, [filters, tri]);
+  }, [filters, search, tri]);
 
   const fetchVehicules = async () => {
     try {
       setLoading(true);
       const params = { tri, disponibles: 1 };
       Object.entries(filters).forEach(([k, v]) => {
+        if (v) params[k] = v;
+      });
+      Object.entries(search).forEach(([k, v]) => {
         if (v) params[k] = v;
       });
       const { data } = await api.get('/vehicules', { params });
@@ -200,7 +213,8 @@ export default function Vehicules() {
   };
 
   const resetFilters = useCallback(() => {
-    setFilters({ categorie: '', marque: '', transmission: '', carburant: '', prix_max: '', agence_id: '' });
+    setFilters({ categorie: '', marque: '', transmission: '', carburant: '', prix_max: '', agence_id: '', ville: '' });
+    setSearch({ date_debut: '', date_fin: '', populaire: '' });
     setTri('popularite');
     setFiltersOpen(false);
   }, []);
@@ -209,8 +223,40 @@ export default function Vehicules() {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  const removeSearchParam = (key, scope) => {
+    if (scope === 'filters') {
+      setFilters(prev => ({ ...prev, [key]: '' }));
+    } else {
+      setSearch(prev => ({ ...prev, [key]: '' }));
+    }
+  };
+
+  const searchChips = [
+    filters.ville && { key: 'ville', label: `Lieu : ${filters.ville}`, scope: 'filters' },
+    search.date_debut && { key: 'date_debut', label: `Du : ${search.date_debut}`, scope: 'search' },
+    search.date_fin && { key: 'date_fin', label: `Au : ${search.date_fin}`, scope: 'search' },
+    search.populaire && { key: 'populaire', label: 'Populaires uniquement', scope: 'search' },
+  ].filter(Boolean);
+
   const FiltersContent = () => (
     <div className="space-y-6">
+      <div>
+        <label htmlFor="f-ville" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-2 block">
+          Lieu de prise
+        </label>
+        <select
+          id="f-ville"
+          value={filters.ville}
+          onChange={(e) => updateFilter('ville', e.target.value)}
+          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+        >
+          <option value="">Tous les lieux</option>
+          {villes.map((ville) => (
+            <option key={ville} value={ville}>{ville}</option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <label htmlFor="f-agence" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-2 block">
           Agence
@@ -494,6 +540,28 @@ export default function Vehicules() {
                 </select>
               </div>
             </div>
+
+            {/* Criteria coming from the home search bar / footer links */}
+            {searchChips.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {searchChips.map((chip) => (
+                  <button
+                    key={chip.key}
+                    onClick={() => removeSearchParam(chip.key, chip.scope)}
+                    className="group flex items-center gap-1.5 bg-[#dc2626]/10 border border-[#dc2626]/30 text-[#dc2626] text-xs font-medium px-3 py-1.5 rounded-full hover:bg-[#dc2626]/20 transition"
+                  >
+                    {chip.label}
+                    <X size={12} className="group-hover:scale-125 transition-transform" />
+                  </button>
+                ))}
+                <button
+                  onClick={resetFilters}
+                  className="text-white/40 text-xs hover:text-white underline underline-offset-2 transition"
+                >
+                  Tout effacer
+                </button>
+              </div>
+            )}
 
             {/* Grid */}
             {loading ? (

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Services\FideliteService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class FideliteController extends Controller
 {
@@ -17,9 +16,13 @@ class FideliteController extends Controller
         $this->fidelite = $fidelite;
     }
 
-    public function show()
+    public function show(Request $request)
     {
-        $client = Auth::user();
+        $client = $request->user();
+
+        if (! $client instanceof Client) {
+            return response()->json(['message' => 'Acces reserve aux clients'], 403);
+        }
 
         return response()->json([
             'nombre_locations' => $client->nombre_locations,

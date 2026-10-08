@@ -19,7 +19,7 @@ class EmailVerificationController extends Controller
             return response()->json(['message' => 'Email deja verifie']);
         }
 
-        if (!$client->email) {
+        if (! $client->email) {
             return response()->json(['message' => 'Aucun email associe au compte'], 422);
         }
 
@@ -37,7 +37,7 @@ class EmailVerificationController extends Controller
     {
         $client = Client::where('email_verification_token', $token)->first();
 
-        if (!$client) {
+        if (! $client) {
             return response()->json(['message' => 'Token invalide'], 422);
         }
 

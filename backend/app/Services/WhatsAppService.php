@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppService
 {
     private string $phoneNumberId;
+
     private string $accessToken;
+
     private string $apiVersion;
 
     public function __construct()
@@ -56,7 +58,7 @@ class WhatsAppService
             ],
         ];
 
-        if (!empty($components)) {
+        if (! empty($components)) {
             $payload['template']['components'] = $components;
         }
 
@@ -100,11 +102,11 @@ class WhatsAppService
             'aide' => "Voici ce que je peux faire pour vous :\n\n1. Verifier la disponibilite d'un vehicule\n2. Vous aider a reserver\n3. Gérer votre reservation\n4. Vous mettre en contact avec un agent",
             'dispo' => "Pour verifier la disponibilite, veuillez me preciser :\n- La date de debut (JJ/MM/AAAA)\n- La date de fin (JJ/MM/AAAA)\n- Le type de vehicule souhaite",
             'reserver' => "Pour reserver, rendez-vous sur notre site :\nhttps://firasbkacar.com/vehicules\n\nOu dites-moi vos dates pour verifier la disponibilite.",
-            'annuler' => "Pour annuler une reservation, veuillez me communiquer votre numero de reservation (format: FBC-XX-XXXXX).",
+            'annuler' => 'Pour annuler une reservation, veuillez me communiquer votre numero de reservation (format: FBC-XX-XXXXX).',
             'agent' => "Un agent va vous repondre dans les plus brefs delais.\n\nHoraires : 8h-20h, 7j/7\nTelephone : +212 6 00 00 00 00",
             'merci' => "Avec plaisir ! N'hesitez pas si vous avez d'autres questions.",
-            'au revoir' => "Au revoir et merci de votre confiance !",
-            'bonsoir' => "Bonsoir ! Bienvenue chez FIRAS BKA CAR. Comment puis-je vous aider ?",
+            'au revoir' => 'Au revoir et merci de votre confiance !',
+            'bonsoir' => 'Bonsoir ! Bienvenue chez FIRAS BKA CAR. Comment puis-je vous aider ?',
         ];
 
         $reply = null;
@@ -115,7 +117,7 @@ class WhatsAppService
             }
         }
 
-        if (!$reply) {
+        if (! $reply) {
             $reply = "Je ne suis pas sur de comprendre. Voici les options disponibles :\n\n1. Verifier disponibilite\n2. Reserver un vehicule\n3. Annuler une reservation\n4. Parler a un agent";
         }
 

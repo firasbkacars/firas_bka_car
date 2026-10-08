@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CodePromo;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 
 class CodePromoController extends Controller
@@ -17,7 +18,7 @@ class CodePromoController extends Controller
 
         $codePromo = CodePromo::where('code', strtoupper($request->code))->first();
 
-        if (!$codePromo || !$codePromo->isValid()) {
+        if (! $codePromo || ! $codePromo->isValid()) {
             return response()->json([
                 'valid' => false,
                 'message' => 'Code promo invalide ou expire',
@@ -44,6 +45,7 @@ class CodePromoController extends Controller
     public function index()
     {
         $codes = CodePromo::orderBy('created_at', 'desc')->get();
+
         return response()->json($codes);
     }
 
@@ -71,7 +73,7 @@ class CodePromoController extends Controller
         $code = CodePromo::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'sometimes|string|max:50|unique:code_promos,code,' . $id,
+            'code' => 'sometimes|string|max:50|unique:code_promos,code,'.$id,
             'type' => 'sometimes|in:pourcentage,montant_fixe',
             'valeur' => 'sometimes|numeric|min:0',
             'date_expiration' => 'sometimes|date',
@@ -100,7 +102,7 @@ class CodePromoController extends Controller
     {
         $code = CodePromo::findOrFail($id);
 
-        $reservations = \App\Models\Reservation::where('code_promo', $code->code)->get();
+        $reservations = Reservation::where('code_promo', $code->code)->get();
 
         $totalRemise = $reservations->sum('remise');
         $nombreUtilisations = $reservations->count();

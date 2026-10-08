@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Car, Shield, Headphones, MapPin, Calendar, Clock, ChevronRight, Star, Fuel, Users, Settings2 } from 'lucide-react';
+import { Car, Shield, Headphones, MapPin, Calendar, ChevronRight, Star, Fuel, Users, Settings2 } from 'lucide-react';
 import api from '../services/api';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
@@ -80,7 +80,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    api.get('/vehicules', { params: { tri: 'popularite', limit: 4 } })
+    api.get('/vehicules', { params: { tri: 'popularite', per_page: 4 } })
       .then(({ data }) => {
         const list = data.vehicules || data.data || data || [];
         setVehiculesPopulaires(Array.isArray(list) ? list.slice(0, 4) : []);
@@ -199,15 +199,25 @@ export default function Home() {
       <section className="py-14 px-6 md:px-12 mt-8">
         <div className="max-w-7xl mx-auto">
           <p className="text-center text-white/20 text-[10px] uppercase tracking-[0.3em] font-medium mb-8">Nos marques partenaires</p>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-14">
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
             {BRANDS.map((brand, i) => (
-              <div key={i} className="flex items-center justify-center h-10 w-24 shrink-0">
+              <div
+                key={i}
+                className="group flex items-center justify-center h-14 w-16 shrink-0 opacity-55 hover:opacity-100 transition-all duration-300"
+                title={brand.name}
+              >
                 <img
                   src={brand.logo}
                   alt={brand.name}
-                  className="max-h-7 max-w-full object-contain grayscale opacity-30 hover:opacity-80 hover:grayscale-0 transition duration-300"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="max-h-11 max-w-full object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition duration-300"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'block';
+                  }}
                 />
+                <span className="hidden text-white/60 text-xs font-semibold uppercase tracking-widest">
+                  {brand.name}
+                </span>
               </div>
             ))}
           </div>

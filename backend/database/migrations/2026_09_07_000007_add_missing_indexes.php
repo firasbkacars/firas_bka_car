@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::table('reservations', function (Blueprint $table) {
             $table->index('statut');
-            $table->index('code_promo');
+            if (Schema::hasColumn('reservations', 'code_promo')) {
+                $table->index('code_promo');
+            }
             $table->index(['vehicule_id', 'statut', 'date_debut', 'date_fin']);
         });
 
@@ -24,7 +26,9 @@ return new class extends Migration
     {
         Schema::table('reservations', function (Blueprint $table) {
             $table->dropIndex(['statut']);
-            $table->dropIndex(['code_promo']);
+            if (Schema::hasColumn('reservations', 'code_promo')) {
+                $table->dropIndex(['code_promo']);
+            }
             $table->dropIndex(['vehicule_id', 'statut', 'date_debut', 'date_fin']);
         });
 

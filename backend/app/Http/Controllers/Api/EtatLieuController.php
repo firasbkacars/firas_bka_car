@@ -21,6 +21,7 @@ class EtatLieuController extends Controller
         }
 
         $etats = $query->orderBy('created_at', 'desc')->get();
+
         return response()->json($etats);
     }
 
@@ -43,6 +44,7 @@ class EtatLieuController extends Controller
     public function show($id)
     {
         $etat = EtatLieu::with(['reservation.client', 'reservation.vehicule', 'agent'])->findOrFail($id);
+
         return response()->json($etat);
     }
 }

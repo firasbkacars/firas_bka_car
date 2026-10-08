@@ -20,9 +20,10 @@ class WhatsAppController extends Controller
     public function webhook(Request $request)
     {
         if ($request->isMethod('get')) {
-            $mode = $request->query('hub_mode');
-            $token = $request->query('hub_verify_token');
-            $challenge = $request->query('hub_challenge');
+            // Meta envoie hub.mode / hub.verify_token / hub.challenge (points).
+            $mode = $request->query('hub.mode', $request->query('hub_mode'));
+            $token = $request->query('hub.verify_token', $request->query('hub_verify_token'));
+            $challenge = $request->query('hub.challenge', $request->query('hub_challenge'));
 
             $verifyToken = config('services.whatsapp.verify_token');
 
@@ -38,19 +39,22 @@ class WhatsAppController extends Controller
 
         if (empty($appSecret)) {
             Log::error('WhatsApp webhook called but WHATSAPP_APP_SECRET is not configured');
+
             return response()->json(['error' => 'Webhook not configured'], 500);
         }
 
         if (empty($signature)) {
             Log::warning('WhatsApp webhook missing signature');
+
             return response()->json(['error' => 'Missing signature'], 401);
         }
 
         $rawPayload = file_get_contents('php://input');
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $rawPayload, $appSecret);
+        $expectedSignature = 'sha256='.hash_hmac('sha256', $rawPayload, $appSecret);
 
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (! hash_equals($expectedSignature, $signature)) {
             Log::warning('WhatsApp webhook signature mismatch');
+
             return response()->json(['error' => 'Invalid signature'], 403);
         }
 

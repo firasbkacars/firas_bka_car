@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/AuthLayout';
 import { Eye, EyeOff, Loader2, AlertTriangle, Check } from 'lucide-react';
 
 export default function ClientLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
@@ -19,7 +20,8 @@ export default function ClientLogin() {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate('/client/profil');
+      const from = location.state?.from;
+      navigate(from && typeof from === 'string' && from.startsWith('/') ? from : '/client/profil', { replace: true });
     } catch (err) {
       if (err.response?.status === 429) {
         setError('Trop de tentatives. Veuillez réessayer dans 1 minute.');

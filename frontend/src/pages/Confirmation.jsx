@@ -1,19 +1,78 @@
-import { useLocation, Link } from 'react-router-dom';
-import { CheckCircle2, Phone, MessageCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLocation, useSearchParams, Link } from 'react-router-dom';
+import { CheckCircle2, Phone, MessageCircle, Loader2 } from 'lucide-react';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Confirmation() {
   const { state } = useLocation();
-  const reservation = state?.reservation;
-  const vehicule = state?.vehicule;
+  const [searchParams] = useSearchParams();
+  const { token } = useAuth();
+
+  const [reservation, setReservation] = useState(state?.reservation ?? null);
+  const [vehicule, setVehicule] = useState(state?.vehicule ?? null);
+  const [loading, setLoading] = useState(!state?.reservation);
+  const [error, setError] = useState('');
+
+  const numero = state?.reservation?.numero || searchParams.get('numero');
+
+  useEffect(() => {
+    if (state?.reservation) {
+      setLoading(false);
+      return;
+    }
+
+    if (!numero || !token) {
+      setLoading(false);
+      setError(numero ? 'Connectez-vous pour consulter cette réservation.' : 'Aucune réservation trouvée.');
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { data } = await api.get(`/reservations/${encodeURIComponent(numero)}`);
+        if (cancelled) return;
+        setReservation(data);
+        setVehicule(data.vehicule ?? null);
+      } catch {
+        if (!cancelled) setError('Réservation introuvable.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state, numero, token]);
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
+        <Loader2 size={28} className="animate-spin text-[#dc2626] mx-auto" />
+        <p className="text-gray-400 mt-4 text-sm">Chargement de la réservation...</p>
+      </div>
+    );
+  }
 
   if (!reservation) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
-        <p className="text-gray-400 mb-4">Aucune réservation trouvée.</p>
-        <Link to="/" className="text-[#dc2626] hover:underline">Retour à l'accueil</Link>
+        <p className="text-gray-400 mb-4">{error || 'Aucune réservation trouvée.'}</p>
+        <div className="flex items-center justify-center gap-4 text-sm">
+          <Link to="/" className="text-[#dc2626] hover:underline">Retour à l'accueil</Link>
+          <Link to="/vehicules" className="text-[#dc2626] hover:underline">Voir les véhicules</Link>
+        </div>
       </div>
     );
   }
+
+  const vehiculePhoto = vehicule?.photos?.[0];
+  const vehiculePhotoSrc = vehiculePhoto && !vehiculePhoto.startsWith('http') && !vehiculePhoto.startsWith('/')
+    ? `/storage/${vehiculePhoto}`
+    : vehiculePhoto;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-24 pb-16">
@@ -58,7 +117,7 @@ export default function Confirmation() {
           {vehicule && (
             <div className="flex items-center gap-3">
               <img
-                src={vehicule.photos?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
+                src={vehiculePhotoSrc || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
                 alt={vehicule.modele}
                 className="w-20 h-14 object-cover rounded"
               />
