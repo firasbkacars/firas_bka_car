@@ -33,3 +33,7 @@ storage/framework/cache/*
 
 # Compiled views
 resources/views/cache/*
+
+# Cloudflare / Wrangler local state (account info, cache, tmp)
+.cloudflare/
+.wrangler/
