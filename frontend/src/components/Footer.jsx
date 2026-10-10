@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Phone, MapPin, Mail, Clock, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { Phone, MapPin, Mail, Clock, ChevronRight, ArrowUpRight, Lock } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -185,7 +185,14 @@ export default function Footer() {
             <p className="text-neutral-600 text-xs">
               &copy; {currentYear} FIRAS BKA CAR. Tous droits reserves.
             </p>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-4">
+              <Link
+                to="/admin/login"
+                className="inline-flex items-center gap-1.5 text-neutral-600 hover:text-neutral-400 text-xs transition-colors"
+              >
+                <Lock size={12} />
+                Espace admin
+              </Link>
               <a
                 href="https://wa.me/212681181813"
                 target="_blank"
