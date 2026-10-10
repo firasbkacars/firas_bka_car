@@ -1,0 +1,24 @@
+# MySQL 8 pour FIRAS BKA CAR sur Fly.io (app separee, reseau prive <app>.internal)
+# Deploy : fly deploy -c fly.mysql.toml --image mysql:8.4
+app = 'firas-bka-car-mysql'
+primary_region = 'ams'
+
+[build]
+
+[env]
+  MYSQL_DATABASE = 'firas_bka_car'
+  MYSQL_USER = 'firas'
+  MYSQL_RANDOM_ROOT_PASSWORD = '1'
+  TZ = 'Europe/Paris'
+
+# Pas de [http_service] : la base n'est exposee que sur le reseau prive Fly,
+# atteignable via firas-bka-car-mysql.internal:3306
+
+[[mounts]]
+  source = 'mysql_data'
+  destination = '/var/lib/mysql'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

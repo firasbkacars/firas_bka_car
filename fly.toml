@@ -1,25 +1,34 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'firas-bka-car-rental'
-primary_region = 'cdg'
+app = 'firas-bka-car-mrlpqq'
+primary_region = 'ams'
 
 [build]
 
   [build.args]
 
 [env]
+  APP_NAME = 'FIRAS BKA CAR'
   APP_ENV = 'production'
   APP_DEBUG = 'false'
-  APP_URL = 'https://firas-bka-car.fly.dev'
+  APP_URL = 'https://firas-bka-car-mrlpqq.fly.dev'
+  FRONTEND_URL = 'https://firas-bka-car-mrlpqq.fly.dev'
   APP_LOCALE = 'fr'
+  FILESYSTEM_DISK = 'public'
   DB_CONNECTION = 'mysql'
+  DB_HOST = 'firas-bka-car-mysql.internal'
   DB_PORT = '3306'
   DB_DATABASE = 'firas_bka_car'
+  DB_USERNAME = 'firas'
   SESSION_DRIVER = 'database'
+  SANCTUM_STATEFUL_DOMAINS = 'firas-bka-car-mrlpqq.fly.dev'
   CACHE_STORE = 'database'
   QUEUE_CONNECTION = 'database'
   MAIL_MAILER = 'log'
+  LOG_CHANNEL = 'stderr'
+  MEDIA_DISK = 'public'
+  PHP_CLI_SERVER_WORKERS = '4'
 
 [http_service]
   internal_port = 8080
@@ -33,6 +42,10 @@ primary_region = 'cdg'
     type = 'connections'
     hard_limit = 250
     soft_limit = 200
+
+[[mounts]]
+  source = 'app_storage'
+  destination = '/var/www/storage/app/public'
 
 [[vm]]
   memory = '512mb'
