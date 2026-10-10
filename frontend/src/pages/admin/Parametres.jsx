@@ -110,7 +110,7 @@ export default function Parametres() {
             </div>
             <div>
               <label className="text-neutral-400 text-sm mb-1 block">Email</label>
-              <input type="email" defaultValue="contact@firasbkacar.com" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <input type="email" defaultValue="firasbkacars@gmail.com" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
             <div>
               <label className="text-neutral-400 text-sm mb-1 block">Telephone</label>

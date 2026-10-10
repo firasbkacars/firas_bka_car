@@ -128,12 +128,12 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@firasbkacar.com" className="flex items-start gap-3 group">
+                <a href="mailto:firasbkacars@gmail.com" className="flex items-start gap-3 group">
                   <div className="w-8 h-8 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0 mt-0.5">
                     <Mail size={14} className="text-[#dc2626]" />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium group-hover:text-[#dc2626] transition-colors">contact@firasbkacar.com</p>
+                    <p className="text-white text-sm font-medium group-hover:text-[#dc2626] transition-colors">firasbkacars@gmail.com</p>
                   </div>
                 </a>
               </li>

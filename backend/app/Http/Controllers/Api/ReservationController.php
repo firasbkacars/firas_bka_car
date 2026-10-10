@@ -157,7 +157,7 @@ class ReservationController extends Controller
 
         SendReservationConfirmation::dispatch($reservation->id);
 
-        $adminEmail = config('mail.from.address', 'admin@firasbkacar.com');
+        $adminEmail = config('mail.from.address', 'firasbkacars@gmail.com');
         try {
             Mail::to($adminEmail)->send(new AdminNewReservation($reservation));
         } catch (\Exception $e) {

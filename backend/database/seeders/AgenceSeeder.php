@@ -14,7 +14,7 @@ class AgenceSeeder extends Seeder
             'adresse' => 'Avenue des FAR, Tanger',
             'ville' => 'Tanger',
             'telephone' => '+212 522 00 00 00',
-            'email' => 'tanger@firasbkacar.com',
+            'email' => 'firasbkacars@gmail.com',
             'active' => true,
         ]);
     }

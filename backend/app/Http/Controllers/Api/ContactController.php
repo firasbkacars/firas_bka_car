@@ -19,7 +19,7 @@ class ContactController extends Controller
             'message' => 'required|string|min:5|max:2000',
         ]);
 
-        $to = config('mail.from.address', 'contact@firasbkacar.com');
+        $to = config('mail.from.address', 'firasbkacars@gmail.com');
 
         try {
             Mail::to($to)->send(new ContactMessage($validated));
