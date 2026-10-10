@@ -108,6 +108,7 @@ class VehiculeController extends Controller
         $validated = $request->validate([
             'marque' => 'required|string|max:255',
             'modele' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'categorie' => 'required|string|max:255',
             'annee' => 'required|integer|min:1990|max:2030',
             'transmission' => 'required|in:automatique,manuelle',
@@ -135,6 +136,7 @@ class VehiculeController extends Controller
         $validated = $request->validate([
             'marque' => 'sometimes|string|max:255',
             'modele' => 'sometimes|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'categorie' => 'sometimes|string|max:255',
             'annee' => 'sometimes|integer|min:1990|max:2030',
             'transmission' => 'sometimes|in:automatique,manuelle',

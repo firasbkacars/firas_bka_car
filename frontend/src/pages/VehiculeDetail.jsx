@@ -406,9 +406,11 @@ export default function VehiculeDetail() {
                   Caution remboursable : {vehicule.montant_caution} DH
                 </p>
               )}
-              <p className="text-white/40 text-sm mt-3 max-w-xl leading-relaxed">
-                Berline élégante, confortable et performante. Idéale pour vos déplacements professionnels ou personnels à Tanger.
-              </p>
+              {vehicule.description && (
+                <p className="text-white/40 text-sm mt-3 max-w-xl leading-relaxed">
+                  {vehicule.description}
+                </p>
+              )}
             </div>
 
             {/* Specifications */}

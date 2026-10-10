@@ -60,6 +60,7 @@ export default function AdminVehicules() {
   const [form, setForm] = useState({
     marque: '',
     modele: '',
+    description: '',
     categorie: 'Berline',
     annee: 2024,
     transmission: 'automatique',
@@ -94,6 +95,7 @@ export default function AdminVehicules() {
       setForm({
         marque: v.marque,
         modele: v.modele,
+        description: v.description || '',
         categorie: v.categorie,
         annee: v.annee,
         transmission: v.transmission,
@@ -115,7 +117,7 @@ export default function AdminVehicules() {
     } else {
       setEditVehicule(null);
       setForm({
-        marque: '', modele: '', categorie: 'Berline', annee: 2024,
+        marque: '', modele: '', description: '', categorie: 'Berline', annee: 2024,
         transmission: 'automatique', carburant: 'essence', places: 5,
         puissance: '', kilometrage: 0, prix_jour: 0, montant_caution: 0, statut: 'disponible', populaire: false,
       });
@@ -396,6 +398,14 @@ export default function AdminVehicules() {
                   <input required value={form.modele} onChange={(e) => setForm({ ...form, modele: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-neutral-400 text-xs mb-1 block">Description</label>
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows={3}
+                  placeholder="Description du véhicule affichée sur la fiche publique"
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition resize-none" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

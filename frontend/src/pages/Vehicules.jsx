@@ -99,6 +99,11 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
             <span className="w-1 h-1 rounded-full bg-white/20" />
             <span>{v.places} places</span>
           </div>
+          {v.description && (
+            <p className="text-white/30 text-[12px] mt-2.5 line-clamp-2 leading-relaxed">
+              {v.description}
+            </p>
+          )}
         </div>
       </Link>
     </div>
