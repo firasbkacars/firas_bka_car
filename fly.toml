@@ -1,30 +1,30 @@
+# fly.toml app configuration file generated for firas-bka-car-mrlpqq on 2026-10-10T15:10:05Z
+#
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'firas-bka-car-rental'
-primary_region = 'cdg'
+app = 'firas-bka-car-mrlpqq'
+primary_region = 'ams'
 
 [build]
 
-  [build.args]
-
 [env]
-  APP_ENV = 'production'
   APP_DEBUG = 'false'
-  APP_URL = 'https://firas-bka-car.fly.dev'
+  APP_ENV = 'production'
   APP_LOCALE = 'fr'
-  DB_CONNECTION = 'mysql'
-  DB_PORT = '3306'
-  DB_DATABASE = 'firas_bka_car'
-  SESSION_DRIVER = 'database'
+  APP_URL = 'https://firas-bka-car.fly.dev'
   CACHE_STORE = 'database'
-  QUEUE_CONNECTION = 'database'
+  DB_CONNECTION = 'mysql'
+  DB_DATABASE = 'firas_bka_car'
+  DB_PORT = '3306'
   MAIL_MAILER = 'log'
+  QUEUE_CONNECTION = 'database'
+  SESSION_DRIVER = 'database'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
@@ -38,3 +38,4 @@ primary_region = 'cdg'
   memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 256
