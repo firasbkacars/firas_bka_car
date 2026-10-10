@@ -29,7 +29,7 @@ export default function APropos() {
           <h3 className="text-white font-semibold mb-4">Notre histoire</h3>
           <p className="text-gray-400 text-sm leading-relaxed mb-4">
             Fondée à Tanger, FIRAS BKA CAR est née de la volonté d'offrir un service de location de véhicules
-            de qualité à des prix honnêtes. Notre agence, située dans le quartier de Branes, dessert les clients
+            de qualité à des prix honnêtes. Notre agence, située dans le quartier de Branes 1 (Rue 50, Tanger), dessert les clients
             depuis plusieurs années avec professionnalisme et passion.
           </p>
           <p className="text-gray-400 text-sm leading-relaxed">

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck, Loader2 } from 'lucide-react';
 import api from '../services/api';
 
-const AGENCE_ADDRESS = 'Q589+2QG, Branes, Tanger 90060, Maroc';
-const AGENCE_GPS = { lat: 35.7595, lng: -5.8340 };
+const AGENCE_ADDRESS = 'Lot 583N, Rue 50, Branes 1, Tanger 90060, Maroc';
+const AGENCE_GPS = { lat: 35.7650625, lng: -5.8305469 };
 const GOOGLE_MAPS_EMBED = `https://www.google.com/maps?q=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&z=17&output=embed`;
 const GOOGLE_MAPS_directions = `https://www.google.com/maps/dir/?api=1&destination=${AGENCE_GPS.lat},${AGENCE_GPS.lng}`;
 const WAZE_url = `https://waze.com/ul?ll=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&navigate=yes`;

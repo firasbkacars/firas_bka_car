@@ -35,7 +35,7 @@
             <div class="company-info">
                 <h1>FIRAS BKA CAR</h1>
                 <p>Location de vehicules</p>
-                <p>Q589+2QG, Branes, Tanger 90060</p>
+                <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
                 <p>Tel: 06 81 18 18 13</p>
             </div>
             <div class="contract-title">
@@ -50,7 +50,7 @@
                 <div class="info-block">
                     <p><strong>Loueur :</strong></p>
                     <p>FIRAS BKA CAR SARL</p>
-                    <p>Q589+2QG, Branes, Tanger 90060</p>
+                    <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
                     <p>RC: 001234567</p>
                     <p>IF: 12345678</p>
                 </div>
@@ -167,7 +167,7 @@
 
         <div class="footer">
             <p>Contrat genere le {{ $reservation->created_at->format('d/m/Y H:i') }} - FIRAS BKA CAR</p>
-            <p>Q589+2QG, Branes, Tanger 90060 | Tel: 06 81 18 18 13</p>
+            <p>Lot 583N, Rue 50, Branes 1, Tanger 90060 | Tel: 06 81 18 18 13</p>
         </div>
     </div>
 </body>

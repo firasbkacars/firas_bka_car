@@ -143,8 +143,8 @@ export default function Footer() {
                     <MapPin size={14} className="text-[#dc2626]" />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium">Branes, Tanger 90060</p>
-                    <p className="text-neutral-600 text-xs">Maroc</p>
+                    <p className="text-white text-sm font-medium">Lot 583N, Rue 50, Branes 1</p>
+                    <p className="text-neutral-600 text-xs">Tanger 90060, Maroc</p>
                   </div>
                 </div>
               </li>

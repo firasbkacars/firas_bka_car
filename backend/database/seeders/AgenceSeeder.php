@@ -11,7 +11,7 @@ class AgenceSeeder extends Seeder
     {
         Agence::create([
             'nom' => 'FIRAS BKA CAR Tanger',
-            'adresse' => 'Avenue des FAR, Tanger',
+            'adresse' => 'Lot 583N, Rue 50, Branes 1, Tanger 90060',
             'ville' => 'Tanger',
             'telephone' => '+212 522 00 00 00',
             'email' => 'firasbkacars@gmail.com',
