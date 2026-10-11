@@ -114,7 +114,7 @@ export default function Parametres() {
             </div>
             <div>
               <label className="text-neutral-400 text-sm mb-1 block">Telephone</label>
-              <input type="tel" defaultValue="+212 6 12 34 56 78" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <input type="tel" defaultValue="+212 774 623 448" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
             <div>
               <label className="text-neutral-400 text-sm mb-1 block">Adresse</label>

@@ -106,9 +106,8 @@ export default function Contact() {
                 <InfoCard icon={MapPin} title="Adresse">
                   <p>{AGENCE_ADDRESS}</p>
                 </InfoCard>
-                <InfoCard icon={Phone} title="Téléphones">
-                  <p>06 81 18 18 13</p>
-                  <p>06 67 51 14 10</p>
+                <InfoCard icon={Phone} title="Téléphone">
+                  <p>+212 774 623 448</p>
                 </InfoCard>
                 <InfoCard icon={Clock} title="Horaires">
                   <p>Lun – Sam : 8h00 – 20h00</p>
@@ -203,7 +202,7 @@ export default function Contact() {
               </div>
 
               <a
-                href="https://wa.me/212681181813?text=Bonjour, je souhaite avoir des informations."
+                href="https://wa.me/212774623448?text=Bonjour, je souhaite avoir des informations."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] px-6 py-3 rounded-lg font-semibold hover:bg-[#25D366]/20 transition w-full text-sm"

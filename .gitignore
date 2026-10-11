@@ -39,4 +39,4 @@ resources/views/cache/*
 .wrangler/
 
 # Sprite CLI local state
-.sprite/
+.sprite

@@ -148,14 +148,11 @@ export default function Confirmation() {
         <h3 className="text-white font-semibold mb-3">Besoin d'aide ?</h3>
         <p className="text-gray-400 text-sm mb-4">Notre équipe est à votre disposition pour toute question.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="tel:+212681181813" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
-            <Phone size={14} /> 06 81 18 18 13
-          </a>
-          <a href="tel:+212667511410" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
-            <Phone size={14} /> 06 67 51 14 10
+          <a href="tel:+212774623448" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
+            <Phone size={14} /> +212 774 623 448
           </a>
           <a
-            href="https://wa.me/212681181813"
+            href="https://wa.me/212774623448"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"

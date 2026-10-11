@@ -64,7 +64,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://wa.me/212681181813"
+                href="https://wa.me/212774623448"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-green-500 hover:border-green-500/30 hover:bg-green-500/5 transition-all"
@@ -117,13 +117,12 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-sm mb-5 uppercase tracking-wider">Contact</h3>
             <ul className="space-y-4">
               <li>
-                <a href="tel:+212681181813" className="flex items-start gap-3 group">
+                <a href="tel:+212774623448" className="flex items-start gap-3 group">
                   <div className="w-8 h-8 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0 mt-0.5">
                     <Phone size={14} className="text-[#dc2626]" />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium group-hover:text-[#dc2626] transition-colors">06 81 18 18 13</p>
-                    <p className="text-neutral-600 text-xs">06 67 51 14 10</p>
+                    <p className="text-white text-sm font-medium group-hover:text-[#dc2626] transition-colors">+212 774 623 448</p>
                   </div>
                 </a>
               </li>
@@ -194,7 +193,7 @@ export default function Footer() {
                 Espace admin
               </Link>
               <a
-                href="https://wa.me/212681181813"
+                href="https://wa.me/212774623448"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 text-[#dc2626] px-3 py-1.5 rounded-full text-xs font-medium transition-colors"

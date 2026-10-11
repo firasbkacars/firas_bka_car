@@ -147,7 +147,7 @@ class ReservationConfirmation extends Mailable implements ShouldQueue
                 <div class='footer'>
                     <p>Merci pour votre confiance - FIRAS BKA CAR</p>
                     <p>Branes 1, Lot 583N, 01 Rue 50 RDC - Tanger, Maroc</p>
-                    <p>Tel: 06 81 18 18 13</p>
+                    <p>Tel: +212 774 623 448</p>
                 </div>
             </div>
         </body>
