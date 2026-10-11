@@ -24,11 +24,36 @@ class CmiSandboxGateway implements CmiGateway
 
     /** Scenarios proposes sur la page de paiement simulee. */
     public const SCENARIOS = [
-        'captured' => ['label' => 'Autorise (capture)', 'status' => 'captured', 'paid' => true],
-        'declined' => ['label' => 'Refuse par la banque', 'status' => 'failed', 'paid' => false],
-        'cancelled' => ['label' => 'Abandon par le client', 'status' => 'cancelled', 'paid' => false],
-        'expired' => ['label' => 'Session expiree', 'status' => 'expired', 'paid' => false],
-        'amount_mismatch' => ['label' => 'Autorise mais montant divergent', 'status' => 'captured', 'paid' => true],
+        'captured' => [
+            'label' => 'Autorisé (capture)',
+            'description' => 'Paiement accepté : l\'acompte est encaissé.',
+            'status' => 'captured',
+            'paid' => true,
+        ],
+        'declined' => [
+            'label' => 'Refusé par la banque',
+            'description' => 'La banque refuse : la réservation reste à régler.',
+            'status' => 'failed',
+            'paid' => false,
+        ],
+        'cancelled' => [
+            'label' => 'Abandon par le client',
+            'description' => 'Le client quitte la page avant la confirmation.',
+            'status' => 'cancelled',
+            'paid' => false,
+        ],
+        'expired' => [
+            'label' => 'Session expirée',
+            'description' => 'Aucune réponse de la banque dans le délai.',
+            'status' => 'expired',
+            'paid' => false,
+        ],
+        'amount_mismatch' => [
+            'label' => 'Montant divergent',
+            'description' => 'Capture refusée : le montant renvoyé ne correspond pas.',
+            'status' => 'captured',
+            'paid' => true,
+        ],
     ];
 
     public function mode(): string

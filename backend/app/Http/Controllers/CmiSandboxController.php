@@ -16,6 +16,18 @@ use Illuminate\Support\Facades\Redirect;
  */
 class CmiSandboxController extends Controller
 {
+    /** Libelles lisibles des statuts d'ecriture, pour la page simulee. */
+    private const LIBELLES_STATUT = [
+        'en_attente' => 'En attente',
+        'paye' => 'Payé',
+        'echoue' => 'Échoué',
+        'annule' => 'Annulé',
+        'expire' => 'Expiré',
+        'suspect' => 'À vérifier',
+        'rembourse' => 'Remboursé',
+        'rembourse_partiel' => 'Remboursé partiel',
+    ];
+
     public function __construct(
         private readonly CmiPaymentService $cmiService
     ) {}
@@ -35,6 +47,7 @@ class CmiSandboxController extends Controller
             'scenarios' => CmiSandboxGateway::SCENARIOS,
             'state' => $state,
             'mode' => $this->cmiService->mode(),
+            'libellesStatut' => self::LIBELLES_STATUT,
         ]);
     }
 
