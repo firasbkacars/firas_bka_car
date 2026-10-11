@@ -60,17 +60,25 @@ class PaiementController extends Controller
 
             $callback = function () use ($paiements) {
                 $file = fopen('php://output', 'w');
-                fputcsv($file, ['Date', 'Reservation', 'Client', 'Vehicule', 'Montant (DH)', 'Methode', 'Statut']);
+                // Le montant est exporte SIGNE : un remboursement figure en
+                // negatif, ce qui rend le fichier directement additionnable.
+                fputcsv($file, [
+                    'Date', 'Reservation', 'Client', 'Vehicule', 'Type',
+                    'Montant (DH)', 'Methode', 'Statut', 'Transaction', 'Carte',
+                ]);
 
                 foreach ($paiements as $paiement) {
                     fputcsv($file, [
                         $paiement->date_paiement ? $paiement->date_paiement->format('d/m/Y H:i') : '',
                         $paiement->reservation->numero ?? '',
                         $paiement->reservation->client->nom_complet ?? '',
-                        ($paiement->reservation->vehicule->marque ?? '').' '.($paiement->reservation->vehicule->modele ?? ''),
-                        $paiement->montant,
-                        ucfirst(str_replace('_', ' ', $paiement->methode)),
-                        ucfirst(str_replace('_', ' ', $paiement->statut)),
+                        trim(($paiement->reservation->vehicule->marque ?? '').' '.($paiement->reservation->vehicule->modele ?? '')),
+                        $paiement->type ?? 'acompte',
+                        $paiement->montant_signe,
+                        $paiement->methode === 'cmi' ? 'Carte bancaire (CMI)' : ucfirst($paiement->methode ?? ''),
+                        $paiement->statut_affichage,
+                        $paiement->transaction_id ?? '',
+                        $paiement->carte_masquee ?? '',
                     ]);
                 }
 

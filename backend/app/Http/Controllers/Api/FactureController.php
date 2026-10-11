@@ -14,7 +14,7 @@ class FactureController extends Controller
     {
         $client = $request->user();
 
-        $reservation = Reservation::with(['client', 'vehicule'])
+        $reservation = Reservation::with(['client', 'vehicule', 'paiements'])
             ->where('id', $reservationId)
             ->where('client_id', $client->id)
             ->firstOrFail();
@@ -28,7 +28,7 @@ class FactureController extends Controller
     {
         $client = $request->user();
 
-        $reservation = Reservation::with(['client', 'vehicule'])
+        $reservation = Reservation::with(['client', 'vehicule', 'paiements'])
             ->where('id', $reservationId)
             ->where('client_id', $client->id)
             ->firstOrFail();
@@ -42,7 +42,7 @@ class FactureController extends Controller
     {
         $user = $request->user();
 
-        $reservation = Reservation::with(['client', 'vehicule'])
+        $reservation = Reservation::with(['client', 'vehicule', 'paiements'])
             ->where('id', $reservationId)
             ->firstOrFail();
 

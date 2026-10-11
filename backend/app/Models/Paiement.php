@@ -84,6 +84,14 @@ class Paiement extends Model
         'tentatives' => 'integer',
     ];
 
+    /** Affiches par l'admin et les clients. */
+    protected $appends = [
+        'montant_signe',
+        'carte_masquee',
+        'statut_affichage',
+        'est_remboursement',
+    ];
+
     // ------------------------------------------------------------------ scopes
     public function scopeEnAttente(Builder $q): Builder
     {

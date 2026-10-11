@@ -126,12 +126,27 @@
                         <td style="padding: 8px; font-size: 11px; font-weight: bold; text-align: right; color: #dc2626;">{{ number_format($reservation->prix_total, 2, ',', ' ') }} DH</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 8px; font-size: 10px;">Acompte verse (30%)</td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->acompte, 2, ',', ' ') }} DH</td>
+                        <td style="padding: 6px 8px; font-size: 10px;">
+                            Acompte attendu
+                            @if ($reservation->acompte_paye > 0)
+                                &mdash; regle : {{ number_format($reservation->acompte_paye, 2, ',', ' ') }} DH
+                            @else
+                                &mdash; non regle
+                            @endif
+                        </td>
+                        <td style="padding: 6px 8px; font-size: 10px; text-align: right; {{ $reservation->acompte_paye > 0 ? 'color: #16a34a;' : 'color: #dc2626;' }}">
+                            {{ number_format($reservation->acompte, 2, ',', ' ') }} DH
+                        </td>
                     </tr>
+                    @if ($reservation->rembourse > 0)
+                    <tr>
+                        <td style="padding: 6px 8px; font-size: 10px; color: #2563eb;">Dont rembourse</td>
+                        <td style="padding: 6px 8px; font-size: 10px; text-align: right; color: #2563eb;">-{{ number_format($reservation->rembourse, 2, ',', ' ') }} DH</td>
+                    </tr>
+                    @endif
                     <tr>
                         <td style="padding: 6px 8px; font-size: 10px;">Reste a payer</td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->prix_total - $reservation->acompte, 2, ',', ' ') }} DH</td>
+                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->solde_restant, 2, ',', ' ') }} DH</td>
                     </tr>
                 </tbody>
             </table>

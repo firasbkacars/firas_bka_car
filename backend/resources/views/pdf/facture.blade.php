@@ -132,7 +132,7 @@
                     <td style="text-align: right;">{{ number_format($reservation->prix_total, 2, ',', ' ') }} DH</td>
                 </tr>
                 <tr>
-                    <td>Acompte (30%):</td>
+                    <td>Acompte attendu:</td>
                     <td style="text-align: right;">-{{ number_format($reservation->acompte, 2, ',', ' ') }} DH</td>
                 </tr>
                 <tr class="total-row">
@@ -143,10 +143,51 @@
         </div>
 
         <div class="section" style="margin-top: 20px;">
-            <div class="section-title">Mode de paiement</div>
-            <p style="font-size: 11px; color: #666;">
-                {{ ucfirst(str_replace('_', ' ', $reservation->mode_paiement)) }}
+            <div class="section-title">Situation du paiement</div>
+            <table style="width: 100%; font-size: 11px;">
+                <tr>
+                    <td style="color: #666;">Mode de paiement</td>
+                    <td style="text-align: right;">
+                        {{ $reservation->mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Especes' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color: #666;">Acompte regle</td>
+                    <td style="text-align: right; {{ $reservation->acompte_paye > 0 ? 'color: #16a34a; font-weight: bold;' : 'color: #dc2626;' }}">
+                        {{ number_format($reservation->acompte_paye, 2, ',', ' ') }} DH
+                    </td>
+                </tr>
+                @if ($reservation->rembourse > 0)
+                <tr>
+                    <td style="color: #666;">Dont rembourse</td>
+                    <td style="text-align: right; color: #2563eb;">-{{ number_format($reservation->rembourse, 2, ',', ' ') }} DH</td>
+                </tr>
+                @endif
+                <tr>
+                    <td style="color: #666;">Solde restant</td>
+                    <td style="text-align: right; font-weight: bold;">
+                        {{ number_format($reservation->solde_restant, 2, ',', ' ') }} DH
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color: #666;">Statut</td>
+                    <td style="text-align: right;">
+                        @if ($reservation->est_paye_integralement)
+                            <span style="color: #16a34a; font-weight: bold;">Acompte regle</span>
+                        @elseif ($reservation->acompte_paye > 0)
+                            <span style="color: #d97706; font-weight: bold;">Acompte partiel</span>
+                        @else
+                            <span style="color: #dc2626; font-weight: bold;">Acompte non regle</span>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+            @if (! $reservation->est_paye_integralement)
+            <p style="font-size: 9px; color: #999; margin-top: 8px;">
+                Le present document ne vaut pas preuve d'encaissement. Seul le reglement
+                effectif de l'acompte ou la remise en main propre en agence vaut quittance.
             </p>
+            @endif
         </div>
 
         <div class="footer">
