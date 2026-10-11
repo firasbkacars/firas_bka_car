@@ -35,6 +35,17 @@ primary_region = 'ams'
   MEDIA_DISK = 'public'
   PHP_CLI_SERVER_WORKERS = '4'
 
+  # Paiement carte.
+  # 'sandbox' : passerelle simulee, aucune donnee bancaire reelle, aucun
+  # contrat requis. Permet de valider tout le parcours (initiation, page
+  # de carte, retour, webhook, idempotence, remboursement).
+  # Basculez en 'production' uniquement apres avoir renseigne
+  # CMI_MERCHANT_KEY / CMI_MERCHANT_SECRET et verifie le contrat API.
+  CMI_MODE = 'sandbox'
+  CMI_RETURN_URL = 'https://firasbkacar.fly.dev/api/cmi/callback'
+  CMI_CANCEL_URL = 'https://firasbkacar.fly.dev/api/cmi/cancel'
+  CMI_NOTIFY_URL = 'https://firasbkacar.fly.dev/api/cmi/webhook'
+
 [http_service]
   internal_port = 8080
   force_https = true
