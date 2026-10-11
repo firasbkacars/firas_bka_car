@@ -8,4 +8,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('reservations:reminders')->dailyAt('08:00');
+// Les taches sont cadencees par schedule:work (voir Dockerfile) : sans lui,
+// ces envois ne partent jamais en production.
+Schedule::command('reservations:reminders')->dailyAt('08:00')->withoutOverlapping();
+Schedule::command('permis:verifier')->dailyAt('07:00')->withoutOverlapping();

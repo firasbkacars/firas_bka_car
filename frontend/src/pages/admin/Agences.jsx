@@ -3,6 +3,7 @@ import { Building2, Plus, Edit2, Trash2, MapPin, Phone, Mail, ToggleLeft, Toggle
 import api from '../../services/api';
 import Modal from '../../components/Modal';
 import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 const EMPTY_FORM = {
   nom: '',
@@ -15,6 +16,7 @@ const EMPTY_FORM = {
 
 export default function Agences() {
   const toast = useToast();
+  const { confirm } = useConfirm();
   const [agences, setAgences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -79,7 +81,12 @@ export default function Agences() {
   };
 
   const handleDelete = async (agence) => {
-    if (!window.confirm(`Supprimer l'agence « ${agence.nom} » ?`)) return;
+    const ok = await confirm({
+      title: "Supprimer l'agence",
+      message: `Supprimer l'agence « ${agence.nom} » ? Cette action est irréversible.`,
+      confirmLabel: 'Supprimer',
+    });
+    if (!ok) return;
     setDeletingId(agence.id);
     try {
       await api.delete(`/agences/${agence.id}`);

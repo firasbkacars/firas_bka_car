@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Users, Search, Edit2, Trash2, X, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 export default function Clients() {
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -23,11 +27,19 @@ export default function Clients() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer ce client ?')) return;
+    const ok = await confirm({
+      title: 'Supprimer le client',
+      message: 'Supprimer ce client ? Cette action est irréversible.',
+      confirmLabel: 'Supprimer',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/clients/${id}`);
-      setClients(clients.filter(c => c.id !== id));
-    } catch (err) { console.error(err); }
+      toast.success('Client supprimé.');
+      fetchClients();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors de la suppression');
+    }
   };
 
   const handleSave = async (e) => {
@@ -37,16 +49,22 @@ export default function Clients() {
     try {
       await api.put(`/clients/${editClient.id}`, editClient);
       setShowModal(false);
+      toast.success('Client mis à jour.');
       fetchClients();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors de la sauvegarde');
+    }
     finally { setSaving(false); }
   };
 
   const handleValiderPermis = async (id) => {
     try {
       await api.put(`/clients/${id}/permis`, { statut: 'valide' });
+      toast.success('Permis validé.');
       fetchClients();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Impossible de valider le permis');
+    }
   };
 
   const handleRejeterPermis = async (id) => {
@@ -54,8 +72,11 @@ export default function Clients() {
       await api.put(`/clients/${id}/permis`, { statut: 'rejete', motif: rejetMotif });
       setShowPermisModal(null);
       setRejetMotif('');
+      toast.success('Permis rejeté.');
       fetchClients();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors du rejet');
+    }
   };
 
   const filtered = clients.filter(c =>

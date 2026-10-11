@@ -58,7 +58,7 @@ function statutPaiementReservation(res) {
 }
 
 export default function ClientProfil() {
-  const { client, token, loading: authLoading, logout, updateProfile, uploadPermis } = useAuth();
+  const { client, token, loading: authLoading, logout, updateProfile, uploadPermis, uploadPhoto } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -68,6 +68,7 @@ export default function ClientProfil() {
     email: '',
     cin: '',
     adresse: '',
+    date_expiration_permis: '',
   });
 
   const [permisFile, setPermisFile] = useState(null);
@@ -92,6 +93,8 @@ export default function ClientProfil() {
 
   const [payingId, setPayingId] = useState(null);
   const [previews, setPreviews] = useState({});
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const avatarInputRef = useRef(null);
 
   useEffect(() => {
     if (!authLoading && !token) {
@@ -107,6 +110,7 @@ export default function ClientProfil() {
         email: client.email || '',
         cin: client.cin || '',
         adresse: client.adresse || '',
+        date_expiration_permis: client.date_expiration_permis ? String(client.date_expiration_permis).split(' ')[0].split('T')[0] : '',
       });
     }
   }, [client]);
@@ -217,6 +221,35 @@ export default function ClientProfil() {
       setUploading(false);
     }
   };
+
+  const handleAvatarSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showToast('Format non supporte (JPG, PNG ou WebP)', 'error');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('La photo depasse 2 Mo', 'error');
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      await uploadPhoto(file);
+      showToast('Photo de profil mise a jour !');
+    } catch {
+      showToast("Erreur lors de l'upload de la photo", 'error');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const photoSrc = client?.photo_profil
+    ? (client.photo_profil.startsWith('http') || client.photo_profil.startsWith('/')
+      ? client.photo_profil
+      : `/storage/${client.photo_profil}`)
+    : null;
 
   const handleLogout = async () => {
     await logout();
@@ -349,20 +382,41 @@ export default function ClientProfil() {
       <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 pb-20">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-[#dc2626] flex items-center justify-center text-white text-2xl font-bold shrink-0">
-              {client?.photo_profil ? (
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              className="relative w-16 h-16 rounded-full bg-[#dc2626] flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden group cursor-pointer disabled:opacity-60"
+              aria-label="Changer la photo de profil"
+            >
+              {photoSrc ? (
                 <img
-                  src={client.photo_profil}
+                  src={photoSrc}
                   alt={client.nom_complet}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
                 getInitial()
               )}
-            </div>
+              <span className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                {uploadingPhoto ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <UploadCloud size={20} />
+                )}
+              </span>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarSelect}
+              />
+            </button>
             <div>
               <h2 className="text-white font-semibold text-lg">{client?.nom_complet || 'Mon profil'}</h2>
               <p className="text-gray-500 text-sm">{client?.email}</p>
+              <p className="text-gray-600 text-xs mt-0.5">Cliquez sur la photo pour la changer</p>
             </div>
           </div>
           <button
@@ -915,6 +969,17 @@ export default function ClientProfil() {
                 className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/50 text-sm cursor-not-allowed"
               />
               <p className="text-gray-600 text-xs mt-1">Le CIN ne peut pas être modifié</p>
+            </div>
+            <div>
+              <label htmlFor="profil-permis-exp" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Expiration du permis</label>
+              <input
+                id="profil-permis-exp"
+                type="date"
+                value={form.date_expiration_permis}
+                onChange={(e) => setForm({ ...form, date_expiration_permis: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
+              />
+              <p className="text-gray-600 text-xs mt-1">Nécessaire pour la validation de votre permis.</p>
             </div>
             <div className="md:col-span-2">
               <label htmlFor="profil-adresse" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Adresse</label>

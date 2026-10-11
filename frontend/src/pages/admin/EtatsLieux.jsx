@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ClipboardCheck, Plus, X, Upload, Loader2, Eye } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 export default function EtatsLieux() {
+  const toast = useToast();
   const [etats, setEtats] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ export default function EtatsLieux() {
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
     if (form.photos.length + files.length > 6) {
-      alert('Maximum 6 photos autorisees');
+      toast.error('Maximum 6 photos autorisees');
       return;
     }
     const newPhotos = files.map(file => ({
@@ -81,9 +83,10 @@ export default function EtatsLieux() {
 
       setShowModal(false);
       setForm({ reservation_id: '', type: 'depart', notes: '', photos: [] });
+      toast.success('État des lieux créé.');
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.message || 'Erreur lors de la creation');
+      toast.error(err.response?.data?.message || 'Erreur lors de la creation');
     } finally { setSaving(false); }
   };
 

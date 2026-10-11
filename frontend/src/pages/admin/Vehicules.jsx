@@ -9,6 +9,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 const PHOTO_LIMIT = 8;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -48,6 +50,8 @@ function VehicleImage({ src, alt, className = 'w-12 h-8', size = 16 }) {
 }
 
 export default function AdminVehicules() {
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [vehicules, setVehicules] = useState([]);
   const [agences, setAgences] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +150,7 @@ export default function AdminVehicules() {
     );
 
     if (photos.length + valid.length > PHOTO_LIMIT) {
-      alert(`Maximum ${PHOTO_LIMIT} photos autorisées. Vous en avez déjà ${photos.length}.`);
+      toast.error(`Maximum ${PHOTO_LIMIT} photos autorisées. Vous en avez déjà ${photos.length}.`);
       return;
     }
 
@@ -260,25 +264,32 @@ export default function AdminVehicules() {
         }
       }
       setShowModal(false);
+      toast.success(editVehicule ? 'Véhicule mis à jour.' : 'Véhicule créé.');
       fetchVehicules();
     } catch (err) {
       const message =
         err.response?.data?.message ||
         Object.values(err.response?.data?.errors || {}).flat()[0] ||
         'Erreur lors de la sauvegarde';
-      alert(message);
+      toast.error(message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer ce véhicule ?')) return;
+    const ok = await confirm({
+      title: 'Supprimer le véhicule',
+      message: 'Supprimer ce véhicule ? Cette action est irréversible.',
+      confirmLabel: 'Supprimer',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/vehicules-admin/${id}`);
+      toast.success('Véhicule supprimé.');
       fetchVehicules();
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || 'Erreur lors de la suppression');
     }
   };
 

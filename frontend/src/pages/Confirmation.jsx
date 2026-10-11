@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Phone, MessageCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, Phone, MessageCircle } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { Skeleton } from '../components/Skeleton';
 
 export default function Confirmation() {
   const { state } = useLocation();
@@ -50,9 +51,22 @@ export default function Confirmation() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
-        <Loader2 size={28} className="animate-spin text-[#dc2626] mx-auto" />
-        <p className="text-gray-400 mt-4 text-sm">Chargement de la réservation...</p>
+      <div className="max-w-3xl mx-auto px-4 pt-24 pb-16" aria-busy="true">
+        <div className="text-center mb-8">
+          <Skeleton className="w-20 h-20 rounded-full mx-auto mb-4" />
+          <Skeleton className="h-8 w-64 mx-auto mb-2" />
+          <Skeleton className="h-4 w-80 mx-auto" />
+        </div>
+
+        <Skeleton className="rounded-xl p-6 mb-6 h-28" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <Skeleton className="rounded-xl h-44" />
+          <Skeleton className="rounded-xl h-44" />
+        </div>
+
+        <Skeleton className="rounded-xl h-32 mb-6" />
+        <Skeleton className="rounded-xl h-40" />
       </div>
     );
   }
@@ -119,6 +133,7 @@ export default function Confirmation() {
               <img
                 src={vehiculePhotoSrc || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
                 alt={vehicule.modele}
+                loading="lazy"
                 className="w-20 h-14 object-cover rounded"
               />
               <div>

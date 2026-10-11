@@ -81,10 +81,20 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const uploadPhoto = async (file) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const { data } = await api.post('/client/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    setClient((prev) => ({ ...prev, photo_profil: data.photo_profil }));
+    return data;
+  };
+
   return (
     <AuthContext.Provider value={{
       client, token, loading,
-      login, register, logout, updateProfile, uploadPermis,
+      login, register, logout, updateProfile, uploadPermis, uploadPhoto,
     }}>
       {children}
     </AuthContext.Provider>

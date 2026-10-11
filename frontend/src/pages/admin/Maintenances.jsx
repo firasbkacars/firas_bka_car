@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Wrench, Plus, X, Loader2, Calendar, AlertTriangle } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 const TYPE_OPTIONS = [
   'Vidange',
@@ -27,6 +28,7 @@ const STATUT_LABELS = {
 };
 
 export default function AdminMaintenances() {
+  const toast = useToast();
   const [maintenances, setMaintenances] = useState([]);
   const [vehicules, setVehicules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,9 +77,10 @@ export default function AdminMaintenances() {
       await api.post('/maintenances', form);
       setShowModal(false);
       setForm({ vehicule_id: '', type: '', description: '', date_prevue: '', cout: '', statut: 'prevue', notes: '' });
+      toast.success('Maintenance créée.');
       fetchMaintenances();
     } catch (err) {
-      alert(err.response?.data?.message || 'Erreur lors de la creation');
+      toast.error(err.response?.data?.message || 'Erreur lors de la creation');
     } finally {
       setSaving(false);
     }

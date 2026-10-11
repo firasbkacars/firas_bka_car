@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Shield, Headphones, MapPin, Calendar, ChevronRight, Star, Fuel, Users, Settings2 } from 'lucide-react';
 import api from '../services/api';
+import { Skeleton } from '../components/Skeleton';
+import FavoriButton from '../components/FavoriButton';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
@@ -36,6 +38,7 @@ function VehicleCard({ v }) {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        <FavoriButton vehiculeId={v.id} className="absolute top-3 right-3" />
         {v.populaire && (
           <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
             <Star size={10} fill="currentColor" /> Populaire
@@ -67,9 +70,23 @@ function VehicleCard({ v }) {
   );
 }
 
+function VehicleCardSkeleton() {
+  return (
+    <div className="bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden" aria-hidden="true">
+      <Skeleton className="h-56 w-full rounded-none" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-3 w-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const [vehiculesPopulaires, setVehiculesPopulaires] = useState([]);
+  const [populairesLoading, setPopulairesLoading] = useState(true);
   const [search, setSearch] = useState({
     lieuPrise: 'Tanger',
     lieuRetour: 'Tanger',
@@ -85,7 +102,8 @@ export default function Home() {
         const list = data.vehicules || data.data || data || [];
         setVehiculesPopulaires(Array.isArray(list) ? list.slice(0, 4) : []);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setPopulairesLoading(false));
   }, []);
 
   const handleSearch = (e) => {
@@ -209,6 +227,7 @@ export default function Home() {
                 <img
                   src={brand.logo}
                   alt={brand.name}
+                  loading="lazy"
                   className="max-h-11 max-w-full object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition duration-300"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
@@ -246,8 +265,8 @@ export default function Home() {
       </section>
 
       {/* Popular Vehicles */}
-      {vehiculesPopulaires.length > 0 && (
-        <section className="py-16 px-6 md:px-12">
+      {(populairesLoading || vehiculesPopulaires.length > 0) && (
+        <section className="py-16 px-6 md:px-12" aria-busy={populairesLoading}>
           <div className="max-w-7xl mx-auto">
             <div className="flex items-end justify-between mb-10">
               <div>
@@ -263,9 +282,9 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {vehiculesPopulaires.slice(0, 4).map((v) => (
-                <VehicleCard key={v.id} v={v} />
-              ))}
+              {populairesLoading
+                ? Array.from({ length: 4 }).map((_, i) => <VehicleCardSkeleton key={i} />)
+                : vehiculesPopulaires.slice(0, 4).map((v) => <VehicleCard key={v.id} v={v} />)}
             </div>
 
             <Link

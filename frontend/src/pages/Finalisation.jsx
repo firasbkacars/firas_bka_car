@@ -655,6 +655,7 @@ export default function Finalisation() {
                   <img
                     src={vehiculePhotoSrc || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
                     alt={`${vehicule.marque} ${vehicule.modele}`}
+                    loading="lazy"
                     className="w-20 h-14 object-cover rounded"
                   />
                   <div>

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Tag, Plus, Edit2, Trash2, X, Loader2, BarChart3, Percent, DollarSign } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 export default function CodesPromo() {
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [codes, setCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -67,18 +71,27 @@ export default function CodesPromo() {
         await api.post('/codes-promo', payload);
       }
       setShowModal(false);
+      toast.success(editCode ? 'Code promo mis à jour.' : 'Code promo créé.');
       fetchCodes();
     } catch (err) {
-      alert(err.response?.data?.message || 'Erreur');
+      toast.error(err.response?.data?.message || 'Erreur lors de la sauvegarde');
     } finally { setSaving(false); }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Supprimer ce code promo ?')) return;
+    const ok = await confirm({
+      title: 'Supprimer le code promo',
+      message: 'Supprimer ce code promo ? Cette action est irréversible.',
+      confirmLabel: 'Supprimer',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/codes-promo/${id}`);
+      toast.success('Code promo supprimé.');
       fetchCodes();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors de la suppression');
+    }
   };
 
   const toggleActif = async (code) => {

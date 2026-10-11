@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReservationRequest;
 use App\Jobs\SendReservationConfirmation;
 use App\Mail\AdminNewReservation;
+use App\Mail\AdminReservationCancelled;
 use App\Models\Agence;
 use App\Models\CodePromo;
 use App\Models\Paiement;
@@ -53,6 +54,12 @@ class ReservationController extends Controller
 
         if ($client->permis_statut !== 'valide') {
             return response()->json(['message' => 'Votre permis de conduire doit etre valide par un agent avant de reserver'], 422);
+        }
+
+        // P2 : la date d'expiration fait foi, meme si la commande quotidienne
+        // n'a pas encore bascule le statut en 'expire'.
+        if ($client->permisExpire()) {
+            return response()->json(['message' => 'Votre permis de conduire a expire : mettez a jour sa date de validite depuis votre profil'], 422);
         }
 
         $validated = $request->validated();
@@ -349,6 +356,20 @@ class ReservationController extends Controller
         // La politique s'appuie sur l'acompte REELLEMENT encaisse et produit
         // une ecriture de remboursement, plus un encaissement positif.
         $result = app(RefundPolicy::class)->annuler($reservation, 'Annulee par le client');
+
+        $reservation->load(['client', 'vehicule']);
+
+        // N6 : l'admin doit savoir qu'une place vient de se liberer, sans
+        // attendre d'ouvrir le back-office.
+        QueuedMail::send(
+            config('mail.from.address', 'firasbkacars@gmail.com'),
+            new AdminReservationCancelled(
+                $reservation,
+                (float) $result['montant_rembourse'],
+                (string) $result['politique'],
+            ),
+            'admin-annulation-client'
+        );
 
         return response()->json([
             'message' => 'Reservation annulee',

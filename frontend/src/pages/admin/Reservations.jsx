@@ -13,6 +13,8 @@ import {
   X,
 } from 'lucide-react';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 const STATUT_LABELS = {
   confirmee: 'Confirmée',
@@ -66,6 +68,8 @@ function SortButton({ field, sort, onSort, children }) {
 }
 
 export default function AdminReservations() {
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -97,12 +101,18 @@ export default function AdminReservations() {
   };
 
   const handleAnnuler = async (id) => {
-    if (!confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) return;
+    const ok = await confirm({
+      title: 'Annuler la réservation',
+      message: 'Êtes-vous sûr de vouloir annuler cette réservation ?',
+      confirmLabel: 'Annuler la réservation',
+    });
+    if (!ok) return;
     try {
       await api.put(`/reservations/${id}/annuler`);
+      toast.success('Réservation annulée.');
       fetchReservations();
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || "Erreur lors de l'annulation");
     }
   };
 

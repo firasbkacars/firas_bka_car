@@ -128,11 +128,52 @@ class ClientAuthController extends Controller
             'email' => 'sometimes|email:rfc|max:255|unique:clients,email,'.$client->id,
             'cin' => 'nullable|string|regex:/^[A-Z]{2}\d{6}$/|max:20',
             'adresse' => 'nullable|string|max:255',
+            'date_expiration_permis' => 'nullable|date',
         ]);
 
-        $client->update($validated);
+        $attributes = $validated;
+
+        if (array_key_exists('date_expiration_permis', $validated)) {
+            $nouvelle = $validated['date_expiration_permis'];
+            $actuelle = $client->date_expiration_permis?->format('Y-m-d');
+
+            if ($nouvelle !== $actuelle) {
+                // Une nouvelle date re-ouvre le cycle de validation : sans
+                // cela, un client pourrait prolonger lui-meme un permis expire.
+                $attributes['permis_rappel_envoye_le'] = null;
+
+                if ($client->permis_statut === 'expire') {
+                    $attributes['permis_statut'] = 'en_attente';
+                    $attributes['permis_rejet_motif'] = null;
+                }
+            }
+        }
+
+        $client->update($attributes);
 
         return response()->json($client);
+    }
+
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|file|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $client = $request->user();
+
+        if ($client->photo_profil && \Storage::disk('public')->exists($client->photo_profil)) {
+            \Storage::disk('public')->delete($client->photo_profil);
+        }
+
+        $path = $request->file('photo')->store('photos', 'public');
+
+        $client->update(['photo_profil' => $path]);
+
+        return response()->json([
+            'message' => 'Photo de profil mise a jour',
+            'photo_profil' => $path,
+        ]);
     }
 
     public function uploadPermis(Request $request)
@@ -170,6 +211,14 @@ class ClientAuthController extends Controller
         ]);
 
         $client = Client::findOrFail($id);
+
+        // Un permis dont la date est depassee ne peut pas etre (re)valide :
+        // le client doit d'abord corriger son profil.
+        if ($validated['statut'] === 'valide' && $client->permisExpire()) {
+            return response()->json([
+                'message' => 'Impossible de valider : la date d\'expiration du permis est depassee. Le client doit mettre a jour son profil.',
+            ], 422);
+        }
 
         $update = ['permis_statut' => $validated['statut']];
         if ($validated['statut'] === 'rejete') {

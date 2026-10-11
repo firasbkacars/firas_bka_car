@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { GitCompareArrows, X, ChevronRight } from 'lucide-react';
+import FavoriButton from '../components/FavoriButton';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
@@ -46,6 +47,8 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
           </svg>
         )}
       </div>
+
+      <FavoriButton vehiculeId={v.id} className="absolute top-3 left-3" />
 
       <Link to={`/vehicules/${v.id}`} className="block">
         <div className="relative h-52 bg-white/[0.02] overflow-hidden">

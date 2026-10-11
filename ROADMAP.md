@@ -57,22 +57,22 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| N1 | Configurer le scheduler Laravel pour les rappels | A FAIRE |
+| N1 | Configurer le scheduler Laravel pour les rappels | FAIT (schedule:work + queue:work dans Dockerfile, reservations:reminders + permis:verifier avec withoutOverlapping) |
 | N2 | Email de confirmation (existant, a verifier) | EXISTANT |
 | N3 | Email de rappel 24h avant prise en charge | EXISTANT (non调度) |
 | N4 | Email de rappel jour du retour | EXISTANT (non调度) |
-| N5 | Notification admin nouvelle reservation | A FAIRE |
-| N6 | Notification admin annulation client | A FAIRE |
-| N7 | Notification client validation/rejet permis | A FAIRE |
-| N8 | SMS pour rappels (Twilio/AfricaTalking) | A FAIRE |
+| N5 | Notification admin nouvelle reservation | FAIT (AdminNewReservation mailable) |
+| N6 | Notification admin annulation client | FAIT (AdminReservationCancelled + dispatch dans annulerParClient) |
+| N7 | Notification client validation/rejet permis | FAIT (PermisValidation mailable) |
+| N8 | SMS pour rappels (Twilio/AfricaTalking) | IGNORE (fournisseur payant, hors perimetre) |
 
 ### Gestion des permis
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| P1 | Champ date expiration permis sur clients | A FAIRE |
-| P2 | Verification automatique expiration | A FAIRE |
-| P3 | Notification avant expiration permis | A FAIRE |
+| P1 | Champ date expiration permis sur clients | FAIT (migration + Client model + updateProfile + formulaire profil) |
+| P2 | Verification automatique expiration | FAIT (permisExpire() + garde dans store + validerPermis refuse expire) |
+| P3 | Notification avant expiration permis | FAIT (VerifierExpirationPerm commande + PermisExpirationReminder, rappel unique) |
 
 ---
 
@@ -84,9 +84,9 @@
 |----|------|-------------|--------|
 | U1 | Confirmation | Recuperer reservation par numero si refresh (pas de state) | FAIT (`?numero=`) |
 | U2 | Contact | Implementer le vrai formulaire de contact (API + email) | FAIT |
-| U3 | Home | Ajouter skeleton loading pour vehicules populaires | A FAIRE |
+| U3 | Home | Ajouter skeleton loading pour vehicules populaires | FAIT (VehicleCardSkeleton + section render avec aria-busy) |
 | U4 | VehiculeDetail | Afficher disponibilite en temps reel | EXISTANT |
-| U5 | Profil | Afficher photo profil (colonne manquante) | A FAIRE |
+| U5 | Profil | Afficher photo profil (colonne manquante) | FAIT (upload avatar + colonne photo_profil + chemin /storage/) |
 
 ### Pages manquantes
 
@@ -95,15 +95,15 @@
 | U6 | 404 | Page d'erreur personnalisee | FAIT |
 | U7 | ErrorBoundary | Composant React pour erreurs runtime | FAIT |
 | U8 | Admin Agences | Gestion des agences | FAIT (CRUD) |
-| U9 | Client Dashboard | Historique depenses, vehicules favoris | A FAIRE |
+| U9 | Client Dashboard | Historique depenses, vehicules favoris | FAIT (FavorisContext + TableauDeBord + coeur sur cartes) |
 
 ### UX/UI
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| UX1 | Lazy loading images vehicules | PARTIEL |
-| UX2 | Skeleton loading sur toutes les pages | A FAIRE |
-| UX3 | Toast notifications systematiques | A FAIRE |
+| UX1 | Lazy loading images vehicules | FAIT (loading="lazy" sur Home, Compare, Confirmation, Finalisation, TableauDeBord) |
+| UX2 | Skeleton loading sur toutes les pages | FAIT (Confirmation + Home populaires; autres pages ont deja des skeletons) |
+| UX3 | Toast notifications systematiques | FAIT (ConfirmContext + migration de tous les alert/confirm admin + Profil utilise useToast) |
 | UX4 | Confirmation avant action destructive | EXISTANT |
 | UX5 | Responsive mobile optimise | EXISTANT |
 
@@ -240,11 +240,11 @@
 |-------|----------|----------|---------|
 | Phase 0 (Securite) | 8 | 0 | 0 |
 | Phase 1 (Robustesse) | 7 | 0 | 4 |
-| Phase 2 (Fonctions manquantes) | 7 | 0 | 11 |
-| Phase 3 (Frontend) | 8 | 0 | 6 |
+| Phase 2 (Fonctions manquantes) | 14 | 0 | 4 (N8 ignore) |
+| Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 3 | 0 | 11 |
 | Phase 5 (Rapports) | 2 | 0 | 10 |
 | Phase 6 (Infra) | 0 | 0 | 12 |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 35 terminees | 0 en cours | 54 a faire**
+**Total : 89 taches | 48 terminees | 0 en cours | 41 a faire**

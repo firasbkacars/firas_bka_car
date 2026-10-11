@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
+import FavoriButton from '../components/FavoriButton';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=800&q=80';
 
@@ -350,6 +351,7 @@ export default function VehiculeDetail() {
                 onError={(e) => { e.target.src = FALLBACK_IMG; setImgLoaded(true); }}
                 className={`w-full h-[280px] sm:h-[400px] lg:h-[460px] object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
               />
+              <FavoriButton vehiculeId={vehicule.id} className="absolute top-3 right-3" />
               {images.length > 1 && (
                 <>
                   <button

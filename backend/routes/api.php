@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\EtatLieuController;
 use App\Http\Controllers\Api\FactureController;
+use App\Http\Controllers\Api\FavoriController;
 use App\Http\Controllers\Api\FideliteController;
 use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\PaiementController;
@@ -87,7 +88,13 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/client/profile', [ClientAuthController::class, 'profile']);
         Route::put('/client/profile', [ClientAuthController::class, 'updateProfile']);
         Route::post('/client/permis', [ClientAuthController::class, 'uploadPermis']);
+        Route::post('/client/photo', [ClientAuthController::class, 'uploadPhoto']);
         Route::get('/client/reservations', [ReservationController::class, 'mesReservations']);
+
+        // Client favoris (U9)
+        Route::get('/client/favoris', [FavoriController::class, 'index']);
+        Route::post('/client/favoris', [FavoriController::class, 'toggle']);
+        Route::delete('/client/favoris/{vehiculeId}', [FavoriController::class, 'destroy']);
 
         // Client email verification
         Route::post('/client/send-verification', [EmailVerificationController::class, 'send']);

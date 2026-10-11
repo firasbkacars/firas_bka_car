@@ -111,6 +111,7 @@ export default function Compare() {
                   <img
                     src={resolvedPhoto || FALLBACK_IMG}
                     alt={`${v.marque} ${v.modele}`}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                     onError={(e) => { e.target.src = FALLBACK_IMG; }}
                   />

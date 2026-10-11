@@ -64,12 +64,17 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-3">
             {!loading && (
               client ? (
-                <Link to="/client/profil" className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2">
-                  <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                    {client.nom_complet?.charAt(0)}
-                  </div>
-                  {client.nom_complet?.split(' ')[0]}
-                </Link>
+                <div className="flex items-center gap-1">
+                  <Link to="/client/tableau-de-bord" className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2">
+                    Tableau de bord
+                  </Link>
+                  <Link to="/client/profil" className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2">
+                    <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {client.nom_complet?.charAt(0)}
+                    </div>
+                    {client.nom_complet?.split(' ')[0]}
+                  </Link>
+                </div>
               ) : (
                 <Link to="/client/login" className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors px-3 py-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
