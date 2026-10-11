@@ -1,19 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { formatMAD, formatDate } from '../lib/formatters';
+import { Skeleton } from '../components/Skeleton';
 import { AlertTriangle, CheckCircle2, XCircle, Banknote, CreditCard, Tag, Loader2, Shield, User, Info, ExternalLink } from 'lucide-react';
+
+const EMPTY_PROMO = {
+  checking: false,
+  valid: false,
+  remise: 0,
+  nouveauMontant: 0,
+  message: '',
+  error: '',
+  baseTotal: null,
+};
 
 export default function Finalisation() {
   const { vehiculeId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { client, loading: authLoading, uploadPermis } = useAuth();
+  const toast = useToast();
   const [vehicule, setVehicule] = useState(null);
   const [agences, setAgences] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [parametres, setParametres] = useState({});
+  const [parametresError, setParametresError] = useState(false);
 
   const [form, setForm] = useState({
     agence_id: '',
@@ -25,14 +42,7 @@ export default function Finalisation() {
     conducteur_additionnel_permis: '',
   });
 
-  const [promoState, setPromoState] = useState({
-    checking: false,
-    valid: false,
-    remise: 0,
-    nouveauMontant: 0,
-    message: '',
-    error: '',
-  });
+  const [promoState, setPromoState] = useState(EMPTY_PROMO);
 
   const [permisFile, setPermisFile] = useState(null);
   const [uploadingPermis, setUploadingPermis] = useState(false);
@@ -59,8 +69,14 @@ export default function Finalisation() {
     try {
       const { data } = await api.get(`/vehicules/${vehiculeId}`);
       setVehicule(data);
+      setLoadError(null);
     } catch (err) {
       console.error(err);
+      setLoadError(
+        err.response?.status === 404
+          ? 'Ce vehicule n\'est plus disponible.'
+          : 'Impossible de charger le vehicule. Verifiez votre connexion puis reessayez.'
+      );
     } finally {
       setLoading(false);
     }
@@ -72,8 +88,12 @@ export default function Finalisation() {
       const map = {};
       data.forEach(p => { map[p.cle] = p.valeur; });
       setParametres(map);
+      setParametresError(false);
     } catch (err) {
       console.error(err);
+      // Sans les parametres, le taux d'acompte affiche peut diverger de
+      // celui calcule par le backend : on le signale plutot que de taire.
+      setParametresError(true);
     }
   };
 
@@ -92,32 +112,76 @@ export default function Finalisation() {
   const delaiPartiel = parseInt(parametres.delai_annulation_partielle || 24);
   const supplementConducteur = parseFloat(parametres.supplement_conducteur_jour || 50);
 
-  const calculerDetails = () => {
-    if (!vehicule || !dateDebut || !dateFin) return { jours: 0, sousTotal: 0, assurance: 0, total: 0, acompte: 0, remise: 0, totalApresRemise: 0, caution: 0, supplementConducteur: 0 };
+  const hasConducteurAdditionnel = form.conducteur_additionnel_nom.trim().length > 0;
+
+  const jours = useMemo(() => {
+    if (!dateDebut || !dateFin) return 0;
     const debut = new Date(dateDebut);
     const fin = new Date(dateFin);
-    const jours = Math.max(1, Math.ceil((fin - debut) / (1000 * 60 * 60 * 24)));
+    if (Number.isNaN(debut.getTime()) || Number.isNaN(fin.getTime())) return 0;
+    // On tronque a zero pour qu'une date de retour anterieure soit
+    // signalée, et non convertie silencieusement en "1 jour".
+    return Math.max(0, Math.ceil((fin - debut) / (1000 * 60 * 60 * 24)));
+  }, [dateDebut, dateFin]);
+
+  /** Total hors remise : c'est la base envoyee au backend pour verifier un code promo. */
+  const baseTotal = useMemo(() => {
+    if (!vehicule || jours <= 0) return 0;
     const sousTotal = vehicule.prix_jour * jours;
-    const assurance = 0;
-    let total = sousTotal + assurance;
-    const remise = promoState.valid ? promoState.remise : 0;
-    total = Math.max(0, total - remise);
-    const hasConducteurAdditionnel = form.conducteur_additionnel_nom.trim().length > 0;
     const supplement = hasConducteurAdditionnel ? supplementConducteur * jours : 0;
-    total += supplement;
-    const acompte = total * (tauxAcompte / 100);
-    const caution = vehicule.montant_caution || 0;
-    return { jours, sousTotal, assurance, total, acompte, remise, totalApresRemise: total, caution, supplementConducteur: supplement };
-  };
+    return Math.max(0, sousTotal + supplement);
+  }, [vehicule, jours, hasConducteurAdditionnel, supplementConducteur]);
+
+  const dateError = useMemo(() => {
+    if (!dateDebut || !dateFin) return null;
+    if (jours <= 0) return 'La date de retour doit etre posterieure a la date de prise en charge.';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(`${dateDebut}T00:00:00`) < today) {
+      return 'La date de prise en charge est deja passee.';
+    }
+    return null;
+  }, [dateDebut, dateFin, jours]);
+
+  const details = useMemo(() => {
+    const remise = promoState.valid ? promoState.remise : 0;
+    const total = Math.max(0, baseTotal - remise);
+    return {
+      jours,
+      sousTotal: vehicule ? vehicule.prix_jour * jours : 0,
+      assurance: 0,
+      remise,
+      total,
+      totalApresRemise: total,
+      acompte: total * (tauxAcompte / 100),
+      caution: vehicule?.montant_caution || 0,
+      supplementConducteur: hasConducteurAdditionnel ? supplementConducteur * jours : 0,
+    };
+  }, [baseTotal, jours, promoState.valid, promoState.remise, tauxAcompte, vehicule, hasConducteurAdditionnel, supplementConducteur]);
+
+  // Une remise verifiee sur un total devenu obsolete (dates ou conducteur
+  // additionnel modifies) ne doit plus etre appliquee silencieusement.
+  // Ajustement pendant le render (et non dans un effet) : ni double
+  // execution en StrictMode, ni rendu parasite.
+  const [lastBaseTotal, setLastBaseTotal] = useState(baseTotal);
+  if (baseTotal !== lastBaseTotal) {
+    setLastBaseTotal(baseTotal);
+    if (promoState.valid || promoState.baseTotal != null) {
+      setPromoState({
+        ...EMPTY_PROMO,
+        error: baseTotal > 0 ? 'Code promo retire : le total a change. Reappliquez-le.' : '',
+      });
+    }
+  }
 
   const verifyPromoCode = async () => {
-    if (!form.code_promo.trim()) return;
-    setPromoState({ checking: true, valid: false, remise: 0, nouveauMontant: 0, message: '', error: '' });
+    const code = form.code_promo.trim();
+    if (!code || !baseTotal) return;
+    setPromoState({ ...EMPTY_PROMO, checking: true });
     try {
-      const details = calculerDetails();
       const { data } = await api.post('/code-promo/verify', {
-        code: form.code_promo.trim(),
-        montant: details.total,
+        code,
+        montant: baseTotal,
       });
       setPromoState({
         checking: false,
@@ -126,14 +190,11 @@ export default function Finalisation() {
         nouveauMontant: data.nouveau_montant,
         message: data.message,
         error: '',
+        baseTotal,
       });
     } catch (err) {
       setPromoState({
-        checking: false,
-        valid: false,
-        remise: 0,
-        nouveauMontant: 0,
-        message: '',
+        ...EMPTY_PROMO,
         error: err.response?.data?.message || 'Code promo invalide',
       });
     }
@@ -144,8 +205,10 @@ export default function Finalisation() {
     setUploadingPermis(true);
     try {
       await uploadPermis(permisFile);
+      setPermisFile(null);
+      toast.success('Permis transmis. Il sera verifie par un agent.');
     } catch {
-      alert('Erreur lors de l\'upload du permis');
+      toast.error("Erreur lors de l'envoi du permis. Reessayez.");
     } finally {
       setUploadingPermis(false);
     }
@@ -153,9 +216,11 @@ export default function Finalisation() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!acceptConditions) return;
+    if (!acceptConditions || dateError) return;
     setSubmitting(true);
+    setSubmitError(null);
 
+    let reservation;
     try {
       const { data } = await api.post('/reservations', {
         vehicule_id: parseInt(vehiculeId),
@@ -171,45 +236,107 @@ export default function Finalisation() {
         conducteur_additionnel_telephone: form.conducteur_additionnel_telephone || null,
         conducteur_additionnel_permis: form.conducteur_additionnel_permis || null,
       });
+      reservation = data;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Erreur lors de la reservation. Veuillez reessayer.';
+      setSubmitError(message);
+      toast.error(message);
+      setSubmitting(false);
+      return;
+    }
 
-      if (form.mode_paiement === 'cmi') {
-        try {
-          const { data: paymentData } = await api.post('/client/payments/cmi/initialize', {
-            reservation_id: data.id,
-          });
+    if (form.mode_paiement !== 'cmi') {
+      navigate(`/confirmation?numero=${encodeURIComponent(reservation.numero)}`, {
+        state: { reservation, vehicule, dateDebut, dateFin },
+      });
+      return;
+    }
 
-          if (paymentData.payment_url) {
-            window.location.href = paymentData.payment_url;
-            return;
-          } else if (paymentData.iframe_data) {
-            setCmiPaymentUrl(paymentData.iframe_data);
-            setSubmitting(false);
-            return;
-          }
-        } catch (payErr) {
-          alert(payErr.response?.data?.message || 'Erreur lors de l\'initialisation du paiement CMI. Votre reservation a ete creee, vous pourrez payer plus tard.');
-        }
+    try {
+      const { data: paymentData } = await api.post('/client/payments/cmi/initialize', {
+        reservation_id: reservation.id,
+      });
+
+      if (paymentData.payment_url) {
+        // Sortie de la SPA : on garde submitting=true pour interdire tout
+        // double clic pendant la redirection vers la page de carte.
+        window.location.href = paymentData.payment_url;
+        return;
       }
 
-      navigate(`/confirmation?numero=${encodeURIComponent(data.numero)}`, {
-        state: {
-          reservation: data,
-          vehicule,
-          dateDebut,
-          dateFin,
-        },
+      if (paymentData.iframe_data) {
+        setCmiPaymentUrl(paymentData.iframe_data);
+        toast.success('Reservation creee. Finalisez le paiement dans le cadre ci-dessous.');
+        setSubmitting(false);
+        return;
+      }
+
+      throw new Error('missing_payment_url');
+    } catch (payErr) {
+      // La reservation est deja creee : on ne doit surtout pas renvoyer vers
+      // une seconde creation. On oriente vers la confirmation, d'ou le
+      // client pourra payer plus tard depuis son profil.
+      const message = payErr.response?.data?.message || 'Initialisation du paiement impossible.';
+      setSubmitError(`${message} Votre reservation a bien ete creee : vous pourrez payer depuis votre profil.`);
+      toast.warning(`${message} Votre reservation a ete creee.`);
+      navigate(`/confirmation?numero=${encodeURIComponent(reservation.numero)}`, {
+        state: { reservation, vehicule, dateDebut, dateFin },
       });
-    } catch (err) {
-      alert(err.response?.data?.message || 'Erreur lors de la reservation. Veuillez reessayer.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Chargement...</div>;
-  if (!vehicule) return <div className="text-center py-20 text-gray-400">Vehicule non trouve</div>;
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 pt-24 pb-16" aria-busy="true">
+        <span className="sr-only">Chargement de la reservation...</span>
+        <Skeleton className="h-4 w-64 mb-6" />
+        <Skeleton className="h-9 w-72 mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-56 rounded-xl" />
+            <Skeleton className="h-40 rounded-xl" />
+          </div>
+          <div>
+            <Skeleton className="h-96 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const details = calculerDetails();
+  if (loadError || !vehicule) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 pt-24 pb-16">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-8 text-center max-w-lg mx-auto">
+          <XCircle size={32} className="text-red-500 mx-auto mb-3" />
+          <h1 className="text-white font-semibold text-lg mb-2">
+            {loadError?.startsWith('Ce vehicule') ? 'Vehicule indisponible' : 'Chargement impossible'}
+          </h1>
+          <p className="text-gray-400 text-sm mb-5">
+            {loadError || 'Vehicule non trouve.'}
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => { setLoading(true); setLoadError(null); fetchVehicule(); }}
+              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+            >
+              Reessayer
+            </button>
+            <Link
+              to="/vehicules"
+              className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+            >
+              Voir les vehicules
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const hasPermis = client?.permis_conduire && client?.permis_statut === 'valide';
   const permisEnAttente = client?.permis_conduire && client?.permis_statut === 'en_attente';
   const permisRejete = client?.permis_statut === 'rejete';
@@ -230,6 +357,31 @@ export default function Finalisation() {
       </nav>
 
       <h1 className="text-3xl font-bold text-white mb-8">Finalisez votre reservation</h1>
+
+      {submitError && (
+        <div role="alert" className="bg-red-500/10 border border-red-500/25 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
+          <p className="text-red-200/90 text-sm leading-relaxed">{submitError}</p>
+        </div>
+      )}
+
+      {dateError && (
+        <div role="alert" className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-amber-200/90 text-sm leading-relaxed">{dateError}</p>
+        </div>
+      )}
+
+      {parametresError && (
+        <div role="status" className="bg-neutral-500/10 border border-neutral-500/25 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <Info size={18} className="text-neutral-400 shrink-0 mt-0.5" />
+          <p className="text-neutral-300 text-sm leading-relaxed">
+            Les tarifs parametres n'ont pas pu etre charges. Les montants affiches
+            sont des estimations : le total exact est recalcule par le serveur au
+            moment de la validation.
+          </p>
+        </div>
+      )}
 
       {/* Permis Warning */}
       {permisRejete && (
@@ -348,8 +500,9 @@ export default function Finalisation() {
                   </div>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-gray-400 text-xs mb-1 block">Agence de prise en charge</label>
+                  <label htmlFor="agence-id" className="text-gray-400 text-xs mb-1 block">Agence de prise en charge</label>
                   <select
+                    id="agence-id"
                     value={form.agence_id}
                     onChange={(e) => setForm({ ...form, agence_id: e.target.value })}
                     className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"
@@ -361,11 +514,13 @@ export default function Finalisation() {
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-gray-400 text-xs mb-1 block">Notes (optionnel)</label>
+                  <label htmlFor="notes" className="text-gray-400 text-xs mb-1 block">Notes (optionnel)</label>
                   <textarea
+                    id="notes"
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
                     rows={3}
+                    maxLength={1000}
                     className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none resize-none"
                     placeholder="Demandes speciales, siege bebe, etc."
                   />
@@ -419,14 +574,14 @@ export default function Finalisation() {
             {/* Payment */}
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <h2 className="text-white font-semibold text-lg mb-4">Mode de paiement</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Mode de paiement">
                 {[
                   { value: 'especes', label: 'Especes', icon: Banknote, desc: 'Paiement a la prise en charge' },
                   { value: 'cmi', label: 'Carte bancaire', icon: CreditCard, desc: 'Visa / Mastercard via CMI' },
                 ].map((m) => (
                   <label
                     key={m.value}
-                    className={`border rounded-lg p-3 cursor-pointer transition text-center ${
+                    className={`border rounded-lg p-3 cursor-pointer transition text-center focus-within:ring-2 focus-within:ring-[#dc2626] focus-within:ring-offset-2 focus-within:ring-offset-[#0a0a0a] ${
                       form.mode_paiement === m.value
                         ? 'border-[#dc2626] bg-[#dc2626]/10'
                         : 'border-[#2a2a2a] hover:border-[#444]'
@@ -441,7 +596,7 @@ export default function Finalisation() {
                       className="sr-only"
                     />
                     <div className="flex flex-col items-center gap-1">
-                      <m.icon size={18} className="text-gray-400" />
+                      <m.icon size={18} className="text-gray-400" aria-hidden="true" />
                       <div className="text-sm font-medium text-white">{m.label}</div>
                       <div className="text-xs text-gray-500">{m.desc}</div>
                     </div>
@@ -459,7 +614,9 @@ export default function Finalisation() {
           </div>
 
           {/* Summary */}
-          <div className="space-y-6">
+          {/* self-start est indispensable : sans lui l'element occupe toute
+              la hauteur de la ligne et le sticky n'a aucun effet. */}
+          <div className="space-y-6 self-start lg:sticky lg:top-24">
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <h2 className="text-white font-semibold text-lg mb-4">Resume de la commande</h2>
 
@@ -467,13 +624,13 @@ export default function Finalisation() {
                 <div className="flex items-center gap-3">
                   <img
                     src={vehiculePhotoSrc || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=200&q=80'}
-                    alt={vehicule.modele}
+                    alt={`${vehicule.marque} ${vehicule.modele}`}
                     className="w-20 h-14 object-cover rounded"
                   />
                   <div>
                     <h4 className="text-white font-medium text-sm">{vehicule.marque} {vehicule.modele}</h4>
                     <p className="text-gray-400 text-xs">{vehicule.transmission} • {vehicule.carburant} • {vehicule.places} places</p>
-                    <p className="text-[#dc2626] font-bold text-sm mt-1">{vehicule.prix_jour} DH/jour</p>
+                    <p className="text-[#dc2626] font-bold text-sm mt-1">{formatMAD(vehicule.prix_jour)} / jour</p>
                   </div>
                 </div>
               </div>
@@ -481,22 +638,24 @@ export default function Finalisation() {
               <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between text-gray-400">
                   <span>Date de prise en charge</span>
-                  <span className="text-white">{dateDebut ? new Date(dateDebut).toLocaleDateString('fr-FR') : '-'}</span>
+                  <span className="text-white">{formatDate(dateDebut)}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Date de retour</span>
-                  <span className="text-white">{dateFin ? new Date(dateFin).toLocaleDateString('fr-FR') : '-'}</span>
+                  <span className="text-white">{formatDate(dateFin)}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Duree</span>
-                  <span className="text-white">{details.jours} jours</span>
+                  <span className={`text-white ${dateError ? 'text-amber-400' : ''}`}>
+                    {details.jours > 0 ? `${details.jours} jour${details.jours > 1 ? 's' : ''}` : '—'}
+                  </span>
                 </div>
               </div>
 
               <div className="border-t border-[#2a2a2a] pt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-400">
-                  <span>{vehicule.prix_jour} DH x {details.jours} jours</span>
-                  <span className="text-white">{details.sousTotal} DH</span>
+                  <span>{formatMAD(vehicule.prix_jour)} x {details.jours} jour{details.jours > 1 ? 's' : ''}</span>
+                  <span className="text-white">{formatMAD(details.sousTotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Assurance tous risques</span>
@@ -516,19 +675,21 @@ export default function Finalisation() {
 
                 {/* Code Promo */}
                 <div className="pt-3 border-t border-[#2a2a2a]">
-                  <label className="text-gray-400 text-xs mb-2 block">Code promo</label>
+                  <label htmlFor="code-promo" className="text-gray-400 text-xs mb-2 block">Code promo</label>
                   <div className="flex gap-2">
                     <input
+                      id="code-promo"
                       type="text"
                       value={form.code_promo}
                       onChange={(e) => setForm({ ...form, code_promo: e.target.value.toUpperCase() })}
                       placeholder="Entrez votre code"
+                      autoComplete="off"
                       className="flex-1 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:border-[#dc2626] outline-none uppercase"
                     />
                     <button
                       type="button"
                       onClick={verifyPromoCode}
-                      disabled={promoState.checking || !form.code_promo.trim()}
+                      disabled={promoState.checking || !form.code_promo.trim() || !baseTotal}
                       className="bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 flex items-center gap-2"
                     >
                       {promoState.checking ? (
@@ -551,12 +712,16 @@ export default function Finalisation() {
               {/* CMI iframe */}
               {cmiPaymentUrl && (
                 <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mt-4">
-                  <h3 className="text-white font-semibold text-sm mb-3">Paiement securise CMI</h3>
+                  <h3 className="text-white font-semibold text-sm mb-1">Paiement securise CMI</h3>
+                  <p className="text-gray-500 text-xs mb-3">
+                    Saisissez les informations de votre carte dans le cadre ci-dessous.
+                  </p>
                   <iframe
                     src={cmiPaymentUrl}
-                    className="w-full border-0 rounded-lg"
-                    style={{ minHeight: '400px' }}
-                    title="Paiement CMI"
+                    className="w-full border-0 rounded-lg bg-white"
+                    style={{ minHeight: '460px' }}
+                    title="Formulaire de paiement CMI"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               )}
@@ -564,22 +729,30 @@ export default function Finalisation() {
               {details.remise > 0 && (
                 <div className="flex justify-between text-green-400">
                   <span>Remise promo</span>
-                  <span className="font-semibold">-{details.remise} DH</span>
+                  <span className="font-semibold">-{formatMAD(details.remise)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-white font-bold text-lg pt-2 border-t border-[#2a2a2a]">
                 <span>Total</span>
-                <span className="text-[#dc2626]">{details.totalApresRemise} DH</span>
+                <span className="text-[#dc2626]">{formatMAD(details.totalApresRemise)}</span>
               </div>
               <div className="flex justify-between text-gray-400 text-xs">
-                <span>Acompte ({tauxAcompte}%)</span>
-                <span className="text-[#dc2626] font-semibold">{details.acompte.toFixed(2)} DH</span>
+                <span>Acompte a payer maintenant ({tauxAcompte}%)</span>
+                <span className="text-[#dc2626] font-semibold">{formatMAD(details.acompte)}</span>
               </div>
+              {details.totalApresRemise > 0 && (
+                <div className="flex justify-between text-gray-400 text-xs">
+                  <span>Reste a payer a la prise en charge</span>
+                  <span className="text-white font-medium">
+                    {formatMAD(Math.max(0, details.totalApresRemise - details.acompte))}
+                  </span>
+                </div>
+              )}
               {details.caution > 0 && (
                 <div className="flex justify-between text-gray-400 text-xs">
                   <span>Caution (remboursable)</span>
-                  <span className="text-yellow-400 font-semibold">{details.caution} DH</span>
+                  <span className="text-yellow-400 font-semibold">{formatMAD(details.caution)}</span>
                 </div>
               )}
             </div>
@@ -597,7 +770,7 @@ export default function Finalisation() {
                     <li>• Remboursement 50% si entre {delaiPartiel}h et {delaiGratuit}h avant</li>
                     <li>• Acompte non remboursable si &lt; {delaiPartiel}h avant</li>
                     {details.caution > 0 && (
-                      <li>• Caution de {details.caution} DH remboursee apres verification de l'état du vehicule</li>
+                      <li>• Caution de {formatMAD(details.caution)} remboursee apres verification de l'etat du vehicule</li>
                     )}
                   </ul>
                 </div>
@@ -617,18 +790,23 @@ export default function Finalisation() {
 
             <button
               type="submit"
-              disabled={submitting || !hasPermis || !acceptConditions}
+              disabled={submitting || !hasPermis || !acceptConditions || !!dateError || details.jours <= 0}
+              aria-busy={submitting}
               className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
             >
-              {!hasPermis
-                ? 'Permis requis pour reserver'
-                : !acceptConditions
-                  ? 'Acceptez les conditions'
-                  : submitting
-                    ? 'Reservation en cours...'
-                    : form.mode_paiement === 'cmi'
-                      ? <>Payer {details.acompte.toFixed(2)} DH via CMI <ExternalLink size={16} /></>
-                      : `Payer l'acompte ${details.acompte.toFixed(2)} DH`
+              {dateError || details.jours <= 0
+                ? 'Dates invalides pour reserver'
+                : !hasPermis
+                  ? 'Permis requis pour reserver'
+                  : !acceptConditions
+                    ? 'Acceptez les conditions'
+                    : submitting
+                      ? (form.mode_paiement === 'cmi'
+                          ? 'Ouverture du paiement...'
+                          : 'Reservation en cours...')
+                      : form.mode_paiement === 'cmi'
+                        ? <>Payer {formatMAD(details.acompte)} via CMI <ExternalLink size={16} /></>
+                        : `Payer l'acompte ${formatMAD(details.acompte)}`
               }
             </button>
 
