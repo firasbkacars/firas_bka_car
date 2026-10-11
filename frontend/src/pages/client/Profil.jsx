@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Trophy, AlertTriangle, Clock } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Trophy, AlertTriangle, Clock, CreditCard } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
+import StatutPaiement from '../../components/StatutPaiement';
 
 const STATUS_COLORS = {
   confirmee: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
@@ -51,6 +52,9 @@ export default function ClientProfil() {
 
   const [prolongingId, setProlongingId] = useState(null);
   const [prolongDate, setProlongDate] = useState('');
+
+  const [payingId, setPayingId] = useState(null);
+  const [previews, setPreviews] = useState({});
 
   useEffect(() => {
     if (!authLoading && !token) {
@@ -182,18 +186,52 @@ export default function ClientProfil() {
     navigate('/');
   };
 
-  const calculerRemboursement = (reservation) => {
-    const dateDebut = new Date(reservation.date_debut);
-    const maintenant = new Date();
-    const heuresAvant = (dateDebut - maintenant) / (1000 * 60 * 60);
-    const acompte = parseFloat(reservation.acompte);
+  /**
+   * Apercu du remboursement, calcule par le BACKEND (RefundPolicy).
+   *
+   * L'ancienne version recalcloc cote client sur l'acompte theorique, ce
+   * qui pouvait annoncer un montant different de celui reellement applique
+   * (le backend part de l'acompte deja encaisse).
+   */
+  const fetchPreview = async (id) => {
+    if (previews[id]) return previews[id];
+    try {
+      const { data } = await api.get(`/client/reservations/${id}/annulation-preview`);
+      setPreviews((p) => ({ ...p, [id]: data }));
+      return data;
+    } catch {
+      return null;
+    }
+  };
 
-    if (heuresAvant >= 48) {
-      return { montant: acompte, pourcentage: 100, label: 'Remboursement integral' };
-    } else if (heuresAvant >= 24) {
-      return { montant: acompte * 0.5, pourcentage: 50, label: 'Remboursement partiel (50%)' };
-    } else {
-      return { montant: 0, pourcentage: 0, label: 'Acompte non remboursable' };
+  const handleOpenCancel = async (id) => {
+    setCancelConfirm(id);
+    await fetchPreview(id);
+  };
+
+  /**
+   * Ouvre la session de paiement CMI et redirige vers la page de carte.
+   * Aucune donnee de carte n'est saisie ici ni transmise a nos serveurs.
+   */
+  const handlePayer = async (reservationId) => {
+    setPayingId(reservationId);
+    try {
+      const { data } = await api.post('/client/payments/cmi/initialize', {
+        reservation_id: reservationId,
+      });
+
+      if (data.payment_url) {
+        window.location.href = data.payment_url;
+        return;
+      }
+
+      showToast('Le paiement en ligne n\'est pas disponible pour le moment.', 'error');
+    } catch (err) {
+      showToast(
+        err.response?.data?.message || 'Impossible d\'initier le paiement',
+        'error'
+      );
+      setPayingId(null);
     }
   };
 
@@ -238,7 +276,12 @@ export default function ClientProfil() {
       const { data } = await api.put(`/client/reservations/${id}/annuler`);
       setCancelConfirm(null);
       fetchReservations();
-      showToast(`Reservation annulee. Remboursement: ${data.montant_rembourse} DH`);
+      const remb = parseFloat(data.montant_rembourse) || 0;
+      showToast(
+        remb > 0
+          ? `Reservation annulee. Remboursement : ${remb.toFixed(2)} DH`
+          : 'Reservation annulee. Aucun remboursement selon la politique.'
+      );
     } catch (err) {
       showToast(err.response?.data?.message || 'Erreur lors de l\'annulation', 'error');
     } finally {
@@ -344,6 +387,12 @@ export default function ClientProfil() {
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[res.statut] || ''}`}>
                           {STATUS_LABELS[res.statut] || res.statut}
                         </span>
+                        {res.mode_paiement === 'cmi' && (
+                          <StatutPaiement
+                            statut={res.est_paye_integralement ? 'paye' : 'en_attente'}
+                            showIcon={false}
+                          />
+                        )}
                       </div>
                       <p className="text-gray-500 text-xs mt-1">
                         {res.numero} - {new Date(res.date_debut).toLocaleDateString('fr-FR')} au {new Date(res.date_fin).toLocaleDateString('fr-FR')}
@@ -351,7 +400,11 @@ export default function ClientProfil() {
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-[#dc2626] font-bold text-sm">{res.prix_total} DH</div>
-                      <div className="text-gray-600 text-xs">{res.acompte} DH acompte</div>
+                      <div className="text-gray-600 text-xs">
+                        {res.acompte_paye != null
+                          ? `${parseFloat(res.acompte_paye).toFixed(2)} DH payes`
+                          : `${res.acompte} DH acompte`}
+                      </div>
                     </div>
                     {expandedReservation === res.id ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
                   </div>
@@ -371,17 +424,41 @@ export default function ClientProfil() {
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Mode de paiement</p>
-                          <p className="text-white text-sm mt-1 capitalize">{res.mode_paiement?.replace('_', ' ')}</p>
+                          <p className="text-white text-sm mt-1 capitalize">
+                            {res.mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Especes'}
+                          </p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Paiements</p>
                           <p className="text-white text-sm mt-1">
-                            {res.paiements?.filter(p => p.statut === 'paye').reduce((sum, p) => sum + parseFloat(p.montant), 0).toFixed(2)} DH payes
+                            {res.acompte_paye != null
+                              ? `${parseFloat(res.acompte_paye).toFixed(2)} DH encaisses`
+                              : `${res.paiements?.filter(p => p.statut === 'paye').reduce((sum, p) => sum + parseFloat(p.montant), 0).toFixed(2)} DH payes`}
                           </p>
+                          {res.paiements?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {res.paiements.map((p) => (
+                                <StatutPaiement key={p.id} statut={p.statut_affichage || p.statut} showIcon={false} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 pt-3 border-t border-white/[0.04]">
+                      <div className="flex items-center gap-3 pt-3 border-t border-white/[0.04] flex-wrap">
+                        {res.mode_paiement === 'cmi' &&
+                          res.est_payable_en_ligne &&
+                          (res.statut === 'confirmee' || res.statut === 'en_cours') && (
+                          <button
+                            onClick={() => handlePayer(res.id)}
+                            disabled={payingId === res.id}
+                            className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#dc2626]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                          >
+                            {payingId === res.id
+                              ? <><Loader2 size={14} className="animate-spin" /> Ouverture...</>
+                              : <><CreditCard size={14} /> Payer {parseFloat(res.acompte_restant ?? res.acompte).toFixed(2)} DH</>}
+                          </button>
+                        )}
                         {res.statut === 'terminee' && (
                           <button
                             onClick={() => downloadFacture(res.id)}
@@ -454,15 +531,30 @@ export default function ClientProfil() {
                                   Confirmer l'annulation ?
                                 </p>
                                 {(() => {
-                                  const remb = calculerRemboursement(res);
+                                  const remb = previews[res.id];
                                   return (
                                     <div className="mb-3 space-y-1">
                                       <p className="text-gray-400 text-xs">
-                                        Acompte paye : <span className="text-white font-medium">{res.acompte} DH</span>
+                                        Acompte encaisse :{' '}
+                                        <span className="text-white font-medium">
+                                          {remb
+                                            ? `${parseFloat(remb.acompte_paye).toFixed(2)} DH`
+                                            : '...'}
+                                        </span>
                                       </p>
-                                      <p className={`text-xs font-medium ${remb.montant > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                        {remb.label} : <span className="font-bold">{remb.montant.toFixed(2)} DH</span>
-                                      </p>
+                                      {remb ? (
+                                        <>
+                                          <p className={`text-xs font-medium ${parseFloat(remb.montant_rembourse) > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                            {remb.montant_rembourse > 0 ? 'Remboursement' : 'Aucun remboursement'} :{' '}
+                                            <span className="font-bold">{parseFloat(remb.montant_rembourse).toFixed(2)} DH</span>
+                                          </p>
+                                          <p className="text-gray-500 text-[11px] leading-snug">
+                                            {remb.politique}
+                                          </p>
+                                        </>
+                                      ) : (
+                                        <p className="text-gray-500 text-[11px]">Calcul en cours...</p>
+                                      )}
                                     </div>
                                   );
                                 })()}
@@ -484,7 +576,7 @@ export default function ClientProfil() {
                               </div>
                             ) : (
                               <button
-                                onClick={() => setCancelConfirm(res.id)}
+                                onClick={() => handleOpenCancel(res.id)}
                                 className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                               >
                                 <XCircle size={14} />
