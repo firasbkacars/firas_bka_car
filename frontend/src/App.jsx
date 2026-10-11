@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import ScrollToTop from './components/ScrollToTop'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -34,6 +35,7 @@ import NotFound from './pages/NotFound'
 function App() {
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<><Header /><Home /><Footer /></>} />
         <Route path="/services" element={<><Header /><Services /><Footer /></>} />
