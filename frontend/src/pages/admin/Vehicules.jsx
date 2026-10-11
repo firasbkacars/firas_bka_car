@@ -49,6 +49,7 @@ function VehicleImage({ src, alt, className = 'w-12 h-8', size = 16 }) {
 
 export default function AdminVehicules() {
   const [vehicules, setVehicules] = useState([]);
+  const [agences, setAgences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editVehicule, setEditVehicule] = useState(null);
@@ -71,12 +72,23 @@ export default function AdminVehicules() {
     prix_jour: 0,
     montant_caution: 0,
     statut: 'disponible',
+    agence_id: '',
     populaire: false,
   });
 
   useEffect(() => {
     fetchVehicules();
+    fetchAgences();
   }, []);
+
+  const fetchAgences = async () => {
+    try {
+      const { data } = await api.get('/agences-admin');
+      setAgences(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchVehicules = async () => {
     try {
@@ -106,6 +118,7 @@ export default function AdminVehicules() {
         prix_jour: v.prix_jour,
         montant_caution: v.montant_caution || 0,
         statut: v.statut,
+        agence_id: v.agence_id || '',
         populaire: v.populaire,
       });
       setPhotos((v.photos || []).map((p, i) => ({
@@ -119,7 +132,8 @@ export default function AdminVehicules() {
       setForm({
         marque: '', modele: '', description: '', categorie: 'Berline', annee: 2024,
         transmission: 'automatique', carburant: 'essence', places: 5,
-        puissance: '', kilometrage: 0, prix_jour: 0, montant_caution: 0, statut: 'disponible', populaire: false,
+        puissance: '', kilometrage: 0, prix_jour: 0, montant_caution: 0, statut: 'disponible',
+        agence_id: agences.find((a) => a.active)?.id || '', populaire: false,
       });
       setPhotos([]);
     }
@@ -222,13 +236,17 @@ export default function AdminVehicules() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploading(true);
+    const payload = {
+      ...form,
+      agence_id: form.agence_id === '' || form.agence_id == null ? null : Number(form.agence_id),
+    };
     try {
       if (editVehicule) {
-        await api.put(`/vehicules-admin/${editVehicule.id}`, form);
+        await api.put(`/vehicules-admin/${editVehicule.id}`, payload);
         await uploadNewPhotos();
         await reorderExistingPhotos();
       } else {
-        const { data: created } = await api.post('/vehicules-admin', form);
+        const { data: created } = await api.post('/vehicules-admin', payload);
         if (photos.length > 0) {
           const formData = new FormData();
           photos.forEach(p => {
@@ -243,8 +261,12 @@ export default function AdminVehicules() {
       }
       setShowModal(false);
       fetchVehicules();
-    } catch {
-      alert('Erreur lors de la sauvegarde');
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        Object.values(err.response?.data?.errors || {}).flat()[0] ||
+        'Erreur lors de la sauvegarde';
+      alert(message);
     } finally {
       setUploading(false);
     }
@@ -299,11 +321,12 @@ export default function AdminVehicules() {
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[700px]">
+          <table className="w-full text-sm min-w-[820px]">
             <thead>
               <tr className="text-neutral-500 border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Véhicule</th>
                 <th className="text-left py-3 px-5 font-medium">Catégorie</th>
+                <th className="text-left py-3 px-5 font-medium">Agence</th>
                 <th className="text-left py-3 px-5 font-medium">Année</th>
                 <th className="text-left py-3 px-5 font-medium">Prix/Jour</th>
                 <th className="text-left py-3 px-5 font-medium">Statut</th>
@@ -314,7 +337,7 @@ export default function AdminVehicules() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b border-neutral-800/50">
-                    <td colSpan={6} className="px-5 py-4">
+                    <td colSpan={7} className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-8 bg-neutral-800 rounded animate-pulse" />
                         <div className="h-4 w-32 bg-neutral-800 rounded animate-pulse" />
@@ -324,7 +347,7 @@ export default function AdminVehicules() {
                 ))
               ) : vehicules.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-neutral-500">
+                  <td colSpan={7} className="text-center py-12 text-neutral-500">
                     <Car size={40} className="mx-auto mb-3 text-neutral-600" />
                     <p className="text-sm">Aucun véhicule</p>
                   </td>
@@ -348,6 +371,13 @@ export default function AdminVehicules() {
                       </div>
                     </td>
                     <td className="py-3 px-5 text-neutral-300">{v.categorie}</td>
+                    <td className="py-3 px-5 text-neutral-300">
+                      {v.agence ? (
+                        <span className="text-neutral-300">{v.agence.ville}</span>
+                      ) : (
+                        <span className="text-neutral-600">—</span>
+                      )}
+                    </td>
                     <td className="py-3 px-5 text-neutral-300">{v.annee}</td>
                     <td className="py-3 px-5 text-red-500 font-semibold">{v.prix_jour} DH</td>
                     <td className="py-3 px-5">
@@ -470,6 +500,25 @@ export default function AdminVehicules() {
                     <option value="maintenance">Maintenance</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="text-neutral-400 text-xs mb-1 block">Agence</label>
+                <select
+                  value={form.agence_id}
+                  onChange={(e) => setForm({ ...form, agence_id: e.target.value })}
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                >
+                  <option value="">Aucune agence</option>
+                  {agences.map((a) => (
+                    <option key={a.id} value={a.id} disabled={!a.active}>
+                      {a.nom} — {a.ville}{a.active ? '' : ' (inactive)'}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-neutral-600 text-xs mt-1">
+                  L'agence détermine le lieu de prise en charge et le filtre « Agence » du catalogue.
+                </p>
               </div>
 
               {/* Photos section */}

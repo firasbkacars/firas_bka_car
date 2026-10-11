@@ -456,6 +456,12 @@ export default function ClientProfil() {
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Prise en charge</p>
                           <p className="text-white text-sm mt-1">{formatDateTime(res.date_debut)}</p>
+                          {res.agence && (
+                            <p className="text-white text-xs mt-0.5">
+                              {res.agence.nom}
+                              {res.agence.telephone ? ` · ${res.agence.telephone}` : ''}
+                            </p>
+                          )}
                           <p className="text-gray-500 text-xs">{res.lieu_prise}</p>
                         </div>
                         <div>

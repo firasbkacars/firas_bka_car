@@ -106,6 +106,29 @@ export default function Finalisation() {
     }
   };
 
+  // Agence retenue : celle choisie par le client, sinon celle de rattachement
+  // du vehicule. Elle fournit le lieu de prise en charge / de retour.
+  const agenceChoisie = useMemo(() => {
+    if (!form.agence_id) return vehicule?.agence || null;
+    return agences.find((a) => String(a.id) === String(form.agence_id)) || vehicule?.agence || null;
+  }, [agences, form.agence_id, vehicule]);
+
+  const lieu = useMemo(() => {
+    if (!agenceChoisie) return 'Tanger';
+    const adresse = (agenceChoisie.adresse || '').trim();
+    const ville = (agenceChoisie.ville || '').trim();
+    return [adresse, ville].filter(Boolean).join(', ') || 'Tanger';
+  }, [agenceChoisie]);
+
+  // Pre-remplissage : l'agence du vehicule est proposee par defaut, mais
+  // seulement si elle figure bien dans la liste des agences actives.
+  useEffect(() => {
+    if (form.agence_id || !vehicule?.agence_id || agences.length === 0) return;
+    if (agences.some((a) => a.id === vehicule.agence_id)) {
+      setForm((prev) => (prev.agence_id ? prev : { ...prev, agence_id: String(vehicule.agence_id) }));
+    }
+  }, [agences, vehicule, form.agence_id]);
+
   const tauxAcompte = parseFloat(parametres.taux_acompte || 30);
   const penaliteRetard = parseFloat(parametres.penalite_retard_pourcentage || 50);
   const delaiGratuit = parseInt(parametres.delai_annulation_gratuit || 48);
@@ -227,8 +250,8 @@ export default function Finalisation() {
         agence_id: form.agence_id || null,
         date_debut: dateDebut,
         date_fin: dateFin,
-        lieu_prise: 'Tanger',
-        lieu_retour: 'Tanger',
+        lieu_prise: lieu,
+        lieu_retour: lieu,
         mode_paiement: form.mode_paiement,
         notes: form.notes,
         code_promo: form.code_promo || null,
@@ -512,6 +535,13 @@ export default function Finalisation() {
                       <option key={agence.id} value={agence.id}>{agence.nom} - {agence.ville}</option>
                     ))}
                   </select>
+                  <p className="text-gray-500 text-xs mt-1.5">
+                    {form.agence_id
+                      ? `Prise en charge et retour : ${lieu}`
+                      : vehicule?.agence
+                        ? `Par defaut : ${vehicule.agence.nom} - ${lieu}`
+                        : 'Selectionnez une agence de prise en charge.'}
+                  </p>
                 </div>
                 <div className="md:col-span-2">
                   <label htmlFor="notes" className="text-gray-400 text-xs mb-1 block">Notes (optionnel)</label>

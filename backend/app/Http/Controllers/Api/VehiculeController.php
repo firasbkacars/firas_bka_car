@@ -11,7 +11,7 @@ class VehiculeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Vehicule::query();
+        $query = Vehicule::query()->with('agence:id,nom,ville,active');
 
         if ($request->has('disponibles')) {
             $query->disponibles();
@@ -66,7 +66,7 @@ class VehiculeController extends Controller
 
     public function show($id)
     {
-        $vehicule = Vehicule::with(['reservations' => function ($q) {
+        $vehicule = Vehicule::with(['agence', 'reservations' => function ($q) {
             $q->where('statut', '!=', 'annulee')
                 ->select('id', 'vehicule_id', 'date_debut', 'date_fin', 'statut');
         }])->findOrFail($id);
@@ -119,6 +119,7 @@ class VehiculeController extends Controller
             'prix_jour' => 'required|numeric|min:0',
             'montant_caution' => 'nullable|numeric|min:0',
             'statut' => 'in:disponible,en_location,louee,maintenance',
+            'agence_id' => 'nullable|integer|exists:agences,id',
             'photos' => 'nullable|array',
             'equipements' => 'nullable|array',
             'populaire' => 'boolean',
@@ -147,6 +148,7 @@ class VehiculeController extends Controller
             'prix_jour' => 'sometimes|numeric|min:0',
             'montant_caution' => 'sometimes|numeric|min:0',
             'statut' => 'sometimes|in:disponible,en_location,louee,maintenance',
+            'agence_id' => 'nullable|integer|exists:agences,id',
             'photos' => 'nullable|array',
             'equipements' => 'nullable|array',
             'populaire' => 'boolean',

@@ -48,10 +48,10 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| F1 | CRUD Agences (Admin) — Controller + page admin | A FAIRE |
-| F2 | Selection d'agence dans le formulaire de reservation | A FAIRE |
-| F3 | Filtrage des vehicules par agence | A FAIRE |
-| F4 | Affichage agence sur le profil client | A FAIRE |
+| F1 | CRUD Agences (Admin) — Controller + page admin | FAIT (page admin, modale partagee + toasts, AgenceFactory + AgenceApiTest) |
+| F2 | Selection d'agence dans le formulaire de reservation | FAIT (agence pre-remplie depuis le vehicule, lieu derive cote backend, agence inactive refusee) |
+| F3 | Filtrage des vehicules par agence | FAIT (filtre public + champ agence dans le form admin vehicule) |
+| F4 | Affichage agence sur le profil client | FAIT (eager-load agence + affichage dans l'historique) |
 
 ### Systeme de notification
 
@@ -199,7 +199,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi + Security, 29 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi — 71 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -240,11 +240,11 @@
 |-------|----------|----------|---------|
 | Phase 0 (Securite) | 8 | 0 | 0 |
 | Phase 1 (Robustesse) | 7 | 0 | 4 |
-| Phase 2 (Fonctions manquantes) | 3 | 0 | 15 |
+| Phase 2 (Fonctions manquantes) | 7 | 0 | 11 |
 | Phase 3 (Frontend) | 8 | 0 | 6 |
 | Phase 4 (Metier avance) | 3 | 0 | 11 |
 | Phase 5 (Rapports) | 2 | 0 | 10 |
 | Phase 6 (Infra) | 0 | 0 | 12 |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 31 terminees | 0 en cours | 58 a faire**
+**Total : 89 taches | 35 terminees | 0 en cours | 54 a faire**

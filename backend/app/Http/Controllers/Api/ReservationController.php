@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReservationRequest;
 use App\Jobs\SendReservationConfirmation;
 use App\Mail\AdminNewReservation;
+use App\Models\Agence;
 use App\Models\CodePromo;
 use App\Models\Paiement;
 use App\Models\Parametre;
@@ -27,7 +28,7 @@ class ReservationController extends Controller
         // `paiements` est lisible cote client (historique des reglements) :
         // sans eager loading, chaque reservation declenche une requete
         // supplementaire au moment de la serialisation.
-        $query = Reservation::with(['client', 'vehicule', 'paiements']);
+        $query = Reservation::with(['client', 'vehicule', 'agence', 'paiements']);
 
         if ($request->has('statut')) {
             $query->where('statut', $request->get('statut'));
@@ -103,6 +104,21 @@ class ReservationController extends Controller
 
             $montantCaution = $vehicule->montant_caution ?? 0;
 
+            // Sans agence choisie, la reservation retombe sur l'agence
+            // de rattachement du vehicule : lieu et agence restent coherents.
+            $agenceId = $validated['agence_id'] ?? $vehicule->agence_id;
+            $agence = $agenceId ? Agence::find($agenceId) : null;
+
+            $lieuPrise = $validated['lieu_prise'];
+            $lieuRetour = $validated['lieu_retour'];
+            if ($agence) {
+                // Lieu derive de l'agence : la valeur client ne peut pas
+                // decrire un point de prise en charge qui n'existe pas.
+                $lieu = trim($agence->adresse.', '.$agence->ville);
+                $lieuPrise = $lieu !== '' ? $lieu : $agence->ville;
+                $lieuRetour = $lieuPrise;
+            }
+
             $supplementConducteur = 0;
             if (! empty($validated['conducteur_additionnel_nom'])) {
                 $supplementParJour = Parametre::getNumeric('supplement_conducteur_jour', 50);
@@ -117,11 +133,11 @@ class ReservationController extends Controller
             $reservation = $this->createWithUniqueNumero([
                 'client_id' => $client->id,
                 'vehicule_id' => $vehicule->id,
-                'agence_id' => $validated['agence_id'] ?? null,
+                'agence_id' => $agenceId,
                 'date_debut' => $validated['date_debut'],
                 'date_fin' => $validated['date_fin'],
-                'lieu_prise' => $validated['lieu_prise'],
-                'lieu_retour' => $validated['lieu_retour'],
+                'lieu_prise' => $lieuPrise,
+                'lieu_retour' => $lieuRetour,
                 'prix_total' => $prixTotal,
                 'acompte' => $acompte,
                 'montant_caution' => $montantCaution,
@@ -150,7 +166,7 @@ class ReservationController extends Controller
             return $reservation;
         });
 
-        $reservation->load(['client', 'vehicule']);
+        $reservation->load(['client', 'vehicule', 'agence']);
 
         SendReservationConfirmation::dispatch($reservation->id);
 
@@ -167,7 +183,7 @@ class ReservationController extends Controller
 
     public function show(Request $request, $numero)
     {
-        $reservation = Reservation::with(['client', 'vehicule', 'paiements', 'etatsLieux'])
+        $reservation = Reservation::with(['client', 'vehicule', 'agence', 'paiements', 'etatsLieux'])
             ->where('numero', $numero)
             ->firstOrFail();
 
@@ -192,7 +208,7 @@ class ReservationController extends Controller
     {
         $client = $request->user();
 
-        $reservations = Reservation::with(['vehicule', 'paiements'])
+        $reservations = Reservation::with(['vehicule', 'paiements', 'agence'])
             ->where('client_id', $client->id)
             ->orderBy('created_at', 'desc')
             ->get();

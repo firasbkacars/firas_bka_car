@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreReservationRequest extends FormRequest
 {
@@ -15,7 +16,9 @@ class StoreReservationRequest extends FormRequest
     {
         return [
             'vehicule_id' => ['required', 'exists:vehicules,id'],
-            'agence_id' => ['nullable', 'exists:agences,id'],
+            // Une agence inactive ne peut pas etre choisie comme lieu de
+            // prise en charge (elles sont retirees du catalogue public).
+            'agence_id' => ['nullable', Rule::exists('agences', 'id')->where('active', true)],
             'date_debut' => ['required', 'date', 'after:now'],
             'date_fin' => ['required', 'date', 'after:date_debut'],
             'lieu_prise' => ['required', 'string', 'max:255'],
@@ -42,6 +45,7 @@ class StoreReservationRequest extends FormRequest
             'lieu_retour.required' => 'Le lieu de retour est obligatoire.',
             'mode_paiement.required' => 'Le mode de paiement est obligatoire.',
             'mode_paiement.in' => 'Mode de paiement invalide.',
+            'agence_id.exists' => 'Cette agence est introuvable ou inactive.',
         ];
     }
 }
