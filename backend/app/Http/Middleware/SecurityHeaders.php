@@ -24,7 +24,7 @@ class SecurityHeaders
 
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.google.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; frame-src https://www.google.com https://maps.google.com https://*.google.com; connect-src 'self' https://*.google.com https://maps.googleapis.com;"
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.google.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; frame-src https://www.google.com https://maps.google.com https://*.google.com https://pay.cmi.co.ma https://*.cmi.co.ma; connect-src 'self' https://*.google.com https://maps.googleapis.com https://pay.cmi.co.ma https://*.cmi.co.ma;"
         );
 
         return $response;

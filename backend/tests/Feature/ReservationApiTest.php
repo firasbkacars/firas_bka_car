@@ -143,7 +143,7 @@ class ReservationApiTest extends TestCase
             'date_fin' => now()->addDays(25)->toDateString().' 09:00:00',
             'lieu_prise' => 'Tanger',
             'lieu_retour' => 'Tanger',
-            'mode_paiement' => 'visa',
+            'mode_paiement' => 'especes',
         ]);
 
         $response->assertCreated();
@@ -151,6 +151,58 @@ class ReservationApiTest extends TestCase
         // +20j -> +25j = 5 jours
         $this->assertEquals(2500, $data['prix_total']); // 500 * 5 jours
         $this->assertEquals(750, $data['acompte']); // 30% de 2500
+    }
+
+    /**
+     * Regresion : "visa"/"mastercard" marquaient l'acompte comme paye sans
+     * aucun encaissement. Ces modes ont ete supprimes au profit de
+     * "especes" et "cmi".
+     */
+    public function test_legacy_visa_mastercard_modes_are_rejected(): void
+    {
+        $vehicule = $this->createVehicule(['prix_jour' => 500]);
+        $client = $this->createClient();
+
+        foreach (['visa', 'mastercard'] as $mode) {
+            $this->actingAs($client, 'sanctum')->postJson('/api/reservations', [
+                'vehicule_id' => $vehicule->id,
+                'date_debut' => now()->addDays(20)->toDateString().' 09:00:00',
+                'date_fin' => now()->addDays(25)->toDateString().' 09:00:00',
+                'lieu_prise' => 'Tanger',
+                'lieu_retour' => 'Tanger',
+                'mode_paiement' => $mode,
+            ])->assertStatus(422)->assertJsonValidationErrors('mode_paiement');
+        }
+    }
+
+    /**
+     * Regresion : un acompte ne doit JAMAIS etre marque paye a la creation
+     * de la reservation, quel que soit le mode choisi.
+     */
+    public function test_acompte_is_never_paid_on_reservation_creation(): void
+    {
+        $client = $this->createClient();
+
+        foreach (['especes', 'cmi'] as $mode) {
+            $dispo = $this->createVehicule(['prix_jour' => 500]);
+
+            $response = $this->actingAs($client, 'sanctum')->postJson('/api/reservations', [
+                'vehicule_id' => $dispo->id,
+                'date_debut' => now()->addDays(30)->toDateString().' 09:00:00',
+                'date_fin' => now()->addDays(33)->toDateString().' 09:00:00',
+                'lieu_prise' => 'Tanger',
+                'lieu_retour' => 'Tanger',
+                'mode_paiement' => $mode,
+            ]);
+            $response->assertCreated();
+
+            $this->assertDatabaseHas('paiements', [
+                'reservation_id' => $response->json('id'),
+                'methode' => $mode,
+                'statut' => 'en_attente',
+                'date_paiement' => null,
+            ]);
+        }
     }
 
     public function test_payment_completes_reservation(): void
@@ -169,13 +221,13 @@ class ReservationApiTest extends TestCase
             'prix_total' => 3000,
             'acompte' => 900,
             'statut' => 'confirmee',
-            'mode_paiement' => 'visa',
+            'mode_paiement' => 'cmi',
         ]);
 
         Paiement::create([
             'reservation_id' => $reservation->id,
             'montant' => 900,
-            'methode' => 'visa',
+            'methode' => 'cmi',
             'statut' => 'paye',
             'date_paiement' => now(),
         ]);

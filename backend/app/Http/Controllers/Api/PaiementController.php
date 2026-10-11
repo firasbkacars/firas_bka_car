@@ -87,7 +87,7 @@ class PaiementController extends Controller
         $validated = $request->validate([
             'reservation_id' => 'required|exists:reservations,id',
             'montant' => 'required|numeric|min:0',
-            'methode' => 'required|in:especes,visa,mastercard,cmi',
+            'methode' => 'required|in:especes,cmi',
         ]);
 
         $paiement = Paiement::create([

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { AlertTriangle, CheckCircle2, XCircle, Banknote, CreditCard, Building2, Tag, Loader2, Shield, User, Info, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XCircle, Banknote, CreditCard, Tag, Loader2, Shield, User, Info, ExternalLink } from 'lucide-react';
 
 export default function Finalisation() {
   const { vehiculeId } = useParams();
@@ -419,12 +419,10 @@ export default function Finalisation() {
             {/* Payment */}
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <h2 className="text-white font-semibold text-lg mb-4">Mode de paiement</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: 'especes', label: 'Especes', icon: Banknote, desc: 'Paiement a la prise en charge' },
-                  { value: 'visa', label: 'Visa', icon: CreditCard, desc: 'Paiement en ligne' },
-                  { value: 'mastercard', label: 'Mastercard', icon: CreditCard, desc: 'Paiement en ligne' },
-                  { value: 'cmi', label: 'CMI', icon: Building2, desc: 'Centre Monetique Interbancaire' },
+                  { value: 'cmi', label: 'Carte bancaire', icon: CreditCard, desc: 'Visa / Mastercard via CMI' },
                 ].map((m) => (
                   <label
                     key={m.value}
@@ -450,6 +448,13 @@ export default function Finalisation() {
                   </label>
                 ))}
               </div>
+              {form.mode_paiement === 'cmi' && (
+                <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
+                  <Shield size={13} className="text-[#dc2626] shrink-0" />
+                  Paiement securise via le Centre Monetique Interbancaire. Votre
+                  carte n'est jamais stockee par nos serveurs.
+                </p>
+              )}
             </div>
           </div>
 

@@ -133,21 +133,15 @@ class ReservationController extends Controller
                 'supplement_conducteur' => $supplementConducteur,
             ]);
 
-            $paiementStatut = 'en_attente';
-            $paiementDate = null;
-            if ($validated['mode_paiement'] === 'especes') {
-                $paiementStatut = 'en_attente';
-            } elseif (in_array($validated['mode_paiement'], ['visa', 'mastercard'])) {
-                $paiementStatut = 'paye';
-                $paiementDate = now();
-            }
-
+            // Un acompte n'est JAMAIS considere paye a la creation.
+            // 'especes' : encaisse a la livraison ; 'cmi' : paye uniquement
+            // apres confirmation signee de la passerelle (webhook ou page retour).
             Paiement::create([
                 'reservation_id' => $reservation->id,
                 'montant' => $acompte,
                 'methode' => $validated['mode_paiement'],
-                'statut' => $paiementStatut,
-                'date_paiement' => $paiementDate,
+                'statut' => 'en_attente',
+                'date_paiement' => null,
             ]);
 
             return $reservation;

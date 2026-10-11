@@ -20,7 +20,7 @@ class StoreReservationRequest extends FormRequest
             'date_fin' => ['required', 'date', 'after:date_debut'],
             'lieu_prise' => ['required', 'string', 'max:255'],
             'lieu_retour' => ['required', 'string', 'max:255'],
-            'mode_paiement' => ['required', 'in:especes,visa,mastercard,cmi'],
+            'mode_paiement' => ['required', 'in:especes,cmi'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'code_promo' => ['nullable', 'string', 'max:50'],
             'conducteur_additionnel_nom' => ['nullable', 'string', 'max:255'],
