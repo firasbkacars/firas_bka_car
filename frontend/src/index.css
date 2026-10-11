@@ -128,3 +128,28 @@ select option::-moz-selection {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Animations UI partagees (toasts, modales) */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(1rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(1rem); }
+}
+
+.toast-in { animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+.toast-out { animation: toast-out 0.18s ease-in forwards; }
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-in { animation: modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-in, .toast-out, .modal-in { animation: none; }
+}
