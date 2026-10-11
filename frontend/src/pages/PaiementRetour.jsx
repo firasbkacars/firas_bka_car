@@ -2,9 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { formatMAD, formatDateTime } from '../lib/formatters';
 import {
   CheckCircle2, XCircle, Ban, Hourglass, ShieldAlert, Loader2, ArrowRight, RefreshCw,
+  RotateCcw, Phone,
 } from 'lucide-react';
+
+const AGENCY_PHONE = '+212774623448';
+const AGENCY_PHONE_HREF = 'tel:+212774623448';
 
 const OUTCOMES = {
   paye: {
@@ -44,10 +49,24 @@ const OUTCOMES = {
   },
   en_attente: {
     title: 'Paiement en cours',
-    description: 'La confirmation de votre banque n\'est pas encore arrivee. patientez quelques instants.',
+    description: 'La confirmation de votre banque n\'est pas encore arrivee. Patientez quelques instants.',
     Icon: Hourglass,
     tone: 'text-yellow-400',
     ring: 'border-yellow-500/20 bg-yellow-500/5',
+  },
+  rembourse: {
+    title: 'Paiement rembourse',
+    description: 'Cet encaissement a ete rembourse. Le montant vous sera restitue selon le moyen de paiement utilise.',
+    Icon: RotateCcw,
+    tone: 'text-blue-400',
+    ring: 'border-blue-500/20 bg-blue-500/5',
+  },
+  rembourse_partiel: {
+    title: 'Paiement rembourse partiellement',
+    description: 'Une partie de cet encaissement a ete rembourse. Le detail est disponible dans votre profil.',
+    Icon: RotateCcw,
+    tone: 'text-blue-400',
+    ring: 'border-blue-500/20 bg-blue-500/5',
   },
   unknown: {
     title: 'Resultat indisponible',
@@ -58,13 +77,34 @@ const OUTCOMES = {
   },
 };
 
+const STATUS_ALIASES = {
+  cancelled: 'annule',
+  canceled: 'annule',
+  declined: 'echoue',
+  failed: 'echoue',
+  failure: 'echoue',
+  success: 'paye',
+  paid: 'paye',
+  expired: 'expire',
+  pending: 'en_attente',
+  processing: 'en_attente',
+  refunded: 'rembourse',
+  partially_refunded: 'rembourse_partiel',
+};
+
+function normalizeStatus(value) {
+  if (!value) return 'unknown';
+  return STATUS_ALIASES[value] || value;
+}
+
+
 export default function PaiementRetour() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { token } = useAuth();
 
   const transactionId = searchParams.get('tx');
-  const statusFromUrl = searchParams.get('status') || 'unknown';
+  const statusFromUrl = normalizeStatus(searchParams.get('status'));
 
   const [status, setStatus] = useState(statusFromUrl);
   const [checking, setChecking] = useState(false);
@@ -76,6 +116,8 @@ export default function PaiementRetour() {
 
   // On reinterroge le backend une seule fois au montage : le serveur a deja
   // verifie et persiste le statut au moment du retour navigateur.
+  // statut_affichage fait foi : il reflete l'etat courant (dont un
+  // remboursement eventuel), la ou le statut brut reste "paye".
   useEffect(() => {
     if (!token || !transactionId) return;
     let cancelled = false;
@@ -86,7 +128,7 @@ export default function PaiementRetour() {
         const { data } = await api.get(`/client/payments/cmi/status/${transactionId}`);
         if (!cancelled) {
           setDetail(data);
-          setStatus(data.status || statusFromUrl);
+          setStatus(normalizeStatus(data.statut_affichage || data.status) || statusFromUrl);
         }
       } catch (err) {
         if (!cancelled) {
@@ -128,13 +170,13 @@ export default function PaiementRetour() {
               {detail.reservation_numero && (
                 <Row label="Reservation" value={detail.reservation_numero} />
               )}
-              <Row label="Montant" value={`${parseFloat(detail.montant || 0).toFixed(2)} DH`} />
+              <Row label="Montant" value={formatMAD(detail.montant || 0)} />
+              {detail.rembourse_sur > 0 && (
+                <Row label="Dont rembourse" value={formatMAD(detail.rembourse_sur)} />
+              )}
               {detail.carte && <Row label="Carte" value={detail.carte} />}
               {detail.date_paiement && (
-                <Row
-                  label="Date"
-                  value={new Date(detail.date_paiement).toLocaleString('fr-FR')}
-                />
+                <Row label="Date" value={formatDateTime(detail.date_paiement)} />
               )}
               {transactionId && <Row label="Transaction" value={transactionId} mono />}
             </div>
@@ -162,6 +204,14 @@ export default function PaiementRetour() {
               Voir mes reservations
               <ArrowRight size={15} />
             </Link>
+
+            <a
+              href={AGENCY_PHONE_HREF}
+              className="w-full flex items-center justify-center gap-2 bg-white/[0.03] hover:bg-white/[0.07] text-gray-400 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Phone size={15} />
+              Contacter l'agence - {AGENCY_PHONE}
+            </a>
           </div>
         </div>
 

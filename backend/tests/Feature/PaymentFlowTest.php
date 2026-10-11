@@ -321,7 +321,11 @@ class PaymentFlowTest extends TestCase
         $paiement = $this->initPaiement($reservation);
 
         $this->get('/api/cmi/cancel?order_id='.$paiement->transaction_id)
-            ->assertRedirectContains('/paiement/retour');
+            ->assertRedirectContains('/paiement/retour')
+            // Le statut retourne en URL doit etre un mode Paiement (francais)
+            // et non le mot anglais "cancelled", sinon la page de retour
+            // affiche "Resultat indisponible".
+            ->assertRedirectContains('status=annule');
 
         $this->assertDatabaseHas('paiements', [
             'id' => $paiement->id,
@@ -363,7 +367,9 @@ class PaymentFlowTest extends TestCase
             ->getJson('/api/client/payments/cmi/status/'.$paiement->transaction_id)
             ->assertOk()
             ->assertJsonPath('status', Paiement::STATUT_EN_ATTENTE)
+            ->assertJsonPath('statut_affichage', Paiement::STATUT_EN_ATTENTE)
             ->assertJsonPath('paid', false)
+            ->assertJsonPath('rembourse_sur', 0)
             ->assertJsonPath('reservation_numero', $reservation->numero);
     }
 
@@ -490,6 +496,29 @@ class PaymentFlowTest extends TestCase
             Paiement::find($paiement->id)->statut_affichage
         );
         $this->assertSame(0.0, (float) $reservation->fresh()->acompte_paye);
+    }
+
+    public function test_status_endpoint_surfaces_refunded_state_to_the_client(): void
+    {
+        // Un paiement rembourse conserve statut='paye' en base (historique
+        // comptable). L'UI a besoin du statut derive pour ne pas annoncer
+        // "Paiement confirme" a un client deja rembourse.
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule());
+        $paiement = $this->initPaiement($reservation);
+        $paiement->update([
+            'statut' => Paiement::STATUT_PAYE,
+            'date_paiement' => now(),
+        ]);
+
+        app(CmiPaymentService::class)->refund($paiement, 750.0, 'Annulation');
+
+        $this->actingAs($client, 'sanctum')
+            ->getJson('/api/client/payments/cmi/status/'.$paiement->transaction_id)
+            ->assertOk()
+            ->assertJsonPath('status', Paiement::STATUT_PAYE)
+            ->assertJsonPath('statut_affichage', Paiement::STATUT_REMBOURSE)
+            ->assertJsonPath('rembourse_sur', 750);
     }
 
     public function test_refund_rejects_non_paid_payment(): void

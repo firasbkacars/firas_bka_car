@@ -5,6 +5,7 @@ import api from '../../services/api';
 import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Trophy, AlertTriangle, Clock, CreditCard } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatutPaiement from '../../components/StatutPaiement';
+import { formatMAD } from '../../lib/formatters';
 
 const STATUS_COLORS = {
   confirmee: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
@@ -19,6 +20,20 @@ const STATUS_LABELS = {
   terminee: 'Terminee',
   annulee: 'Annulee',
 };
+
+/**
+ * Etat du paiement d'une reservation, quel que soit le mode (especes ou CMI).
+ *
+ * `acompte_paye` est un attribut calcule toujours present (meme a 0), on ne
+ * peut donc pas s'appuyer sur `!= null` pour savoir si un reglement existe.
+ */
+function statutPaiementReservation(res) {
+  const paye = parseFloat(res?.acompte_paye || 0);
+  const rembourse = parseFloat(res?.rembourse || 0);
+  if (rembourse > 0 && paye <= 0) return 'rembourse';
+  if (res?.est_paye_integralement) return 'paye';
+  return 'en_attente';
+}
 
 export default function ClientProfil() {
   const { client, token, loading: authLoading, logout, updateProfile, uploadPermis } = useAuth();
@@ -387,23 +402,21 @@ export default function ClientProfil() {
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[res.statut] || ''}`}>
                           {STATUS_LABELS[res.statut] || res.statut}
                         </span>
-                        {res.mode_paiement === 'cmi' && (
-                          <StatutPaiement
-                            statut={res.est_paye_integralement ? 'paye' : 'en_attente'}
-                            showIcon={false}
-                          />
-                        )}
+                        <StatutPaiement
+                          statut={statutPaiementReservation(res)}
+                          showIcon={false}
+                        />
                       </div>
                       <p className="text-gray-500 text-xs mt-1">
                         {res.numero} - {new Date(res.date_debut).toLocaleDateString('fr-FR')} au {new Date(res.date_fin).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[#dc2626] font-bold text-sm">{res.prix_total} DH</div>
-                      <div className="text-gray-600 text-xs">
-                        {res.acompte_paye != null
-                          ? `${parseFloat(res.acompte_paye).toFixed(2)} DH payes`
-                          : `${res.acompte} DH acompte`}
+                      <div className="text-[#dc2626] font-bold text-sm">{formatMAD(res.prix_total)}</div>
+                      <div className={`text-xs ${parseFloat(res.acompte_paye || 0) > 0 ? 'text-green-400' : 'text-gray-600'}`}>
+                        {parseFloat(res.acompte_paye || 0) > 0
+                          ? `${formatMAD(res.acompte_paye)} regle`
+                          : `${formatMAD(res.acompte || 0)} a regler`}
                       </div>
                     </div>
                     {expandedReservation === res.id ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
@@ -431,10 +444,13 @@ export default function ClientProfil() {
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Paiements</p>
                           <p className="text-white text-sm mt-1">
-                            {res.acompte_paye != null
-                              ? `${parseFloat(res.acompte_paye).toFixed(2)} DH encaisses`
-                              : `${res.paiements?.filter(p => p.statut === 'paye').reduce((sum, p) => sum + parseFloat(p.montant), 0).toFixed(2)} DH payes`}
+                            {formatMAD(res.acompte_paye || 0)} encaisses sur {formatMAD(res.acompte || 0)}
                           </p>
+                          {parseFloat(res.rembourse || 0) > 0 && (
+                            <p className="text-blue-400 text-xs mt-0.5">
+                              dont {formatMAD(res.rembourse)} rembourse(s)
+                            </p>
+                          )}
                           {res.paiements?.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {res.paiements.map((p) => (

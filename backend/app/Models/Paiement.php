@@ -90,6 +90,7 @@ class Paiement extends Model
         'carte_masquee',
         'statut_affichage',
         'est_remboursement',
+        'rembourse_sur',
     ];
 
     // ------------------------------------------------------------------ scopes

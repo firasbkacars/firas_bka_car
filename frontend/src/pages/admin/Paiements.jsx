@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CreditCard, Search, Download, RotateCcw, X, AlertTriangle, Loader2, Receipt } from 'lucide-react';
 import api from '../../services/api';
 import StatutPaiement, { montantSigne } from '../../components/StatutPaiement';
+import { formatMAD } from '../../lib/formatters';
 
 const TYPE_LABELS = {
   acompte: 'Acompte',
@@ -74,8 +75,12 @@ export default function Paiements() {
   };
 
   const openRefund = (p) => {
+    // Le plafond est le reste remboursable, pas l'encaissement brut :
+    // apres un remboursement partiel, propose le reliquat et non le total.
+    const dejaRembourse = Number(p.rembourse_sur) || 0;
+    const reste = Math.max(0, Number(p.montant) - dejaRembourse);
     setRefundTarget(p);
-    setRefundMontant(String(p.montant));
+    setRefundMontant(String(reste > 0 ? reste : Number(p.montant)));
     setRefundMotif('');
   };
 
@@ -88,7 +93,7 @@ export default function Paiements() {
         montant: parseFloat(refundMontant),
         motif: refundMotif,
       });
-      showToast(`Remboursement de ${parseFloat(refundMontant).toFixed(2)} DH enregistre.`);
+      showToast(`Remboursement de ${formatMAD(refundMontant)} enregistre.`);
       setRefundTarget(null);
       fetchPaiements();
     } catch (err) {
@@ -97,6 +102,11 @@ export default function Paiements() {
       setRefunding(false);
     }
   };
+
+  const dejaRembourse = Number(refundTarget?.rembourse_sur) || 0;
+  const resteRemboursable = refundTarget
+    ? Math.max(0, Number(refundTarget.montant) - dejaRembourse)
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -293,24 +303,41 @@ export default function Paiements() {
               </div>
               <div className="flex justify-between">
                 <span>Montant encaisse</span>
-                <span className="text-white">{Number(refundTarget.montant).toLocaleString('fr-FR')} DH</span>
+                <span className="text-white">{formatMAD(refundTarget.montant)}</span>
+              </div>
+              {dejaRembourse > 0 && (
+                <div className="flex justify-between">
+                  <span>Deja rembourse</span>
+                  <span className="text-blue-400">-{formatMAD(dejaRembourse)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-neutral-700/60 pt-1 mt-1">
+                <span className="text-neutral-300">Reste remboursable</span>
+                <span className="text-white font-semibold">{formatMAD(resteRemboursable)}</span>
               </div>
             </div>
 
-            <label className="block text-xs text-neutral-400 mb-1">Montant a rembourser (DH)</label>
+            <label htmlFor="refund-montant" className="block text-xs text-neutral-400 mb-1">
+              Montant a rembourser (DH)
+            </label>
             <input
+              id="refund-montant"
               type="number"
               step="0.01"
               min="0.01"
-              max={refundTarget.montant}
+              max={resteRemboursable}
               required
               value={refundMontant}
               onChange={(e) => setRefundMontant(e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm mb-3 focus:border-blue-500 outline-none"
+              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm mb-1 focus:border-blue-500 outline-none"
             />
+            <p className="text-[11px] text-neutral-600 mb-3">
+              Maximum {formatMAD(resteRemboursable)}.
+            </p>
 
-            <label className="block text-xs text-neutral-400 mb-1">Motif (obligatoire)</label>
+            <label htmlFor="refund-motif" className="block text-xs text-neutral-400 mb-1">Motif (obligatoire)</label>
             <textarea
+              id="refund-motif"
               required
               maxLength={500}
               rows={3}

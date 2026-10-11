@@ -120,11 +120,15 @@ class CmiPaymentController extends Controller
 
         return response()->json([
             'status' => $paiement->statut,
+            'statut_affichage' => $paiement->statut_affichage,
             'paid' => $paiement->statut === Paiement::STATUT_PAYE,
             'montant' => (float) $paiement->montant,
+            'montant_signe' => (float) $paiement->montant_signe,
+            'rembourse_sur' => (float) $paiement->rembourse_sur,
             'date_paiement' => $paiement->date_paiement,
             'carte' => $paiement->carte_masquee,
             'reservation_numero' => $paiement->reservation->numero,
+            'reservation_id' => $paiement->reservation_id,
         ]);
     }
 
@@ -199,9 +203,11 @@ class CmiPaymentController extends Controller
             }
         }
 
+        // Le statut doit etre celui des modes Paiement (francais) pour que la
+        // page /paiement/retour puisse l'afficher sans alias complementaire.
         return redirect('/paiement/retour?'.http_build_query(array_merge(
             $request->query(),
-            ['status' => 'cancelled', 'src' => 'cancel']
+            ['status' => Paiement::STATUT_ANNULE, 'src' => 'cancel']
         )));
     }
 }
