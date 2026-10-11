@@ -180,11 +180,11 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| I1 | Corriger Dockerfile (php-fpm au lieu de cli) | A FAIRE |
-| I2 | Configurer render.yaml (APP_URL) | A FAIRE |
-| I3 | Ajouter SESSION_DOMAIN et SANCTUM_STATEFUL_DOMAINS | A FAIRE |
-| I4 | Pipeline CI/CD (GitHub Actions) | A FAIRE |
-| I5 | Variables d'env completes dans .env.example | A FAIRE |
+| I1 | Corriger Dockerfile (php-fpm au lieu de cli) | FAIT (`php:8.3-cli` + `artisan serve` + workers, adapté Fly.io machine unique) |
+| I2 | Configurer render.yaml (APP_URL) | IGNORE (deploiement sur Fly.io via `fly.toml`, pas Render) |
+| I3 | Ajouter SESSION_DOMAIN et SANCTUM_STATEFUL_DOMAINS | FAIT (`fly.toml` : SESSION_DOMAIN + SANCTUM_STATEFUL_DOMAINS) |
+| I4 | Pipeline CI/CD (GitHub Actions) | FAIT (`.github/workflows/ci.yml` : tests backend sqlite + lint/build frontend) |
+| I5 | Variables d'env completes dans .env.example | FAIT (CMI_* complets, WhatsApp, storage, FRONTEND_URL) |
 
 ### Monitoring
 
@@ -199,7 +199,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi — 71 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification — 83 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -244,7 +244,7 @@
 | Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 3 | 0 | 11 |
 | Phase 5 (Rapports) | 2 | 0 | 10 |
-| Phase 6 (Infra) | 0 | 0 | 12 |
+| Phase 6 (Infra) | 6 | 0 | 5 (I2 ignore) |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 48 terminees | 0 en cours | 41 a faire**
+**Total : 89 taches | 54 terminees | 0 en cours | 35 a faire**
