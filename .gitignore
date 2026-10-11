@@ -37,3 +37,6 @@ resources/views/cache/*
 # Cloudflare / Wrangler local state (account info, cache, tmp)
 .cloudflare/
 .wrangler/
+
+# Sprite CLI local state
+.sprite/
