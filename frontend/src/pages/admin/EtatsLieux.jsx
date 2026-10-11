@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ClipboardCheck, Plus, X, Upload, Loader2, Eye } from 'lucide-react';
+import { ClipboardCheck, Plus, X, Upload, Loader2, Eye, GitCompare } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 
@@ -12,6 +12,8 @@ export default function EtatsLieux() {
   const [saving, setSaving] = useState(false);
   const [filterType, setFilterType] = useState('');
   const [selectedEtat, setSelectedEtat] = useState(null);
+  const [comparison, setComparison] = useState(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   const [form, setForm] = useState({
     reservation_id: '',
@@ -52,6 +54,18 @@ export default function EtatsLieux() {
     URL.revokeObjectURL(newPhotos[index].preview);
     newPhotos.splice(index, 1);
     setForm({ ...form, photos: newPhotos });
+  };
+
+  const openComparison = async (reservationId) => {
+    setCompareLoading(true);
+    try {
+      const { data } = await api.get(`/etats-lieux/comparaison?reservation_id=${reservationId}`);
+      setComparison(data);
+    } catch {
+      toast.error('Impossible de charger la comparaison');
+    } finally {
+      setCompareLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -188,13 +202,23 @@ export default function EtatsLieux() {
                     {new Date(e.created_at).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="py-3 px-5 text-right">
-                    <button
-                      onClick={() => setSelectedEtat(e)}
-                      className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
-                      title="Voir les details"
-                    >
-                      <Eye size={15} />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openComparison(e.reservation_id)}
+                        className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                        title="Comparer depart / retour"
+                        disabled={compareLoading}
+                      >
+                        <GitCompare size={15} />
+                      </button>
+                      <button
+                        onClick={() => setSelectedEtat(e)}
+                        className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                        title="Voir les details"
+                      >
+                        <Eye size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -260,6 +284,7 @@ export default function EtatsLieux() {
                     <input
                       type="file"
                       accept="image/*"
+                      capture="environment"
                       multiple
                       onChange={handlePhotoUpload}
                       className="hidden"
@@ -317,6 +342,47 @@ export default function EtatsLieux() {
               <div>
                 <p className="text-neutral-400 text-sm mb-1">Notes :</p>
                 <p className="text-white text-sm bg-neutral-800 rounded-lg p-3">{selectedEtat.notes}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {comparison && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setComparison(null)} />
+          <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-4xl shadow-2xl max-h-[85vh] overflow-y-auto">
+            <button onClick={() => setComparison(null)} className="absolute top-4 right-4 text-neutral-400 hover:text-white"><X size={20} /></button>
+            <h3 className="text-white font-semibold mb-4">
+              Comparaison depart / retour - {comparison.numero}
+            </h3>
+            {!comparison.complet ? (
+              <p className="text-neutral-400 text-sm">
+                L'etat des lieux est incomplet : un etat de {comparison.depart ? 'retour' : 'depart'} manque.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { label: 'Depart', data: comparison.depart },
+                  { label: 'Retour', data: comparison.retour },
+                ].map(({ label, data }) => (
+                  <div key={label} className="bg-neutral-800/50 rounded-xl p-4">
+                    <p className={`text-sm font-medium mb-2 ${label === 'Depart' ? 'text-blue-400' : 'text-green-400'}`}>
+                      {label}
+                    </p>
+                    <p className="text-neutral-500 text-xs mb-3">
+                      {new Date(data.created_at).toLocaleString('fr-FR')} | Agent: {data.agent?.name || 'N/A'}
+                    </p>
+                    {data.photos?.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        {data.photos.map((url, i) => (
+                          <img key={i} src={url} alt={`${label} ${i + 1}`} className="w-full h-24 object-cover rounded-lg border border-neutral-700" />
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-neutral-400 text-sm whitespace-pre-wrap">{data.notes || 'Aucune note.'}</p>
+                  </div>
+                ))}
               </div>
             )}
           </div>

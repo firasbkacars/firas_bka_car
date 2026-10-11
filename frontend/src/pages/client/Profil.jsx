@@ -340,6 +340,24 @@ export default function ClientProfil() {
     }
   };
 
+  const downloadContrat = async (reservationId) => {
+    try {
+      const response = await api.get(`/client/reservations/${reservationId}/contrat`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `contrat-${reservationId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      showToast('Erreur lors du telechargement du contrat', 'error');
+    }
+  };
+
   const handleAnnuler = async (id) => {
     setCancellingId(id);
     try {
@@ -568,6 +586,16 @@ export default function ClientProfil() {
                             Télécharger la facture
                           </button>
                         )}
+                        {['confirmee', 'en_cours', 'terminee'].includes(res.statut) && (
+                          <button
+                            type="button"
+                            onClick={() => downloadContrat(res.id)}
+                            className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Download size={14} aria-hidden="true" />
+                            Contrat
+                          </button>
+                        )}
                         {res.statut === 'terminee' && (
                           <Link
                             to={`/vehicules/${res.vehicule_id}`}
@@ -577,7 +605,7 @@ export default function ClientProfil() {
                             Reserver a nouveau
                           </Link>
                         )}
-                        {res.statut === 'en_cours' && (
+                        {['confirmee', 'en_cours'].includes(res.statut) && (
                           <div className="w-full">
                             {prolongingId === res.id ? (
                               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">

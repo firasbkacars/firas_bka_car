@@ -28,7 +28,8 @@ class StoreReservationRequest extends FormRequest
             'code_promo' => ['nullable', 'string', 'max:50'],
             'conducteur_additionnel_nom' => ['nullable', 'string', 'max:255'],
             'conducteur_additionnel_telephone' => ['nullable', 'string', 'max:20'],
-            'conducteur_additionnel_permis' => ['nullable', 'string', 'max:50'],
+            'conducteur_additionnel_permis' => ['required_with:conducteur_additionnel_nom', 'nullable', 'string', 'max:50'],
+            'assurance_conducteur_additionnel' => ['nullable', 'boolean'],
         ];
     }
 
@@ -46,6 +47,7 @@ class StoreReservationRequest extends FormRequest
             'mode_paiement.required' => 'Le mode de paiement est obligatoire.',
             'mode_paiement.in' => 'Mode de paiement invalide.',
             'agence_id.exists' => 'Cette agence est introuvable ou inactive.',
+            'conducteur_additionnel_permis.required_with' => 'Le numéro de permis du conducteur additionnel est obligatoire.',
         ];
     }
 }

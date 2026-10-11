@@ -115,6 +115,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
 
         // Client prolongation
         Route::put('/client/reservations/{id}/prolonger', [ReservationController::class, 'prolonger']);
+        Route::get('/client/reservations/{id}/prolongation-apercu', [ReservationController::class, 'apercuProlongation']);
 
         // Client CMI payment
         Route::post('/client/payments/cmi/initialize', [CmiPaymentController::class, 'initialize']);
@@ -165,7 +166,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index']);
     Route::put('/reservations/{id}/annuler', [ReservationController::class, 'annuler']);
     Route::put('/reservations/{id}/caution', [ReservationController::class, 'updateCaution']);
+    Route::get('/reservations/{id}/caution-historique', [ReservationController::class, 'cautionHistorique']);
     Route::put('/reservations-admin/{id}/prolonger', [ReservationController::class, 'prolonger']);
+    Route::get('/reservations-admin/{id}/prolongation-apercu', [ReservationController::class, 'apercuProlongation']);
 
     // Admin paiements
     Route::post('/paiements', [PaiementController::class, 'store'])
@@ -204,6 +207,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     // Admin - Etats des lieux
     Route::get('/etats-lieux', [EtatLieuController::class, 'index']);
+    Route::get('/etats-lieux/comparaison', [EtatLieuController::class, 'comparaison']);
     Route::post('/etats-lieux', [EtatLieuController::class, 'store']);
     Route::get('/etats-lieux/{id}', [EtatLieuController::class, 'show']);
     Route::post('/upload/etat-lieu-photo', function (Request $request) {

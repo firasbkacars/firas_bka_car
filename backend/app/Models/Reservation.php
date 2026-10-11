@@ -29,6 +29,8 @@ class Reservation extends Model
         'conducteur_additionnel_telephone',
         'conducteur_additionnel_permis',
         'supplement_conducteur',
+        'assurance_conducteur_additionnel',
+        'montant_retenu_caution',
         'statut',
         'mode_paiement',
         'notes',
@@ -44,6 +46,8 @@ class Reservation extends Model
         'montant_caution' => 'decimal:2',
         'montant_rembourse' => 'decimal:2',
         'supplement_conducteur' => 'decimal:2',
+        'assurance_conducteur_additionnel' => 'boolean',
+        'montant_retenu_caution' => 'decimal:2',
         'remise' => 'decimal:2',
     ];
 
@@ -83,6 +87,11 @@ class Reservation extends Model
     public function etatsLieux()
     {
         return $this->hasMany(EtatLieu::class);
+    }
+
+    public function cautionHistories()
+    {
+        return $this->hasMany(CautionHistory::class);
     }
 
     // --------------------------------------------------- acompte / solde ----

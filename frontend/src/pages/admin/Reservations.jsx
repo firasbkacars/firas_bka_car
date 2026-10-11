@@ -10,6 +10,8 @@ import {
   ArrowUp,
   ArrowDown,
   Shield,
+  History,
+  Loader2,
   X,
 } from 'lucide-react';
 import api from '../../services/api';
@@ -83,6 +85,9 @@ export default function AdminReservations() {
   const [cautionModal, setCautionModal] = useState(null);
   const [cautionStatut, setCautionStatut] = useState('');
   const [cautionMotif, setCautionMotif] = useState('');
+  const [cautionRetenu, setCautionRetenu] = useState('');
+  const [cautionHist, setCautionHist] = useState(null);
+  const [cautionHistLoading, setCautionHistLoading] = useState(false);
 
   useEffect(() => {
     fetchReservations();
@@ -125,17 +130,38 @@ export default function AdminReservations() {
 
   const handleUpdateCaution = async () => {
     if (!cautionModal || !cautionStatut) return;
+    if (cautionStatut === 'retenue_partiellement' && (!cautionMotif || !cautionRetenu || Number(cautionRetenu) <= 0)) {
+      toast.error('Le motif et un montant retenu positif sont obligatoires.');
+      return;
+    }
     try {
       await api.put(`/reservations/${cautionModal.id}/caution`, {
         caution_statut: cautionStatut,
+        montant_retenu: cautionStatut === 'retenue_partiellement' ? Number(cautionRetenu) : 0,
         motif_rejet_caution: cautionStatut === 'retenue_partiellement' ? cautionMotif : null,
       });
       setCautionModal(null);
       setCautionStatut('');
       setCautionMotif('');
+      setCautionRetenu('');
       fetchReservations();
+      toast.success('Caution mise a jour.');
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || 'Erreur lors de la mise a jour de la caution.');
+    }
+  };
+
+  const showCautionHistorique = async (reservation) => {
+    setCautionHistLoading(true);
+    setCautionHist({ reservation, entries: [] });
+    try {
+      const { data } = await api.get(`/reservations/${reservation.id}/caution-historique`);
+      setCautionHist({ reservation, entries: data });
+    } catch {
+      toast.error('Impossible de charger l\'historique des cautions');
+      setCautionHist(null);
+    } finally {
+      setCautionHistLoading(false);
     }
   };
 
@@ -310,7 +336,15 @@ export default function AdminReservations() {
                       <div className="w-7 h-7 rounded-full bg-red-600/15 flex items-center justify-center text-red-400 text-[10px] font-bold flex-shrink-0">
                         {r.client?.nom_complet?.charAt(0) || '?'}
                       </div>
-                      <span className="text-neutral-300">{r.client?.nom_complet}</span>
+                      <div>
+                        <span className="text-neutral-300">{r.client?.nom_complet}</span>
+                        {r.conducteur_additionnel_nom && (
+                          <p className="text-[10px] text-purple-400 flex items-center gap-1">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                            + {r.conducteur_additionnel_nom}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="py-3 px-5 text-neutral-300">
@@ -329,24 +363,34 @@ export default function AdminReservations() {
                   </td>
                   <td className="py-3 px-5">
                     {r.montant_caution > 0 ? (
-                      <button
-                        onClick={() => {
-                          setCautionModal(r);
-                          setCautionStatut(r.caution_statut || 'bloquee');
-                          setCautionMotif(r.motif_rejet_caution || '');
-                        }}
-                        className={`px-2 py-1 rounded-full text-xs font-medium transition hover:opacity-80 ${
-                          r.caution_statut === 'restituee'
-                            ? 'bg-green-500/15 text-green-400'
-                            : r.caution_statut === 'retenue_partiellement'
-                              ? 'bg-yellow-500/15 text-yellow-400'
-                              : 'bg-blue-500/15 text-blue-400'
-                        }`}
-                        title="Gerer la caution"
-                      >
-                        <Shield size={10} className="inline mr-1" />
-                        {r.caution_statut === 'restituee' ? 'Restituee' : r.caution_statut === 'retenue_partiellement' ? 'retenue' : 'Bloquee'}
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setCautionModal(r);
+                            setCautionStatut(r.caution_statut || 'bloquee');
+                            setCautionMotif(r.motif_rejet_caution || '');
+                            setCautionRetenu(r.montant_retenu_caution || '');
+                          }}
+                          className={`px-2 py-1 rounded-full text-xs font-medium transition hover:opacity-80 ${
+                            r.caution_statut === 'restituee'
+                              ? 'bg-green-500/15 text-green-400'
+                              : r.caution_statut === 'retenue_partiellement'
+                                ? 'bg-yellow-500/15 text-yellow-400'
+                                : 'bg-blue-500/15 text-blue-400'
+                          }`}
+                          title="Gerer la caution"
+                        >
+                          <Shield size={10} className="inline mr-1" />
+                          {r.caution_statut === 'restituee' ? 'Restituee' : r.caution_statut === 'retenue_partiellement' ? 'retenue' : 'Bloquee'}
+                        </button>
+                        <button
+                          onClick={() => showCautionHistorique(r)}
+                          className="p-1 rounded text-neutral-500 hover:text-white hover:bg-neutral-800 transition"
+                          title="Historique des caution"
+                        >
+                          <History size={13} />
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-neutral-600 text-xs">-</span>
                     )}
@@ -453,15 +497,30 @@ export default function AdminReservations() {
                 <option value="retenue_partiellement">Retenue partiellement</option>
               </select>
               {cautionStatut === 'retenue_partiellement' && (
-                <div>
-                  <label className="text-neutral-400 text-sm mb-1 block">Motif de la retenue</label>
-                  <textarea
-                    value={cautionMotif}
-                    onChange={(e) => setCautionMotif(e.target.value)}
-                    rows={3}
-                    className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 resize-none"
-                    placeholder="Description des dommages ou motifs..."
-                  />
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-neutral-400 text-sm mb-1 block">Montant retenu (DH)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max={cautionModal.montant_caution}
+                      step="0.01"
+                      value={cautionRetenu}
+                      onChange={(e) => setCautionRetenu(e.target.value)}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
+                      placeholder="Ex: 500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-neutral-400 text-sm mb-1 block">Motif de la retenue</label>
+                    <textarea
+                      value={cautionMotif}
+                      onChange={(e) => setCautionMotif(e.target.value)}
+                      rows={3}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 resize-none"
+                      placeholder="Description des dommages ou motifs..."
+                    />
+                  </div>
                 </div>
               )}
               <div className="flex gap-3 pt-2">
@@ -469,6 +528,48 @@ export default function AdminReservations() {
                 <button onClick={handleUpdateCaution} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition">Confirmer</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {cautionHist && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCautionHist(null)} />
+          <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[80vh] overflow-y-auto">
+            <button onClick={() => setCautionHist(null)} className="absolute top-4 right-4 text-neutral-400 hover:text-white"><X size={20} /></button>
+            <h3 className="text-white font-semibold mb-2">Historique des cautions</h3>
+            <p className="text-neutral-400 text-sm mb-4">
+              Reservation {cautionHist.reservation.numero} | {cautionHist.reservation.montant_caution} DH
+            </p>
+            {cautionHistLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={20} className="animate-spin text-neutral-400" />
+              </div>
+            ) : cautionHist.entries.length === 0 ? (
+              <p className="text-neutral-500 text-sm text-center py-6">Aucune modification de caution enregistree.</p>
+            ) : (
+              <div className="space-y-3">
+                {cautionHist.entries.map((h) => (
+                  <div key={h.id} className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-neutral-500">{h.ancien_statut || '-'}</span>
+                        <span className="text-neutral-600">→</span>
+                        <span className="text-white font-medium">{h.nouveau_statut}</span>
+                      </div>
+                      <span className="text-neutral-500 text-xs">
+                        {new Date(h.created_at).toLocaleString('fr-FR')}
+                      </span>
+                    </div>
+                    {Number(h.montant_retenu) > 0 && (
+                      <p className="text-yellow-400 text-xs mb-1">Retenu : {Number(h.montant_retenu).toLocaleString('fr-FR')} DH</p>
+                    )}
+                    {h.motif && <p className="text-neutral-400 text-xs mb-1">Motif : {h.motif}</p>}
+                    <p className="text-neutral-500 text-xs">Par : {h.agent?.name || 'Système'}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

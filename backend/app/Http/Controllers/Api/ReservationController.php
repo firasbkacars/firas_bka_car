@@ -8,6 +8,7 @@ use App\Jobs\SendReservationConfirmation;
 use App\Mail\AdminNewReservation;
 use App\Mail\AdminReservationCancelled;
 use App\Models\Agence;
+use App\Models\CautionHistory;
 use App\Models\CodePromo;
 use App\Models\Paiement;
 use App\Models\Parametre;
@@ -156,8 +157,22 @@ class ReservationController extends Controller
                 'conducteur_additionnel_nom' => $validated['conducteur_additionnel_nom'] ?? null,
                 'conducteur_additionnel_telephone' => $validated['conducteur_additionnel_telephone'] ?? null,
                 'conducteur_additionnel_permis' => $validated['conducteur_additionnel_permis'] ?? null,
+                'assurance_conducteur_additionnel' => (bool) ($validated['assurance_conducteur_additionnel'] ?? false),
                 'supplement_conducteur' => $supplementConducteur,
             ]);
+
+            // C1 : la caution est bloquee des la creation de la reservation.
+            if ($montantCaution > 0) {
+                $reservation->update(['caution_statut' => 'bloquee']);
+
+                CautionHistory::create([
+                    'reservation_id' => $reservation->id,
+                    'ancien_statut' => 'non_bloquee',
+                    'nouveau_statut' => 'bloquee',
+                    'montant_caution' => $montantCaution,
+                    'montant_retenu' => 0,
+                ]);
+            }
 
             // Un acompte n'est JAMAIS considere paye a la creation.
             // 'especes' : encaisse a la livraison ; 'cmi' : paye uniquement
@@ -326,20 +341,91 @@ class ReservationController extends Controller
         ], $result));
     }
 
+    /**
+     * C3/C4 : mise a jour du statut de la caution avec historique
+     * et生成 d'une ecriture de remboursement si restitution partielle/complete.
+     */
     public function updateCaution(Request $request, $id)
     {
         $validated = $request->validate([
             'caution_statut' => 'required|in:bloquee,restituee,retenue_partiellement',
+            'montant_retenu' => 'nullable|numeric|min:0',
             'motif_rejet_caution' => 'nullable|string|max:500',
         ]);
 
         $reservation = Reservation::findOrFail($id);
-        $reservation->update($validated);
+
+        if ($validated['caution_statut'] === 'retenue_partiellement') {
+            if (empty($validated['motif_rejet_caution'])) {
+                return response()->json(['message' => 'Un motif est obligatoire pour une retenue partielle'], 422);
+            }
+            if (empty($validated['montant_retenu']) || $validated['montant_retenu'] <= 0) {
+                return response()->json(['message' => 'Le montant retenu doit etre superieur a 0'], 422);
+            }
+            if ($validated['montant_retenu'] > (float) $reservation->montant_caution) {
+                return response()->json(['message' => 'Le montant retenu depasse le montant de la caution'], 422);
+            }
+        }
+
+        if ($validated['caution_statut'] === 'restituee' && ! empty($validated['motif_rejet_caution'])) {
+            return response()->json(['message' => 'Un motif n\'est pas attendu pour une restitution complete'], 422);
+        }
+
+        $ancienStatut = $reservation->caution_statut;
+        $montantRetenu = $validated['caution_statut'] === 'retenue_partiellement'
+            ? (float) $validated['montant_retenu']
+            : 0;
+
+        $reservation->update([
+            'caution_statut' => $validated['caution_statut'],
+            'motif_rejet_caution' => $validated['motif_rejet_caution'] ?? null,
+            'montant_retenu_caution' => $montantRetenu,
+        ]);
+
+        // C4 : historique immuable de chaque changement.
+        CautionHistory::create([
+            'reservation_id' => $reservation->id,
+            'ancien_statut' => $ancienStatut,
+            'nouveau_statut' => $validated['caution_statut'],
+            'montant_caution' => $reservation->montant_caution,
+            'montant_retenu' => $montantRetenu,
+            'motif' => $validated['motif_rejet_caution'] ?? null,
+            'agent_id' => $request->user()?->id,
+        ]);
+
+        // C3 : genere l'ecriture de remboursement de la caution.
+        $montantRembourse = 0;
+        if (in_array($validated['caution_statut'], ['restituee', 'retenue_partiellement'], true)) {
+            $montantRembourse = (float) $reservation->montant_caution - $montantRetenu;
+
+            if ($montantRembourse > 0) {
+                Paiement::create([
+                    'reservation_id' => $reservation->id,
+                    'montant' => -$montantRembourse,
+                    'methode' => $reservation->mode_paiement === 'cmi' ? 'cmi' : 'especes',
+                    'statut' => Paiement::STATUT_REMBOURSE,
+                    'type' => Paiement::TYPE_REMBOURSEMENT,
+                    'rembourse_le' => now(),
+                    'note_admin' => 'Remboursement de la caution — '.$validated['caution_statut'],
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Statut de la caution mis a jour',
+            'montant_rembourse' => $montantRembourse,
             'reservation' => $reservation->load(['client', 'vehicule']),
         ]);
+    }
+
+    /**
+     * C4 : historique des changements de caution pour une reservation.
+     */
+    public function cautionHistorique(Request $request, $id)
+    {
+        $reservation = Reservation::with('cautionHistories.agent')->findOrFail($id);
+
+        return response()->json($reservation->cautionHistories);
     }
 
     public function annulerParClient(Request $request, $id)
@@ -379,6 +465,10 @@ class ReservationController extends Controller
         ]);
     }
 
+    /**
+     * PR1/PR3 : prolongation avec complement paiement.
+     * Disponible pour les reservations 'confirmee' et 'en_cours'.
+     */
     public function prolonger(Request $request, $id)
     {
         $user = $request->user();
@@ -390,13 +480,18 @@ class ReservationController extends Controller
 
         $reservation = $query->findOrFail($id);
 
+        // PR1 : les reservations 'confirmee' et 'en_cours' sont prolongeables.
+        if (! in_array($reservation->statut, ['confirmee', 'en_cours'], true)) {
+            return response()->json(['message' => 'Seules les reservations confirmees ou en cours peuvent etre prolongees'], 422);
+        }
+
         $validated = $request->validate([
             'date_fin' => 'required|date|after:'.$reservation->date_fin,
         ]);
 
         $newDateFin = Carbon::parse($validated['date_fin']);
         $oldDateFin = Carbon::parse($reservation->date_fin);
-        $joursSupplementaires = $oldDateFin->diffInDays($newDateFin);
+        $joursSupplementaires = (int) $oldDateFin->diffInDays($newDateFin);
 
         $conflit = Reservation::where('vehicule_id', $reservation->vehicule_id)
             ->where('id', '!=', $reservation->id)
@@ -417,11 +512,60 @@ class ReservationController extends Controller
             'prix_total' => $reservation->prix_total + $prixSupplement,
         ]);
 
+        // PR3 : genere un complement en attente pour le supplement.
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => $prixSupplement,
+            'methode' => $reservation->mode_paiement === 'cmi' ? 'cmi' : 'especes',
+            'statut' => 'en_attente',
+            'type' => Paiement::TYPE_COMPLEMENT,
+            'note_admin' => 'Complement prolongation '.$joursSupplementaires.' jour(s)',
+        ]);
+
         return response()->json([
             'message' => 'Reservation prolongee',
             'reservation' => $reservation->load(['client', 'vehicule']),
             'jours_supplementaires' => $joursSupplementaires,
             'prix_supplement' => $prixSupplement,
+        ]);
+    }
+
+    /**
+     * PR2 : apercu de prolongation (disponibilite + prix) sans validation.
+     */
+    public function apercuProlongation(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $query = Reservation::query();
+        if (! $user instanceof User) {
+            $query->where('client_id', $user->id);
+        }
+
+        $reservation = $query->findOrFail($id);
+
+        $validated = $request->validate([
+            'date_fin' => 'required|date|after:'.$reservation->date_fin,
+        ]);
+
+        $newDateFin = Carbon::parse($validated['date_fin']);
+        $oldDateFin = Carbon::parse($reservation->date_fin);
+        $joursSupplementaires = (int) $oldDateFin->diffInDays($newDateFin);
+
+        $conflit = Reservation::where('vehicule_id', $reservation->vehicule_id)
+            ->where('id', '!=', $reservation->id)
+            ->where('statut', '!=', 'annulee')
+            ->where('date_debut', '<', $newDateFin)
+            ->where('date_fin', '>', $reservation->date_fin)
+            ->exists();
+
+        $prixSupplement = $reservation->vehicule->prix_jour * $joursSupplementaires;
+
+        return response()->json([
+            'disponible' => ! $conflit,
+            'jours_supplementaires' => $joursSupplementaires,
+            'prix_supplement' => $prixSupplement,
+            'nouveau_prix_total' => $reservation->prix_total + $prixSupplement,
         ]);
     }
 

@@ -103,6 +103,22 @@
             </div>
         </div>
 
+        @if($reservation->conducteur_additionnel_nom)
+        <div class="section">
+            <div class="section-title">Conducteur additionnel autorise</div>
+            <div class="info-grid">
+                <div class="info-block">
+                    <p>Nom : <span class="value">{{ $reservation->conducteur_additionnel_nom }}</span></p>
+                    <p>Telephone : <span class="value">{{ $reservation->conducteur_additionnel_telephone ?: 'N/A' }}</span></p>
+                </div>
+                <div class="info-block">
+                    <p>Permis n° : <span class="value">{{ $reservation->conducteur_additionnel_permis }}</span></p>
+                    <p>Assurance additionnelle : <span class="value">{{ $reservation->assurance_conducteur_additionnel ? 'Oui' : 'Non' }}</span></p>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="section">
             <div class="section-title">Conditions financieres</div>
             <table style="width: 100%; border-collapse: collapse;">
@@ -148,6 +164,12 @@
                         <td style="padding: 6px 8px; font-size: 10px;">Reste a payer</td>
                         <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->solde_restant, 2, ',', ' ') }} DH</td>
                     </tr>
+                    @if((float) $reservation->montant_caution > 0)
+                    <tr>
+                        <td style="padding: 6px 8px; font-size: 10px;">Caution (remboursable)</td>
+                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->montant_caution, 2, ',', ' ') }} DH</td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -157,7 +179,11 @@
             <ol>
                 <li>Le locataire s'engage a restituer le vehicule dans l'etat ou il l'a recu, usure normale exceptee.</li>
                 <li>Le locataire doit presenter un permis de conduire valide et une piece d'identite.</li>
-                <li>Le vehicule ne peut etre conduit que par le locataire designe dans le present contrat.</li>
+                <li>Le vehicule ne peut etre conduit que par le locataire designe dans le present contrat
+                    @if($reservation->conducteur_additionnel_nom)
+                    ou par le conducteur additionnel autorise ({{ $reservation->conducteur_additionnel_nom }})
+                    @endif
+                    .</li>
                 <li>Le locataire est responsable de toutes les infractions et amendes pendant la periode de location.</li>
                 <li>En cas de retard de restitution, des penalites de 50% du tarif journalier seront appliquees par jour de retard.</li>
                 <li>Le locataire s'engage a signaler tout incident ou dommage dans les plus brefs delais.</li>

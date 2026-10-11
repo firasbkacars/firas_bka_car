@@ -115,36 +115,36 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| C1 | Blocage caution a la reservation | PARTIEL (donnee existe) |
+| C1 | Blocage caution a la reservation | FAIT (store → caution_statut='bloquee' + CautionHistory) |
 | C2 | Verification etat lieux retour | A FAIRE |
-| C3 | Restitution partielle/complete avec motif | A FAIRE |
-| C4 | Historique des cautions sur admin | A FAIRE |
+| C3 | Restitution partielle/complete avec motif | FAIT (updateCaution + montant_retenu + motif + remboursement) |
+| C4 | Historique des cautions sur admin | FAIT (cautionHistorique + bouton/modal admin) |
 
 ### Etat des lieux
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| E1 | Interface mobile-friendly pour agent | A FAIRE |
-| E2 | Prise de photos (camera navigateur) | A FAIRE |
-| E3 | Comparaison avant/apres | A FAIRE |
+| E1 | Interface mobile-friendly pour agent | PARTIEL (table scroll + capture mobile) |
+| E2 | Prise de photos (camera navigateur) | FAIT (capture="environment") |
+| E3 | Comparaison avant/apres | FAIT (comparaison API + modal admin) |
 | E4 | Rattacher a la facturation | A FAIRE |
 
 ### Prolongation
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| PR1 | Bouton prolonger depuis profil client | PARTIEL (API existe) |
-| PR2 | Verification disponibilite automatique | EXISTANT |
-| PR3 | Generation paiement complémentaire | A FAIRE |
-| PR4 | Mise a jour contrat | A FAIRE |
+| PR1 | Bouton prolonger depuis profil client | FAIT (confirmee + en_cours) |
+| PR2 | Verification disponibilite automatique | FAIT (apercuProlongation) |
+| PR3 | Generation paiement complementaire | FAIT (Paiement type complement en_attente) |
+| PR4 | Mise a jour contrat | FAIT (bouton contrat + contrat mis a jour) |
 
 ### Conducteur additionnel
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| CD1 | Inclure dans le contrat PDF | A FAIRE |
-| CD2 | Verification permis conducteur additionnel | A FAIRE |
-| CD3 | Assurance conducteur additionnel | A FAIRE |
+| CD1 | Inclure dans le contrat PDF | FAIT |
+| CD2 | Verification permis conducteur additionnel | FAIT (StoreReservationRequest) |
+| CD3 | Assurance conducteur additionnel | FAIT (champ assurance + contrat) |
 
 ---
 
@@ -199,7 +199,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi — 88 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api — 96 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -242,9 +242,9 @@
 | Phase 1 (Robustesse) | 7 | 0 | 4 |
 | Phase 2 (Fonctions manquantes) | 14 | 0 | 4 (N8 ignore) |
 | Phase 3 (Frontend) | 14 | 0 | 0 |
-| Phase 4 (Metier avance) | 3 | 0 | 11 |
+| Phase 4 (Metier avance) | 12 | 1 (E1) | 2 |
 | Phase 5 (Rapports) | 12 | 0 | 0 |
 | Phase 6 (Infra) | 6 | 0 | 5 (I2 ignore) |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 64 terminees | 0 en cours | 25 a faire**
+**Total : 96 taches | 73 terminees | 1 en cours | 22 a faire**

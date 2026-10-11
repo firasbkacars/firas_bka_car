@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\EtatLieu;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 
 class EtatLieuController extends Controller
@@ -46,5 +47,28 @@ class EtatLieuController extends Controller
         $etat = EtatLieu::with(['reservation.client', 'reservation.vehicule', 'agent'])->findOrFail($id);
 
         return response()->json($etat);
+    }
+
+    /**
+     * E3 : comparaison depart/retour pour une reservation.
+     */
+    public function comparaison(Request $request)
+    {
+        $validated = $request->validate([
+            'reservation_id' => 'required|exists:reservations,id',
+        ]);
+
+        $reservation = Reservation::with('etatsLieux')->findOrFail($validated['reservation_id']);
+
+        $depart = $reservation->etatsLieux->firstWhere('type', 'depart');
+        $retour = $reservation->etatsLieux->firstWhere('type', 'retour');
+
+        return response()->json([
+            'reservation_id' => $reservation->id,
+            'numero' => $reservation->numero,
+            'depart' => $depart,
+            'retour' => $retour,
+            'complet' => $depart && $retour,
+        ]);
     }
 }
