@@ -47,6 +47,19 @@ class Reservation extends Model
         'remise' => 'decimal:2',
     ];
 
+    /**
+     * Exposes aux clients et a l'admin pour afficher l'etat reel du paiement
+     * (deja le cas dans le modele, mais invisibles en JSON sans $appends).
+     */
+    protected $appends = [
+        'acompte_paye',
+        'acompte_restant',
+        'rembourse',
+        'solde_restant',
+        'est_paye_integralement',
+        'est_payable_en_ligne',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class);

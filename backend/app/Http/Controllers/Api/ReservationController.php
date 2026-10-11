@@ -13,6 +13,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Vehicule;
 use App\Services\FideliteService;
+use App\Services\RefundPolicy;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -247,12 +248,56 @@ class ReservationController extends Controller
         return response()->json($reservation->load(['client', 'vehicule']));
     }
 
-    public function annuler($id)
+    /**
+     * Aperçu du montant remboursable si le client annule maintenant.
+     * Le backend fait foi (le calcul existait aussi en dur dans Profil.jsx).
+     */
+    public function apercuAnnulation(Request $request, $id)
     {
-        $reservation = Reservation::findOrFail($id);
-        $reservation->update(['statut' => 'annulee']);
+        $client = $request->user();
+        $reservation = Reservation::with('paiements')->where('id', $id)
+            ->where('client_id', $client->id)
+            ->firstOrFail();
 
-        return response()->json(['message' => 'Reservation annulee']);
+        $policy = app(RefundPolicy::class);
+        $heures = $policy->heuresAvantDebut($reservation);
+
+        return response()->json([
+            'annulable' => in_array($reservation->statut, ['confirmee', 'en_cours'], true),
+            'heures_avant_debut' => round($heures, 1),
+            'acompte_paye' => $reservation->acompte_paye,
+            'montant_rembourse' => $policy->montantRemboursable($reservation, $heures),
+            'politique' => $policy->libelle($heures),
+        ]);
+    }
+
+    /**
+     * Annulation par un admin.
+     *
+     * Declenche le vrai remboursement : auparavant, annuler cote admin
+     * ne declarait AUCUN remboursement, alors que le client, lui, voyait
+     * un "remboursement" comptabilise comme un encaissement positif.
+     */
+    public function annuler(Request $request, $id)
+    {
+        $reservation = Reservation::with('paiements')->findOrFail($id);
+
+        if (in_array($reservation->statut, ['annulee', 'terminee'], true)) {
+            return response()->json([
+                'message' => 'Cette reservation ne peut plus etre annulee.',
+            ], 422);
+        }
+
+        $result = app(RefundPolicy::class)->annuler(
+            $reservation,
+            $request->input('motif') ?? 'Annulee par un administrateur',
+            $request->user()?->id
+        );
+
+        return response()->json(array_merge([
+            'message' => 'Reservation annulee',
+            'reservation' => $reservation->fresh(['client', 'vehicule', 'paiements']),
+        ], $result));
     }
 
     public function updateCaution(Request $request, $id)
@@ -274,7 +319,7 @@ class ReservationController extends Controller
     public function annulerParClient(Request $request, $id)
     {
         $client = $request->user();
-        $reservation = Reservation::where('id', $id)
+        $reservation = Reservation::with('paiements')->where('id', $id)
             ->where('client_id', $client->id)
             ->firstOrFail();
 
@@ -282,38 +327,15 @@ class ReservationController extends Controller
             return response()->json(['message' => 'Cette reservation ne peut plus etre annulee'], 422);
         }
 
-        $montantRembourse = 0;
-        $dateDebut = Carbon::parse($reservation->date_debut);
-        $heuresAvant = now()->diffInHours($dateDebut, false);
-
-        if ($heuresAvant >= 48) {
-            $montantRembourse = $reservation->acompte;
-        } elseif ($heuresAvant >= 24) {
-            $montantRembourse = $reservation->acompte * 0.50;
-        } else {
-            $montantRembourse = 0;
-        }
-
-        $reservation->update([
-            'statut' => 'annulee',
-            'montant_rembourse' => $montantRembourse,
-            'politique_annulation' => $this->getPolitiqueAnnulation($heuresAvant),
-        ]);
-
-        if ($montantRembourse > 0) {
-            Paiement::create([
-                'reservation_id' => $reservation->id,
-                'montant' => $montantRembourse,
-                'methode' => $reservation->mode_paiement,
-                'statut' => 'paye',
-                'date_paiement' => now(),
-            ]);
-        }
+        // La politique s'appuie sur l'acompte REELLEMENT encaisse et produit
+        // une ecriture de remboursement, plus un encaissement positif.
+        $result = app(RefundPolicy::class)->annuler($reservation, 'Annulee par le client');
 
         return response()->json([
             'message' => 'Reservation annulee',
-            'montant_rembourse' => $montantRembourse,
-            'politique' => $reservation->politique_annulation,
+            'montant_rembourse' => $result['montant_rembourse'],
+            'politique' => $result['politique'],
+            'reservation' => $reservation->fresh(['vehicule', 'paiements']),
         ]);
     }
 
@@ -361,17 +383,6 @@ class ReservationController extends Controller
             'jours_supplementaires' => $joursSupplementaires,
             'prix_supplement' => $prixSupplement,
         ]);
-    }
-
-    private function getPolitiqueAnnulation(float $heuresAvant): string
-    {
-        if ($heuresAvant >= 48) {
-            return 'Annulation gratuite - Remboursement integral de l\'acompte';
-        } elseif ($heuresAvant >= 24) {
-            return 'Annulation partielle - Remboursement de 50% de l\'acompte';
-        }
-
-        return 'Annulation tardive - Acompte non remboursable';
     }
 
     /**

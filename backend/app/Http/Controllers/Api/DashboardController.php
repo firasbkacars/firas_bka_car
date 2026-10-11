@@ -21,44 +21,51 @@ class DashboardController extends Controller
         $totalClients = Client::count();
 
         $moisActuel = now()->month;
-        $anneeActuelle = now()->year;
+        $anneeActuelle = (string) now()->year;
         $driver = DB::getDriverName();
 
         if ($driver === 'sqlite') {
             $revenusMois = Paiement::where('statut', 'paye')
                 ->whereRaw("strftime('%m', date_paiement) = ?", [str_pad($moisActuel, 2, '0', STR_PAD_LEFT)])
                 ->whereRaw("strftime('%Y', date_paiement) = ?", [$anneeActuelle])
-                ->sum('montant');
+                ->selectRaw(Paiement::revenusNetSql().' as net')
+                ->value('net');
 
             $moisPrecedent = $moisActuel - 1;
             $anneePrecedente = $anneeActuelle;
             if ($moisPrecedent < 1) {
                 $moisPrecedent = 12;
-                $anneePrecedente--;
+                $anneePrecedente = (string) ((int) $anneeActuelle - 1);
             }
 
             $revenusMoisPrecedent = Paiement::where('statut', 'paye')
                 ->whereRaw("strftime('%m', date_paiement) = ?", [str_pad($moisPrecedent, 2, '0', STR_PAD_LEFT)])
                 ->whereRaw("strftime('%Y', date_paiement) = ?", [$anneePrecedente])
-                ->sum('montant');
+                ->selectRaw(Paiement::revenusNetSql().' as net')
+                ->value('net');
         } else {
             $revenusMois = Paiement::where('statut', 'paye')
                 ->whereMonth('date_paiement', $moisActuel)
                 ->whereYear('date_paiement', $anneeActuelle)
-                ->sum('montant');
+                ->selectRaw(Paiement::revenusNetSql().' as net')
+                ->value('net');
 
             $moisPrecedent = $moisActuel - 1;
             $anneePrecedente = $anneeActuelle;
             if ($moisPrecedent < 1) {
                 $moisPrecedent = 12;
-                $anneePrecedente--;
+                $anneePrecedente = (string) ((int) $anneeActuelle - 1);
             }
 
             $revenusMoisPrecedent = Paiement::where('statut', 'paye')
                 ->whereMonth('date_paiement', $moisPrecedent)
                 ->whereYear('date_paiement', $anneePrecedente)
-                ->sum('montant');
+                ->selectRaw(Paiement::revenusNetSql().' as net')
+                ->value('net');
         }
+
+        $revenusMois = (float) ($revenusMois ?? 0);
+        $revenusMoisPrecedent = (float) ($revenusMoisPrecedent ?? 0);
 
         $evolutionRevenus = $revenusMoisPrecedent > 0
             ? round(($revenusMois - $revenusMoisPrecedent) / $revenusMoisPrecedent * 100)
@@ -85,7 +92,7 @@ class DashboardController extends Controller
 
     public function revenus(Request $request)
     {
-        $annee = $request->get('annee', now()->year);
+        $annee = (string) $request->get('annee', now()->year);
         $driver = DB::getDriverName();
 
         if ($driver === 'sqlite') {
@@ -93,7 +100,7 @@ class DashboardController extends Controller
                 ->whereRaw("strftime('%Y', date_paiement) = ?", [$annee])
                 ->select(
                     DB::raw("strftime('%m', date_paiement) as mois"),
-                    DB::raw('SUM(montant) as total')
+                    DB::raw(Paiement::revenusNetSql().' as total')
                 )
                 ->groupBy('mois')
                 ->orderBy('mois')
@@ -103,7 +110,7 @@ class DashboardController extends Controller
                 ->whereYear('date_paiement', $annee)
                 ->select(
                     DB::raw('MONTH(date_paiement) as mois'),
-                    DB::raw('SUM(montant) as total')
+                    DB::raw(Paiement::revenusNetSql().' as total')
                 )
                 ->groupBy('mois')
                 ->orderBy('mois')
@@ -181,7 +188,10 @@ class DashboardController extends Controller
 
             $tauxOccupation = $totalJours > 0 ? round(($joursLoues / $totalJours) * 100, 1) : 0;
 
-            $revenuTotal = $vehicule->reservations->flatMap->paiements->where('statut', 'paye')->sum('montant');
+            $revenuTotal = (float) $vehicule->reservations
+                ->flatMap->paiements
+                ->filter(fn ($p) => $p->statut === Paiement::STATUT_PAYE)
+                ->sum(fn ($p) => $p->montant_signe);
 
             $result[] = [
                 'vehicule_id' => $vehicule->id,

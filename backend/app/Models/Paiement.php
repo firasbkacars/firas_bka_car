@@ -113,10 +113,18 @@ class Paiement extends Model
      */
     public function scopeNet(Builder $q): Builder
     {
-        return $q->selectRaw(
-            "COALESCE(SUM(CASE WHEN type = ? THEN -ABS(montant) ELSE montant END), 0) as net",
-            [self::TYPE_REMBOURSEMENT]
-        );
+        return $q->selectRaw(self::revenusNetSql('montant').' as net');
+    }
+
+    /**
+     * Expression SQL de revenu net : les remboursements sont soustraits.
+     *
+     * Historiquement, les remboursements etaient enregistres comme des
+     * encaissements 'paye' positifs, ce qui SUR-EVALUAIT les revenus.
+     */
+    public static function revenusNetSql(string $column = 'montant'): string
+    {
+        return "COALESCE(SUM(CASE WHEN type = 'remboursement' THEN -ABS({$column}) ELSE {$column} END), 0)";
     }
 
     // -------------------------------------------------------------- accessors

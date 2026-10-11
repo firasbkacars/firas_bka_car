@@ -538,4 +538,229 @@ class PaymentFlowTest extends TestCase
                 ->sum('montant') - 1500
         );
     }
+
+    // ------------------------------------------------- annulation / refund
+
+    public function test_client_cancellation_refunds_only_what_was_actually_paid(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule(), [
+            // Acompte theorique de 750, mais seul 300 a ete encaisse.
+            'date_debut' => now()->addDays(10),
+        ]);
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 300,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'gateway' => 'sandbox',
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson("/api/client/reservations/{$reservation->id}/annuler")
+            ->assertOk()
+            ->assertJsonPath('montant_rembourse', 300);
+
+        // L'ecriture est un remboursement, pas un encaissement positif.
+        $this->assertDatabaseHas('paiements', [
+            'reservation_id' => $reservation->id,
+            'type' => Paiement::TYPE_REMBOURSEMENT,
+            'montant' => 300,
+        ]);
+        $this->assertSame(
+            0.0,
+            (float) Paiement::where('reservation_id', $reservation->id)
+                ->where('statut', Paiement::STATUT_PAYE)
+                ->selectRaw(Paiement::revenusNetSql('montant').' as net')
+                ->value('net')
+        );
+    }
+
+    public function test_late_cancellation_is_not_refundable(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule(), [
+            'date_debut' => now()->addHours(6),
+        ]);
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 750,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'gateway' => 'sandbox',
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson("/api/client/reservations/{$reservation->id}/annuler")
+            ->assertOk()
+            ->assertJsonPath('montant_rembourse', 0);
+
+        $this->assertSame(0, Paiement::where('type', Paiement::TYPE_REMBOURSEMENT)->count());
+    }
+
+    public function test_partial_cancellation_refunds_half_of_paid_deposit(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule(), [
+            'date_debut' => now()->addHours(36),
+        ]);
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 750,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'gateway' => 'sandbox',
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson("/api/client/reservations/{$reservation->id}/annuler")
+            ->assertOk()
+            ->assertJsonPath('montant_rembourse', 375);
+    }
+
+    public function test_admin_cancellation_also_triggers_refund(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule());
+        $admin = $this->createAdmin();
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 750,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'gateway' => 'sandbox',
+            'date_paiement' => now(),
+        ]);
+
+        // Regresion : annuler cote admin ne declarait aucun remboursement.
+        $this->actingAs($admin, 'sanctum')
+            ->putJson("/api/reservations/{$reservation->id}/annuler", ['motif' => 'Vehicule casse'])
+            ->assertOk()
+            ->assertJsonPath('montant_rembourse', 750);
+
+        $this->assertDatabaseHas('paiements', [
+            'reservation_id' => $reservation->id,
+            'type' => Paiement::TYPE_REMBOURSEMENT,
+            'montant' => 750,
+            'created_by' => $admin->id,
+        ]);
+        $this->assertDatabaseHas('reservations', [
+            'id' => $reservation->id,
+            'statut' => 'annulee',
+            'montant_rembourse' => 750,
+        ]);
+    }
+
+    public function test_refund_preview_reports_backend_authoritative_amount(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule(), [
+            'date_debut' => now()->addDays(10),
+        ]);
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 500,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'gateway' => 'sandbox',
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($client, 'sanctum')
+            ->getJson("/api/client/reservations/{$reservation->id}/annulation-preview")
+            ->assertOk()
+            ->assertJsonPath('annulable', true)
+            ->assertJsonPath('acompte_paye', 500)
+            ->assertJsonPath('montant_rembourse', 500);
+    }
+
+    public function test_admin_can_refund_a_confirmed_payment(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule());
+        $admin = $this->createAdmin();
+        $paiement = $this->initPaiement($reservation);
+        $paiement->update([
+            'statut' => Paiement::STATUT_PAYE,
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson("/api/paiements/{$paiement->id}/rembourser", [
+                'montant' => 750,
+                'motif' => 'Client insatisfait',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('montant', 750);
+
+        $this->assertSame(
+            Paiement::STATUT_REMBOURSE,
+            $paiement->fresh()->statut_affichage
+        );
+        $this->assertSame(0.0, (float) $reservation->fresh()->acompte_paye);
+    }
+
+    public function test_admin_cannot_refund_more_than_was_paid(): void
+    {
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule());
+        $admin = $this->createAdmin();
+        $paiement = $this->initPaiement($reservation);
+        $paiement->update([
+            'statut' => Paiement::STATUT_PAYE,
+            'date_paiement' => now(),
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson("/api/paiements/{$paiement->id}/rembourser", [
+                'montant' => 9999,
+                'motif' => 'Tentative de fraude',
+            ])
+            ->assertUnprocessable();
+
+        $this->assertSame(0, Paiement::where('type', Paiement::TYPE_REMBOURSEMENT)->count());
+    }
+
+    public function test_dashboard_revenue_is_net_of_refunds(): void
+    {
+        $admin = $this->createAdmin();
+        $client = $this->createClient();
+        $reservation = $this->createReservation($client, $this->createVehicule());
+
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 750,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_ACOMPTE,
+            'date_paiement' => now(),
+        ]);
+        Paiement::create([
+            'reservation_id' => $reservation->id,
+            'montant' => 250,
+            'methode' => 'cmi',
+            'statut' => Paiement::STATUT_PAYE,
+            'type' => Paiement::TYPE_REMBOURSEMENT,
+            'date_paiement' => now(),
+        ]);
+
+        $response = $this->actingAs($admin, 'sanctum')->getJson('/api/dashboard/stats');
+
+        $response->assertOk();
+        // 750 encaisse - 250 rembourse = 500, et non 1000.
+        $this->assertEquals(500.0, (float) $response->json('revenus_mois'));
+    }
 }

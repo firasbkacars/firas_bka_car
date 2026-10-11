@@ -103,6 +103,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
 
         // Client annulation
         Route::put('/client/reservations/{id}/annuler', [ReservationController::class, 'annulerParClient']);
+        Route::get('/client/reservations/{id}/annulation-preview', [ReservationController::class, 'apercuAnnulation']);
 
         // Client prolongation
         Route::put('/client/reservations/{id}/prolonger', [ReservationController::class, 'prolonger']);
@@ -154,6 +155,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     // Admin paiements
     Route::post('/paiements', [PaiementController::class, 'store'])
+        ->middleware('throttle:30,1');
+    Route::post('/paiements/{id}/rembourser', [PaiementController::class, 'rembourser'])
         ->middleware('throttle:30,1');
     Route::get('/paiements', [PaiementController::class, 'index']);
     Route::get('/paiements/export', [PaiementController::class, 'export']);
