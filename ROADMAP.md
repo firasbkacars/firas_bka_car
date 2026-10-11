@@ -59,8 +59,8 @@
 |----|-------------|--------|
 | N1 | Configurer le scheduler Laravel pour les rappels | FAIT (schedule:work + queue:work dans Dockerfile, reservations:reminders + permis:verifier avec withoutOverlapping) |
 | N2 | Email de confirmation (existant, a verifier) | EXISTANT |
-| N3 | Email de rappel 24h avant prise en charge | EXISTANT (non调度) |
-| N4 | Email de rappel jour du retour | EXISTANT (non调度) |
+| N3 | Email de rappel 24h avant prise en charge | FAIT (reservations:reminders schedulé 08:00, SendReservationReminder) |
+| N4 | Email de rappel jour du retour | FAIT (même job, rappel « jour » + « 24h », rappel unique) |
 | N5 | Notification admin nouvelle reservation | FAIT (AdminNewReservation mailable) |
 | N6 | Notification admin annulation client | FAIT (AdminReservationCancelled + dispatch dans annulerParClient) |
 | N7 | Notification client validation/rejet permis | FAIT (PermisValidation mailable) |
@@ -154,23 +154,23 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| R1 | Taux d'occupation par vehicule | A FAIRE |
-| R2 | Revenu par vehicule (rentabilite) | A FAIRE |
-| R3 | Graphique evolution mensuelle | EXISTANT |
-| R4 | Top vehicules les plus demandes | A FAIRE |
-| R5 | Clients les plus fideles | A FAIRE |
-| R6 | Taux d'annulation | A FAIRE |
-| R7 | Duree moyenne de location | A FAIRE |
-| R8 | Export rapports PDF | A FAIRE |
+| R1 | Taux d'occupation par vehicule | FAIT (DashboardController::tauxOccupation + page Rapports) |
+| R2 | Revenu par vehicule (rentabilite) | FAIT (meme endpoint, revenu_total) |
+| R3 | Graphique evolution mensuelle | EXISTANT (Rapports.jsx, reservations par mois) |
+| R4 | Top vehicules les plus demandes | FAIT (RapportController::synthese, top_vehicules) |
+| R5 | Clients les plus fideles | FAIT (RapportController::synthese, top_clients) |
+| R6 | Taux d'annulation | FAIT (RapportController::synthese, taux_annulation) |
+| R7 | Duree moyenne de location | FAIT (RapportController::synthese, duree_moyenne_jours) |
+| R8 | Export rapports PDF | FAIT (exportPdf + vue pdf.rapport.blade.php) |
 
 ### Rapports financiers
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| F1 | Chiffre d'affaires par periode | EXISTANT |
-| F2 | Detail par mode de paiement | A FAIRE |
-| F3 | Suivi des remboursements | A FAIRE |
-| F4 | Previsionnel de revenus | A FAIRE |
+| F1 | Chiffre d'affaires par periode | EXISTANT (DashboardController::stats) |
+| F2 | Detail par mode de paiement | FAIT (synthese, paiements_par_methode) |
+| F3 | Suivi des remboursements | FAIT (remboursements endpoint + tableau admin) |
+| F4 | Previsionnel de revenus | FAIT (previsions endpoint, encaisse/attendu/solde) |
 
 ---
 
@@ -199,7 +199,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification — 83 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi — 88 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -243,8 +243,8 @@
 | Phase 2 (Fonctions manquantes) | 14 | 0 | 4 (N8 ignore) |
 | Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 3 | 0 | 11 |
-| Phase 5 (Rapports) | 2 | 0 | 10 |
+| Phase 5 (Rapports) | 12 | 0 | 0 |
 | Phase 6 (Infra) | 6 | 0 | 5 (I2 ignore) |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 89 taches | 54 terminees | 0 en cours | 35 a faire**
+**Total : 89 taches | 64 terminees | 0 en cours | 25 a faire**

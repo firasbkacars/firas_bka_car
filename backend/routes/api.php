@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\FideliteController;
 use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\PaiementController;
 use App\Http\Controllers\Api\ParametreController;
+use App\Http\Controllers\Api\RapportController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\VehiculeController;
 use App\Http\Controllers\Api\VehiculePhotoController;
@@ -143,6 +144,12 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/dashboard/repartition-vehicules', [DashboardController::class, 'repartitionVehicules']);
     Route::get('/dashboard/rappels', [DashboardController::class, 'rappels']);
     Route::get('/dashboard/taux-occupation', [DashboardController::class, 'tauxOccupation']);
+
+    // Admin rapports avances (Phase 5)
+    Route::get('/rapports/synthese', [RapportController::class, 'synthese']);
+    Route::get('/rapports/remboursements', [RapportController::class, 'remboursements']);
+    Route::get('/rapports/previsions', [RapportController::class, 'previsions']);
+    Route::get('/rapports/export-pdf', [RapportController::class, 'exportPdf']);
 
     // Admin CRUD vehicules
     Route::apiResource('vehicules-admin', VehiculeController::class)->except(['index', 'show']);
