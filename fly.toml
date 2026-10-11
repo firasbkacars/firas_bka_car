@@ -1,7 +1,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'firas-bka-car-mrlpqq'
+app = 'firasbkacar'
 primary_region = 'ams'
 
 [build]
@@ -12,8 +12,8 @@ primary_region = 'ams'
   APP_NAME = 'FIRAS BKA CAR'
   APP_ENV = 'production'
   APP_DEBUG = 'false'
-  APP_URL = 'https://firas-bka-car-mrlpqq.fly.dev'
-  FRONTEND_URL = 'https://firas-bka-car-mrlpqq.fly.dev'
+  APP_URL = 'https://firasbkacar.fly.dev'
+  FRONTEND_URL = 'https://firasbkacar.fly.dev'
   APP_LOCALE = 'fr'
   FILESYSTEM_DISK = 'public'
   DB_CONNECTION = 'mysql'
@@ -22,7 +22,7 @@ primary_region = 'ams'
   DB_DATABASE = 'firas_bka_car'
   DB_USERNAME = 'firas'
   SESSION_DRIVER = 'database'
-  SANCTUM_STATEFUL_DOMAINS = 'firas-bka-car-mrlpqq.fly.dev'
+  SANCTUM_STATEFUL_DOMAINS = 'firasbkacar.fly.dev'
   CACHE_STORE = 'database'
   QUEUE_CONNECTION = 'database'
   MAIL_MAILER = 'smtp'
