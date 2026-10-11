@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Mail\ContactMessage;
 use App\Models\Client;
 use App\Models\Paiement;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Vehicule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class ReservationApiTest extends TestCase
@@ -327,5 +329,40 @@ class ReservationApiTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    /**
+     * Le formulaire de contact ne doit jamais dependre de la disponibilite
+     * de SMTP : l'envoi part en file et le visiteur recoit un 201.
+     * Un envoi synchrone retournait un 500 au visiteur en production
+     * (MAIL_MAILER=log).
+     */
+    public function test_contact_message_is_queued_and_accepted(): void
+    {
+        Mail::fake();
+
+        $response = $this->postJson('/api/contact', [
+            'nom' => 'Jean Dupont',
+            'contact' => 'jean@example.com',
+            'sujet' => 'Question sur une location',
+            'message' => 'Bonjour, ce vehicule est-il disponible la semaine prochaine ?',
+        ]);
+
+        $response->assertStatus(201);
+        Mail::assertQueued(ContactMessage::class);
+    }
+
+    public function test_contact_message_still_validates_input(): void
+    {
+        Mail::fake();
+
+        $this->postJson('/api/contact', [
+            'nom' => 'J',
+            'contact' => 'x',
+            'sujet' => '',
+            'message' => 'ok',
+        ])->assertStatus(422);
+
+        Mail::assertNothingQueued();
     }
 }

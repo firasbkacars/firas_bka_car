@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ContactMessage;
+use App\Support\QueuedMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -21,13 +20,10 @@ class ContactController extends Controller
 
         $to = config('mail.from.address', 'firasbkacars@gmail.com');
 
-        try {
-            Mail::to($to)->send(new ContactMessage($validated));
-        } catch (\Exception $e) {
-            Log::error('Failed to send contact email', ['error' => $e->getMessage()]);
-
-            return response()->json(['message' => 'Impossible d\'envoyer le message pour le moment.'], 500);
-        }
+        // Le message du visiteur est accepte quoi qu'il arrive : un envoi
+        // synchrone retournait un 500 au visiteur des que SMTP n'etait pas
+        // configure (cas de production actuel, MAIL_MAILER=log).
+        QueuedMail::send($to, new ContactMessage($validated), 'contact');
 
         return response()->json(['message' => 'Message envoye avec succes'], 201);
     }

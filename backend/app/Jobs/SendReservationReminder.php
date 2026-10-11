@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SendReservationReminder implements ShouldQueue
@@ -38,5 +39,15 @@ class SendReservationReminder implements ShouldQueue
 
         Mail::to($reservation->client->email)
             ->send(new ReservationReminder($reservation, $this->type));
+    }
+
+    /** Journalise l'echec definitif sans faire remonter d'exception. */
+    public function failed(?\Throwable $e): void
+    {
+        Log::error('Rappel de reservation non envoye', [
+            'reservation_id' => $this->reservationId,
+            'type' => $this->type,
+            'error' => $e?->getMessage(),
+        ]);
     }
 }

@@ -14,12 +14,11 @@ use App\Models\User;
 use App\Models\Vehicule;
 use App\Services\FideliteService;
 use App\Services\RefundPolicy;
+use App\Support\QueuedMail;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class ReservationController extends Controller
 {
@@ -155,12 +154,13 @@ class ReservationController extends Controller
 
         SendReservationConfirmation::dispatch($reservation->id);
 
-        $adminEmail = config('mail.from.address', 'firasbkacars@gmail.com');
-        try {
-            Mail::to($adminEmail)->send(new AdminNewReservation($reservation));
-        } catch (\Exception $e) {
-            Log::error('Failed to send admin notification', ['error' => $e->getMessage()]);
-        }
+        // Notification admin en file : un envoi bloquant dans la meme requete
+        // ajoutait la latence SMTP a la creation de reservation.
+        QueuedMail::send(
+            config('mail.from.address', 'firasbkacars@gmail.com'),
+            new AdminNewReservation($reservation),
+            'admin-nouvelle-reservation'
+        );
 
         return response()->json($reservation, 201);
     }

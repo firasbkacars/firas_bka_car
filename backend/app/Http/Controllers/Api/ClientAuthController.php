@@ -7,11 +7,11 @@ use App\Http\Requests\LoginClientRequest;
 use App\Http\Requests\RegisterClientRequest;
 use App\Mail\PermisValidation;
 use App\Models\Client;
+use App\Support\QueuedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class ClientAuthController extends Controller
@@ -181,12 +181,11 @@ class ClientAuthController extends Controller
         $client->update($update);
 
         if ($client->email) {
-            try {
-                Mail::to($client->email)
-                    ->send(new PermisValidation($client, $validated['statut'], $validated['motif'] ?? null));
-            } catch (\Exception $e) {
-                Log::error('Failed to send permis validation email', ['error' => $e->getMessage()]);
-            }
+            QueuedMail::send(
+                $client->email,
+                new PermisValidation($client, $validated['statut'], $validated['motif'] ?? null),
+                'validation-permis'
+            );
         }
 
         return response()->json([

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SendReservationConfirmation implements ShouldQueue
@@ -33,5 +34,14 @@ class SendReservationConfirmation implements ShouldQueue
 
         Mail::to($reservation->client->email)
             ->send(new ReservationConfirmation($reservation));
+    }
+
+    /** Journalise l'echec definitif sans faire remonter d'exception. */
+    public function failed(?\Throwable $e): void
+    {
+        Log::error('Confirmation de reservation non envoyee', [
+            'reservation_id' => $this->reservationId,
+            'error' => $e?->getMessage(),
+        ]);
     }
 }

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\EmailVerification;
 use App\Models\Client;
+use App\Support\QueuedMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class EmailVerificationController extends Controller
@@ -28,7 +28,20 @@ class EmailVerificationController extends Controller
 
         $verificationUrl = url("/api/client/verify-email/{$token}");
 
-        Mail::to($client->email)->send(new EmailVerification($client, $verificationUrl));
+        // En file : l'envoi reel a lieu dans le worker. Seul un echec de mise
+        // en file est signale au client, une indisponibilite SMTP n'arrete
+        // pas la demande.
+        $ok = QueuedMail::send(
+            $client->email,
+            new EmailVerification($client, $verificationUrl),
+            'verification-email'
+        );
+
+        if (! $ok) {
+            return response()->json([
+                'message' => "L'envoi de l'email de verification n'est pas disponible pour le moment.",
+            ], 503);
+        }
 
         return response()->json(['message' => 'Email de verification envoye']);
     }
