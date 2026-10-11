@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, ChevronUp, Car, Award, Trophy, AlertTriangle, Clock, CreditCard } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatutPaiement from '../../components/StatutPaiement';
-import { formatMAD } from '../../lib/formatters';
+import { formatMAD, formatDate, formatDateTime } from '../../lib/formatters';
 
 const STATUS_COLORS = {
   confirmee: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
@@ -15,11 +15,33 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LABELS = {
-  confirmee: 'Confirmee',
+  confirmee: 'Confirmée',
   en_cours: 'En cours',
-  terminee: 'Terminee',
-  annulee: 'Annulee',
+  terminee: 'Terminée',
+  annulee: 'Annulée',
 };
+
+/**
+ * Paliers de la politique d'annulation, reflets de RefundPolicy (backend).
+ * Uniquement pour rendre l'apercu lisible : le montant affiche vient
+ * toujours de /annulation-preview, calcule par le backend.
+ */
+const PALIERS_ANNULATION = [
+  { cle: 'gratuit', heuresMin: 48, taux: 1, libelle: 'Remboursement intégral', detail: 'Plus de 48 h avant la prise en charge.' },
+  { cle: 'partiel', heuresMin: 24, taux: 0.5, libelle: 'Remboursement de 50 %', detail: 'Entre 24 h et 48 h avant la prise en charge.' },
+  { cle: 'tardif', heuresMin: 0, taux: 0, libelle: 'Acompte conservé', detail: 'Moins de 24 h avant la prise en charge.' },
+];
+
+function palierApplicable(heures) {
+  if (typeof heures !== 'number' || Number.isNaN(heures)) return null;
+  return PALIERS_ANNULATION.find((p) => heures >= p.heuresMin) || null;
+}
+
+/** Encaissement = montant positif, remboursement = ecriture negative. */
+function montantSignePaiement(p) {
+  const m = parseFloat(p?.montant) || 0;
+  return p?.type === 'remboursement' ? -Math.abs(m) : m;
+}
 
 /**
  * Etat du paiement d'une reservation, quel que soit le mode (especes ou CMI).
@@ -260,7 +282,7 @@ export default function ClientProfil() {
       setProlongingId(null);
       setProlongDate('');
       fetchReservations();
-      showToast(`Reservation prolongee de ${data.jours_supplementaires} jour(s). Supplement: ${data.prix_supplement} DH`);
+      showToast(`Réservation prolongée de ${data.jours_supplementaires} jour(s). Supplément : ${formatMAD(data.prix_supplement)}`);
     } catch (err) {
       showToast(err.response?.data?.message || 'Erreur lors de la prolongation', 'error');
       setProlongingId(null);
@@ -294,8 +316,8 @@ export default function ClientProfil() {
       const remb = parseFloat(data.montant_rembourse) || 0;
       showToast(
         remb > 0
-          ? `Reservation annulee. Remboursement : ${remb.toFixed(2)} DH`
-          : 'Reservation annulee. Aucun remboursement selon la politique.'
+          ? `Réservation annulée. Remboursement : ${formatMAD(remb)}`
+          : 'Réservation annulée. Aucun remboursement selon la politique.'
       );
     } catch (err) {
       showToast(err.response?.data?.message || 'Erreur lors de l\'annulation', 'error');
@@ -387,12 +409,14 @@ export default function ClientProfil() {
             <div className="space-y-3">
               {reservations.map((res) => (
                 <div key={res.id} className="bg-white/[0.02] rounded-xl border border-white/[0.04] overflow-hidden">
-                  <div
-                    className="flex items-center gap-4 p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                  <button
+                    type="button"
+                    aria-expanded={expandedReservation === res.id}
+                    className="w-full flex items-center gap-4 p-4 text-left cursor-pointer hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#dc2626] transition-colors"
                     onClick={() => setExpandedReservation(expandedReservation === res.id ? null : res.id)}
                   >
                     <div className="w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0">
-                      <Car size={18} className="text-[#dc2626]" />
+                      <Car size={18} className="text-[#dc2626]" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -408,58 +432,57 @@ export default function ClientProfil() {
                         />
                       </div>
                       <p className="text-gray-500 text-xs mt-1">
-                        {res.numero} - {new Date(res.date_debut).toLocaleDateString('fr-FR')} au {new Date(res.date_fin).toLocaleDateString('fr-FR')}
+                        {res.numero} - {formatDate(res.date_debut)} au {formatDate(res.date_fin)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-[#dc2626] font-bold text-sm">{formatMAD(res.prix_total)}</div>
                       <div className={`text-xs ${parseFloat(res.acompte_paye || 0) > 0 ? 'text-green-400' : 'text-gray-600'}`}>
                         {parseFloat(res.acompte_paye || 0) > 0
-                          ? `${formatMAD(res.acompte_paye)} regle`
-                          : `${formatMAD(res.acompte || 0)} a regler`}
+                          ? `${formatMAD(res.acompte_paye)} réglé`
+                          : `${formatMAD(res.acompte || 0)} à régler`}
                       </div>
                     </div>
-                    {expandedReservation === res.id ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
-                  </div>
+                    <ChevronDown
+                      size={16}
+                      aria-hidden="true"
+                      className={`text-gray-500 shrink-0 transition-transform ${expandedReservation === res.id ? 'rotate-180' : ''}`}
+                    />
+                  </button>
 
                   {expandedReservation === res.id && (
                     <div className="border-t border-white/[0.04] px-4 py-4 bg-white/[0.01]">
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Prise en charge</p>
-                          <p className="text-white text-sm mt-1">{new Date(res.date_debut).toLocaleString('fr-FR')}</p>
+                          <p className="text-white text-sm mt-1">{formatDateTime(res.date_debut)}</p>
                           <p className="text-gray-500 text-xs">{res.lieu_prise}</p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Retour</p>
-                          <p className="text-white text-sm mt-1">{new Date(res.date_fin).toLocaleString('fr-FR')}</p>
+                          <p className="text-white text-sm mt-1">{formatDateTime(res.date_fin)}</p>
                           <p className="text-gray-500 text-xs">{res.lieu_retour}</p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Mode de paiement</p>
-                          <p className="text-white text-sm mt-1 capitalize">
-                            {res.mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Especes'}
+                          <p className="text-white text-sm mt-1">
+                            {res.mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Espèces'}
                           </p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs uppercase tracking-wider">Paiements</p>
                           <p className="text-white text-sm mt-1">
-                            {formatMAD(res.acompte_paye || 0)} encaisses sur {formatMAD(res.acompte || 0)}
+                            {formatMAD(res.acompte_paye || 0)} encaissés sur {formatMAD(res.acompte || 0)}
                           </p>
                           {parseFloat(res.rembourse || 0) > 0 && (
                             <p className="text-blue-400 text-xs mt-0.5">
-                              dont {formatMAD(res.rembourse)} rembourse(s)
+                              dont {formatMAD(res.rembourse)} remboursé(s)
                             </p>
-                          )}
-                          {res.paiements?.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {res.paiements.map((p) => (
-                                <StatutPaiement key={p.id} statut={p.statut_affichage || p.statut} showIcon={false} />
-                              ))}
-                            </div>
                           )}
                         </div>
                       </div>
+
+                      <HistoriquePaiements paiements={res.paiements} />
 
                       <div className="flex items-center gap-3 pt-3 border-t border-white/[0.04] flex-wrap">
                         {res.mode_paiement === 'cmi' &&
@@ -471,17 +494,18 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#dc2626]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                           >
                             {payingId === res.id
-                              ? <><Loader2 size={14} className="animate-spin" /> Ouverture...</>
-                              : <><CreditCard size={14} /> Payer {parseFloat(res.acompte_restant ?? res.acompte).toFixed(2)} DH</>}
+                              ? <><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Ouverture...</>
+                              : <><CreditCard size={14} aria-hidden="true" /> Payer {formatMAD(res.acompte_restant ?? res.acompte)}</>}
                           </button>
                         )}
-                        {res.statut === 'terminee' && (
+                        {parseFloat(res.acompte_paye || 0) > 0 && (
                           <button
+                            type="button"
                             onClick={() => downloadFacture(res.id)}
                             className="flex items-center gap-2 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 text-[#dc2626] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
-                            <Download size={14} />
-                            Telecharger la facture
+                            <Download size={14} aria-hidden="true" />
+                            Télécharger la facture
                           </button>
                         )}
                         {res.statut === 'terminee' && (
@@ -502,7 +526,7 @@ export default function ClientProfil() {
                                   Prolonger la reservation
                                 </p>
                                 <p className="text-gray-400 text-xs mb-2">
-                                  Date de retour actuelle : {new Date(res.date_fin).toLocaleDateString('fr-FR')}
+                                  Date de retour actuelle : {formatDate(res.date_fin)}
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <input
@@ -548,22 +572,56 @@ export default function ClientProfil() {
                                 </p>
                                 {(() => {
                                   const remb = previews[res.id];
+                                  const heures = remb?.heures_avant_debut;
+                                  const palier = palierApplicable(heures);
                                   return (
-                                    <div className="mb-3 space-y-1">
+                                    <div className="mb-3 space-y-2">
                                       <p className="text-gray-400 text-xs">
-                                        Acompte encaisse :{' '}
+                                        Acompte encaissé :{' '}
                                         <span className="text-white font-medium">
-                                          {remb
-                                            ? `${parseFloat(remb.acompte_paye).toFixed(2)} DH`
-                                            : '...'}
+                                          {remb ? formatMAD(remb.acompte_paye) : '...'}
                                         </span>
                                       </p>
                                       {remb ? (
                                         <>
                                           <p className={`text-xs font-medium ${parseFloat(remb.montant_rembourse) > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                            {remb.montant_rembourse > 0 ? 'Remboursement' : 'Aucun remboursement'} :{' '}
-                                            <span className="font-bold">{parseFloat(remb.montant_rembourse).toFixed(2)} DH</span>
+                                            {parseFloat(remb.montant_rembourse) > 0 ? 'Remboursement' : 'Aucun remboursement'} :{' '}
+                                            <span className="font-bold">{formatMAD(remb.montant_rembourse)}</span>
                                           </p>
+
+                                          {/* Les trois paliers de la politique, pour situer le cas courant.
+                                              Le montant reste celui calcule par le backend. */}
+                                          <ul className="space-y-1">
+                                            {PALIERS_ANNULATION.map((p) => {
+                                              const actif = palier?.cle === p.cle;
+                                              return (
+                                                <li
+                                                  key={p.cle}
+                                                  className={`flex items-start gap-2 rounded px-2 py-1 text-[11px] leading-snug ${
+                                                    actif
+                                                      ? 'bg-white/[0.06] text-white'
+                                                      : 'text-gray-500'
+                                                  }`}
+                                                >
+                                                  <span
+                                                    aria-hidden="true"
+                                                    className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${actif ? 'bg-[#dc2626]' : 'bg-gray-700'}`}
+                                                  />
+                                                  <span>
+                                                    <span className="font-medium">{p.libelle}</span>
+                                                    {' — '}
+                                                    {typeof heures === 'number'
+                                                      ? `il reste ${heures.toFixed(1)} h avant la prise en charge. `
+                                                      : `${p.detail} `}
+                                                    {p.taux > 0 && remb.acompte_paye != null
+                                                      ? `Soit ${formatMAD(parseFloat(remb.acompte_paye) * p.taux)}.`
+                                                      : p.detail}
+                                                  </span>
+                                                </li>
+                                              );
+                                            })}
+                                          </ul>
+
                                           <p className="text-gray-500 text-[11px] leading-snug">
                                             {remb.politique}
                                           </p>
@@ -621,7 +679,7 @@ export default function ClientProfil() {
             {client?.permis_conduire ? (
               <span className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1.5 rounded-full text-sm font-medium">
                 <CheckCircle2 size={14} />
-                Permis verifie
+                Permis vérifié
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-full text-sm font-medium">
@@ -811,8 +869,9 @@ export default function ClientProfil() {
           <h2 className="text-white font-semibold mb-5">Mes informations</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Nom complet</label>
+              <label htmlFor="profil-nom" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Nom complet</label>
               <input
+                id="profil-nom"
                 type="text"
                 value={form.nom_complet}
                 onChange={(e) => setForm({ ...form, nom_complet: e.target.value })}
@@ -820,8 +879,9 @@ export default function ClientProfil() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Telephone</label>
+              <label htmlFor="profil-tel" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Téléphone</label>
               <input
+                id="profil-tel"
                 type="tel"
                 value={form.telephone}
                 onChange={(e) => setForm({ ...form, telephone: e.target.value })}
@@ -829,28 +889,31 @@ export default function ClientProfil() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Email</label>
+              <label htmlFor="profil-email" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Email</label>
               <input
+                id="profil-email"
                 type="email"
                 value={form.email}
                 readOnly
                 className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/50 text-sm cursor-not-allowed"
               />
-              <p className="text-gray-600 text-xs mt-1">L'email ne peut pas etre modifie</p>
+              <p className="text-gray-600 text-xs mt-1">L'email ne peut pas être modifié</p>
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
+              <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
               <input
+                id="profil-cin"
                 type="text"
                 value={form.cin}
                 readOnly
                 className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/50 text-sm cursor-not-allowed"
               />
-              <p className="text-gray-600 text-xs mt-1">Le CIN ne peut pas etre modifie</p>
+              <p className="text-gray-600 text-xs mt-1">Le CIN ne peut pas être modifié</p>
             </div>
             <div className="md:col-span-2">
-              <label className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Adresse</label>
+              <label htmlFor="profil-adresse" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Adresse</label>
               <input
+                id="profil-adresse"
                 type="text"
                 value={form.adresse}
                 onChange={(e) => setForm({ ...form, adresse: e.target.value })}
@@ -861,7 +924,7 @@ export default function ClientProfil() {
 
           <div className="mt-6 flex items-center justify-between">
             <Link to="/" className="text-gray-500 hover:text-white text-sm transition-colors">
-              Retour a l'accueil
+              Retour à l'accueil
             </Link>
             <button
               type="submit"
@@ -880,6 +943,59 @@ export default function ClientProfil() {
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Historique des ecritures de paiement d'une reservation.
+ *
+ * Les remboursements sont presentes comme des lignes NEGATIVES : un
+ * remboursement est une ecriture compensatrice, jamais un encaissement.
+ */
+function HistoriquePaiements({ paiements }) {
+  if (!paiements?.length) return null;
+
+  const tries = [...paiements].sort((a, b) => {
+    const da = a.date_paiement || a.created_at || '';
+    const db = b.date_paiement || b.created_at || '';
+    return da < db ? -1 : da > db ? 1 : 0;
+  });
+
+  return (
+    <div className="border-t border-white/[0.04] pt-3">
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <ReceiptText size={12} aria-hidden="true" />
+        Détail des écritures
+      </p>
+      <ul className="space-y-1">
+        {tries.map((p) => {
+          const estRemboursement = p.type === 'remboursement';
+          const signe = montantSignePaiement(p);
+          return (
+            <li
+              key={p.id}
+              className="flex items-center gap-3 rounded-lg bg-white/[0.02] border border-white/[0.04] px-3 py-2 text-xs"
+            >
+              <span className="text-gray-500 shrink-0 w-[92px]">
+                {p.date_paiement ? formatDateTime(p.date_paiement) : '—'}
+              </span>
+              <span className={`flex-1 min-w-0 truncate ${estRemboursement ? 'text-blue-300' : 'text-white/80'}`}>
+                {estRemboursement ? 'Remboursement' : 'Encaissement'}
+                {p.transaction_id && (
+                  <span className="text-gray-600 font-mono text-[10px] ml-2">{p.transaction_id}</span>
+                )}
+              </span>
+              <span className={`shrink-0 font-medium ${signe < 0 ? 'text-blue-400' : 'text-white'}`}>
+                {signe < 0 ? `-${formatMAD(Math.abs(signe))}` : formatMAD(signe)}
+              </span>
+              <span className="shrink-0">
+                <StatutPaiement statut={p.statut_affichage || p.statut} showIcon={false} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

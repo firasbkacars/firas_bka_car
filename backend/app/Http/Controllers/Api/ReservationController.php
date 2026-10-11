@@ -25,7 +25,10 @@ class ReservationController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Reservation::with(['client', 'vehicule']);
+        // `paiements` est lisible cote client (historique des reglements) :
+        // sans eager loading, chaque reservation declenche une requete
+        // supplementaire au moment de la serialisation.
+        $query = Reservation::with(['client', 'vehicule', 'paiements']);
 
         if ($request->has('statut')) {
             $query->where('statut', $request->get('statut'));
