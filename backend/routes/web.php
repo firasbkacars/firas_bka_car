@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CmiSandboxController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -26,6 +27,18 @@ if (! function_exists('spaResponse')) {
 Route::get('/', function () {
     return spaResponse();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Page de paiement simulee (CMI sandbox)
+|--------------------------------------------------------------------------
+| Doit etre declaree AVANT le fallback SPA, sinon React sert l'index.html.
+| Le controleur renvoie 404 quand config('cmi.mode') !== 'sandbox'.
+*/
+Route::get('/paiement/sandbox/{transactionId}', [CmiSandboxController::class, 'show'])
+    ->name('cmi.sandbox.show');
+Route::post('/paiement/sandbox/{transactionId}', [CmiSandboxController::class, 'choose'])
+    ->name('cmi.sandbox.choose');
 
 Route::fallback(function () {
     if (request()->is('api/*') || request()->expectsJson()) {

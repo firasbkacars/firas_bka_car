@@ -72,6 +72,69 @@ class Reservation extends Model
         return $this->hasMany(EtatLieu::class);
     }
 
+    // --------------------------------------------------- acompte / solde ----
+
+    /**
+     * Montant reellement conserve au titre de l'acompte.
+     *
+     * Net : encaissements confirmes moins les remboursements. Un
+     * remboursement est une ecriture de type 'remboursement', jamais un
+     * encaissement positif.
+     */
+    public function getAcomptePayeAttribute(): float
+    {
+        $encaisse = (float) $this->paiements()
+            ->payes()
+            ->encaissements()
+            ->sum('montant');
+
+        $rembourse = (float) $this->paiements()
+            ->payes()
+            ->remboursements()
+            ->sum('montant');
+
+        return max(0, $encaisse - $rembourse);
+    }
+
+    public function getRembourseAttribute(): float
+    {
+        return (float) abs($this->paiements()
+            ->payes()
+            ->remboursements()
+            ->sum('montant'));
+    }
+
+    public function getSoldeRestantAttribute(): float
+    {
+        return max(0, (float) $this->prix_total - $this->acompte_paye);
+    }
+
+    public function getAcompteRestantAttribute(): float
+    {
+        return max(0, (float) $this->acompte - $this->acompte_paye);
+    }
+
+    public function getEstPayeIntegralementAttribute(): bool
+    {
+        return $this->acompte_paye >= (float) $this->acompte;
+    }
+
+    /** Dernier paiement CMI en attente, si la reservation est payable en ligne. */
+    public function getPaiementCmiEnAttenteAttribute(): ?Paiement
+    {
+        return $this->paiements()
+            ->where('methode', 'cmi')
+            ->enAttente()
+            ->latest()
+            ->first();
+    }
+
+    public function getEstPayableEnLigneAttribute(): bool
+    {
+        return ! $this->estPayeIntegralement
+            && ! in_array($this->statut, ['annulee', 'terminee'], true);
+    }
+
     public static function genererNumero()
     {
         $date = now()->format('ymd');

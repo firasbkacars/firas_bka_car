@@ -110,6 +110,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         // Client CMI payment
         Route::post('/client/payments/cmi/initialize', [CmiPaymentController::class, 'initialize']);
         Route::post('/client/payments/cmi/verify', [CmiPaymentController::class, 'verify']);
+        Route::get('/client/payments/cmi/status/{transactionId}', [CmiPaymentController::class, 'status']);
     });
 
     // Detail reservation (proprietaire ou admin)
