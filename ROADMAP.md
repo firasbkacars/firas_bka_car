@@ -116,7 +116,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | C1 | Blocage caution a la reservation | FAIT (store → caution_statut='bloquee' + CautionHistory) |
-| C2 | Verification etat lieux retour | A FAIRE |
+| C2 | Verification etat lieux retour | FAIT (restitution/retention refusee sans etat des lieux retour) |
 | C3 | Restitution partielle/complete avec motif | FAIT (updateCaution + montant_retenu + motif + remboursement) |
 | C4 | Historique des cautions sur admin | FAIT (cautionHistorique + bouton/modal admin) |
 
@@ -124,10 +124,10 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| E1 | Interface mobile-friendly pour agent | PARTIEL (table scroll + capture mobile) |
+| E1 | Interface mobile-friendly pour agent | FAIT (vue cartes mobile + table desktop sur EtatsLieux) |
 | E2 | Prise de photos (camera navigateur) | FAIT (capture="environment") |
 | E3 | Comparaison avant/apres | FAIT (comparaison API + modal admin) |
-| E4 | Rattacher a la facturation | A FAIRE |
+| E4 | Rattacher a la facturation | FAIT (caution retenue + motif affiches sur facture PDF) |
 
 ### Prolongation
 
@@ -199,7 +199,7 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api — 96 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api — 98 tests) |
 | T3 | Tests frontend (Vitest) | A FAIRE |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
@@ -242,9 +242,9 @@
 | Phase 1 (Robustesse) | 7 | 0 | 4 |
 | Phase 2 (Fonctions manquantes) | 14 | 0 | 4 (N8 ignore) |
 | Phase 3 (Frontend) | 14 | 0 | 0 |
-| Phase 4 (Metier avance) | 12 | 1 (E1) | 2 |
+| Phase 4 (Metier avance) | 15 | 0 | 0 |
 | Phase 5 (Rapports) | 12 | 0 | 0 |
 | Phase 6 (Infra) | 6 | 0 | 5 (I2 ignore) |
 | Phase 7 (Futur) | 0 | 0 | 15 |
 
-**Total : 96 taches | 73 terminees | 1 en cours | 22 a faire**
+**Total : 96 taches | 76 terminees | 0 en cours | 20 a faire**

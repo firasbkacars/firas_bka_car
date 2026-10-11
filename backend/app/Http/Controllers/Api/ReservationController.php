@@ -371,6 +371,16 @@ class ReservationController extends Controller
             return response()->json(['message' => 'Un motif n\'est pas attendu pour une restitution complete'], 422);
         }
 
+        // C2 : impossible de traiter la caution sans etat des lieux de retour.
+        if (in_array($validated['caution_statut'], ['restituee', 'retenue_partiellement'], true)) {
+            $etatRetour = $reservation->etatsLieux()->where('type', 'retour')->exists();
+            if (! $etatRetour) {
+                return response()->json([
+                    'message' => 'Etat des lieux de retour obligatoire avant de traiter la caution',
+                ], 422);
+            }
+        }
+
         $ancienStatut = $reservation->caution_statut;
         $montantRetenu = $validated['caution_statut'] === 'retenue_partiellement'
             ? (float) $validated['montant_retenu']

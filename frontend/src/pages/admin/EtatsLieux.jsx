@@ -147,7 +147,65 @@ export default function EtatsLieux() {
         ))}
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+      {/* Vue cartes — mobile (E1) */}
+      <div className="lg:hidden space-y-3">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+              <div className="h-4 bg-neutral-800 rounded animate-pulse w-32 mb-2" />
+              <div className="h-3 bg-neutral-800 rounded animate-pulse w-24" />
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl py-12 text-center text-neutral-500">
+            <ClipboardCheck size={40} className="mx-auto mb-3 text-neutral-600" />
+            <p className="text-sm">Aucun etat des lieux</p>
+          </div>
+        ) : filtered.map((e) => (
+          <div key={e.id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <span className="text-white font-mono text-xs">{e.reservation?.numero}</span>
+                <p className="text-neutral-300 text-sm">{e.reservation?.client?.nom_complet}</p>
+                <p className="text-neutral-400 text-xs">
+                  {e.reservation?.vehicule?.marque} {e.reservation?.vehicule?.modele}
+                </p>
+              </div>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                e.type === 'depart'
+                  ? 'bg-blue-500/15 text-blue-400'
+                  : 'bg-green-500/15 text-green-400'
+              }`}>
+                {e.type === 'depart' ? 'Depart' : 'Retour'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-800">
+              <div className="flex items-center gap-3 text-xs text-neutral-500">
+                <span>{e.photos?.length || 0} photo(s)</span>
+                <span>{new Date(e.created_at).toLocaleDateString('fr-FR')}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => openComparison(e.reservation_id)}
+                  className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                  disabled={compareLoading}
+                >
+                  <GitCompare size={16} />
+                </button>
+                <button
+                  onClick={() => setSelectedEtat(e)}
+                  className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                >
+                  <Eye size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Vue table — desktop (E1) */}
+      <div className="hidden lg:block bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>

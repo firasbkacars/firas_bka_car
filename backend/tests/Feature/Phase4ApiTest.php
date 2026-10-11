@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CautionHistory;
 use App\Models\Client;
+use App\Models\EtatLieu;
 use App\Models\Paiement;
 use App\Models\Reservation;
 use App\Models\User;
@@ -71,6 +72,17 @@ class Phase4ApiTest extends TestCase
         ], $overrides));
     }
 
+    private function createEtatRetour(Reservation $reservation, User $agent): EtatLieu
+    {
+        return EtatLieu::create([
+            'reservation_id' => $reservation->id,
+            'type' => 'retour',
+            'photos' => ['retour-1.jpg'],
+            'notes' => 'Vehicule rendu sans dommage',
+            'agent_id' => $agent->id,
+        ]);
+    }
+
     // ------------------------------------------------ C1 : caution bloquee --
 
     public function test_c1_caution_bloquee_a_la_reservation(): void
@@ -97,6 +109,30 @@ class Phase4ApiTest extends TestCase
         $this->assertSame('bloquee', $history->nouveau_statut);
     }
 
+    // ------------------------------------------- C2 : etat des lieux retour --
+
+    public function test_c2_caution_bloquee_sans_etat_retour(): void
+    {
+        $admin = $this->createAdmin();
+        $client = $this->createClient();
+        $vehicule = $this->createVehicule();
+        $reservation = $this->createReservation($client, $vehicule);
+
+        $this->actingAs($admin, 'sanctum')
+            ->putJson("/api/reservations/{$reservation->id}/caution", [
+                'caution_statut' => 'restituee',
+            ])->assertStatus(422);
+
+        $this->actingAs($admin, 'sanctum')
+            ->putJson("/api/reservations/{$reservation->id}/caution", [
+                'caution_statut' => 'retenue_partiellement',
+                'montant_retenu' => 500,
+                'motif_rejet_caution' => 'Rayure',
+            ])->assertStatus(422);
+
+        $this->assertSame('bloquee', $reservation->fresh()->caution_statut);
+    }
+
     // ------------------------------------------- C3 : restitution caution --
 
     public function test_c3_restitution_complete_caution(): void
@@ -105,6 +141,7 @@ class Phase4ApiTest extends TestCase
         $client = $this->createClient();
         $vehicule = $this->createVehicule();
         $reservation = $this->createReservation($client, $vehicule);
+        $this->createEtatRetour($reservation, $admin);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->putJson("/api/reservations/{$reservation->id}/caution", [
@@ -127,6 +164,7 @@ class Phase4ApiTest extends TestCase
         $client = $this->createClient();
         $vehicule = $this->createVehicule();
         $reservation = $this->createReservation($client, $vehicule);
+        $this->createEtatRetour($reservation, $admin);
 
         // Sans motif -> 422
         $this->actingAs($admin, 'sanctum')
@@ -156,6 +194,7 @@ class Phase4ApiTest extends TestCase
         $client = $this->createClient();
         $vehicule = $this->createVehicule();
         $reservation = $this->createReservation($client, $vehicule);
+        $this->createEtatRetour($reservation, $admin);
 
         $this->actingAs($admin, 'sanctum')
             ->putJson("/api/reservations/{$reservation->id}/caution", [
@@ -168,6 +207,31 @@ class Phase4ApiTest extends TestCase
         $response->assertOk();
         $this->assertNotEmpty($response->json());
         $this->assertSame('restituee', $response->json('0.nouveau_statut'));
+    }
+
+    // ------------------------------------------------- E4 : facturation --
+
+    public function test_e4_facture_avec_caution_retenue(): void
+    {
+        $admin = $this->createAdmin();
+        $client = $this->createClient();
+        $vehicule = $this->createVehicule();
+        $reservation = $this->createReservation($client, $vehicule);
+        $this->createEtatRetour($reservation, $admin);
+
+        $this->actingAs($admin, 'sanctum')
+            ->putJson("/api/reservations/{$reservation->id}/caution", [
+                'caution_statut' => 'retenue_partiellement',
+                'montant_retenu' => 500,
+                'motif_rejet_caution' => 'Rayure portiere',
+            ])->assertOk();
+
+        $response = $this->actingAs($client, 'sanctum')
+            ->get("/api/client/reservations/{$reservation->id}/facture");
+
+        $response->assertOk();
+        $this->assertStringContainsString('pdf', $response->headers->get('content-type'));
+        $this->assertEqualsWithDelta(500, $reservation->fresh()->montant_retenu_caution, 0.01);
     }
 
     // ------------------------------------------------- PR1 : prolongation --

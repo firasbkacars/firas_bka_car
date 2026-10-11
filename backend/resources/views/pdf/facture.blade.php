@@ -163,6 +163,31 @@
                     <td style="text-align: right; color: #2563eb;">-{{ number_format($reservation->rembourse, 2, ',', ' ') }} DH</td>
                 </tr>
                 @endif
+                @if ((float) $reservation->montant_caution > 0)
+                <tr>
+                    <td style="color: #666;">Caution (remboursable)</td>
+                    <td style="text-align: right;">{{ number_format($reservation->montant_caution, 2, ',', ' ') }} DH</td>
+                </tr>
+                @endif
+                @if ($reservation->caution_statut === 'retenue_partiellement' && (float) $reservation->montant_retenu_caution > 0)
+                <tr>
+                    <td style="color: #666;">Caution retenue (dommages)</td>
+                    <td style="text-align: right; color: #d97706; font-weight: bold;">
+                        {{ number_format($reservation->montant_retenu_caution, 2, ',', ' ') }} DH
+                    </td>
+                </tr>
+                @elseif ($reservation->caution_statut === 'restituee')
+                <tr>
+                    <td style="color: #666;">Caution</td>
+                    <td style="text-align: right; color: #16a34a;">Restituee integralement</td>
+                </tr>
+                @endif
+                @if ($reservation->motif_rejet_caution)
+                <tr>
+                    <td style="color: #666;">Motif retenue caution</td>
+                    <td style="text-align: right; color: #666;">{{ $reservation->motif_rejet_caution }}</td>
+                </tr>
+                @endif
                 <tr>
                     <td style="color: #666;">Solde restant</td>
                     <td style="text-align: right; font-weight: bold;">
