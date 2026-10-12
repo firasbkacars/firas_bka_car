@@ -6,7 +6,7 @@
 
 | ID | Priorite | Description | Fichiers concerns | Statut |
 |----|----------|-------------|-------------------|--------|
-| S1 | CRITIQUE | Supprimer `.env` du git, rotater APP_KEY, ajouter a `.gitignore` | `backend/.env`, `.gitignore` | FAIT (.env non tracke, gitignore OK; APP_KEY a rotater en prod) |
+| S1 | CRITIQUE | Supprimer `.env` du git, rotater APP_KEY, ajouter a `.gitignore` | `backend/.env`, `.gitignore` | FAIT (.env non tracke, gitignore OK; APP_KEY rotatee en prod le 2026-10-13) |
 | S2 | CRITIQUE | Ajouter middleware admin sur toutes les routes admin | `backend/routes/api.php`, `AdminMiddleware` | FAIT |
 | S3 | CRITIQUE | Corriger race condition reservation (double booking) | `ReservationController@store` | FAIT (DB::transaction + lockForUpdate + conflit dates) |
 | S4 | CRITIQUE | Securiser endpoint `validerPermis` (admin uniquement) | `ClientAuthController`, routes | FAIT (groupe admin) |
