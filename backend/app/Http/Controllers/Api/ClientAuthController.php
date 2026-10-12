@@ -20,6 +20,9 @@ class ClientAuthController extends Controller
 
     private const LOCKOUT_MINUTES = 15;
 
+    /** A4 : duree de vie d'un token client. */
+    public const TOKEN_TTL_HOURS = 24;
+
     public function register(RegisterClientRequest $request)
     {
         $validated = $request->validated();
@@ -33,7 +36,7 @@ class ClientAuthController extends Controller
             'adresse' => $validated['adresse'] ?? null,
         ]);
 
-        $token = $client->createToken('client-token')->plainTextToken;
+        $token = $client->createToken('client-token', ['*'], now()->addHours(self::TOKEN_TTL_HOURS))->plainTextToken;
 
         return response()->json([
             'client' => $client,
@@ -89,7 +92,7 @@ class ClientAuthController extends Controller
 
         Cache::forget($attemptsKey);
 
-        $token = $client->createToken('client-token')->plainTextToken;
+        $token = $client->createToken('client-token', ['*'], now()->addHours(self::TOKEN_TTL_HOURS))->plainTextToken;
 
         Log::info('Client login successful', [
             'client_id' => $client->id,
@@ -110,7 +113,7 @@ class ClientAuthController extends Controller
             $token->delete();
         }
 
-        return response()->json(['message' => 'Déconnecté']);
+        return response()->json(['message' => 'DÃ©connectÃ©']);
     }
 
     public function profile(Request $request)
@@ -126,7 +129,7 @@ class ClientAuthController extends Controller
             'nom_complet' => 'sometimes|string|max:255|min:2',
             'telephone' => 'sometimes|string|regex:/^(\+212|0)[5-7]\d{8}$/',
             'email' => 'sometimes|email:rfc|max:255|unique:clients,email,'.$client->id,
-            'cin' => 'nullable|string|regex:/^[A-Z]{2}\d{6}$/|max:20',
+            'cin' => 'nullable|string|regex:/^[A-Z]{1,2}\d{4,6}$/|max:20',
             'adresse' => 'nullable|string|max:255',
             'date_expiration_permis' => 'nullable|date',
         ]);

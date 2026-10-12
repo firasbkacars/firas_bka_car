@@ -39,6 +39,7 @@ return [
     | token client et /client/* recoit un App\Models\User au lieu d'un
     | App\Models\Client.
     |
+    */
 
     'guard' => [],
 
@@ -50,6 +51,10 @@ return [
     | This value controls the number of minutes until an issued token will be
     | considered expired. This will override any values set in the token's
     | "expires_at" attribute, but first-party sessions are not affected.
+    |
+    | Filet de securite global : chaque token porte en plus sa propre
+    | expiration (8h admin, 24h client), voir AuthController et
+    | ClientAuthController.
     |
     */
 

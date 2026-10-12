@@ -150,11 +150,32 @@ class DashboardController extends Controller
             ->orderBy('date_prevue', 'asc')
             ->get();
 
+        // G1/G2 : contrats vehicules expires ou arrivant a echeance.
+        // Tri par la date la plus proche, fait en PHP : LEAST() n'existe
+        // pas sur SQLite (tests) et ignore les NULL sur MySQL.
+        $parEcheance = fn ($v) => min(
+            $v->date_expiration_assurance?->getTimestamp() ?? PHP_INT_MAX,
+            $v->date_expiration_carte_grise?->getTimestamp() ?? PHP_INT_MAX,
+        );
+
+        $contratsExpires = Vehicule::contratsExpires()
+            ->get()
+            ->sortBy($parEcheance)
+            ->values();
+
+        $contratsExpirants = Vehicule::contratsValides()
+            ->contratsEcheance(30)
+            ->get()
+            ->sortBy($parEcheance)
+            ->values();
+
         return response()->json([
             'retours_jour' => $retoursAujourdhui,
             'maintenance' => $vehiculesMaintenance,
             'maintenances_a_venir' => $maintenancesAVenir,
             'maintenances_en_retard' => $maintenancesEnRetard,
+            'contrats_expires' => $contratsExpires,
+            'contrats_expirants' => $contratsExpirants,
         ]);
     }
 

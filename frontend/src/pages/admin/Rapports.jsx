@@ -25,7 +25,7 @@ export default function Rapports() {
       const [statsRes, resRes, vehRes, occRes, synthRes, rembRes, prevRes] = await Promise.all([
         api.get('/dashboard/stats'),
         api.get('/reservations'),
-        api.get('/vehicules'),
+        api.get('/vehicules-admin'),
         api.get('/dashboard/taux-occupation'),
         api.get('/rapports/synthese'),
         api.get('/rapports/remboursements'),

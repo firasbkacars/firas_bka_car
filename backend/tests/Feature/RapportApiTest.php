@@ -20,6 +20,7 @@ class RapportApiTest extends TestCase
             'name' => 'Admin',
             'email' => 'admin@firasbkacar.com',
             'password' => 'password',
+            'role' => User::ROLE_ADMIN,
         ]);
     }
 

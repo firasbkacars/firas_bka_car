@@ -51,3 +51,20 @@ export function formatDuration(jours) {
   const n = Number(jours) || 0;
   return `${formatNumber(n)} jour${n > 1 ? 's' : ''}`;
 }
+
+/** Jours restants avant echeance (negatif = deja expire). */
+export function joursRestants(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - today.getTime()) / 86400000);
+}
+
+/** Un contrat non renseigne n'est jamais considere expire. */
+export function contratExpire(value) {
+  const j = joursRestants(value);
+  return j !== null && j < 0;
+}

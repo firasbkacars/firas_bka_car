@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Vehicule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class VehiculeController extends Controller
@@ -12,6 +14,13 @@ class VehiculeController extends Controller
     public function index(Request $request)
     {
         $query = Vehicule::query()->with('agence:id,nom,ville,active');
+
+        // G1/G2 : un vehicule dont l'assurance ou la carte grise est
+        // expiree n'est pas louable. L'admin garde la vue complete pour
+        // pouvoir renouveler le contrat (sa liste pointe aussi sur /vehicules).
+        if (! Auth::guard('sanctum')->user() instanceof User) {
+            $query->contratsValides();
+        }
 
         if ($request->has('disponibles')) {
             $query->disponibles();
@@ -98,7 +107,8 @@ class VehiculeController extends Controller
 
         return response()->json([
             'vehicule_id' => $id,
-            'disponible' => $vehicule->statut === 'disponible',
+            'disponible' => $vehicule->statut === 'disponible' && ! $vehicule->contratExpire(),
+            'contrat_expire' => $vehicule->contratExpire(),
             'reservations' => $reservations,
         ]);
     }
@@ -118,6 +128,8 @@ class VehiculeController extends Controller
             'kilometrage' => 'nullable|integer|min:0',
             'prix_jour' => 'required|numeric|min:0',
             'montant_caution' => 'nullable|numeric|min:0',
+            'date_expiration_assurance' => 'nullable|date',
+            'date_expiration_carte_grise' => 'nullable|date',
             'statut' => 'in:disponible,en_location,louee,maintenance',
             'agence_id' => 'nullable|integer|exists:agences,id',
             'photos' => 'nullable|array',
@@ -147,6 +159,8 @@ class VehiculeController extends Controller
             'kilometrage' => 'nullable|integer|min:0',
             'prix_jour' => 'sometimes|numeric|min:0',
             'montant_caution' => 'sometimes|numeric|min:0',
+            'date_expiration_assurance' => 'sometimes|nullable|date',
+            'date_expiration_carte_grise' => 'sometimes|nullable|date',
             'statut' => 'sometimes|in:disponible,en_location,louee,maintenance',
             'agence_id' => 'nullable|integer|exists:agences,id',
             'photos' => 'nullable|array',
@@ -173,6 +187,6 @@ class VehiculeController extends Controller
 
         $vehicule->delete();
 
-        return response()->json(['message' => 'Véhicule supprimé']);
+        return response()->json(['message' => 'VÃ©hicule supprimÃ©']);
     }
 }

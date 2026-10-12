@@ -12,3 +12,4 @@ Artisan::command('inspire', function () {
 // ces envois ne partent jamais en production.
 Schedule::command('reservations:reminders')->dailyAt('08:00')->withoutOverlapping();
 Schedule::command('permis:verifier')->dailyAt('07:00')->withoutOverlapping();
+Schedule::command('vehicules:contrats')->dailyAt('06:30')->withoutOverlapping();

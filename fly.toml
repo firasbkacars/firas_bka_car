@@ -36,6 +36,12 @@ primary_region = 'ams'
   MEDIA_DISK = 'public'
   PHP_CLI_SERVER_WORKERS = '4'
 
+  # M1 : monitoring des erreurs (Sentry). Le DSN est un secret, pas une
+  # variable de config : `fly secrets set SENTRY_DSN=https://xxx@o0.ingest.sentry.io/0`
+  # Sans DSN, le SDK est inactif et le comportement de l'app est inchange.
+  SENTRY_ENVIRONMENT = 'production'
+  SENTRY_TRACES_SAMPLE_RATE = '0.1'
+
   # Paiement carte.
   # 'sandbox' : passerelle simulee, aucune donnee bancaire reelle, aucun
   # contrat requis. Permet de valider tout le parcours (initiation, page

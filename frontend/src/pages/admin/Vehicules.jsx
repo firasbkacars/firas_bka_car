@@ -11,9 +11,32 @@ import {
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { contratExpire, joursRestants } from '../../lib/formatters';
 
 const PHOTO_LIMIT = 8;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/** Le backend serialise les dates en 'YYYY-MM-DD 00:00:00'. */
+function toInputDate(value) {
+  if (!value) return '';
+  const s = String(value);
+  return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : '';
+}
+
+function contratInfo(v) {
+  if (contratExpire(v.date_expiration_assurance) || contratExpire(v.date_expiration_carte_grise)) {
+    return { className: 'bg-red-500/15 text-red-400', label: 'Contrat expiré' };
+  }
+
+  const echeances = [joursRestants(v.date_expiration_assurance), joursRestants(v.date_expiration_carte_grise)]
+    .filter((j) => j !== null && j >= 0);
+
+  if (echeances.length > 0 && Math.min(...echeances) <= 30) {
+    return { className: 'bg-orange-500/15 text-orange-400', label: `Contrat J-${Math.min(...echeances)}` };
+  }
+
+  return null;
+}
 
 function VehicleImage({ src, alt, className = 'w-12 h-8', size = 16 }) {
   const [error, setError] = useState(false);
@@ -75,6 +98,8 @@ export default function AdminVehicules() {
     kilometrage: 0,
     prix_jour: 0,
     montant_caution: 0,
+    date_expiration_assurance: '',
+    date_expiration_carte_grise: '',
     statut: 'disponible',
     agence_id: '',
     populaire: false,
@@ -96,7 +121,7 @@ export default function AdminVehicules() {
 
   const fetchVehicules = async () => {
     try {
-      const { data } = await api.get('/vehicules');
+      const { data } = await api.get('/vehicules-admin');
       setVehicules(data.data || data.vehicules || []);
     } catch (err) {
       console.error(err);
@@ -121,6 +146,8 @@ export default function AdminVehicules() {
         kilometrage: v.kilometrage || 0,
         prix_jour: v.prix_jour,
         montant_caution: v.montant_caution || 0,
+        date_expiration_assurance: toInputDate(v.date_expiration_assurance),
+        date_expiration_carte_grise: toInputDate(v.date_expiration_carte_grise),
         statut: v.statut,
         agence_id: v.agence_id || '',
         populaire: v.populaire,
@@ -137,6 +164,7 @@ export default function AdminVehicules() {
         marque: '', modele: '', description: '', categorie: 'Berline', annee: 2024,
         transmission: 'automatique', carburant: 'essence', places: 5,
         puissance: '', kilometrage: 0, prix_jour: 0, montant_caution: 0, statut: 'disponible',
+        date_expiration_assurance: '', date_expiration_carte_grise: '',
         agence_id: agences.find((a) => a.active)?.id || '', populaire: false,
       });
       setPhotos([]);
@@ -365,6 +393,7 @@ export default function AdminVehicules() {
                 </tr>
               ) : vehicules.map((v) => {
                 const badge = statutBadge(v.statut);
+                const contrat = contratInfo(v);
                 return (
                   <tr key={v.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition">
                     <td className="py-3 px-5">
@@ -392,9 +421,16 @@ export default function AdminVehicules() {
                     <td className="py-3 px-5 text-neutral-300">{v.annee}</td>
                     <td className="py-3 px-5 text-red-500 font-semibold">{v.prix_jour} DH</td>
                     <td className="py-3 px-5">
-                      <span className={`${badge.className} px-2.5 py-1 rounded-full text-xs font-medium`}>
-                        {badge.label}
-                      </span>
+                      <div className="flex flex-col items-start gap-1">
+                        <span className={`${badge.className} px-2.5 py-1 rounded-full text-xs font-medium`}>
+                          {badge.label}
+                        </span>
+                        {contrat && (
+                          <span className={`${contrat.className} px-2.5 py-1 rounded-full text-xs font-medium`}>
+                            {contrat.label}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -529,6 +565,34 @@ export default function AdminVehicules() {
                 </select>
                 <p className="text-neutral-600 text-xs mt-1">
                   L'agence détermine le lieu de prise en charge et le filtre « Agence » du catalogue.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-neutral-400 text-xs mb-1 block">Contrats</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-neutral-500 text-xs mb-1 block">Expiration assurance</label>
+                    <input
+                      type="date"
+                      value={form.date_expiration_assurance}
+                      onChange={(e) => setForm({ ...form, date_expiration_assurance: e.target.value })}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-neutral-500 text-xs mb-1 block">Expiration carte grise</label>
+                    <input
+                      type="date"
+                      value={form.date_expiration_carte_grise}
+                      onChange={(e) => setForm({ ...form, date_expiration_carte_grise: e.target.value })}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                    />
+                  </div>
+                </div>
+                <p className="text-neutral-600 text-xs mt-1">
+                  Un contrat expire retire le véhicule du catalogue public et bloque les réservations.
+                  Un rappel est envoyé 30 jours avant l'échéance.
                 </p>
               </div>
 

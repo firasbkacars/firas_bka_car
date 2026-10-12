@@ -63,7 +63,7 @@ export default function AdminMaintenances() {
 
   const fetchVehicules = async () => {
     try {
-      const { data } = await api.get('/vehicules');
+      const { data } = await api.get('/vehicules-admin');
       setVehicules(data.vehicules || data.data || data || []);
     } catch (err) {
       console.error(err);

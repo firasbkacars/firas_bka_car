@@ -12,6 +12,7 @@ import {
   CalendarOff,
   Inbox,
   ArrowUpRight,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -25,6 +26,7 @@ import {
   Cell,
 } from 'recharts';
 import api from '../../services/api';
+import { formatDate, joursRestants } from '../../lib/formatters';
 
 const PIE_COLORS = {
   disponible: '#22c55e',
@@ -41,6 +43,20 @@ const PIE_LABELS = {
 };
 
 const MOIS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+/** Resume texte des contrats vehicule (assurance / carte grise). */
+function contratsTexte(v) {
+  const parts = [];
+  const ajouter = (libelle, date) => {
+    if (!date) return;
+    const j = joursRestants(date);
+    const statut = j < 0 ? '(expiree)' : j === 0 ? "(aujourd'hui)" : `(J-${j})`;
+    parts.push(`${libelle} ${formatDate(date)} ${statut}`);
+  };
+  ajouter('Assurance', v.date_expiration_assurance);
+  ajouter('Carte grise', v.date_expiration_carte_grise);
+  return parts.join(' · ');
+}
 
 function SkeletonCard() {
   return (
@@ -454,7 +470,44 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                {!rappels?.retours_jour?.length && !rappels?.maintenance?.length && (
+                {rappels?.contrats_expires?.length > 0 &&
+                  rappels.contrats_expires.map((v, i) => (
+                    <div
+                      key={`contrate-${i}`}
+                      className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-3"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                        <ShieldAlert size={16} className="text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm">
+                          Contrat expire : {v.marque} {v.modele}
+                        </p>
+                        <p className="text-neutral-500 text-xs">{contratsTexte(v)}</p>
+                      </div>
+                    </div>
+                  ))}
+                {rappels?.contrats_expirants?.length > 0 &&
+                  rappels.contrats_expirants.map((v, i) => (
+                    <div
+                      key={`contratp-${i}`}
+                      className="flex items-center gap-3 bg-orange-500/10 border border-orange-500/20 rounded-xl p-3"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+                        <AlertTriangle size={16} className="text-orange-400" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm">
+                          Contrat a renouveler : {v.marque} {v.modele}
+                        </p>
+                        <p className="text-neutral-500 text-xs">{contratsTexte(v)}</p>
+                      </div>
+                    </div>
+                  ))}
+                {!rappels?.retours_jour?.length &&
+                  !rappels?.maintenance?.length &&
+                  !rappels?.contrats_expires?.length &&
+                  !rappels?.contrats_expirants?.length && (
                   <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
                     <AlertTriangle size={36} className="mb-3 text-neutral-600" />
                     <p className="text-sm">Aucune alerte pour le moment</p>

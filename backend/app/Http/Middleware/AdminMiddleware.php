@@ -13,7 +13,7 @@ class AdminMiddleware
     {
         $user = $request->user();
 
-        if (! $user || ! $user instanceof User) {
+        if (! $user instanceof User || ! $user->isAdmin()) {
             return response()->json([
                 'message' => 'Acces non autorise. Droits admin requis.',
             ], 403);

@@ -153,6 +153,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/rapports/export-pdf', [RapportController::class, 'exportPdf']);
 
     // Admin CRUD vehicules
+    // L'admin a besoin de la liste complete (contrats expires compris) :
+    // la route publique /vehicules masque les vehicules non louables.
+    Route::get('/vehicules-admin', [VehiculeController::class, 'index']);
     Route::apiResource('vehicules-admin', VehiculeController::class)->except(['index', 'show']);
     Route::post('/vehicules-admin/{id}/photos', [VehiculePhotoController::class, 'upload']);
     Route::delete('/vehicules-admin/{id}/photos', [VehiculePhotoController::class, 'delete']);

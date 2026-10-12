@@ -99,7 +99,7 @@ export default function ClientRegister() {
 
   const cinError = useMemo(() => {
     if (!form.cin) return '';
-    if (!/^[A-Z]{2}\d{6}$/.test(form.cin)) return 'Le CIN doit être au format AB123456 (2 lettres majuscules + 6 chiffres)';
+    if (!/^[A-Z]{1,2}\d{4,6}$/.test(form.cin)) return 'Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456)';
     return '';
   }, [form.cin]);
 

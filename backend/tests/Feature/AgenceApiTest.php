@@ -46,6 +46,7 @@ class AgenceApiTest extends TestCase
             'name' => 'Admin',
             'email' => 'admin@firasbkacar.com',
             'password' => 'password',
+            'role' => User::ROLE_ADMIN,
         ]);
     }
 
@@ -77,11 +78,11 @@ class AgenceApiTest extends TestCase
         $this->assertDatabaseHas('agences', ['nom' => 'FIRAS BKA CAR Rabat', 'ville' => 'Rabat']);
 
         $update = $this->actingAs($admin, 'sanctum')->putJson("/api/agences/{$create->json('id')}", [
-            'ville' => 'Salé',
+            'ville' => 'SalÃ©',
         ]);
 
         $update->assertOk();
-        $this->assertDatabaseHas('agences', ['id' => $create->json('id'), 'ville' => 'Salé']);
+        $this->assertDatabaseHas('agences', ['id' => $create->json('id'), 'ville' => 'SalÃ©']);
     }
 
     public function test_client_cannot_manage_agences(): void

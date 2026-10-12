@@ -20,7 +20,7 @@ class ReservationApiTest extends TestCase
     {
         return Vehicule::create(array_merge([
             'marque' => 'BMW',
-            'modele' => 'Série 3',
+            'modele' => 'SÃ©rie 3',
             'categorie' => 'Berline',
             'annee' => 2023,
             'transmission' => 'automatique',
@@ -51,6 +51,7 @@ class ReservationApiTest extends TestCase
             'name' => 'Admin',
             'email' => 'admin@firasbkacar.com',
             'password' => 'password',
+            'role' => User::ROLE_ADMIN,
         ]);
     }
 

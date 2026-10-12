@@ -36,6 +36,6 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8080
 
 # Run migrations first, then start the queue worker, the scheduler and the web server.
-# schedule:work execute reservations:reminders et permis:verifier chaque minute
+# schedule:work execute reservations:reminders, permis:verifier et vehicules:contrats chaque minute
 # (les taches sont cadencees via routes/console.php).
 CMD sh -c "php artisan storage:link && php artisan migrate --force && (php artisan queue:work --sleep=3 --tries=3 >/proc/1/fd/1 2>/proc/1/fd/2 &) && (php artisan schedule:work >/proc/1/fd/1 2>/proc/1/fd/2 &) && exec php artisan serve --host=0.0.0.0 --port=8080"

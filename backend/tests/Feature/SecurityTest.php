@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Vehicule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
 class SecurityTest extends TestCase
@@ -32,6 +33,7 @@ class SecurityTest extends TestCase
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => 'password',
+            'role' => User::ROLE_ADMIN,
         ]);
     }
 
@@ -229,5 +231,83 @@ class SecurityTest extends TestCase
 
         $response->assertOk();
         $this->assertCount(1, $response->json());
+    }
+
+    private function createEmploye(array $overrides = []): User
+    {
+        return User::create(array_merge([
+            'name' => 'Employe',
+            'email' => 'employe@example.com',
+            'password' => 'password',
+            'role' => User::ROLE_EMPLOYE,
+        ], $overrides));
+    }
+
+    public function test_employe_cannot_access_admin_routes(): void
+    {
+        $employe = $this->createEmploye();
+
+        $this->actingAs($employe, 'sanctum')->getJson('/api/admin/user')->assertForbidden();
+        $this->actingAs($employe, 'sanctum')->getJson('/api/dashboard/stats')->assertForbidden();
+    }
+
+    public function test_admin_can_access_admin_routes(): void
+    {
+        $admin = $this->createAdmin();
+
+        $this->actingAs($admin, 'sanctum')->getJson('/api/admin/user')->assertOk();
+    }
+
+    public function test_client_cannot_access_admin_routes(): void
+    {
+        $client = $this->createClient();
+
+        $this->actingAs($client, 'sanctum')->getJson('/api/admin/user')->assertForbidden();
+    }
+
+    public function test_admin_token_is_issued_with_eight_hours_expiry(): void
+    {
+        $this->createAdmin();
+
+        $response = $this->postJson('/api/admin/login', [
+            'email' => 'admin@example.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertOk();
+
+        $token = PersonalAccessToken::sole();
+        $this->assertEqualsWithDelta(
+            now()->addHours(8)->getTimestamp(),
+            $token->expires_at->getTimestamp(),
+            5
+        );
+    }
+
+    public function test_client_token_is_issued_with_twenty_four_hours_expiry(): void
+    {
+        $client = $this->createClient();
+
+        $response = $this->postJson('/api/client/login', [
+            'email' => 'secu@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertOk();
+
+        $token = PersonalAccessToken::sole();
+        $this->assertEqualsWithDelta(
+            now()->addHours(24)->getTimestamp(),
+            $token->expires_at->getTimestamp(),
+            5
+        );
+    }
+
+    public function test_expired_token_is_rejected(): void
+    {
+        $admin = $this->createAdmin();
+        $plain = $admin->createToken('admin-token', ['*'], now()->subMinute())->plainTextToken;
+
+        $this->withToken($plain)->getJson('/api/admin/user')->assertUnauthorized();
     }
 }

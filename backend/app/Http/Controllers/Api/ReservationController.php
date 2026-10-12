@@ -78,6 +78,12 @@ class ReservationController extends Controller
                 abort(422, 'Vehicule non disponible');
             }
 
+            // G1/G2 : la date d'expiration fait foi, meme si la commande
+            // quotidienne n'a pas encore alerte l'administrateur.
+            if ($vehicule->contratExpire()) {
+                abort(422, 'Vehicule non louable : assurance ou carte grise expiree');
+            }
+
             $dateDebut = Carbon::parse($validated['date_debut']);
             $dateFin = Carbon::parse($validated['date_fin']);
             $jours = (int) $dateDebut->diffInDays($dateFin);

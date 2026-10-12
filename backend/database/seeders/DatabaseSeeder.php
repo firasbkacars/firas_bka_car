@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Admin',
             'email' => 'admin@firasbkacar.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('htmlcss@jr574'),
+            'role' => User::ROLE_ADMIN,
         ]);
 
         $this->call(AgenceSeeder::class);

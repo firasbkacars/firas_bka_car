@@ -18,7 +18,7 @@ class RegisterClientRequest extends FormRequest
             'email' => ['required', 'email:rfc', 'max:255', 'unique:clients,email'],
             'telephone' => ['required', 'string', 'regex:/^(\+212|0)[5-7]\d{8}$/', 'unique:clients,telephone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'cin' => ['nullable', 'string', 'regex:/^[A-Z]{2}\d{6}$/', 'max:20'],
+            'cin' => ['nullable', 'string', 'regex:/^[A-Z]{1,2}\d{4,6}$/', 'max:20'],
             'adresse' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -37,7 +37,7 @@ class RegisterClientRequest extends FormRequest
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
-            'cin.regex' => 'Le CIN doit être au format AB123456 (2 lettres suivies de 6 chiffres).',
+            'cin.regex' => 'Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456).',
         ];
     }
 }

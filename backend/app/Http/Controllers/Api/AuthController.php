@@ -16,6 +16,9 @@ class AuthController extends Controller
 
     private const LOCKOUT_MINUTES = 15;
 
+    /** A4 : duree de vie d'un token admin. */
+    public const TOKEN_TTL_HOURS = 8;
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -67,7 +70,7 @@ class AuthController extends Controller
         Cache::forget($attemptsKey);
 
         $user = User::where('email', $email)->first();
-        $token = $user->createToken('admin-token')->plainTextToken;
+        $token = $user->createToken('admin-token', ['*'], now()->addHours(self::TOKEN_TTL_HOURS))->plainTextToken;
 
         Log::info('Admin login successful', [
             'user_id' => $user->id,

@@ -24,9 +24,9 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | A1 | Middleware admin (verifier `instanceof User` vs `Client`) | FAIT |
-| A2 | Roles & permissions (admin, employe, client) | A FAIRE (admin vs client via User/Client) |
+| A2 | Roles & permissions (admin, employe, client) | FAIT (colonne users.role, AdminMiddleware verifie isAdmin, backfill admin) |
 | A3 | Verification email a l'inscription client | FAIT |
-| A4 | Token expiration Sanctum (ex: 24h client, 8h admin) | A FAIRE |
+| A4 | Token expiration Sanctum (ex: 24h client, 8h admin) | FAIT (expires_at par token + filet global 1440 min) |
 | A5 | Journalisation des tentatives de connexion echouees | FAIT |
 | A6 | Blocage apres 5 tentatives echouees | FAIT (5 essais / 15 min, admin + client) |
 
@@ -190,7 +190,7 @@
 
 | ID | Description | Statut |
 |----|-------------|--------|
-| M1 | Logging des erreurs (Sentry/Bugsnag) | A FAIRE |
+| M1 | Logging des erreurs (Sentry/Bugsnag) | FAIT (sentry/sentry-laravel + Integration::handles + SENTRY_DSN) |
 | M2 | Monitoring performance (New Relic) | A FAIRE |
 | M3 | Alertes emails serveur | A FAIRE |
 
@@ -199,8 +199,8 @@
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api — 98 tests) |
-| T3 | Tests frontend (Vitest) | A FAIRE |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api, ContratVehicule — 113 tests) |
+| T3 | Tests frontend (Vitest) | FAIT (Vitest + Testing Library, 28 tests, job CI) |
 | T4 | Tests E2E (Playwright) | A FAIRE |
 
 ---
@@ -209,28 +209,28 @@
 
 ### Enrichissement
 
-| ID | Description | Priorite |
-|----|-------------|----------|
-| V1 | Programme de fidelite ameliore (paliers visuels) | MOYEN |
-| V2 | Systeme de parrainage | MOYEN |
-| V3 | Paiement en ligne reel (CMI/Stripe) | HAUT |
-| V4 | Application mobile (React Native) | BAS |
-| V5 | Multi-langue (FR/AR/EN) | BAS |
-| V6 | Geolocalisation vehicules | BAS |
-| V7 | Integration GPS temps reel | BAS |
-| V8 | Chat en direct (pas juste WhatsApp) | MOYEN |
-| V9 | Systeme d'avis ameliore (photos + moderation) | MOYEN |
-| V10 | Comparateur avance avec filtres | BAS |
+| ID | Description | Priorite | Statut |
+|----|-------------|----------|--------|
+| V1 | Programme de fidelite ameliore (paliers visuels) | MOYEN | A FAIRE |
+| V2 | Systeme de parrainage | MOYEN | A FAIRE |
+| V3 | Paiement en ligne reel (CMI/Stripe) | HAUT | A FAIRE |
+| V4 | Application mobile (React Native) | BAS | A FAIRE |
+| V5 | Multi-langue (FR/AR/EN) | BAS | A FAIRE |
+| V6 | Geolocalisation vehicules | BAS | A FAIRE |
+| V7 | Integration GPS temps reel | BAS | A FAIRE |
+| V8 | Chat en direct (pas juste WhatsApp) | MOYEN | A FAIRE |
+| V9 | Systeme d'avis ameliore (photos + moderation) | MOYEN | A FAIRE |
+| V10 | Comparateur avance avec filtres | BAS | A FAIRE |
 
 ### Gestion flotte
 
-| ID | Description | Priorite |
-|----|-------------|----------|
-| G1 | Suivi assurance vehicules (expiration) | HAUT |
-| G2 | Suivi carte grise (expiration) | HAUT |
-| G3 | Planning entretien automatique | MOYEN |
-| G4 | Alertes kilometrage | BAS |
-| G5 | Gestion des contrats fournisseurs | BAS |
+| ID | Description | Priorite | Statut |
+|----|-------------|----------|--------|
+| G1 | Suivi assurance vehicules (expiration) | HAUT | FAIT (colonnes + blocage location + rappel J-30 + alertes dashboard) |
+| G2 | Suivi carte grise (expiration) | HAUT | FAIT (meme mecanisme, champs dedies admin) |
+| G3 | Planning entretien automatique | MOYEN | A FAIRE |
+| G4 | Alertes kilometrage | BAS | A FAIRE |
+| G5 | Gestion des contrats fournisseurs | BAS | A FAIRE |
 
 ---
 
@@ -239,12 +239,12 @@
 | Phase | Termines | En cours | A faire |
 |-------|----------|----------|---------|
 | Phase 0 (Securite) | 8 | 0 | 0 |
-| Phase 1 (Robustesse) | 7 | 0 | 4 |
-| Phase 2 (Fonctions manquantes) | 14 | 0 | 4 (N8 ignore) |
+| Phase 1 (Robustesse) | 10 | 1 (D3 partiel) | 0 |
+| Phase 2 (Fonctions manquantes) | 14 | 0 | 0 (N8 ignore) |
 | Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 15 | 0 | 0 |
 | Phase 5 (Rapports) | 12 | 0 | 0 |
-| Phase 6 (Infra) | 6 | 0 | 5 (I2 ignore) |
-| Phase 7 (Futur) | 0 | 0 | 15 |
+| Phase 6 (Infra) | 8 | 0 | 3 (I2 ignore) |
+| Phase 7 (Futur) | 2 | 0 | 13 |
 
-**Total : 96 taches | 76 terminees | 0 en cours | 20 a faire**
+**Total : 100 taches | 83 terminees | 1 en cours | 16 a faire** (2 taches marquees IGNORE exclues)

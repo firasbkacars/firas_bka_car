@@ -86,6 +86,7 @@ class PaymentFlowTest extends TestCase
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => 'password',
+            'role' => User::ROLE_ADMIN,
         ]);
     }
 
