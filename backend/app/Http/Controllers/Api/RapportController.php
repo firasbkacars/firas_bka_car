@@ -48,7 +48,7 @@ class RapportController extends Controller
         } else {
             $dureeMoyenne = (clone $base)
                 ->where('statut', '!=', 'annulee')
-                ->selectRaw('AVG(DATEDIFF(day, date_debut, date_fin)) as moyenne')
+                ->selectRaw('AVG(DATEDIFF(date_fin, date_debut)) as moyenne')
                 ->value('moyenne');
         }
 

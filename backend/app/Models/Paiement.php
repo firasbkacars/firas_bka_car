@@ -182,7 +182,7 @@ class Paiement extends Model
     public function getStatutAffichageAttribute(): string
     {
         if ($this->statut !== self::STATUT_PAYE) {
-            return $this->statut;
+            return (string) $this->statut;
         }
 
         $rembourse = $this->rembourse_sur;
