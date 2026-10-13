@@ -290,6 +290,10 @@ class ReservationController extends Controller
 
             $points = $fidelite->calculerPoints($client, $reservation->prix_total);
             $fidelite->ajouterPoints($client, $points);
+
+            // V2 : bonus parrain a la premiere location terminee du filleul.
+            app(\App\Services\ParrainageService::class)
+                ->recompenserPremiereLocation($client->fresh(), $fidelite);
         }
 
         return response()->json($reservation->load(['client', 'vehicule']));

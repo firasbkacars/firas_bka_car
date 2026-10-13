@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatutPaiement from '../../components/StatutPaiement';
 import { formatMAD, formatDate, formatDateTime } from '../../lib/formatters';
@@ -115,6 +115,8 @@ export default function ClientProfil() {
   const [fidelite, setFidelite] = useState(null);
   const [fideliteLoading, setFideliteLoading] = useState(true);
 
+  const [parrainage, setParrainage] = useState(null);
+
   const [cancellingId, setCancellingId] = useState(null);
   const [cancelConfirm, setCancelConfirm] = useState(null);
 
@@ -149,6 +151,7 @@ export default function ClientProfil() {
     if (!token) return;
     fetchReservations();
     fetchFidelite();
+    fetchParrainage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
@@ -173,6 +176,25 @@ export default function ClientProfil() {
       console.error(err);
     } finally {
       setFideliteLoading(false);
+    }
+  };
+
+  const fetchParrainage = async () => {
+    try {
+      const { data } = await api.get('/client/parrainage');
+      setParrainage(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const copierCode = async () => {
+    if (!parrainage?.code_parrainage) return;
+    try {
+      await navigator.clipboard.writeText(parrainage.code_parrainage);
+      showToast('Code de parrainage copié.');
+    } catch {
+      showToast('Impossible de copier le code.', 'error');
     }
   };
 
@@ -986,6 +1008,58 @@ export default function ClientProfil() {
             </div>
           ) : (
             <p className="text-gray-500 text-sm">Impossible de charger les informations de fidelite.</p>
+          )}
+        </div>
+
+        {/* V2 : parrainage */}
+        <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+          <h2 className="text-white font-semibold mb-1 flex items-center gap-2">
+            <Users size={18} className="text-[#dc2626]" />
+            Parrainage
+          </h2>
+          <p className="text-gray-400 text-sm mb-4">
+            Partagez votre code : vous gagnez 50 points par inscription et 100 points quand votre filleul termine sa première location.
+          </p>
+          {parrainage ? (
+            <>
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 font-mono text-white text-lg tracking-widest">
+                  {parrainage.code_parrainage}
+                </div>
+                <button
+                  onClick={copierCode}
+                  className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                >
+                  <Copy size={14} />
+                  Copier
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`Inscrivez-vous sur FIRAS BKA CAR avec mon code parrain ${parrainage.code_parrainage} : ${window.location.origin}/client/register`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                >
+                  <Link2 size={14} />
+                  Partager
+                </a>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white/[0.03] rounded-xl p-4 text-center">
+                  <p className="text-white font-semibold text-xl">{parrainage.nombre_filleuls}</p>
+                  <p className="text-gray-500 text-xs mt-1">Filleul(s)</p>
+                </div>
+                <div className="bg-white/[0.03] rounded-xl p-4 text-center">
+                  <p className="text-white font-semibold text-xl">{parrainage.filleuls_recompenses}</p>
+                  <p className="text-gray-500 text-xs mt-1">Première location</p>
+                </div>
+                <div className="bg-white/[0.03] rounded-xl p-4 text-center">
+                  <p className="text-[#dc2626] font-semibold text-xl">{parrainage.points_totaux}</p>
+                  <p className="text-gray-500 text-xs mt-1">Points gagnés</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-gray-500 text-sm">Chargement du code de parrainage...</p>
           )}
         </div>
 

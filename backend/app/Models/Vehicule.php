@@ -26,6 +26,10 @@ class Vehicule extends Model
         'date_expiration_carte_grise',
         'assurance_rappel_envoye_le',
         'carte_grise_rappel_envoye_le',
+        'kilometrage_alerte',
+        'km_alerte_le',
+        'latitude',
+        'longitude',
         'statut',
         'photos',
         'equipements',
@@ -43,6 +47,9 @@ class Vehicule extends Model
         'date_expiration_carte_grise' => 'date',
         'assurance_rappel_envoye_le' => 'date',
         'carte_grise_rappel_envoye_le' => 'date',
+        'km_alerte_le' => 'date',
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
     ];
 
     public function reservations()

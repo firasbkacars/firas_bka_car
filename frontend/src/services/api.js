@@ -20,6 +20,8 @@ const ADMIN_PREFIXES = [
   '/etats-lieux',
   '/whatsapp',
   '/upload',
+  '/contrats-fournisseurs',
+  '/messages-admin',
 ];
 
 // Routes ambigues : le meme chemin sert l'admin et le client.
@@ -27,7 +29,7 @@ const ADMIN_PREFIXES = [
 const ADMIN_METHOD_PATHS = [
   { path: '/reservations', methods: ['GET', 'PUT', 'DELETE', 'PATCH'] },
   { path: '/paiements', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] },
-  { path: '/avis', methods: ['GET'] },
+  { path: '/avis', methods: ['GET', 'PUT', 'PATCH', 'DELETE'] },
   { path: '/parametres', methods: ['PUT', 'PATCH'] },
   { path: '/agences', methods: ['POST', 'PUT', 'PATCH', 'DELETE'] },
 ];

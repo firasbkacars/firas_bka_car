@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "FIRAS BKA CAR",
+    "slug": "firas-bka-car",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a0a"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ma.firasbkacar.app"
+    },
+    "android": {
+      "package": "ma.firasbkacar.app"
+    }
+  }
+}

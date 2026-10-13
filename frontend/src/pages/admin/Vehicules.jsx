@@ -96,6 +96,9 @@ export default function AdminVehicules() {
     places: 5,
     puissance: '',
     kilometrage: 0,
+    kilometrage_alerte: '',
+    latitude: '',
+    longitude: '',
     prix_jour: 0,
     montant_caution: 0,
     date_expiration_assurance: '',
@@ -144,6 +147,9 @@ export default function AdminVehicules() {
         places: v.places,
         puissance: v.puissance || '',
         kilometrage: v.kilometrage || 0,
+        kilometrage_alerte: v.kilometrage_alerte ?? '',
+        latitude: v.latitude ?? '',
+        longitude: v.longitude ?? '',
         prix_jour: v.prix_jour,
         montant_caution: v.montant_caution || 0,
         date_expiration_assurance: toInputDate(v.date_expiration_assurance),
@@ -163,7 +169,8 @@ export default function AdminVehicules() {
       setForm({
         marque: '', modele: '', description: '', categorie: 'Berline', annee: 2024,
         transmission: 'automatique', carburant: 'essence', places: 5,
-        puissance: '', kilometrage: 0, prix_jour: 0, montant_caution: 0, statut: 'disponible',
+        puissance: '', kilometrage: 0, kilometrage_alerte: '', latitude: '', longitude: '',
+        prix_jour: 0, montant_caution: 0, statut: 'disponible',
         date_expiration_assurance: '', date_expiration_carte_grise: '',
         agence_id: agences.find((a) => a.active)?.id || '', populaire: false,
       });
@@ -271,6 +278,9 @@ export default function AdminVehicules() {
     const payload = {
       ...form,
       agence_id: form.agence_id === '' || form.agence_id == null ? null : Number(form.agence_id),
+      kilometrage_alerte: form.kilometrage_alerte === '' || form.kilometrage_alerte == null ? null : parseInt(form.kilometrage_alerte),
+      latitude: form.latitude === '' || form.latitude == null ? null : parseFloat(form.latitude),
+      longitude: form.longitude === '' || form.longitude == null ? null : parseFloat(form.longitude),
     };
     try {
       if (editVehicule) {
@@ -594,6 +604,44 @@ export default function AdminVehicules() {
                   Un contrat expire retire le véhicule du catalogue public et bloque les réservations.
                   Un rappel est envoyé 30 jours avant l'échéance.
                 </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-neutral-500 text-xs mb-1 block">Seuil kilométrage (alerte)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.kilometrage_alerte}
+                    onChange={(e) => setForm({ ...form, kilometrage_alerte: e.target.value })}
+                    placeholder="Ex : 100000"
+                    className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                  />
+                  <p className="text-neutral-600 text-xs mt-1">Email admin une fois le seuil atteint (G4).</p>
+                </div>
+                <div>
+                  <label className="text-neutral-500 text-xs mb-1 block">Latitude (GPS)</label>
+                  <input
+                    type="number"
+                    step="0.0000001"
+                    value={form.latitude}
+                    onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+                    placeholder="Ex : 33.5731"
+                    className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="text-neutral-500 text-xs mb-1 block">Longitude (GPS)</label>
+                  <input
+                    type="number"
+                    step="0.0000001"
+                    value={form.longitude}
+                    onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+                    placeholder="Ex : -7.5898"
+                    className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
+                  />
+                  <p className="text-neutral-600 text-xs mt-1">Affichée sur carte OpenStreetMap côté client (V6).</p>
+                </div>
               </div>
 
               {/* Photos section */}

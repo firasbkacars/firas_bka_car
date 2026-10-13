@@ -17,6 +17,8 @@ import {
   Tag,
   Building2,
   ClipboardCheck,
+  FileText,
+  MessageSquare,
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -32,6 +34,8 @@ const sidebarLinks = [
   { path: '/admin/etats-lieux', label: 'Etats des lieux', icon: ClipboardCheck },
   { path: '/admin/rapports', label: 'Rapports', icon: BarChart3 },
   { path: '/admin/avis', label: 'Avis clients', icon: Star },
+  { path: '/admin/messages', label: 'Messages', icon: MessageSquare },
+  { path: '/admin/contrats-fournisseurs', label: 'Contrats fournisseurs', icon: FileText },
   { path: '/admin/codes-promo', label: 'Codes promo', icon: Tag },
   { path: '/admin/parametres', label: 'Parametres', icon: Settings },
 ];

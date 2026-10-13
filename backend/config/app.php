@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // M2 : seuil (ms) au-dela duquel une requete est journalisee comme lente.
+    'slow_request_ms' => env('SLOW_REQUEST_MS', 500),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

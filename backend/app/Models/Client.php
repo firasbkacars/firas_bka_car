@@ -27,6 +27,9 @@ class Client extends Authenticatable
         'permis_rappel_envoye_le',
         'email_verified_at',
         'email_verification_token',
+        'code_parrainage',
+        'parrain_id',
+        'parrain_recompense',
         'statut',
         'nombre_locations',
         'points_fidelite',
@@ -45,6 +48,7 @@ class Client extends Authenticatable
             'password' => 'hashed',
             'date_expiration_permis' => 'date',
             'permis_rappel_envoye_le' => 'date',
+            'parrain_recompense' => 'boolean',
         ];
     }
 
@@ -61,6 +65,21 @@ class Client extends Authenticatable
     public function favoris()
     {
         return $this->hasMany(Favori::class);
+    }
+
+    public function parrain()
+    {
+        return $this->belongsTo(Client::class, 'parrain_id');
+    }
+
+    public function filleuls()
+    {
+        return $this->hasMany(Client::class, 'parrain_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 
     /**

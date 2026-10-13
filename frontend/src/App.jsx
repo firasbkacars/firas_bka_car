@@ -32,6 +32,9 @@ import AdminParametres from './pages/admin/Parametres'
 import AdminCodesPromo from './pages/admin/CodesPromo'
 import AdminAgences from './pages/admin/Agences'
 import AdminEtatsLieux from './pages/admin/EtatsLieux'
+import AdminContratsFournisseurs from './pages/admin/ContratsFournisseurs'
+import AdminMessages from './pages/admin/Messages'
+import ClientMessagerie from './pages/client/Messagerie'
 import AdminLayout from './components/admin/AdminLayout'
 import NotFound from './pages/NotFound'
 
@@ -56,6 +59,7 @@ function App() {
           <Route path="/client/register" element={<ClientRegister />} />
           <Route path="/client/profil" element={<><Header /><ClientProfil /><Footer /></>} />
           <Route path="/client/tableau-de-bord" element={<><Header /><ClientTableauDeBord /><Footer /></>} />
+          <Route path="/client/messagerie" element={<><Header /><ClientMessagerie /><Footer /></>} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
@@ -68,6 +72,8 @@ function App() {
             <Route path="rapports" element={<AdminRapports />} />
             <Route path="maintenances" element={<AdminMaintenances />} />
             <Route path="avis" element={<AdminAvis />} />
+            <Route path="messages" element={<AdminMessages />} />
+            <Route path="contrats-fournisseurs" element={<AdminContratsFournisseurs />} />
             <Route path="codes-promo" element={<AdminCodesPromo />} />
             <Route path="agences" element={<AdminAgences />} />
             <Route path="etats-lieux" element={<AdminEtatsLieux />} />

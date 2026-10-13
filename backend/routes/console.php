@@ -19,3 +19,9 @@ Schedule::command('sante:verifier')->dailyAt('05:30')->withoutOverlapping();
 
 // G3 : projection des prochaines maintenances (vidange, CT, pneus).
 Schedule::command('vehicules:planifier-entretien')->weeklyOn(1, '06:00')->withoutOverlapping();
+
+// G4 : alerte kilometrage (seuil configure par vehicule).
+Schedule::command('vehicules:kilometrage')->dailyAt('06:15')->withoutOverlapping();
+
+// G5 : contrats fournisseurs arrivant a echeance.
+Schedule::command('fournisseurs:contrats')->dailyAt('06:45')->withoutOverlapping();

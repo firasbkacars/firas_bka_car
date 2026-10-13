@@ -1,13 +1,42 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { setLangue } from '../i18n';
+import { Globe } from 'lucide-react';
 
 export default function Header() {
   const location = useLocation();
   const { client, loading } = useAuth();
+  const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScroll = useRef(0);
+
+  const LangueSwitcher = () => (
+    <div className="relative group/lang">
+      <button
+        className="flex items-center gap-1 text-white/60 hover:text-white text-sm font-medium transition-colors px-2 py-2"
+        aria-label={t('langue.label')}
+      >
+        <Globe size={15} />
+        <span className="uppercase text-xs">{i18n.language}</span>
+      </button>
+      <div className="absolute right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl overflow-hidden opacity-0 invisible group-hover/lang:opacity-100 group-hover/lang:visible transition-all shadow-xl z-50">
+        {['fr', 'ar', 'en'].map((lng) => (
+          <button
+            key={lng}
+            onClick={() => setLangue(lng)}
+            className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
+              i18n.language === lng ? 'text-[#dc2626] bg-white/5' : 'text-white/70 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {t(`langue.${lng}`)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     const onScroll = () => {
@@ -27,11 +56,11 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { path: '/', label: 'Accueil' },
-    { path: '/vehicules', label: 'Nos véhicules' },
-    { path: '/services', label: 'Services' },
-    { path: '/a-propos', label: 'À propos' },
-    { path: '/contact', label: 'Contact' },
+    { path: '/', label: t('nav.accueil') },
+    { path: '/vehicules', label: t('nav.vehicules') },
+    { path: '/services', label: t('nav.services') },
+    { path: '/a-propos', label: t('nav.apropos') },
+    { path: '/contact', label: t('nav.contact') },
   ];
 
   return (
@@ -62,11 +91,15 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
+            <LangueSwitcher />
             {!loading && (
               client ? (
                 <div className="flex items-center gap-1">
                   <Link to="/client/tableau-de-bord" className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2">
-                    Tableau de bord
+                    {t('nav.tableauDeBord')}
+                  </Link>
+                  <Link to="/client/messagerie" className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2">
+                    {t('nav.messagerie')}
                   </Link>
                   <Link to="/client/profil" className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2">
                     <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -80,11 +113,10 @@ export default function Header() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
-                  Connexion
+                  {t('nav.connexion')}
                 </Link>
               )
             )}
-
             <div className="w-px h-6 bg-white/15" />
 
             <a
@@ -135,9 +167,12 @@ export default function Header() {
               </Link>
             ))}
             <div className="border-t border-white/10 pt-3 mt-3 space-y-2">
+              <div className="px-4">
+                <LangueSwitcher />
+              </div>
               {!loading && !client && (
                 <Link to="/client/login" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg">
-                  Connexion
+                  {t('nav.connexion')}
                 </Link>
               )}
               <a href="tel:+212774623448" className="flex items-center justify-center gap-2 bg-[#dc2626] text-white px-4 py-3 rounded-lg text-sm font-semibold">

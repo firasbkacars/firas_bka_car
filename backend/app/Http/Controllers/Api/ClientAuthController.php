@@ -7,6 +7,8 @@ use App\Http\Requests\LoginClientRequest;
 use App\Http\Requests\RegisterClientRequest;
 use App\Mail\PermisValidation;
 use App\Models\Client;
+use App\Services\FideliteService;
+use App\Services\ParrainageService;
 use App\Support\QueuedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -35,6 +37,15 @@ class ClientAuthController extends Controller
             'cin' => $validated['cin'] ?? null,
             'adresse' => $validated['adresse'] ?? null,
         ]);
+
+        $parrainage = app(ParrainageService::class);
+        $parrainage->genererCode($client);
+
+        if (! empty($validated['code_parrainage'])) {
+            $parrainage->enregistrerParrainage($client, $validated['code_parrainage'], app(FideliteService::class));
+        }
+
+        $client->refresh();
 
         $token = $client->createToken('client-token', ['*'], now()->addHours(self::TOKEN_TTL_HOURS))->plainTextToken;
 

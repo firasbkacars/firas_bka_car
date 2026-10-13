@@ -60,7 +60,7 @@ export default function ClientRegister() {
   const [form, setForm] = useState({
     nom_complet: '', email: '', telephone: '',
     password: '', password_confirmation: '',
-    cin: '', adresse: '',
+    cin: '', adresse: '', code_parrainage: '',
   });
   const [showPw, setShowPw] = useState(false);
   const [showPwConf, setShowPwConf] = useState(false);
@@ -290,6 +290,28 @@ export default function ClientRegister() {
                 className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
               />
             </div>
+          </div>
+
+          {/* Code parrainage (V2) */}
+          <div>
+            <label htmlFor="reg-parrain" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              Code de parrainage <span className="normal-case text-white/30">(optionnel)</span>
+            </label>
+            <input
+              id="reg-parrain"
+              type="text"
+              autoComplete="off"
+              value={form.code_parrainage}
+              onChange={(e) => update('code_parrainage', e.target.value.toUpperCase().slice(0, 12))}
+              placeholder="Ex : ABCD1234"
+              maxLength={12}
+              className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:ring-1 outline-none transition-all ${
+                fieldErrors.code_parrainage ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
+              }`}
+            />
+            {fieldErrors.code_parrainage && (
+              <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.code_parrainage}</p>
+            )}
           </div>
 
           {/* CGU */}

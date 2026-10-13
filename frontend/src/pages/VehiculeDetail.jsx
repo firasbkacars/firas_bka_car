@@ -214,6 +214,7 @@ export default function VehiculeDetail() {
   const [avisData, setAvisData] = useState({ avis: [], moyenne: 0, nombre: 0 });
   const [avisLoading, setAvisLoading] = useState(true);
   const [reviewForm, setReviewForm] = useState({ note: 5, commentaire: '' });
+  const [reviewPhoto, setReviewPhoto] = useState(null);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
@@ -257,13 +258,16 @@ export default function VehiculeDetail() {
     setReviewSuccess('');
     setSubmittingReview(true);
     try {
-      await api.post('/avis', {
-        vehicule_id: parseInt(id),
-        note: reviewForm.note,
-        commentaire: reviewForm.commentaire || null,
-      });
-      setReviewSuccess('Avis envoyé avec succès');
+      // V9 : photo facultative -> FormData (multipart).
+      const payload = new FormData();
+      payload.append('vehicule_id', parseInt(id));
+      payload.append('note', reviewForm.note);
+      if (reviewForm.commentaire) payload.append('commentaire', reviewForm.commentaire);
+      if (reviewPhoto) payload.append('photo', reviewPhoto);
+      await api.post('/avis', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setReviewSuccess('Avis envoyé. Il sera visible après modération.');
       setReviewForm({ note: 5, commentaire: '' });
+      setReviewPhoto(null);
       fetchAvis();
     } catch (err) {
       setReviewError(err.response?.data?.message || 'Erreur lors de l\'envoi de l\'avis');
@@ -458,6 +462,27 @@ export default function VehiculeDetail() {
               </div>
             </div>
 
+            {/* V6 : position GPS sur carte OpenStreetMap */}
+            {(vehicule.latitude != null && vehicule.longitude != null) && (
+              <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-5 mb-6">
+                <h3 className="text-white font-semibold mb-4">Position du véhicule</h3>
+                <iframe
+                  title="Carte de la position du véhicule"
+                  className="w-full h-64 rounded-xl border border-white/[0.06]"
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(vehicule.longitude) - 0.01}%2C${Number(vehicule.latitude) - 0.01}%2C${Number(vehicule.longitude) + 0.01}%2C${Number(vehicule.latitude) + 0.01}&layer=mapnik&marker=${vehicule.latitude}%2C${vehicule.longitude}`}
+                />
+                <a
+                  href={`https://www.openstreetmap.org/?mlat=${vehicule.latitude}&mlon=${vehicule.longitude}#map=15/${vehicule.latitude}/${vehicule.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#dc2626] text-xs hover:underline mt-2 inline-block"
+                >
+                  Agrandir la carte
+                </a>
+              </div>
+            )}
+
             {/* Disponibilité */}
             <div className="mb-6">
               <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -576,6 +601,15 @@ export default function VehiculeDetail() {
                             maxLength={1000}
                             placeholder="Partagez votre expérience..."
                             className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all resize-none placeholder:text-white/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-white/50 text-xs mb-2 block">Photo (optionnel, 2 Mo max)</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setReviewPhoto(e.target.files?.[0] || null)}
+                            className="block w-full text-white/60 text-xs file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-white/10 file:text-white file:text-xs file:cursor-pointer hover:file:bg-white/20"
                           />
                         </div>
                         {reviewError && <p className="text-red-400 text-xs">{reviewError}</p>}

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterClientRequest extends FormRequest
 {
@@ -20,6 +21,8 @@ class RegisterClientRequest extends FormRequest
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'cin' => ['nullable', 'string', 'regex:/^[A-Z]{1,2}\d{4,6}$/', 'max:20'],
             'adresse' => ['nullable', 'string', 'max:255'],
+            'code_parrainage' => ['nullable', 'string', 'max:12',
+                Rule::exists('clients', 'code_parrainage')],
         ];
     }
 
@@ -38,6 +41,7 @@ class RegisterClientRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'cin.regex' => 'Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456).',
+            'code_parrainage.exists' => 'Ce code de parrainage n\'existe pas.',
         ];
     }
 }

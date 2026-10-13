@@ -14,8 +14,11 @@ use App\Http\Controllers\Api\EtatLieuController;
 use App\Http\Controllers\Api\FactureController;
 use App\Http\Controllers\Api\FavoriController;
 use App\Http\Controllers\Api\FideliteController;
+use App\Http\Controllers\Api\FournisseurContratController;
 use App\Http\Controllers\Api\MaintenanceController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PaiementController;
+use App\Http\Controllers\Api\ParrainageController;
 use App\Http\Controllers\Api\ParametreController;
 use App\Http\Controllers\Api\RapportController;
 use App\Http\Controllers\Api\ReservationController;
@@ -109,6 +112,13 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         // Client fidelite
         Route::get('/client/fidelite', [FideliteController::class, 'show']);
 
+        // V2 : parrainage
+        Route::get('/client/parrainage', [ParrainageController::class, 'show']);
+
+        // V8 : messagerie client
+        Route::get('/client/messages', [MessageController::class, 'indexClient']);
+        Route::post('/client/messages', [MessageController::class, 'storeClient']);
+
         // Client annulation
         Route::put('/client/reservations/{id}/annuler', [ReservationController::class, 'annulerParClient']);
         Route::get('/client/reservations/{id}/annulation-preview', [ReservationController::class, 'apercuAnnulation']);
@@ -184,6 +194,16 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     // Admin avis
     Route::get('/avis', [AviController::class, 'index']);
+    // V9 : moderation des avis
+    Route::put('/avis/{id}/moderation', [AviController::class, 'moderer']);
+
+    // G5 : contrats fournisseurs
+    Route::apiResource('contrats-fournisseurs', FournisseurContratController::class);
+
+    // V8 : messagerie admin
+    Route::get('/messages-admin', [MessageController::class, 'indexAdmin']);
+    Route::get('/messages-admin/{clientId}', [MessageController::class, 'filAdmin']);
+    Route::post('/messages-admin/{clientId}', [MessageController::class, 'storeAdmin']);
 
     // Admin maintenance
     Route::apiResource('maintenances', MaintenanceController::class);

@@ -14,6 +14,8 @@ class Avi extends Model
         'vehicule_id',
         'note',
         'commentaire',
+        'photo_chemin',
+        'statut',
     ];
 
     public function client()

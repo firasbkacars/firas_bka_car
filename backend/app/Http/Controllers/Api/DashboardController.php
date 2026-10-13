@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\FournisseurContrat;
 use App\Models\Maintenance;
 use App\Models\Paiement;
 use App\Models\Reservation;
@@ -169,6 +170,19 @@ class DashboardController extends Controller
             ->sortBy($parEcheance)
             ->values();
 
+        // G4 : vehicules ayant depasse leur seuil de kilometrage (alerte non encore vue).
+        $alertesKilometrage = Vehicule::query()
+            ->whereNotNull('kilometrage_alerte')
+            ->whereColumn('kilometrage', '>=', 'kilometrage_alerte')
+            ->get();
+
+        // G5 : contrats fournisseurs expires ou arrivant a echeance.
+        $fournisseursEcheance = FournisseurContrat::with('vehicule')
+            ->whereNotNull('date_expiration')
+            ->whereDate('date_expiration', '<=', today()->addDays(30))
+            ->orderBy('date_expiration', 'asc')
+            ->get();
+
         return response()->json([
             'retours_jour' => $retoursAujourdhui,
             'maintenance' => $vehiculesMaintenance,
@@ -176,6 +190,8 @@ class DashboardController extends Controller
             'maintenances_en_retard' => $maintenancesEnRetard,
             'contrats_expires' => $contratsExpires,
             'contrats_expirants' => $contratsExpirants,
+            'alertes_kilometrage' => $alertesKilometrage,
+            'fournisseurs_echeance' => $fournisseursEcheance,
         ]);
     }
 
