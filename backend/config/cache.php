@@ -91,6 +91,10 @@ return [
             'driver' => 'octane',
         ],
 
+        'null' => [
+            'driver' => 'null',
+        ],
+
         'failover' => [
             'driver' => 'failover',
             'stores' => [

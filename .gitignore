@@ -26,6 +26,11 @@ Thumbs.db
 # SQLite databases
 database/database.sqlite
 
+# E2E (Playwright)
+e2e/.data/
+e2e/test-results/
+e2e/playwright-report/
+
 # Cache
 bootstrap/cache/*.php
 storage/framework/cache/*

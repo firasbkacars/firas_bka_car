@@ -201,7 +201,7 @@
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
 | T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api, ContratVehicule — 113 tests) |
 | T3 | Tests frontend (Vitest) | FAIT (Vitest + Testing Library, 28 tests, job CI) |
-| T4 | Tests E2E (Playwright) | A FAIRE |
+| T4 | Tests E2E (Playwright) | FAIT (dossier e2e/, 8 tests accueil/auth/admin, job CI avec upload rapport) |
 
 ---
 
@@ -244,7 +244,7 @@
 | Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 15 | 0 | 0 |
 | Phase 5 (Rapports) | 12 | 0 | 0 |
-| Phase 6 (Infra) | 8 | 0 | 3 (I2 ignore) |
+| Phase 6 (Infra) | 9 | 0 | 2 (I2 ignore) |
 | Phase 7 (Futur) | 2 | 0 | 13 |
 
-**Total : 100 taches | 83 terminees | 1 en cours | 16 a faire** (2 taches marquees IGNORE exclues)
+**Total : 100 taches | 84 terminees | 1 en cours | 15 a faire** (2 taches marquees IGNORE exclues)
