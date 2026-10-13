@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send } from 'lucide-react';
-import api from '../services/api';
-import PageHeader from '../components/PageHeader';
+import api from '../../services/api';
+import PageHeader from '../../components/PageHeader';
 
 export default function Messagerie() {
   const [messages, setMessages] = useState([]);
