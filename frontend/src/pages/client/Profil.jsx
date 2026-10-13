@@ -37,6 +37,36 @@ function palierApplicable(heures) {
   return PALIERS_ANNULATION.find((p) => heures >= p.heuresMin) || null;
 }
 
+/** V1 : couleurs propres a chaque palier de fidelite. */
+const TIER_STYLES = {
+  bronze: {
+    card: 'from-amber-800/20 to-orange-800/10 border-amber-700/30',
+    icon: 'text-amber-700',
+    badge: 'bg-amber-800/20 border-amber-700/40 text-amber-500',
+    bar: 'from-amber-700 to-orange-600',
+  },
+  argent: {
+    card: 'from-gray-400/15 to-slate-400/10 border-gray-400/30',
+    icon: 'text-gray-300',
+    badge: 'bg-gray-400/15 border-gray-400/40 text-gray-200',
+    bar: 'from-gray-400 to-slate-300',
+  },
+  or: {
+    card: 'from-yellow-500/15 to-amber-500/10 border-yellow-500/30',
+    icon: 'text-yellow-500',
+    badge: 'bg-yellow-500/15 border-yellow-500/40 text-yellow-400',
+    bar: 'from-yellow-500 to-amber-400',
+  },
+  platine: {
+    card: 'from-indigo-400/15 to-slate-300/10 border-indigo-300/30',
+    icon: 'text-indigo-200',
+    badge: 'bg-indigo-400/15 border-indigo-300/40 text-indigo-100',
+    bar: 'from-indigo-300 to-slate-200',
+  },
+};
+
+const TIER_FALLBACK = TIER_STYLES.bronze;
+
 /** Encaissement = montant positif, remboursement = ecriture negative. */
 function montantSignePaiement(p) {
   const m = parseFloat(p?.montant) || 0;
@@ -877,21 +907,26 @@ export default function ClientProfil() {
           ) : fidelite ? (
             <div className="space-y-4">
               {/* Niveau actuel */}
-              <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Trophy size={24} className="text-yellow-500" />
-                    <div>
-                      <p className="text-white font-medium text-lg capitalize">{fidelite.niveau_actuel}</p>
-                      <p className="text-gray-400 text-sm">{fidelite.reduction_actuelle}% de reduction sur vos locations</p>
+              {(() => {
+                const tier = TIER_STYLES[fidelite.niveau_actuel] || TIER_FALLBACK;
+                return (
+                  <div className={`bg-gradient-to-r ${tier.card} border rounded-xl p-4`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Trophy size={24} className={tier.icon} />
+                        <div>
+                          <p className="text-white font-medium text-lg capitalize">{fidelite.niveau_actuel}</p>
+                          <p className="text-gray-400 text-sm">{fidelite.reduction_actuelle}% de reduction sur vos locations</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
+                        <p className="text-gray-500 text-xs">points</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
-                    <p className="text-gray-500 text-xs">points</p>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
@@ -914,7 +949,7 @@ export default function ClientProfil() {
                   </div>
                   <div className="w-full bg-white/[0.06] rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full transition-all"
+                      className={`bg-gradient-to-r ${(TIER_STYLES[fidelite.prochain_niveau.niveau] || TIER_FALLBACK).bar} h-2 rounded-full transition-all`}
                       style={{
                         width: `${Math.min(100, ((fidelite.nombre_locations) / (fidelite.nombre_locations + fidelite.prochain_niveau.locations_restantes)) * 100)}%`
                       }}
@@ -930,20 +965,22 @@ export default function ClientProfil() {
               <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
                 <p className="text-gray-400 text-sm mb-3">Niveaux de fidelite</p>
                 <div className="grid grid-cols-4 gap-2">
-                  {Object.entries(fidelite.niveaux).map(([nom, config]) => (
-                    <div
-                      key={nom}
-                      className={`text-center p-2 rounded-lg ${
-                        nom === fidelite.niveau_actuel
-                          ? 'bg-yellow-500/10 border border-yellow-500/20'
-                          : 'bg-white/[0.02]'
-                      }`}
-                    >
-                      <p className="text-white text-xs font-medium capitalize">{nom}</p>
-                      <p className="text-gray-500 text-[10px] mt-0.5">{config.reduction}% off</p>
-                      <p className="text-gray-600 text-[10px]">{config.locations_min}+</p>
-                    </div>
-                  ))}
+                  {Object.entries(fidelite.niveaux).map(([nom, config]) => {
+                    const tier = TIER_STYLES[nom] || TIER_FALLBACK;
+                    const actif = nom === fidelite.niveau_actuel;
+                    return (
+                      <div
+                        key={nom}
+                        className={`text-center p-2 rounded-lg border ${
+                          actif ? `bg-white/[0.04] ${tier.badge}` : 'bg-white/[0.02] border-white/[0.04]'
+                        }`}
+                      >
+                        <p className={`text-xs font-medium capitalize ${actif ? '' : 'text-white'}`}>{nom}</p>
+                        <p className={`text-[10px] mt-0.5 ${actif ? '' : 'text-gray-500'}`}>{config.reduction}% off</p>
+                        <p className={`text-[10px] ${actif ? '' : 'text-gray-600'}`}>{config.locations_min}+</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

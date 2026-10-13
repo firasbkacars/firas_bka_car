@@ -36,7 +36,7 @@
 |----|-------------|--------|
 | D1 | Ajouter indexes SQL sur `reservations.statut`, `paiements.statut`, `paiements.date_paiement`, `reservations.code_promo` | FAIT |
 | D2 | Transaction atomique sur creation reservation | FAIT |
-| D3 | Sanitisation entrees utilisateur (WhatsApp, notes) | PARTIEL (validation FormRequest) |
+| D3 | Sanitisation entrees utilisateur (WhatsApp, notes) | FAIT (middleware SanitizeStrings sur toutes les routes api : strip_tags + trim, passwords/emails exclus) |
 | D4 | Headers securite (CSP, X-Frame-Options, HSTS) | FAIT (SecurityHeaders) |
 | D5 | Protection CSRF sur routes web | FAIT (middleware web Laravel) |
 
@@ -192,14 +192,14 @@
 |----|-------------|--------|
 | M1 | Logging des erreurs (Sentry/Bugsnag) | FAIT (sentry/sentry-laravel + Integration::handles + SENTRY_DSN) |
 | M2 | Monitoring performance (New Relic) | A FAIRE |
-| M3 | Alertes emails serveur | A FAIRE |
+| M3 | Alertes emails serveur | FAIT (sante:verifier quotidien 05:30 : base, stockage, jobs en echec -> email admin) |
 
 ### Tests
 
 | ID | Description | Statut |
 |----|-------------|--------|
 | T1 | Tests unitaires modeles | FAIT (ReservationTest) |
-| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api, ContratVehicule — 113 tests) |
+| T2 | Tests feature controllers | FAIT (ReservationApi, Security, PaymentFlow, AgenceApi, PermisNotification, RapportApi, Phase4Api, ContratVehicule, Phase7QuickWins — 121 tests) |
 | T3 | Tests frontend (Vitest) | FAIT (Vitest + Testing Library, 28 tests, job CI) |
 | T4 | Tests E2E (Playwright) | FAIT (dossier e2e/, 8 tests accueil/auth/admin, job CI avec upload rapport) |
 
@@ -211,7 +211,7 @@
 
 | ID | Description | Priorite | Statut |
 |----|-------------|----------|--------|
-| V1 | Programme de fidelite ameliore (paliers visuels) | MOYEN | A FAIRE |
+| V1 | Programme de fidelite ameliore (paliers visuels) | MOYEN | FAIT (niveaux bronze/argent/or/platine colores, barre de progression, grille des paliers sur le profil) |
 | V2 | Systeme de parrainage | MOYEN | A FAIRE |
 | V3 | Paiement en ligne reel (CMI/Stripe) | HAUT | A FAIRE |
 | V4 | Application mobile (React Native) | BAS | A FAIRE |
@@ -228,7 +228,7 @@
 |----|-------------|----------|--------|
 | G1 | Suivi assurance vehicules (expiration) | HAUT | FAIT (colonnes + blocage location + rappel J-30 + alertes dashboard) |
 | G2 | Suivi carte grise (expiration) | HAUT | FAIT (meme mecanisme, champs dedies admin) |
-| G3 | Planning entretien automatique | MOYEN | A FAIRE |
+| G3 | Planning entretien automatique | MOYEN | FAIT (vehicules:planifier-entretien hebdo : vidange 6 mois, CT 12 mois, pneus 24 mois, sans doublon) |
 | G4 | Alertes kilometrage | BAS | A FAIRE |
 | G5 | Gestion des contrats fournisseurs | BAS | A FAIRE |
 
@@ -239,12 +239,12 @@
 | Phase | Termines | En cours | A faire |
 |-------|----------|----------|---------|
 | Phase 0 (Securite) | 8 | 0 | 0 |
-| Phase 1 (Robustesse) | 10 | 1 (D3 partiel) | 0 |
+| Phase 1 (Robustesse) | 11 | 0 | 0 |
 | Phase 2 (Fonctions manquantes) | 14 | 0 | 0 (N8 ignore) |
 | Phase 3 (Frontend) | 14 | 0 | 0 |
 | Phase 4 (Metier avance) | 15 | 0 | 0 |
 | Phase 5 (Rapports) | 12 | 0 | 0 |
-| Phase 6 (Infra) | 9 | 0 | 2 (I2 ignore) |
-| Phase 7 (Futur) | 2 | 0 | 13 |
+| Phase 6 (Infra) | 10 | 0 | 1 (I2 ignore) |
+| Phase 7 (Futur) | 3 | 0 | 12 |
 
-**Total : 100 taches | 84 terminees | 1 en cours | 15 a faire** (2 taches marquees IGNORE exclues)
+**Total : 100 taches | 88 terminees | 0 en cours | 12 a faire** (2 taches marquees IGNORE exclues)
