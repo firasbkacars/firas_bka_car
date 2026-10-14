@@ -21,13 +21,21 @@ Remplacer `BASE_URL` dans `src/api.js` selon l'environnement :
 | Ecran | Fichier | Description |
 |-------|---------|-------------|
 | Catalogue | `src/screens/Home.js` | Liste des véhicules disponibles |
-| Détails | `src/screens/VehicleDetail.js` | Fiche véhicule |
+| Détails | `src/screens/VehicleDetail.js` | Fiche véhicule + CTA Réserver |
 | Connexion | `src/screens/Login.js` | Login client (token stocké via AsyncStorage) |
+| Inscription | `src/screens/Register.js` | Création de compte client |
+| Réservation | `src/screens/ReservationForm.js` | Dates, lieux, paiement (espèces/CMI), code promo |
+| Confirmation | `src/screens/Confirmation.js` | Succès + paiement CMI (browser + polling) |
+| Mes réservations | `src/screens/MesReservations.js` | Liste avec statuts, rafraîchissement |
+| Détail réservation | `src/screens/ReservationDetail.js` | Détails + annulation (politique de remboursement) |
+| Mon compte | `src/screens/Profil.js` | Profil, permis (upload), photo, fidélité, déconnexion |
+| Messagerie | `src/screens/Messagerie.js` | Fil client ↔ admin (polling 10 s) |
 
-## Suite (hors scope de ce scaffold)
+Auth centralisée dans `src/auth.js` (contexte React + AsyncStorage).
 
-- Réservation / finalisation
-- Profil + permis
-- Messagerie (V8)
+## Suite (hors scope actuel)
+
+- Prolongation de réservation (API déjà disponible)
+- Favoris (API déjà disponible)
 - Notifications push
 - Mode hors-ligne

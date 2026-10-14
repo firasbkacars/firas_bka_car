@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../api';
+import { useAuth } from '../auth';
 
-export default function Login({ navigation }) {
+export default function Login({ navigation, route }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -13,9 +13,10 @@ export default function Login({ navigation }) {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await api.post('/client/login', { email, password });
-      await AsyncStorage.setItem('client_token', data.token);
-      navigation.goBack();
+      await login(email.trim(), password);
+      const returnTo = route.params?.returnTo;
+      if (returnTo) navigation.replace(returnTo.name, returnTo.params);
+      else navigation.goBack();
     } catch (err) {
       setError(err.response?.data?.message || 'Identifiants incorrects');
     } finally {
@@ -56,6 +57,14 @@ export default function Login({ navigation }) {
       >
         {loading ? <ActivityIndicator color="#fff" accessibilityLabel="Connexion en cours" /> : <Text style={styles.ctaText}>Se connecter</Text>}
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.link}
+        onPress={() => navigation.navigate('Register')}
+        accessibilityRole="button"
+        accessibilityLabel="Créer un compte"
+      >
+        <Text style={styles.linkText}>Créer un compte</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -67,4 +76,6 @@ const styles = StyleSheet.create({
   error: { color: '#dc2626', marginBottom: 14, fontSize: 13 },
   cta: { backgroundColor: '#dc2626', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
   ctaText: { color: '#fff', fontWeight: '700' },
+  link: { alignItems: 'center', marginTop: 18 },
+  linkText: { color: '#3b82f6', fontSize: 14, fontWeight: '600' },
 });

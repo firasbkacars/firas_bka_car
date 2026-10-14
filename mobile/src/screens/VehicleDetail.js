@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import api from '../api';
+import { useAuth } from '../auth';
+import { formatMAD } from '../utils/date';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=400&q=80';
 
-export default function VehicleDetail({ route }) {
+export default function VehicleDetail({ navigation, route }) {
   const { id } = route.params;
+  const { client } = useAuth();
   const [vehicule, setVehicule] = useState(null);
   const [error, setError] = useState(null);
 
@@ -14,6 +17,16 @@ export default function VehicleDetail({ route }) {
       .then(({ data }) => setVehicule(data))
       .catch(() => setError('Véhicule introuvable'));
   }, [id]);
+
+  const reserver = () => {
+    if (!client) {
+      navigation.navigate('Login', {
+        returnTo: { name: 'ReservationForm', params: { vehiculeId: id, vehicule } },
+      });
+      return;
+    }
+    navigation.navigate('ReservationForm', { vehiculeId: id, vehicule });
+  };
 
   if (error) {
     return (
@@ -37,7 +50,7 @@ export default function VehicleDetail({ route }) {
     : (photo || FALLBACK);
 
   return (
-    <ScrollView style={{ backgroundColor: '#0a0a0a' }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
       <Image
         source={{ uri }}
         style={styles.image}
@@ -45,7 +58,7 @@ export default function VehicleDetail({ route }) {
       />
       <View style={{ padding: 16 }}>
         <Text style={styles.title}>{vehicule.marque} {vehicule.modele}</Text>
-        <Text style={styles.price}>{vehicule.prix_jour} DH / jour</Text>
+        <Text style={styles.price}>{formatMAD(vehicule.prix_jour)} / jour</Text>
         <Text style={styles.label}>Catégorie</Text>
         <Text style={styles.value}>{vehicule.categorie}</Text>
         <Text style={styles.label}>Transmission</Text>
@@ -60,6 +73,15 @@ export default function VehicleDetail({ route }) {
             <Text style={styles.value}>{vehicule.description}</Text>
           </>
         ) : null}
+
+        <TouchableOpacity
+          style={styles.cta}
+          onPress={reserver}
+          accessibilityRole="button"
+          accessibilityLabel={`Réserver ${vehicule.marque} ${vehicule.modele}`}
+        >
+          <Text style={styles.ctaText}>Réserver</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -72,4 +94,6 @@ const styles = StyleSheet.create({
   price: { color: '#dc2626', fontSize: 20, fontWeight: '700', marginTop: 4, marginBottom: 16 },
   label: { color: '#666', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 },
   value: { color: '#eee', fontSize: 15, marginTop: 2 },
+  cta: { backgroundColor: '#dc2626', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 28, marginBottom: 40 },
+  ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

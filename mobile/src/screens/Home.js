@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import api from '../api';
+import { useAuth } from '../auth';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=400&q=80';
 
 export default function Home({ navigation }) {
+  const { client } = useAuth();
   const [vehicules, setVehicules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,6 +17,21 @@ export default function Home({ navigation }) {
       .catch(() => setError('Impossible de charger le catalogue'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate(client ? 'Profil' : 'Login')}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel={client ? 'Mon compte' : 'Connexion'}
+        >
+          <Text style={styles.headerBtnText}>{client ? 'Compte' : 'Connexion'}</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, client]);
 
   if (loading) {
     return (
@@ -82,4 +99,6 @@ const styles = StyleSheet.create({
   price: { color: '#dc2626', fontSize: 16, fontWeight: '700', marginTop: 6 },
   cta: { backgroundColor: '#dc2626', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 },
   ctaText: { color: '#fff', fontWeight: '600' },
+  headerBtn: { paddingHorizontal: 12, paddingVertical: 6 },
+  headerBtnText: { color: '#fff', fontWeight: '600', fontSize: 13 },
 });
