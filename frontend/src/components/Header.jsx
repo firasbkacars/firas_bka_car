@@ -1,17 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { setLangue } from '../i18n';
-import { Globe } from 'lucide-react';
+import { Globe, LayoutDashboard, MessageSquare, User, LogOut, ChevronDown } from 'lucide-react';
 
 export default function Header() {
   const location = useLocation();
-  const { client, loading } = useAuth();
+  const navigate = useNavigate();
+  const { client, loading, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScroll = useRef(0);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   const LangueSwitcher = () => (
     <div className="relative group/lang">
@@ -94,19 +110,58 @@ export default function Header() {
             <LangueSwitcher />
             {!loading && (
               client ? (
-                <div className="flex items-center gap-1">
-                  <Link to="/client/tableau-de-bord" className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2">
-                    {t('nav.tableauDeBord')}
-                  </Link>
-                  <Link to="/client/messagerie" className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2">
-                    {t('nav.messagerie')}
-                  </Link>
-                  <Link to="/client/profil" className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2">
-                    <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                <div ref={menuRef} className="relative">
+                  <button
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2 rounded-full hover:bg-white/5"
+                    aria-expanded={menuOpen}
+                    aria-haspopup="true"
+                  >
+                    <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
                       {client.nom_complet?.charAt(0)}
                     </div>
-                    {client.nom_complet?.split(' ')[0]}
-                  </Link>
+                    <span className="max-w-[100px] truncate">{client.nom_complet?.split(' ')[0]}</span>
+                    <ChevronDown size={14} className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {menuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 z-50">
+                      <div className="px-4 py-3 border-b border-white/10">
+                        <p className="text-white text-sm font-semibold truncate">{client.nom_complet}</p>
+                        <p className="text-white/40 text-xs truncate">{client.email}</p>
+                      </div>
+                      <div className="py-1">
+                        {[
+                          { to: '/client/tableau-de-bord', icon: LayoutDashboard, label: t('nav.tableauDeBord') },
+                          { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie') },
+                          { to: '/client/profil', icon: User, label: t('nav.profil') },
+                        ].map((item) => (
+                          <Link
+                            key={item.to}
+                            to={item.to}
+                            onClick={() => setMenuOpen(false)}
+                            className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                              location.pathname === item.to
+                                ? 'text-[#dc2626] bg-[#dc2626]/5'
+                                : 'text-white/70 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            <item.icon size={16} />
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                      <div className="border-t border-white/10 py-1">
+                        <button
+                          onClick={() => { setMenuOpen(false); logout(); navigate('/'); }}
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"
+                        >
+                          <LogOut size={16} />
+                          {t('nav.deconnexion')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Link to="/client/login" className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors px-3 py-2">
@@ -170,6 +225,45 @@ export default function Header() {
               <div className="px-4">
                 <LangueSwitcher />
               </div>
+              {!loading && client && (
+                <div className="space-y-1">
+                  <div className="px-4 py-2 flex items-center gap-2">
+                    <div className="w-8 h-8 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {client.nom_complet?.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-medium truncate">{client.nom_complet}</p>
+                      <p className="text-white/40 text-xs truncate">{client.email}</p>
+                    </div>
+                  </div>
+                  {[
+                    { to: '/client/tableau-de-bord', icon: LayoutDashboard, label: t('nav.tableauDeBord') },
+                    { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie') },
+                    { to: '/client/profil', icon: User, label: t('nav.profil') },
+                  ].map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                        location.pathname === item.to
+                          ? 'text-white bg-white/10'
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <item.icon size={16} />
+                      {item.label}
+                    </Link>
+                  ))}
+                  <button
+                    onClick={() => { setMobileOpen(false); logout(); navigate('/'); }}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/5 rounded-lg transition-colors"
+                  >
+                    <LogOut size={16} />
+                    {t('nav.deconnexion')}
+                  </button>
+                </div>
+              )}
               {!loading && !client && (
                 <Link to="/client/login" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg">
                   {t('nav.connexion')}
