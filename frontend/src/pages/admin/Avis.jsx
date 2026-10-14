@@ -47,7 +47,7 @@ export default function Avis() {
         <Star
           key={i}
           size={14}
-          className={i < note ? 'text-yellow-400 fill-yellow-400' : 'text-neutral-600'}
+          className={i < note ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}
         />
       ))}
     </div>
@@ -62,10 +62,10 @@ export default function Avis() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Avis clients</h1>
-            <p className="text-neutral-500 text-sm">{avis.length} avis</p>
+            <p className="text-muted text-sm">{avis.length} avis</p>
           </div>
         </div>
-        <select
+        <select aria-label="Trier les avis"
           value={filtre}
           onChange={(e) => setFiltre(e.target.value)}
           className="bg-neutral-900 border border-neutral-800 text-white text-sm rounded-xl px-3 py-2"
@@ -81,7 +81,7 @@ export default function Avis() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Client</th>
                 <th className="text-left py-3 px-5 font-medium">Véhicule</th>
                 <th className="text-left py-3 px-5 font-medium">Note</th>
@@ -100,8 +100,8 @@ export default function Avis() {
                 ))
               ) : avis.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-neutral-500">
-                    <Inbox size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={7} className="text-center py-12 text-muted">
+                    <Inbox size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun avis pour le moment</p>
                   </td>
                 </tr>
@@ -119,7 +119,7 @@ export default function Avis() {
                         <ImageIcon size={14} /> Voir
                       </a>
                     ) : (
-                      <span className="text-neutral-600 text-xs">—</span>
+                      <span className="text-muted text-xs">—</span>
                     )}
                   </td>
                   <td className="py-3 px-5">

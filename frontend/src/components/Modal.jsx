@@ -111,7 +111,7 @@ export default function Modal({
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 -mt-1 -mr-1 p-1 rounded-lg text-neutral-500 hover:text-white hover:bg-white/5 transition-colors"
+              className="shrink-0 -mt-1 -mr-1 p-1 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-colors"
               aria-label="Fermer"
             >
               <X size={18} aria-hidden="true" />

@@ -53,10 +53,10 @@ export default function TableauDeBord() {
   const reservationsActives = reservations.filter((r) => ['confirmee', 'en_cours'].includes(r.statut)).length;
 
   const stats = [
-    { label: 'Total dépensé', value: formatMAD(totalDepense), icon: <Wallet size={18} className="text-[#dc2626]" /> },
-    { label: 'Réservations', value: reservations.length, icon: <Calendar size={18} className="text-[#dc2626]" /> },
-    { label: 'En cours', value: reservationsActives, icon: <Car size={18} className="text-[#dc2626]" /> },
-    { label: 'Favoris', value: favoris.length, icon: <Heart size={18} className="text-[#dc2626]" /> },
+    { label: 'Total dépensé', value: formatMAD(totalDepense), icon: <Wallet size={18} className="text-primary-light" /> },
+    { label: 'Réservations', value: reservations.length, icon: <Calendar size={18} className="text-primary-light" /> },
+    { label: 'En cours', value: reservationsActives, icon: <Car size={18} className="text-primary-light" /> },
+    { label: 'Favoris', value: favoris.length, icon: <Heart size={18} className="text-primary-light" /> },
   ];
 
   return (
@@ -70,7 +70,7 @@ export default function TableauDeBord() {
             ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="rounded-2xl h-24" />)
             : stats.map((s) => (
               <div key={s.label} className="bg-[#111] border border-white/[0.06] rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-2 text-white/40 text-xs uppercase tracking-wider">
+                <div className="flex items-center gap-2 mb-2 text-muted text-xs uppercase tracking-wider">
                   {s.icon}
                   {s.label}
                 </div>
@@ -83,10 +83,10 @@ export default function TableauDeBord() {
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-semibold flex items-center gap-2">
-              <Heart size={18} className="text-[#dc2626]" />
+              <Heart size={18} className="text-primary-light" />
               Mes véhicules favoris
             </h2>
-            <Link to="/vehicules" className="text-[#dc2626] text-sm hover:underline flex items-center gap-1">
+            <Link to="/vehicules" className="text-primary-light text-sm hover:underline flex items-center gap-1">
               Parcourir <ChevronRight size={14} />
             </Link>
           </div>
@@ -97,9 +97,9 @@ export default function TableauDeBord() {
             </div>
           ) : favoris.length === 0 ? (
             <div className="text-center py-10">
-              <Heart size={40} className="mx-auto text-white/20 mb-3" />
-              <p className="text-white/40 text-sm">Aucun véhicule favori pour le moment.</p>
-              <p className="text-white/30 text-xs mt-1">Cliquez sur le cœur d'un véhicule pour l'ajouter ici.</p>
+              <Heart size={40} className="mx-auto text-muted mb-3" />
+              <p className="text-muted text-sm">Aucun véhicule favori pour le moment.</p>
+              <p className="text-muted text-xs mt-1">Cliquez sur le cœur d'un véhicule pour l'ajouter ici.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -122,13 +122,13 @@ export default function TableauDeBord() {
                     <div className="p-4 flex items-center justify-between">
                       <div>
                         <h3 className="text-white text-sm font-semibold">{v.marque} {v.modele}</h3>
-                        <p className="text-[#dc2626] font-bold text-sm mt-0.5">{formatMAD(v.prix_jour)}<span className="text-white/30 text-xs font-normal">/jour</span></p>
+                        <p className="text-primary-light font-bold text-sm mt-0.5">{formatMAD(v.prix_jour)}<span className="text-muted text-xs font-normal">/jour</span></p>
                       </div>
                       <button
                         type="button"
                         onClick={() => remove(v.id)}
                         aria-label="Retirer des favoris"
-                        className="text-white/30 hover:text-red-500 transition-colors p-2"
+                        className="text-muted hover:text-red-500 transition-colors p-2"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -144,10 +144,10 @@ export default function TableauDeBord() {
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-semibold flex items-center gap-2">
-              <Calendar size={18} className="text-[#dc2626]" />
+              <Calendar size={18} className="text-primary-light" />
               Mes dernières réservations
             </h2>
-            <Link to="/client/profil" className="text-[#dc2626] text-sm hover:underline flex items-center gap-1">
+            <Link to="/client/profil" className="text-primary-light text-sm hover:underline flex items-center gap-1">
               Tout voir <ChevronRight size={14} />
             </Link>
           </div>
@@ -158,8 +158,8 @@ export default function TableauDeBord() {
             </div>
           ) : reservations.length === 0 ? (
             <div className="text-center py-10">
-              <Calendar size={40} className="mx-auto text-white/20 mb-3" />
-              <p className="text-white/40 text-sm">Aucune réservation pour le moment.</p>
+              <Calendar size={40} className="mx-auto text-muted mb-3" />
+              <p className="text-muted text-sm">Aucune réservation pour le moment.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -167,7 +167,7 @@ export default function TableauDeBord() {
                 <div key={res.id} className="flex items-center justify-between bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
                   <div>
                     <p className="text-white text-sm font-medium">{res.vehicule ? `${res.vehicule.marque} ${res.vehicule.modele}` : 'Réservation'}</p>
-                    <p className="text-white/40 text-xs mt-0.5">{res.numero} · {res.date_debut ? new Date(res.date_debut).toLocaleDateString('fr-FR') : ''}</p>
+                    <p className="text-muted text-xs mt-0.5">{res.numero} · {res.date_debut ? new Date(res.date_debut).toLocaleDateString('fr-FR') : ''}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-white font-bold text-sm">{formatMAD(res.prix_total)}</p>

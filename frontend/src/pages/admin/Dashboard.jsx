@@ -256,15 +256,15 @@ export default function Dashboard() {
           {loading ? (
             <SkeletonTable rows={5} />
           ) : recentes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
-              <Inbox size={40} className="mb-3 text-neutral-600" />
+            <div className="flex flex-col items-center justify-center py-12 text-muted">
+              <Inbox size={40} className="mb-3 text-muted" />
               <p className="text-sm">Aucune réservation pour le moment</p>
             </div>
           ) : (
             <div className="overflow-x-auto -mx-5 px-5">
               <table className="w-full text-sm min-w-[540px]">
                 <thead>
-                  <tr className="text-neutral-500 border-b border-neutral-800">
+                  <tr className="text-muted border-b border-neutral-800">
                     <th className="text-left py-2.5 font-medium">#</th>
                     <th className="text-left py-2.5 font-medium">Client</th>
                     <th className="text-left py-2.5 font-medium">Véhicule</th>
@@ -280,7 +280,7 @@ export default function Dashboard() {
                       <td className="py-3 text-neutral-300">
                         {r.vehicule?.marque} {r.vehicule?.modele}
                       </td>
-                      <td className="py-3 text-neutral-500 text-xs whitespace-nowrap">
+                      <td className="py-3 text-muted text-xs whitespace-nowrap">
                         {new Date(r.date_debut).toLocaleDateString('fr-FR')} —{' '}
                         {new Date(r.date_fin).toLocaleDateString('fr-FR')}
                       </td>
@@ -305,8 +305,8 @@ export default function Dashboard() {
           {loading ? (
             <SkeletonChart />
           ) : chartData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
-              <Inbox size={40} className="mb-3 text-neutral-600" />
+            <div className="flex flex-col items-center justify-center py-12 text-muted">
+              <Inbox size={40} className="mb-3 text-muted" />
               <p className="text-sm">Aucune donnée de revenus</p>
             </div>
           ) : (
@@ -332,7 +332,13 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              <div className="h-44">
+              <div
+                className="h-44"
+                role="img"
+                aria-label={`Graphique de l'évolution des revenus par mois : ${chartData
+                  .map((d) => `${MOIS[d.mois - 1]} : ${d.total} DH`)
+                  .join(', ')}`}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
                     <defs>
@@ -379,13 +385,19 @@ export default function Dashboard() {
           {loading ? (
             <SkeletonChart />
           ) : pieData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
-              <Inbox size={40} className="mb-3 text-neutral-600" />
+            <div className="flex flex-col items-center justify-center py-12 text-muted">
+              <Inbox size={40} className="mb-3 text-muted" />
               <p className="text-sm">Aucune donnée</p>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-48 h-48">
+              <div
+                className="w-48 h-48"
+                role="img"
+                aria-label={`Graphique de la répartition des véhicules : ${pieData
+                  .map((d) => `${d.name} : ${d.value}`)
+                  .join(', ')}`}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -420,7 +432,7 @@ export default function Dashboard() {
                       />
                       <span className="text-neutral-300 text-sm flex-1">{entry.name}</span>
                       <span className="text-white text-sm font-medium">{entry.value}</span>
-                      <span className="text-neutral-500 text-xs w-10 text-right">{pct}%</span>
+                      <span className="text-muted text-xs w-10 text-right">{pct}%</span>
                     </div>
                   );
                 })}
@@ -450,7 +462,7 @@ export default function Dashboard() {
                         <p className="text-white text-sm">
                           Retour aujourd'hui : {r.vehicule?.marque} {r.vehicule?.modele}
                         </p>
-                        <p className="text-neutral-500 text-xs">Client : {r.client?.nom_complet}</p>
+                        <p className="text-muted text-xs">Client : {r.client?.nom_complet}</p>
                       </div>
                     </div>
                   ))}
@@ -483,7 +495,7 @@ export default function Dashboard() {
                         <p className="text-white text-sm">
                           Contrat expire : {v.marque} {v.modele}
                         </p>
-                        <p className="text-neutral-500 text-xs">{contratsTexte(v)}</p>
+                        <p className="text-muted text-xs">{contratsTexte(v)}</p>
                       </div>
                     </div>
                   ))}
@@ -500,7 +512,7 @@ export default function Dashboard() {
                         <p className="text-white text-sm">
                           Contrat a renouveler : {v.marque} {v.modele}
                         </p>
-                        <p className="text-neutral-500 text-xs">{contratsTexte(v)}</p>
+                        <p className="text-muted text-xs">{contratsTexte(v)}</p>
                       </div>
                     </div>
                   ))}
@@ -508,8 +520,8 @@ export default function Dashboard() {
                   !rappels?.maintenance?.length &&
                   !rappels?.contrats_expires?.length &&
                   !rappels?.contrats_expirants?.length && (
-                  <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
-                    <AlertTriangle size={36} className="mb-3 text-neutral-600" />
+                  <div className="flex flex-col items-center justify-center py-10 text-muted">
+                    <AlertTriangle size={36} className="mb-3 text-muted" />
                     <p className="text-sm">Aucune alerte pour le moment</p>
                   </div>
                 )}

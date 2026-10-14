@@ -475,7 +475,7 @@ export default function ClientProfil() {
                   <UploadCloud size={20} />
                 )}
               </span>
-              <input
+              <input aria-label="Choisir une photo de profil"
                 ref={avatarInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -485,13 +485,13 @@ export default function ClientProfil() {
             </button>
             <div>
               <h2 className="text-white font-semibold text-lg">{client?.nom_complet || 'Mon profil'}</h2>
-              <p className="text-gray-500 text-sm">{client?.email}</p>
-              <p className="text-gray-600 text-xs mt-0.5">Cliquez sur la photo pour la changer</p>
+              <p className="text-muted text-sm">{client?.email}</p>
+              <p className="text-muted text-xs mt-0.5">Cliquez sur la photo pour la changer</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="text-gray-500 hover:text-red-500 text-sm font-medium transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
+            className="text-muted hover:text-red-500 text-sm font-medium transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
           >
             Deconnexion
           </button>
@@ -500,10 +500,10 @@ export default function ClientProfil() {
         {/* Historique des reservations */}
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <h2 className="text-white font-semibold mb-2 flex items-center gap-2">
-            <Calendar size={18} className="text-[#dc2626]" />
+            <Calendar size={18} className="text-primary-light" />
             Mes reservations
           </h2>
-          <p className="text-gray-500 text-sm mb-5">
+          <p className="text-muted text-sm mb-5">
             Consultez l'historique de toutes vos reservations.
           </p>
 
@@ -523,9 +523,9 @@ export default function ClientProfil() {
             </div>
           ) : reservations.length === 0 ? (
             <div className="text-center py-8">
-              <Car size={40} className="mx-auto text-white/20 mb-3" />
-              <p className="text-white/40 text-sm">Aucune reservation pour le moment.</p>
-              <Link to="/vehicules" className="text-[#dc2626] text-sm hover:underline mt-2 inline-block">
+              <Car size={40} className="mx-auto text-muted mb-3" />
+              <p className="text-muted text-sm">Aucune reservation pour le moment.</p>
+              <Link to="/vehicules" className="text-primary-light text-sm hover:underline mt-2 inline-block">
                 Parcourir nos vehicules
               </Link>
             </div>
@@ -540,7 +540,7 @@ export default function ClientProfil() {
                     onClick={() => setExpandedReservation(expandedReservation === res.id ? null : res.id)}
                   >
                     <div className="w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0">
-                      <Car size={18} className="text-[#dc2626]" aria-hidden="true" />
+                      <Car size={18} className="text-primary-light" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -555,13 +555,13 @@ export default function ClientProfil() {
                           showIcon={false}
                         />
                       </div>
-                      <p className="text-gray-500 text-xs mt-1">
+                      <p className="text-muted text-xs mt-1">
                         {res.numero} - {formatDate(res.date_debut)} au {formatDate(res.date_fin)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[#dc2626] font-bold text-sm">{formatMAD(res.prix_total)}</div>
-                      <div className={`text-xs ${parseFloat(res.acompte_paye || 0) > 0 ? 'text-green-400' : 'text-gray-600'}`}>
+                      <div className="text-primary-light font-bold text-sm">{formatMAD(res.prix_total)}</div>
+                      <div className={`text-xs ${parseFloat(res.acompte_paye || 0) > 0 ? 'text-green-400' : 'text-muted'}`}>
                         {parseFloat(res.acompte_paye || 0) > 0
                           ? `${formatMAD(res.acompte_paye)} réglé`
                           : `${formatMAD(res.acompte || 0)} à régler`}
@@ -570,7 +570,7 @@ export default function ClientProfil() {
                     <ChevronDown
                       size={16}
                       aria-hidden="true"
-                      className={`text-gray-500 shrink-0 transition-transform ${expandedReservation === res.id ? 'rotate-180' : ''}`}
+                      className={`text-muted shrink-0 transition-transform ${expandedReservation === res.id ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -578,7 +578,7 @@ export default function ClientProfil() {
                     <div className="border-t border-white/[0.04] px-4 py-4 bg-white/[0.01]">
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-gray-500 text-xs uppercase tracking-wider">Prise en charge</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">Prise en charge</p>
                           <p className="text-white text-sm mt-1">{formatDateTime(res.date_debut)}</p>
                           {res.agence && (
                             <p className="text-white text-xs mt-0.5">
@@ -586,21 +586,21 @@ export default function ClientProfil() {
                               {res.agence.telephone ? ` · ${res.agence.telephone}` : ''}
                             </p>
                           )}
-                          <p className="text-gray-500 text-xs">{res.lieu_prise}</p>
+                          <p className="text-muted text-xs">{res.lieu_prise}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500 text-xs uppercase tracking-wider">Retour</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">Retour</p>
                           <p className="text-white text-sm mt-1">{formatDateTime(res.date_fin)}</p>
-                          <p className="text-gray-500 text-xs">{res.lieu_retour}</p>
+                          <p className="text-muted text-xs">{res.lieu_retour}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500 text-xs uppercase tracking-wider">Mode de paiement</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">Mode de paiement</p>
                           <p className="text-white text-sm mt-1">
                             {res.mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Espèces'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-500 text-xs uppercase tracking-wider">Paiements</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">Paiements</p>
                           <p className="text-white text-sm mt-1">
                             {formatMAD(res.acompte_paye || 0)} encaissés sur {formatMAD(res.acompte || 0)}
                           </p>
@@ -632,7 +632,7 @@ export default function ClientProfil() {
                           <button
                             type="button"
                             onClick={() => downloadFacture(res.id)}
-                            className="flex items-center gap-2 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 text-[#dc2626] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            className="flex items-center gap-2 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 text-primary-light px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             <Download size={14} aria-hidden="true" />
                             Télécharger la facture
@@ -669,7 +669,7 @@ export default function ClientProfil() {
                                   Date de retour actuelle : {formatDate(res.date_fin)}
                                 </p>
                                 <div className="flex items-center gap-2">
-                                  <input
+                                  <input aria-label="Nouvelle date de retour"
                                     type="date"
                                     value={prolongDate}
                                     min={new Date(res.date_fin).toISOString().split('T')[0]}
@@ -685,7 +685,7 @@ export default function ClientProfil() {
                                   </button>
                                   <button
                                     onClick={() => { setProlongingId(null); setProlongDate(''); }}
-                                    className="text-gray-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
+                                    className="text-muted hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
                                   >
                                     Annuler
                                   </button>
@@ -737,10 +737,10 @@ export default function ClientProfil() {
                                               return (
                                                 <li
                                                   key={p.cle}
-                                                  className={`flex items-start gap-2 rounded px-2 py-1 text-[11px] leading-snug ${
+                                                  className={`flex items-start gap-2 rounded px-2 py-1 text-xs leading-snug ${
                                                     actif
                                                       ? 'bg-white/[0.06] text-white'
-                                                      : 'text-gray-500'
+                                                      : 'text-muted'
                                                   }`}
                                                 >
                                                   <span
@@ -762,12 +762,12 @@ export default function ClientProfil() {
                                             })}
                                           </ul>
 
-                                          <p className="text-gray-500 text-[11px] leading-snug">
+                                          <p className="text-muted text-xs leading-snug">
                                             {remb.politique}
                                           </p>
                                         </>
                                       ) : (
-                                        <p className="text-gray-500 text-[11px]">Calcul en cours...</p>
+                                        <p className="text-muted text-xs">Calcul en cours...</p>
                                       )}
                                     </div>
                                   );
@@ -782,7 +782,7 @@ export default function ClientProfil() {
                                   </button>
                                   <button
                                     onClick={() => setCancelConfirm(null)}
-                                    className="text-gray-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
+                                    className="text-muted hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
                                   >
                                     Non
                                   </button>
@@ -811,7 +811,7 @@ export default function ClientProfil() {
         {/* Permis de conduire */}
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <h2 className="text-white font-semibold mb-2">Permis de conduire</h2>
-          <p className="text-gray-500 text-sm mb-5">
+          <p className="text-muted text-sm mb-5">
             Vous devez telecharger une photo de votre permis pour pouvoir reserver.
           </p>
 
@@ -841,13 +841,13 @@ export default function ClientProfil() {
                   : 'border-neutral-700 hover:border-[#dc2626]/50'
               }`}
             >
-              <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-[#dc2626]' : 'text-neutral-500'}`} />
+              <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-primary-light' : 'text-muted'}`} />
               <p className="text-gray-400 text-sm">
                 Glissez votre permis ici ou{' '}
-                <span className="text-[#dc2626] font-medium">parcourez vos fichiers</span>
+                <span className="text-primary-light font-medium">parcourez vos fichiers</span>
               </p>
-              <p className="text-gray-600 text-xs mt-1">JPG, PNG ou PDF - 5 Mo max</p>
-              <input
+              <p className="text-muted text-xs mt-1">JPG, PNG ou PDF - 5 Mo max</p>
+              <input aria-label="Téléverser le permis de conduire"
                 ref={fileInputRef}
                 type="file"
                 accept="image/*,.pdf"
@@ -866,12 +866,12 @@ export default function ClientProfil() {
                   />
                 ) : (
                   <div className="w-20 h-20 bg-neutral-800 border border-neutral-700 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText size={24} className="text-neutral-500" />
+                    <FileText size={24} className="text-muted" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm font-medium truncate">{permisFile.name}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">
+                  <p className="text-muted text-xs mt-0.5">
                     {(permisFile.size / 1024 / 1024).toFixed(2)} Mo
                   </p>
                   <div className="flex items-center gap-2 mt-3">
@@ -892,7 +892,7 @@ export default function ClientProfil() {
                     <button
                       onClick={() => { setPermisFile(null); setPermisPreview(null); }}
                       disabled={uploading}
-                      className="text-gray-500 hover:text-white px-3 py-2 rounded-lg text-sm transition hover:bg-white/5"
+                      className="text-muted hover:text-white px-3 py-2 rounded-lg text-sm transition hover:bg-white/5"
                     >
                       Annuler
                     </button>
@@ -901,7 +901,7 @@ export default function ClientProfil() {
                 <button
                   onClick={() => { setPermisFile(null); setPermisPreview(null); }}
                   disabled={uploading}
-                  className="text-gray-600 hover:text-red-500 transition-colors shrink-0 p-1"
+                  className="text-muted hover:text-red-500 transition-colors shrink-0 p-1"
                 >
                   <X size={16} />
                 </button>
@@ -916,7 +916,7 @@ export default function ClientProfil() {
             <Award size={18} className="text-yellow-500" />
             Programme de fidelite
           </h2>
-          <p className="text-gray-500 text-sm mb-5">
+          <p className="text-muted text-sm mb-5">
             Gagnez des points a chaque location et beneficiez de reductions exclusives.
           </p>
 
@@ -943,7 +943,7 @@ export default function ClientProfil() {
                       </div>
                       <div className="text-right">
                         <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
-                        <p className="text-gray-500 text-xs">points</p>
+                        <p className="text-muted text-xs">points</p>
                       </div>
                     </div>
                   </div>
@@ -954,11 +954,11 @@ export default function ClientProfil() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-2xl">{fidelite.nombre_locations}</p>
-                  <p className="text-gray-500 text-sm">Locations effectuees</p>
+                  <p className="text-muted text-sm">Locations effectuees</p>
                 </div>
                 <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
-                  <p className="text-gray-500 text-sm">Points cumules</p>
+                  <p className="text-muted text-sm">Points cumules</p>
                 </div>
               </div>
 
@@ -977,7 +977,7 @@ export default function ClientProfil() {
                       }}
                     />
                   </div>
-                  <p className="text-gray-500 text-xs mt-2">
+                  <p className="text-muted text-xs mt-2">
                     Plus que {fidelite.prochain_niveau.locations_restantes} location(s) pour {fidelite.prochain_niveau.reduction}% de reduction
                   </p>
                 </div>
@@ -998,8 +998,8 @@ export default function ClientProfil() {
                         }`}
                       >
                         <p className={`text-xs font-medium capitalize ${actif ? '' : 'text-white'}`}>{nom}</p>
-                        <p className={`text-[10px] mt-0.5 ${actif ? '' : 'text-gray-500'}`}>{config.reduction}% off</p>
-                        <p className={`text-[10px] ${actif ? '' : 'text-gray-600'}`}>{config.locations_min}+</p>
+                        <p className={`text-[10px] mt-0.5 ${actif ? '' : 'text-muted'}`}>{config.reduction}% off</p>
+                        <p className={`text-[10px] ${actif ? '' : 'text-muted'}`}>{config.locations_min}+</p>
                       </div>
                     );
                   })}
@@ -1007,14 +1007,14 @@ export default function ClientProfil() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">Impossible de charger les informations de fidelite.</p>
+            <p className="text-muted text-sm">Impossible de charger les informations de fidelite.</p>
           )}
         </div>
 
         {/* V2 : parrainage */}
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-1 flex items-center gap-2">
-            <Users size={18} className="text-[#dc2626]" />
+            <Users size={18} className="text-primary-light" />
             Parrainage
           </h2>
           <p className="text-gray-400 text-sm mb-4">
@@ -1046,20 +1046,20 @@ export default function ClientProfil() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-xl">{parrainage.nombre_filleuls}</p>
-                  <p className="text-gray-500 text-xs mt-1">Filleul(s)</p>
+                  <p className="text-muted text-xs mt-1">Filleul(s)</p>
                 </div>
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-xl">{parrainage.filleuls_recompenses}</p>
-                  <p className="text-gray-500 text-xs mt-1">Première location</p>
+                  <p className="text-muted text-xs mt-1">Première location</p>
                 </div>
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
-                  <p className="text-[#dc2626] font-semibold text-xl">{parrainage.points_totaux}</p>
-                  <p className="text-gray-500 text-xs mt-1">Points gagnés</p>
+                  <p className="text-primary-light font-semibold text-xl">{parrainage.points_totaux}</p>
+                  <p className="text-muted text-xs mt-1">Points gagnés</p>
                 </div>
               </div>
             </>
           ) : (
-            <p className="text-gray-500 text-sm">Chargement du code de parrainage...</p>
+            <p className="text-muted text-sm">Chargement du code de parrainage...</p>
           )}
         </div>
 
@@ -1094,9 +1094,9 @@ export default function ClientProfil() {
                 type="email"
                 value={form.email}
                 readOnly
-                className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/50 text-sm cursor-not-allowed"
+                className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/70 text-sm cursor-not-allowed"
               />
-              <p className="text-gray-600 text-xs mt-1">L'email ne peut pas être modifié</p>
+              <p className="text-muted text-xs mt-1">L'email ne peut pas être modifié</p>
             </div>
             <div>
               <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
@@ -1105,9 +1105,9 @@ export default function ClientProfil() {
                 type="text"
                 value={form.cin}
                 readOnly
-                className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/50 text-sm cursor-not-allowed"
+                className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/70 text-sm cursor-not-allowed"
               />
-              <p className="text-gray-600 text-xs mt-1">Le CIN ne peut pas être modifié</p>
+              <p className="text-muted text-xs mt-1">Le CIN ne peut pas être modifié</p>
             </div>
             <div>
               <label htmlFor="profil-permis-exp" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Expiration du permis</label>
@@ -1118,7 +1118,7 @@ export default function ClientProfil() {
                 onChange={(e) => setForm({ ...form, date_expiration_permis: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
               />
-              <p className="text-gray-600 text-xs mt-1">Nécessaire pour la validation de votre permis.</p>
+              <p className="text-muted text-xs mt-1">Nécessaire pour la validation de votre permis.</p>
             </div>
             <div className="md:col-span-2">
               <label htmlFor="profil-adresse" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Adresse</label>
@@ -1133,7 +1133,7 @@ export default function ClientProfil() {
           </div>
 
           <div className="mt-6 flex items-center justify-between">
-            <Link to="/" className="text-gray-500 hover:text-white text-sm transition-colors">
+            <Link to="/" className="text-muted hover:text-white text-sm transition-colors">
               Retour à l'accueil
             </Link>
             <button
@@ -1174,7 +1174,7 @@ function HistoriquePaiements({ paiements }) {
 
   return (
     <div className="border-t border-white/[0.04] pt-3">
-      <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+      <p className="text-muted text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
         <ReceiptText size={12} aria-hidden="true" />
         Détail des écritures
       </p>
@@ -1187,13 +1187,13 @@ function HistoriquePaiements({ paiements }) {
               key={p.id}
               className="flex items-center gap-3 rounded-lg bg-white/[0.02] border border-white/[0.04] px-3 py-2 text-xs"
             >
-              <span className="text-gray-500 shrink-0 w-[92px]">
+              <span className="text-muted shrink-0 w-[92px]">
                 {p.date_paiement ? formatDateTime(p.date_paiement) : '—'}
               </span>
               <span className={`flex-1 min-w-0 truncate ${estRemboursement ? 'text-blue-300' : 'text-white/80'}`}>
                 {estRemboursement ? 'Remboursement' : 'Encaissement'}
                 {p.transaction_id && (
-                  <span className="text-gray-600 font-mono text-[10px] ml-2">{p.transaction_id}</span>
+                  <span className="text-muted font-mono text-[10px] ml-2">{p.transaction_id}</span>
                 )}
               </span>
               <span className={`shrink-0 font-medium ${signe < 0 ? 'text-blue-400' : 'text-white'}`}>

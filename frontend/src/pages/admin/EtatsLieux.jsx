@@ -115,7 +115,7 @@ export default function EtatsLieux() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Etats des lieux</h1>
-            <p className="text-neutral-500 text-sm">{etats.length} etat(s) enregistre(s)</p>
+            <p className="text-muted text-sm">{etats.length} etat(s) enregistre(s)</p>
           </div>
         </div>
         <button
@@ -157,8 +157,8 @@ export default function EtatsLieux() {
             </div>
           ))
         ) : filtered.length === 0 ? (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl py-12 text-center text-neutral-500">
-            <ClipboardCheck size={40} className="mx-auto mb-3 text-neutral-600" />
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl py-12 text-center text-muted">
+            <ClipboardCheck size={40} className="mx-auto mb-3 text-muted" />
             <p className="text-sm">Aucun etat des lieux</p>
           </div>
         ) : filtered.map((e) => (
@@ -180,7 +180,7 @@ export default function EtatsLieux() {
               </span>
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-800">
-              <div className="flex items-center gap-3 text-xs text-neutral-500">
+              <div className="flex items-center gap-3 text-xs text-muted">
                 <span>{e.photos?.length || 0} photo(s)</span>
                 <span>{new Date(e.created_at).toLocaleDateString('fr-FR')}</span>
               </div>
@@ -209,7 +209,7 @@ export default function EtatsLieux() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Reservation</th>
                 <th className="text-left py-3 px-5 font-medium">Client</th>
                 <th className="text-left py-3 px-5 font-medium">Vehicule</th>
@@ -228,8 +228,8 @@ export default function EtatsLieux() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-neutral-500">
-                    <ClipboardCheck size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={7} className="text-center py-12 text-muted">
+                    <ClipboardCheck size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun etat des lieux</p>
                   </td>
                 </tr>
@@ -293,8 +293,8 @@ export default function EtatsLieux() {
             <h3 className="text-white font-semibold mb-4">Nouvel etat des lieux</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-neutral-400 text-sm mb-1 block">Reservation</label>
-                <select
+                <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-297">Reservation</label>
+                <select id="ctl-297"
                   value={form.reservation_id}
                   onChange={(e) => setForm({ ...form, reservation_id: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
@@ -309,8 +309,8 @@ export default function EtatsLieux() {
                 </select>
               </div>
               <div>
-                <label className="text-neutral-400 text-sm mb-1 block">Type</label>
-                <select
+                <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-313">Type</label>
+                <select id="ctl-313"
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
@@ -337,7 +337,7 @@ export default function EtatsLieux() {
                 </div>
                 {form.photos.length < 6 && (
                   <label className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-neutral-700 rounded-xl cursor-pointer hover:border-red-600/50 transition">
-                    <Upload size={18} className="text-neutral-500" />
+                    <Upload size={18} className="text-muted" />
                     <span className="text-neutral-400 text-sm">Ajouter des photos</span>
                     <input
                       type="file"
@@ -351,8 +351,8 @@ export default function EtatsLieux() {
                 )}
               </div>
               <div>
-                <label className="text-neutral-400 text-sm mb-1 block">Notes</label>
-                <textarea
+                <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-355">Notes</label>
+                <textarea id="ctl-355"
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={3}
@@ -383,7 +383,7 @@ export default function EtatsLieux() {
             <p className="text-neutral-400 text-sm mb-4">
               Reservation {selectedEtat.reservation?.numero} | {selectedEtat.reservation?.vehicule?.marque} {selectedEtat.reservation?.vehicule?.modele}
             </p>
-            <p className="text-neutral-500 text-xs mb-4">
+            <p className="text-muted text-xs mb-4">
               {new Date(selectedEtat.created_at).toLocaleString('fr-FR')} | Agent: {selectedEtat.agent?.name || 'N/A'}
             </p>
             {selectedEtat.photos && selectedEtat.photos.length > 0 && (
@@ -428,7 +428,7 @@ export default function EtatsLieux() {
                     <p className={`text-sm font-medium mb-2 ${label === 'Depart' ? 'text-blue-400' : 'text-green-400'}`}>
                       {label}
                     </p>
-                    <p className="text-neutral-500 text-xs mb-3">
+                    <p className="text-muted text-xs mb-3">
                       {new Date(data.created_at).toLocaleString('fr-FR')} | Agent: {data.agent?.name || 'N/A'}
                     </p>
                     {data.photos?.length > 0 && (

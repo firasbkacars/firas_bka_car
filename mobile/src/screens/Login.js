@@ -34,6 +34,7 @@ export default function Login({ navigation }) {
         keyboardType="email-address"
         value={email}
         onChange={(e) => setEmail(e.nativeEvent.text)}
+        accessibilityLabel="Email"
       />
       <TextInput
         style={styles.input}
@@ -42,10 +43,18 @@ export default function Login({ navigation }) {
         secureTextEntry
         value={password}
         onChange={(e) => setPassword(e.nativeEvent.text)}
+        accessibilityLabel="Mot de passe"
       />
-      {error && <Text style={styles.error}>{error}</Text>}
-      <TouchableOpacity style={styles.cta} onPress={submit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Se connecter</Text>}
+      {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
+      <TouchableOpacity
+        style={styles.cta}
+        onPress={submit}
+        disabled={loading}
+        accessibilityRole="button"
+        accessibilityLabel="Se connecter"
+        accessibilityState={{ disabled: loading, busy: loading }}
+      >
+        {loading ? <ActivityIndicator color="#fff" accessibilityLabel="Connexion en cours" /> : <Text style={styles.ctaText}>Se connecter</Text>}
       </TouchableOpacity>
     </View>
   );

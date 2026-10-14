@@ -3,11 +3,11 @@ import { Home, ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 pt-24 pb-16">
       <div className="text-center max-w-md">
-        <div className="text-[120px] font-bold text-white/5 leading-none select-none">404</div>
+        <div className="text-[120px] font-bold text-white/10 leading-none select-none" aria-hidden="true">404</div>
         <h1 className="text-2xl font-bold text-white -mt-8 mb-3">Page introuvable</h1>
-        <p className="text-gray-500 text-sm mb-8">
+        <p className="text-muted text-sm mb-8">
           La page que vous recherchez n'existe pas ou a ete deplacee.
         </p>
         <div className="flex items-center justify-center gap-3">

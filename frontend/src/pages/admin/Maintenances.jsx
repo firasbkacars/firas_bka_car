@@ -134,8 +134,8 @@ export default function AdminMaintenances() {
         </div>
       ) : maintenances.length === 0 ? (
         <div className="text-center py-16 bg-neutral-900 border border-neutral-800 rounded-2xl">
-          <Wrench size={40} className="mx-auto text-neutral-700 mb-3" />
-          <p className="text-neutral-500 text-sm">Aucune maintenance enregistree.</p>
+          <Wrench size={40} className="mx-auto text-muted mb-3" />
+          <p className="text-muted text-sm">Aucune maintenance enregistree.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -161,7 +161,7 @@ export default function AdminMaintenances() {
                     <span className="text-white font-medium text-sm">
                       {m.vehicule?.marque} {m.vehicule?.modele}
                     </span>
-                    <span className="text-neutral-500 text-xs">-</span>
+                    <span className="text-muted text-xs">-</span>
                     <span className="text-white/70 text-sm">{m.type}</span>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUT_COLORS[m.statut]}`}>
                       {STATUT_LABELS[m.statut]}
@@ -171,9 +171,9 @@ export default function AdminMaintenances() {
                     )}
                   </div>
                   {m.description && (
-                    <p className="text-neutral-500 text-xs mt-1">{m.description}</p>
+                    <p className="text-muted text-xs mt-1">{m.description}</p>
                   )}
-                  <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted">
                     <span className="flex items-center gap-1">
                       <Calendar size={12} />
                       Prevu le {new Date(m.date_prevue).toLocaleDateString('fr-FR')}
@@ -223,8 +223,8 @@ export default function AdminMaintenances() {
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
-                <label className="text-neutral-400 text-xs mb-1.5 block">Vehicule</label>
-                <select
+                <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-227">Vehicule</label>
+                <select id="ctl-227"
                   value={form.vehicule_id}
                   onChange={(e) => setForm({ ...form, vehicule_id: e.target.value })}
                   required
@@ -237,8 +237,8 @@ export default function AdminMaintenances() {
                 </select>
               </div>
               <div>
-                <label className="text-neutral-400 text-xs mb-1.5 block">Type de maintenance</label>
-                <select
+                <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-241">Type de maintenance</label>
+                <select id="ctl-241"
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
                   required
@@ -251,8 +251,8 @@ export default function AdminMaintenances() {
                 </select>
               </div>
               <div>
-                <label className="text-neutral-400 text-xs mb-1.5 block">Description</label>
-                <textarea
+                <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-255">Description</label>
+                <textarea id="ctl-255"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
@@ -262,8 +262,8 @@ export default function AdminMaintenances() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1.5 block">Date prevue</label>
-                  <input
+                  <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-266">Date prevue</label>
+                  <input id="ctl-266"
                     type="date"
                     value={form.date_prevue}
                     onChange={(e) => setForm({ ...form, date_prevue: e.target.value })}
@@ -272,8 +272,8 @@ export default function AdminMaintenances() {
                   />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1.5 block">Cout (DH)</label>
-                  <input
+                  <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-276">Cout (DH)</label>
+                  <input id="ctl-276"
                     type="number"
                     value={form.cout}
                     onChange={(e) => setForm({ ...form, cout: e.target.value })}
@@ -284,8 +284,8 @@ export default function AdminMaintenances() {
                 </div>
               </div>
               <div>
-                <label className="text-neutral-400 text-xs mb-1.5 block">Statut</label>
-                <select
+                <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-288">Statut</label>
+                <select id="ctl-288"
                   value={form.statut}
                   onChange={(e) => setForm({ ...form, statut: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none"
@@ -296,8 +296,8 @@ export default function AdminMaintenances() {
                 </select>
               </div>
               <div>
-                <label className="text-neutral-400 text-xs mb-1.5 block">Notes</label>
-                <textarea
+                <label className="text-neutral-400 text-xs mb-1.5 block" htmlFor="ctl-300">Notes</label>
+                <textarea id="ctl-300"
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={2}

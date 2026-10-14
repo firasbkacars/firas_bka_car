@@ -19,7 +19,7 @@ export default function Home({ navigation }) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#dc2626" size="large" />
+        <ActivityIndicator color="#dc2626" size="large" accessibilityLabel="Chargement du catalogue" />
       </View>
     );
   }
@@ -28,7 +28,12 @@ export default function Home({ navigation }) {
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error}</Text>
-        <TouchableOpacity style={styles.cta} onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity
+          style={styles.cta}
+          onPress={() => navigation.navigate('Login')}
+          accessibilityRole="button"
+          accessibilityLabel="Connexion"
+        >
           <Text style={styles.ctaText}>Connexion</Text>
         </TouchableOpacity>
       </View>
@@ -50,6 +55,8 @@ export default function Home({ navigation }) {
           <TouchableOpacity
             style={styles.card}
             onPress={() => navigation.navigate('VehicleDetail', { id: item.id })}
+            accessibilityRole="button"
+            accessibilityLabel={`Voir le véhicule ${item.marque} ${item.modele}, ${item.prix_jour} DH par jour`}
           >
             <Image source={{ uri }} style={styles.image} />
             <View style={styles.cardBody}>

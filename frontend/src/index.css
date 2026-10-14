@@ -3,9 +3,56 @@
 @theme {
   --color-primary: #dc2626;
   --color-primary-dark: #b91c1c;
+  /* Red used as TEXT on dark surfaces: #ef4444 = 5.3:1 (AA), vs #dc2626 = 4.1:1 (fail) */
+  --color-primary-light: #ef4444;
   --color-dark-bg: #0a0a0a;
   --color-dark-card: #1a1a1a;
   --color-dark-border: #2a2a2a;
+  /* Semantic text tiers — contrast measured on #0a0a0a / #1a1a1a */
+  --color-muted: #a3a3a3; /* 7.8:1 — secondary text (AA+) */
+  --color-placeholder: #8a8a8a; /* 5.7:1 — placeholder text */
+  --color-disabled: #4a4a4a; /* disabled only (WCAG-exempt, must still read as disabled) */
+}
+
+/* —— Focus visibility (WCAG 2.4.7) ——
+   Overrides Tailwind's `outline-none` utilities (lower specificity + !important). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible,
+[role="tab"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 2px;
+}
+
+/* —— Skip link: visible only when focused —— */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0 0 0.75rem 0.75rem;
+  transition: top 0.15s ease-out;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* Route-change focus target: content receives focus programmatically */
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none !important;
 }
 
 /* Forces native form controls (select dropdown, date/time pickers) to dark */
@@ -152,4 +199,16 @@ select option::-moz-selection {
 
 @media (prefers-reduced-motion: reduce) {
   .toast-in, .toast-out, .modal-in { animation: none; }
+
+  /* Infinite decorative marquee must not run for motion-sensitive users */
+  .animate-marquee { animation: none; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

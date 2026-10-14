@@ -87,7 +87,7 @@ export default function Clients() {
 
   const getPermisBadge = (c) => {
     if (!c.permis_conduire) {
-      return <span className="text-neutral-500 bg-neutral-800 px-2 py-1 rounded-full text-xs font-medium">Non uploade</span>;
+      return <span className="text-muted bg-neutral-800 px-2 py-1 rounded-full text-xs font-medium">Non uploade</span>;
     }
     switch (c.permis_statut) {
       case 'valide':
@@ -108,17 +108,17 @@ export default function Clients() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Clients</h1>
-            <p className="text-neutral-500 text-sm">{clients.length} client(s)</p>
+            <p className="text-muted text-sm">{clients.length} client(s)</p>
           </div>
         </div>
         <div className="relative w-full sm:w-72">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-          <input
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input aria-label="Rechercher un client..."
             type="text"
             placeholder="Rechercher un client..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-red-600 transition"
+            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-placeholder focus:outline-none focus:border-red-600 transition"
           />
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function Clients() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Nom</th>
                 <th className="text-left py-3 px-5 font-medium">Email</th>
                 <th className="text-left py-3 px-5 font-medium">Telephone</th>
@@ -145,8 +145,8 @@ export default function Clients() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-neutral-500">
-                    <Users size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={6} className="text-center py-12 text-muted">
+                    <Users size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun client trouve</p>
                   </td>
                 </tr>
@@ -220,10 +220,10 @@ export default function Clients() {
             <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-neutral-400 hover:text-white"><X size={20} /></button>
             <h3 className="text-white font-semibold mb-4">Modifier le client</h3>
             <form onSubmit={handleSave} className="space-y-3">
-              <input type="text" value={editClient.nom_complet || ''} onChange={e => setEditClient({ ...editClient, nom_complet: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Nom complet" />
-              <input type="email" value={editClient.email || ''} onChange={e => setEditClient({ ...editClient, email: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Email" />
-              <input type="text" value={editClient.telephone || ''} onChange={e => setEditClient({ ...editClient, telephone: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Telephone" />
-              <input type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
+              <input aria-label="Nom complet" type="text" value={editClient.nom_complet || ''} onChange={e => setEditClient({ ...editClient, nom_complet: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Nom complet" />
+              <input aria-label="Email" type="email" value={editClient.email || ''} onChange={e => setEditClient({ ...editClient, email: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Email" />
+              <input aria-label="Telephone" type="text" value={editClient.telephone || ''} onChange={e => setEditClient({ ...editClient, telephone: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Telephone" />
+              <input aria-label="CIN" type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
                 <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
@@ -243,7 +243,7 @@ export default function Clients() {
             <p className="text-neutral-400 text-sm mb-4">
               Client : <span className="text-white">{showPermisModal.nom_complet}</span>
             </p>
-            <textarea
+            <textarea aria-label="Motif du rejet du permis"
               value={rejetMotif}
               onChange={(e) => setRejetMotif(e.target.value)}
               rows={3}

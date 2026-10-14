@@ -38,30 +38,30 @@ function VehicleCard({ v }) {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-        <FavoriButton vehiculeId={v.id} className="absolute top-3 right-3" />
+        <FavoriButton vehiculeId={v.id} className="absolute top-1 right-1" />
         {v.populaire && (
           <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
             <Star size={10} fill="currentColor" /> Populaire
           </span>
         )}
         <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-          <span className="text-[#dc2626] font-bold text-base">{v.prix_jour}</span>
-          <span className="text-white/40 text-xs ml-0.5">DH/j</span>
+          <span className="text-primary-light font-bold text-base">{v.prix_jour}</span>
+          <span className="text-muted text-xs ml-0.5">DH/j</span>
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-white font-bold text-base group-hover:text-[#dc2626] transition-colors">
+        <h3 className="text-white font-bold text-base group-hover:text-primary-light transition-colors">
           {v.marque} {v.modele}
         </h3>
-        <div className="flex items-center gap-3 mt-2 text-white/30 text-xs">
+        <div className="flex items-center gap-3 mt-2 text-muted text-xs">
           <span className="flex items-center gap-1"><Calendar size={12} /> {v.annee}</span>
           <span className="flex items-center gap-1"><Settings2 size={12} /> {v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
           <span className="flex items-center gap-1"><Fuel size={12} /> {v.carburant}</span>
           <span className="flex items-center gap-1"><Users size={12} /> {v.places}</span>
         </div>
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-white/20 text-xs">Disponible</span>
-          <span className="text-[#dc2626] text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+          <span className="text-muted text-xs">Disponible</span>
+          <span className="text-primary-light text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
             Details <ChevronRight size={12} />
           </span>
         </div>
@@ -132,17 +132,17 @@ export default function Home() {
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pb-20 pt-32">
           <div className="max-w-2xl">
-            <span className="inline-block bg-[#dc2626]/10 border border-[#dc2626]/30 text-[#dc2626] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-6">
+            <span className="inline-block bg-[#dc2626]/10 border border-[#dc2626]/30 text-primary-light text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-6">
               Location de vehicules au Maroc
             </span>
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
               Louez la
               <br />
-              <span className="text-[#dc2626]">voiture</span>
+              <span className="text-primary-light">voiture</span>
               <br />
               qui vous correspond
             </h1>
-            <p className="text-white/50 text-lg mt-6 max-w-md leading-relaxed">
+            <p className="text-white/70 text-lg mt-6 max-w-md leading-relaxed">
               Des vehicules premium, un service fiable et des prix transparents. Reservez en quelques clics.
             </p>
             <div className="flex items-center gap-4 mt-8">
@@ -168,10 +168,10 @@ export default function Home() {
         <form onSubmit={handleSearch} className="max-w-7xl mx-auto bg-[#111] border border-white/[0.08] rounded-2xl p-6 md:p-8 shadow-2xl shadow-black/50">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin size={12} className="text-[#dc2626]" /> Lieu de prise
+              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5" htmlFor="ctl-174">
+                <MapPin size={12} className="text-primary-light" /> Lieu de prise
               </label>
-              <select
+              <select id="ctl-174"
                 value={search.lieuPrise}
                 onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition"
@@ -182,24 +182,24 @@ export default function Home() {
               </select>
             </div>
             <div>
-              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Calendar size={12} className="text-[#dc2626]" /> Date & Heure
+              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Calendar size={12} className="text-primary-light" /> Date & Heure
               </label>
               <div className="flex gap-2">
-                <input type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
+                <input aria-label="Date & Heure de prise en charge" type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
                   className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                <input type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
+                <input aria-label="Heure de prise en charge" type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
                   className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
               </div>
             </div>
             <div>
-              <label className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin size={12} className="text-white/30" /> Retour
+              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <MapPin size={12} className="text-muted" /> Retour
               </label>
               <div className="flex gap-2">
-                <input type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
+                <input aria-label="Date & Heure de retour" type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
                   className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                <input type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
+                <input aria-label="Heure de retour" type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
                   className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function Home() {
       {/* Brands */}
       <section className="py-14 px-6 md:px-12 mt-8">
         <div className="max-w-7xl mx-auto">
-          <p className="text-center text-white/20 text-[10px] uppercase tracking-[0.3em] font-medium mb-8">Nos marques partenaires</p>
+          <p className="text-center text-muted text-[10px] uppercase tracking-[0.3em] font-medium mb-8">Nos marques partenaires</p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
             {BRANDS.map((brand, i) => (
               <div
@@ -247,9 +247,9 @@ export default function Home() {
       <section className="py-8 px-6 md:px-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { icon: <Car size={20} className="text-[#dc2626]" />, title: 'Meilleurs prix', desc: 'Tarifs competitifs toute l\'annee, sans frais caches.' },
-            { icon: <Shield size={20} className="text-[#dc2626]" />, title: 'Vehicules recents', desc: 'Confort, securite et performance garantis.' },
-            { icon: <Headphones size={20} className="text-[#dc2626]" />, title: 'Support 7j/7', desc: 'Une equipe disponible pour vous accompagner.' },
+            { icon: <Car size={20} className="text-primary-light" />, title: 'Meilleurs prix', desc: 'Tarifs competitifs toute l\'annee, sans frais caches.' },
+            { icon: <Shield size={20} className="text-primary-light" />, title: 'Vehicules recents', desc: 'Confort, securite et performance garantis.' },
+            { icon: <Headphones size={20} className="text-primary-light" />, title: 'Support 7j/7', desc: 'Une equipe disponible pour vous accompagner.' },
           ].map((f, i) => (
             <div key={i} className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-[#dc2626]/20 transition">
               <div className="shrink-0 w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center">
@@ -257,7 +257,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="text-white font-semibold text-sm">{f.title}</h3>
-                <p className="text-white/30 text-xs mt-0.5">{f.desc}</p>
+                <p className="text-muted text-xs mt-0.5">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -270,12 +270,12 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-end justify-between mb-10">
               <div>
-                <span className="text-[#dc2626] text-xs font-bold uppercase tracking-wider">Flotte</span>
+                <span className="text-primary-light text-xs font-bold uppercase tracking-wider">Flotte</span>
                 <h2 className="text-3xl sm:text-4xl font-black text-white mt-1">Vehicules populaires</h2>
               </div>
               <Link
                 to="/vehicules"
-                className="hidden sm:flex items-center gap-1.5 text-[#dc2626] font-semibold text-sm hover:gap-2.5 transition-all"
+                className="hidden sm:flex items-center gap-1.5 text-primary-light font-semibold text-sm hover:gap-2.5 transition-all"
               >
                 Tout voir <ChevronRight size={16} />
               </Link>
@@ -289,7 +289,7 @@ export default function Home() {
 
             <Link
               to="/vehicules"
-              className="sm:hidden flex items-center justify-center gap-1.5 text-[#dc2626] font-semibold text-sm mt-8"
+              className="sm:hidden flex items-center justify-center gap-1.5 text-primary-light font-semibold text-sm mt-8"
             >
               Tout voir <ChevronRight size={16} />
             </Link>
@@ -308,7 +308,7 @@ export default function Home() {
             </p>
             <Link
               to="/vehicules"
-              className="inline-block bg-white text-[#dc2626] font-bold px-10 py-3.5 rounded-xl mt-8 hover:bg-gray-100 transition text-sm"
+              className="inline-block bg-white text-primary-light font-bold px-10 py-3.5 rounded-xl mt-8 hover:bg-gray-100 transition text-sm"
             >
               Explorer la flotte
             </Link>

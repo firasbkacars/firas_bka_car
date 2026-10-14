@@ -258,7 +258,7 @@ export default function PaiementRetour() {
           </p>
 
           {(checking || (!isTerminal && attempts < MAX_POLL_ATTEMPTS)) && (
-            <p className="text-gray-500 text-xs flex items-center justify-center gap-2 mb-4">
+            <p className="text-muted text-xs flex items-center justify-center gap-2 mb-4">
               <Loader2 size={13} className="animate-spin" aria-hidden="true" />
               {checking
                 ? 'Verification en cours...'
@@ -341,7 +341,7 @@ export default function PaiementRetour() {
           </div>
         </div>
 
-        <p className="text-gray-600 text-[11px] text-center mt-5 leading-relaxed">
+        <p className="text-muted text-xs text-center mt-5 leading-relaxed">
           Aucune donnee bancaire n'est stockee par FIRAS BKA CAR.
           Le paiement est traite par le Centre Monetique Interbancaire.
         </p>
@@ -353,7 +353,7 @@ export default function PaiementRetour() {
 function Row({ label, value, mono }) {
   return (
     <div className="flex items-center justify-between gap-3 text-xs">
-      <span className="text-gray-500">{label}</span>
+      <span className="text-muted">{label}</span>
       <span className={`text-white font-medium text-right ${mono ? 'font-mono text-[10px] break-all' : ''}`}>
         {value}
       </span>

@@ -54,7 +54,7 @@ export default function Calendrier() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white">Calendrier</h1>
-          <p className="text-neutral-500 text-sm">Planning des réservations</p>
+          <p className="text-muted text-sm">Planning des réservations</p>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export default function Calendrier() {
 
         <div className="grid grid-cols-7 gap-1">
           {JOURS.map(j => (
-            <div key={j} className="text-center text-neutral-500 text-xs font-medium py-2">{j}</div>
+            <div key={j} className="text-center text-muted text-xs font-medium py-2">{j}</div>
           ))}
           {Array.from({ length: startOffset }).map((_, i) => (
             <div key={`empty-${i}`} />
@@ -93,7 +93,7 @@ export default function Calendrier() {
                     <div key={idx} className={`h-1.5 ${statutColor[r.statut] || 'bg-neutral-600'} rounded-full`} title={`${r.client?.nom_complet} - ${r.vehicule?.marque} ${r.vehicule?.modele}`} />
                   ))}
                   {dayReservations.length > 2 && (
-                    <span className="text-[10px] text-neutral-500">+{dayReservations.length - 2}</span>
+                    <span className="text-[10px] text-muted">+{dayReservations.length - 2}</span>
                   )}
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function Calendrier() {
         </div>
 
         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-neutral-800">
-          <span className="text-neutral-500 text-xs">Légende :</span>
+          <span className="text-muted text-xs">Légende :</span>
           {[
             { label: 'Confirmée', color: 'bg-blue-500' },
             { label: 'En cours', color: 'bg-yellow-500' },

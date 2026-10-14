@@ -109,7 +109,7 @@ export default function ContratsFournisseurs() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Contrats fournisseurs</h1>
-            <p className="text-neutral-500 text-sm">{contrats.length} contrat(s)</p>
+            <p className="text-muted text-sm">{contrats.length} contrat(s)</p>
           </div>
         </div>
         <button
@@ -125,7 +125,7 @@ export default function ContratsFournisseurs() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Titre</th>
                 <th className="text-left py-3 px-5 font-medium">Fournisseur</th>
                 <th className="text-left py-3 px-5 font-medium">Référence</th>
@@ -145,8 +145,8 @@ export default function ContratsFournisseurs() {
                 ))
               ) : contrats.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12 text-neutral-500">
-                    <FileText size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={8} className="text-center py-12 text-muted">
+                    <FileText size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun contrat fournisseur</p>
                   </td>
                 </tr>
@@ -189,30 +189,30 @@ export default function ContratsFournisseurs() {
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-lg p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">{editContrat ? 'Modifier le contrat' : 'Nouveau contrat'}</h2>
-              <button onClick={() => setShowModal(false)} className="text-neutral-500 hover:text-white"><X size={20} /></button>
+              <button onClick={() => setShowModal(false)} className="text-muted hover:text-white"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input required placeholder="Titre" value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })}
+              <input aria-label="Titre" required placeholder="Titre" value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
-              <input required placeholder="Fournisseur" value={form.fournisseur} onChange={(e) => setForm({ ...form, fournisseur: e.target.value })}
+              <input aria-label="Fournisseur" required placeholder="Fournisseur" value={form.fournisseur} onChange={(e) => setForm({ ...form, fournisseur: e.target.value })}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
-              <input placeholder="Référence (optionnel)" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })}
+              <input aria-label="Référence (optionnel)" placeholder="Référence (optionnel)" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-neutral-500 mb-1 block">Date de début</label>
-                  <input required type="date" value={form.date_debut} onChange={(e) => setForm({ ...form, date_debut: e.target.value })}
+                  <label className="text-xs text-muted mb-1 block" htmlFor="ctl-204">Date de début</label>
+                  <input id="ctl-204" required type="date" value={form.date_debut} onChange={(e) => setForm({ ...form, date_debut: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-neutral-500 mb-1 block">Expiration</label>
-                  <input type="date" value={form.date_expiration} onChange={(e) => setForm({ ...form, date_expiration: e.target.value })}
+                  <label className="text-xs text-muted mb-1 block" htmlFor="ctl-209">Expiration</label>
+                  <input id="ctl-209" type="date" value={form.date_expiration} onChange={(e) => setForm({ ...form, date_expiration: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
                 </div>
               </div>
-              <input type="number" step="0.01" min="0" placeholder="Montant (DH)" value={form.montant} onChange={(e) => setForm({ ...form, montant: e.target.value })}
+              <input aria-label="Montant (DH)" type="number" step="0.01" min="0" placeholder="Montant (DH)" value={form.montant} onChange={(e) => setForm({ ...form, montant: e.target.value })}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
-              <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3}
+              <textarea aria-label="Notes" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-white text-sm" />
               <button type="submit" disabled={saving}
                 className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-2.5 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">

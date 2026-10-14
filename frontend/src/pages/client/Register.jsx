@@ -7,7 +7,7 @@ import { Eye, EyeOff, Loader2, Check, AlertTriangle, CheckCircle2 } from 'lucide
 function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle, autoFocus }) {
   return (
     <div>
-      <label htmlFor={id} className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+      <label htmlFor={id} className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
         {label}
       </label>
       <div className="relative">
@@ -21,12 +21,12 @@ function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pr-11 text-white text-sm placeholder:text-white/20 focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+          className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pr-11 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
         />
         <button
           type="button"
           onClick={onToggle}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors p-0.5"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
           aria-label={show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
         >
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -38,7 +38,7 @@ function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle
 
 function StrengthIndicator({ strength }) {
   const config = {
-    weak: { label: 'Faible', color: 'bg-[#dc2626]', text: 'text-[#dc2626]', width: 'w-1/3' },
+    weak: { label: 'Faible', color: 'bg-[#dc2626]', text: 'text-primary-light', width: 'w-1/3' },
     medium: { label: 'Moyen', color: 'bg-amber-500', text: 'text-amber-500', width: 'w-2/3' },
     strong: { label: 'Fort', color: 'bg-emerald-500', text: 'text-emerald-500', width: 'w-full' },
   };
@@ -49,7 +49,7 @@ function StrengthIndicator({ strength }) {
       <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
         <div className={`h-full ${s.color} ${s.width} rounded-full transition-all duration-500`} />
       </div>
-      <p className={`text-[11px] mt-1 ${s.text} font-medium`}>Force : {s.label}</p>
+      <p className={`text-xs mt-1 ${s.text} font-medium`}>Force : {s.label}</p>
     </div>
   );
 }
@@ -136,7 +136,7 @@ export default function ClientRegister() {
             <CheckCircle2 size={20} className="text-emerald-500" />
           </div>
           <h2 className="text-white font-semibold text-lg mb-2">Compte créé avec succès</h2>
-          <p className="text-white/40 text-sm">Vous allez être redirigé vers la page de connexion.</p>
+          <p className="text-muted text-sm">Vous allez être redirigé vers la page de connexion.</p>
         </div>
       </AuthLayout>
     );
@@ -146,7 +146,7 @@ export default function ClientRegister() {
     <AuthLayout title="Créer un compte" subtitle="Rejoignez-nous pour réserver votre voiture" image="/images/photo2.jpg">
       <form onSubmit={handleSubmit} className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 sm:p-7">
         {error && (
-          <div role="alert" className="flex items-start gap-2.5 bg-[#dc2626]/10 border border-[#dc2626]/20 text-[#dc2626] text-sm px-4 py-3 rounded-xl mb-5">
+          <div role="alert" className="flex items-start gap-2.5 bg-[#dc2626]/10 border border-[#dc2626]/20 text-primary-light text-sm px-4 py-3 rounded-xl mb-5">
             <AlertTriangle size={16} className="shrink-0" />
             <span>{error}</span>
           </div>
@@ -155,7 +155,7 @@ export default function ClientRegister() {
         <div className="space-y-4">
           {/* Nom complet */}
           <div>
-            <label htmlFor="reg-nom" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+            <label htmlFor="reg-nom" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
               Nom complet *
             </label>
             <input
@@ -171,14 +171,14 @@ export default function ClientRegister() {
               }`}
             />
             {fieldErrors.nom_complet && (
-              <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.nom_complet}</p>
+              <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.nom_complet}</p>
             )}
           </div>
 
           {/* Email + Téléphone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="reg-email" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              <label htmlFor="reg-email" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
                 Email *
               </label>
               <input
@@ -193,11 +193,11 @@ export default function ClientRegister() {
                 }`}
               />
               {fieldErrors.email && (
-                <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.email}</p>
+                <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.email}</p>
               )}
             </div>
             <div>
-              <label htmlFor="reg-tel" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              <label htmlFor="reg-tel" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
                 Téléphone *
               </label>
               <input
@@ -208,12 +208,12 @@ export default function ClientRegister() {
                 value={form.telephone}
                 onChange={(e) => update('telephone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="06XXXXXXXX"
-                className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:ring-1 outline-none transition-all ${
+                className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                   phoneError || fieldErrors.telephone ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
                 }`}
               />
               {(phoneError || fieldErrors.telephone) && (
-                <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.telephone || phoneError}</p>
+                <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.telephone || phoneError}</p>
               )}
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function ClientRegister() {
               onToggle={() => setShowPwConf(!showPwConf)}
             />
             {passwordsMismatch && (
-              <p className="text-[#dc2626] text-xs mt-1.5 flex items-center gap-1" role="alert">
+              <p className="text-primary-light text-xs mt-1.5 flex items-center gap-1" role="alert">
             <AlertTriangle size={16} className="shrink-0" />
                 Les mots de passe ne correspondent pas
               </p>
@@ -258,7 +258,7 @@ export default function ClientRegister() {
           {/* CIN + Adresse */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="reg-cin" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              <label htmlFor="reg-cin" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
                 CIN
               </label>
               <input
@@ -269,16 +269,16 @@ export default function ClientRegister() {
                 onChange={(e) => update('cin', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
                 placeholder="AB123456"
                 maxLength={8}
-                className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:ring-1 outline-none transition-all ${
+                className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                   cinError || fieldErrors.cin ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
                 }`}
               />
               {(cinError || fieldErrors.cin) && (
-                <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.cin || cinError}</p>
+                <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.cin || cinError}</p>
               )}
             </div>
             <div>
-              <label htmlFor="reg-adresse" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              <label htmlFor="reg-adresse" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
                 Adresse
               </label>
               <input
@@ -287,15 +287,15 @@ export default function ClientRegister() {
                 autoComplete="street-address"
                 value={form.adresse}
                 onChange={(e) => update('adresse', e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+                className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
               />
             </div>
           </div>
 
           {/* Code parrainage (V2) */}
           <div>
-            <label htmlFor="reg-parrain" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-              Code de parrainage <span className="normal-case text-white/30">(optionnel)</span>
+            <label htmlFor="reg-parrain" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              Code de parrainage <span className="normal-case text-muted">(optionnel)</span>
             </label>
             <input
               id="reg-parrain"
@@ -305,12 +305,12 @@ export default function ClientRegister() {
               onChange={(e) => update('code_parrainage', e.target.value.toUpperCase().slice(0, 12))}
               placeholder="Ex : ABCD1234"
               maxLength={12}
-              className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:ring-1 outline-none transition-all ${
+              className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                 fieldErrors.code_parrainage ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
               }`}
             />
             {fieldErrors.code_parrainage && (
-              <p className="text-[#dc2626] text-xs mt-1" role="alert">{fieldErrors.code_parrainage}</p>
+              <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.code_parrainage}</p>
             )}
           </div>
 
@@ -329,9 +329,9 @@ export default function ClientRegister() {
               onChange={(e) => setCgu(e.target.checked)}
               className="sr-only"
             />
-            <span className="text-white/50 text-[13px] leading-relaxed group-hover/cgu:text-white/70 transition-colors">
+            <span className="text-white/70 text-[13px] leading-relaxed group-hover/cgu:text-white/70 transition-colors">
               J'accepte les{' '}
-              <span className="text-[#dc2626] hover:underline">
+              <span className="text-primary-light hover:underline">
                  conditions générales d'utilisation
               </span>
             </span>
@@ -342,16 +342,16 @@ export default function ClientRegister() {
         <button
           type="submit"
           disabled={loading || !isValid}
-          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-white/30 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
+          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-disabled disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
           {loading ? 'Inscription en cours...' : 'S\'inscrire'}
         </button>
 
         {/* Login link */}
-        <p className="text-center text-white/30 text-sm mt-5">
+        <p className="text-center text-muted text-sm mt-5">
           Déjà un compte ?{' '}
-          <Link to="/client/login" className="text-[#dc2626] hover:underline font-medium">
+          <Link to="/client/login" className="text-primary-light hover:underline font-medium">
             Se connecter
           </Link>
         </p>

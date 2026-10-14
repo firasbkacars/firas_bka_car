@@ -132,7 +132,7 @@ export default function Agences() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Agences</h1>
-          <p className="text-neutral-500 text-sm mt-1">{agences.length} agence(s)</p>
+          <p className="text-muted text-sm mt-1">{agences.length} agence(s)</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -144,7 +144,7 @@ export default function Agences() {
       </div>
 
       {agences.length === 0 && (
-        <p className="text-neutral-500 text-sm">Aucune agence pour le moment.</p>
+        <p className="text-muted text-sm">Aucune agence pour le moment.</p>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -202,7 +202,7 @@ export default function Agences() {
             </div>
 
             <div className="mt-3 pt-3 border-t border-neutral-800">
-              <span className="text-xs text-neutral-500">{agence.vehicules_count} vehicule(s)</span>
+              <span className="text-xs text-muted">{agence.vehicules_count} vehicule(s)</span>
             </div>
           </div>
         ))}

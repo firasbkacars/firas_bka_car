@@ -29,7 +29,7 @@ export default function AuthLayout({ children, title, subtitle, image }) {
         <div className="w-full max-w-md">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs mb-6 transition-colors"
+            className="inline-flex items-center gap-1.5 text-muted hover:text-white/60 text-xs mb-6 transition-colors"
           >
             <ArrowLeft size={14} />
             Retour à l'accueil
@@ -43,7 +43,7 @@ export default function AuthLayout({ children, title, subtitle, image }) {
 
           <div className="mb-7">
             <h1 className="text-xl sm:text-2xl font-bold text-white">{title}</h1>
-            {subtitle && <p className="text-white/40 text-sm mt-1.5">{subtitle}</p>}
+            {subtitle && <p className="text-muted text-sm mt-1.5">{subtitle}</p>}
           </div>
 
           {children}

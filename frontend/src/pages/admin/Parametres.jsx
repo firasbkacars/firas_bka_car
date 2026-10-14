@@ -67,7 +67,7 @@ export default function Parametres() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Parametres</h1>
-            <p className="text-neutral-500 text-sm">Configuration du systeme</p>
+            <p className="text-muted text-sm">Configuration du systeme</p>
           </div>
         </div>
         <button
@@ -105,20 +105,20 @@ export default function Parametres() {
           <div className="space-y-5 max-w-lg">
             <h3 className="text-white font-semibold">Informations du business</h3>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Nom de l'entreprise</label>
-              <input type="text" defaultValue="FIRAS BKA CAR" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-109">Nom de l'entreprise</label>
+              <input id="ctl-109" type="text" defaultValue="FIRAS BKA CAR" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Email</label>
-              <input type="email" defaultValue="firasbkacars@gmail.com" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-113">Email</label>
+              <input id="ctl-113" type="email" defaultValue="firasbkacars@gmail.com" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Telephone</label>
-              <input type="tel" defaultValue="+212 774 623 448" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-117">Telephone</label>
+              <input id="ctl-117" type="tel" defaultValue="+212 774 623 448" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Adresse</label>
-              <input type="text" defaultValue="Tanger, Maroc" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-121">Adresse</label>
+              <input id="ctl-121" type="text" defaultValue="Tanger, Maroc" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" />
             </div>
           </div>
         )}
@@ -127,8 +127,8 @@ export default function Parametres() {
           <div className="space-y-5 max-w-lg">
             <h3 className="text-white font-semibold">Parametres de location</h3>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Taux d'acompte (%)</label>
-              <input
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-131">Taux d'acompte (%)</label>
+              <input id="ctl-131"
                 type="number"
                 min="0"
                 max="100"
@@ -136,11 +136,11 @@ export default function Parametres() {
                 onChange={(e) => updateParam('taux_acompte', e.target.value)}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition"
               />
-              <p className="text-neutral-500 text-xs mt-1">Pourcentage du total requis comme acompte</p>
+              <p className="text-muted text-xs mt-1">Pourcentage du total requis comme acompte</p>
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Supplement conducteur additionnel (DH/jour)</label>
-              <input
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-143">Supplement conducteur additionnel (DH/jour)</label>
+              <input id="ctl-143"
                 type="number"
                 min="0"
                 value={parametres.supplement_conducteur_jour || '50'}
@@ -149,30 +149,30 @@ export default function Parametres() {
               />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Delai annulation gratuite (heures)</label>
-              <input
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-153">Delai annulation gratuite (heures)</label>
+              <input id="ctl-153"
                 type="number"
                 min="0"
                 value={parametres.delai_annulation_gratuit || '48'}
                 onChange={(e) => updateParam('delai_annulation_gratuit', e.target.value)}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition"
               />
-              <p className="text-neutral-500 text-xs mt-1">Heures avant la date de debut pour annulation gratuite</p>
+              <p className="text-muted text-xs mt-1">Heures avant la date de debut pour annulation gratuite</p>
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Delai annulation partielle (heures)</label>
-              <input
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-164">Delai annulation partielle (heures)</label>
+              <input id="ctl-164"
                 type="number"
                 min="0"
                 value={parametres.delai_annulation_partielle || '24'}
                 onChange={(e) => updateParam('delai_annulation_partielle', e.target.value)}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition"
               />
-              <p className="text-neutral-500 text-xs mt-1">Remboursement 50% entre ce delai et le delai gratuit</p>
+              <p className="text-muted text-xs mt-1">Remboursement 50% entre ce delai et le delai gratuit</p>
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Penalite de retard (%/jour)</label>
-              <input
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-175">Penalite de retard (%/jour)</label>
+              <input id="ctl-175"
                 type="number"
                 min="0"
                 max="100"
@@ -180,7 +180,7 @@ export default function Parametres() {
                 onChange={(e) => updateParam('penalite_retard_pourcentage', e.target.value)}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition"
               />
-              <p className="text-neutral-500 text-xs mt-1">Pourcentage du prix journalier facture par jour de retard</p>
+              <p className="text-muted text-xs mt-1">Pourcentage du prix journalier facture par jour de retard</p>
             </div>
           </div>
         )}
@@ -197,7 +197,7 @@ export default function Parametres() {
               <div key={i} className="flex items-center justify-between py-3 border-b border-neutral-800 last:border-0">
                 <div>
                   <p className="text-white text-sm">{item.label}</p>
-                  <p className="text-neutral-500 text-xs">{item.desc}</p>
+                  <p className="text-muted text-xs">{item.desc}</p>
                 </div>
                 <div className="w-10 h-6 bg-red-600 rounded-full relative cursor-pointer">
                   <div className="absolute right-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition" />
@@ -211,16 +211,16 @@ export default function Parametres() {
           <div className="space-y-5 max-w-lg">
             <h3 className="text-white font-semibold">Securite du compte</h3>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Mot de passe actuel</label>
-              <input type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-215">Mot de passe actuel</label>
+              <input id="ctl-215" type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Nouveau mot de passe</label>
-              <input type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-219">Nouveau mot de passe</label>
+              <input id="ctl-219" type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
             </div>
             <div>
-              <label className="text-neutral-400 text-sm mb-1 block">Confirmer</label>
-              <input type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
+              <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-223">Confirmer</label>
+              <input id="ctl-223" type="password" className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition" placeholder="••••••••" />
             </div>
             <button className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-xl transition">
               <Shield size={16} />

@@ -96,7 +96,7 @@ export default function Rapports() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white">Rapports</h1>
-          <p className="text-neutral-500 text-sm">Vue d'ensemble de l'activité</p>
+          <p className="text-muted text-sm">Vue d'ensemble de l'activité</p>
         </div>
         <button
           onClick={exportPdf}
@@ -167,7 +167,7 @@ export default function Rapports() {
               const max = Math.max(...Object.values(reservationsByMonth), 1);
               return (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-neutral-500 text-xs w-8">{m}</span>
+                  <span className="text-muted text-xs w-8">{m}</span>
                   <div className="flex-1 bg-neutral-800 rounded-full h-2">
                     <div
                       className="bg-red-500 h-2 rounded-full transition-all"
@@ -201,7 +201,7 @@ export default function Rapports() {
                   <div>
                     <p className="text-neutral-400 text-xs">{s.label}</p>
                     <p className="text-white font-bold text-lg">{s.value}</p>
-                    <p className="text-neutral-600 text-xs">{s.sub}</p>
+                    <p className="text-muted text-xs">{s.sub}</p>
                   </div>
                 </div>
               </div>
@@ -224,7 +224,7 @@ export default function Rapports() {
                   </div>
                 ))}
               </div>
-            ) : <p className="text-neutral-500 text-sm">Aucune donnee</p>}
+            ) : <p className="text-muted text-sm">Aucune donnee</p>}
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
@@ -238,7 +238,7 @@ export default function Rapports() {
                   </div>
                 ))}
               </div>
-            ) : <p className="text-neutral-500 text-sm">Aucune donnee</p>}
+            ) : <p className="text-muted text-sm">Aucune donnee</p>}
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
@@ -248,11 +248,11 @@ export default function Rapports() {
                 {synthese.paiements_par_methode.map((p, i) => (
                   <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-neutral-800/50 last:border-0">
                     <span className="text-neutral-300 capitalize">{p.methode}</span>
-                    <span className="text-[#dc2626] font-bold">{p.total.toLocaleString('fr-FR')} DH</span>
+                    <span className="text-primary-light font-bold">{p.total.toLocaleString('fr-FR')} DH</span>
                   </div>
                 ))}
               </div>
-            ) : <p className="text-neutral-500 text-sm">Aucune donnee</p>}
+            ) : <p className="text-muted text-sm">Aucune donnee</p>}
           </div>
         </div>
       )}
@@ -263,17 +263,17 @@ export default function Rapports() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-white font-semibold">Remboursements</h3>
-              <p className="text-neutral-500 text-xs mt-1">
+              <p className="text-muted text-xs mt-1">
                 Periode : {new Date(remboursements.periode.debut).toLocaleDateString('fr-FR')} au {new Date(remboursements.periode.fin).toLocaleDateString('fr-FR')}
               </p>
             </div>
             <div className="flex gap-4 text-sm">
               <div className="text-right">
-                <p className="text-neutral-500 text-xs">Rembourse</p>
+                <p className="text-muted text-xs">Rembourse</p>
                 <p className="text-green-400 font-bold">{remboursements.totaux.rembourse.toLocaleString('fr-FR')} DH</p>
               </div>
               <div className="text-right">
-                <p className="text-neutral-500 text-xs">En attente</p>
+                <p className="text-muted text-xs">En attente</p>
                 <p className="text-yellow-400 font-bold">{remboursements.totaux.en_attente.toLocaleString('fr-FR')} DH</p>
               </div>
             </div>
@@ -282,7 +282,7 @@ export default function Rapports() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[600px]">
                 <thead>
-                  <tr className="text-neutral-500 border-b border-neutral-800">
+                  <tr className="text-muted border-b border-neutral-800">
                     <th className="text-left py-2 px-3 font-medium">Date</th>
                     <th className="text-left py-2 px-3 font-medium">Reservation</th>
                     <th className="text-left py-2 px-3 font-medium">Client</th>
@@ -307,7 +307,7 @@ export default function Rapports() {
                 </tbody>
               </table>
             </div>
-          ) : <p className="text-neutral-500 text-sm text-center py-6">Aucun remboursement sur la periode</p>}
+          ) : <p className="text-muted text-sm text-center py-6">Aucun remboursement sur la periode</p>}
         </div>
       )}
 
@@ -317,19 +317,19 @@ export default function Rapports() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-white font-semibold">Taux d'occupation et rentabilite</h3>
-              <p className="text-neutral-500 text-xs mt-1">
+              <p className="text-muted text-xs mt-1">
                 Periode : {new Date(occupationData.periode.debut).toLocaleDateString('fr-FR')} au {new Date(occupationData.periode.fin).toLocaleDateString('fr-FR')} ({occupationData.periode.total_jours} jours)
               </p>
             </div>
           </div>
 
           {sortedOccupation.length === 0 ? (
-            <p className="text-neutral-500 text-sm text-center py-8">Aucune donnee disponible</p>
+            <p className="text-muted text-sm text-center py-8">Aucune donnee disponible</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[800px]">
                 <thead>
-                  <tr className="text-neutral-500 border-b border-neutral-800">
+                  <tr className="text-muted border-b border-neutral-800">
                     <th className="text-left py-2 px-3 font-medium">Vehicule</th>
                     <th className="text-left py-2 px-3 font-medium">Categorie</th>
                     <th className="text-right py-2 px-3 font-medium cursor-pointer hover:text-neutral-300" onClick={() => sortOccupationData('jours_loues')}>
@@ -366,7 +366,7 @@ export default function Rapports() {
                           }`}>{v.taux_occupation}%</span>
                         </div>
                       </td>
-                      <td className="py-2 px-3 text-right text-[#dc2626] font-bold">{v.revenu_total.toLocaleString('fr-FR')} DH</td>
+                      <td className="py-2 px-3 text-right text-primary-light font-bold">{v.revenu_total.toLocaleString('fr-FR')} DH</td>
                     </tr>
                   ))}
                 </tbody>

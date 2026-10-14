@@ -280,10 +280,10 @@ export default function Paiements() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Paiements</h1>
-            <p className="text-neutral-500 text-sm">
+            <p className="text-muted text-sm">
               {sorted.length} écriture(s)
               {filtreActif && (
-                <span className="text-neutral-600"> sur {paiements.length}</span>
+                <span className="text-muted"> sur {paiements.length}</span>
               )}
             </p>
           </div>
@@ -307,7 +307,7 @@ export default function Paiements() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <label htmlFor="paiements-search" className="sr-only">Rechercher</label>
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" aria-hidden="true" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
             <input
               id="paiements-search"
               type="search"
@@ -348,7 +348,7 @@ export default function Paiements() {
 
           <div className="flex items-center gap-2">
             <div>
-              <label htmlFor="paiements-du" className="block text-[11px] text-neutral-500 mb-1">Du</label>
+              <label htmlFor="paiements-du" className="block text-[11px] text-muted mb-1">Du</label>
               <input
                 id="paiements-du"
                 type="date"
@@ -358,7 +358,7 @@ export default function Paiements() {
               />
             </div>
             <div>
-              <label htmlFor="paiements-au" className="block text-[11px] text-neutral-500 mb-1">Au</label>
+              <label htmlFor="paiements-au" className="block text-[11px] text-muted mb-1">Au</label>
               <input
                 id="paiements-au"
                 type="date"
@@ -386,7 +386,7 @@ export default function Paiements() {
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
           <p className="text-neutral-400 text-sm mb-1">Solde net</p>
           <p className="text-2xl font-bold text-green-400">{formatMAD(kpis.net)}</p>
-          <p className="text-neutral-600 text-xs mt-1">Encaissements - remboursements</p>
+          <p className="text-muted text-xs mt-1">Encaissements - remboursements</p>
         </div>
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
           <p className="text-neutral-400 text-sm mb-1">Remboursé</p>
@@ -398,7 +398,7 @@ export default function Paiements() {
         </div>
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
           <p className="text-neutral-400 text-sm mb-1">À vérifier</p>
-          <p className={`text-2xl font-bold ${kpis.aVerifier > 0 ? 'text-amber-400' : 'text-neutral-600'}`}>{kpis.aVerifier}</p>
+          <p className={`text-2xl font-bold ${kpis.aVerifier > 0 ? 'text-amber-400' : 'text-muted'}`}>{kpis.aVerifier}</p>
           {kpis.aVerifier > 0 && (
             <p className="text-amber-500/70 text-xs mt-1">Montant divergent de la passerelle</p>
           )}
@@ -412,7 +412,7 @@ export default function Paiements() {
               Écritures de paiement, {sorted.length} résultat(s)
             </caption>
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th scope="col" className="text-left py-3 px-5 font-medium w-8">
                   <span className="sr-only">Détails</span>
                 </th>
@@ -466,8 +466,8 @@ export default function Paiements() {
                 </tr>
               ) : sorted.length === 0 ? (
                 <tr>
-                  <td colSpan={nbColonnes} className="text-center py-12 text-neutral-500">
-                    <CreditCard size={40} className="mx-auto mb-3 text-neutral-600" aria-hidden="true" />
+                  <td colSpan={nbColonnes} className="text-center py-12 text-muted">
+                    <CreditCard size={40} className="mx-auto mb-3 text-muted" aria-hidden="true" />
                     <p className="text-sm">
                       {filtreActif
                         ? 'Aucune écriture ne correspond à ces filtres.'
@@ -477,7 +477,7 @@ export default function Paiements() {
                       <button
                         type="button"
                         onClick={resetFiltres}
-                        className="text-[#dc2626] text-sm hover:underline mt-2"
+                        className="text-primary-light text-sm hover:underline mt-2"
                       >
                         Réinitialiser les filtres
                       </button>
@@ -560,7 +560,7 @@ export default function Paiements() {
             onChange={(e) => setRefundMontant(e.target.value)}
             className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm mb-1 focus:border-blue-500 outline-none"
           />
-          <p className="text-[11px] text-neutral-600 mb-3">
+          <p className="text-xs text-muted mb-3">
             Maximum {formatMAD(resteRemboursable)}.
           </p>
 
@@ -617,7 +617,7 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
             onClick={onToggle}
             aria-expanded={ouvert}
             aria-label={ouvert ? 'Masquer le détail' : 'Afficher le détail'}
-            className="p-1 rounded text-neutral-500 hover:text-white transition-colors"
+            className="p-1 rounded text-muted hover:text-white transition-colors"
           >
             <ChevronDown
               size={14}
@@ -630,7 +630,7 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
         <td className="py-3 px-5 text-neutral-300">
           <div className="font-mono text-xs">{p.reservation?.numero || '—'}</div>
           {p.reservation?.client?.nom_complet && (
-            <div className="text-neutral-500 text-xs">{p.reservation.client.nom_complet}</div>
+            <div className="text-muted text-xs">{p.reservation.client.nom_complet}</div>
           )}
         </td>
         <td className="py-3 px-5">
@@ -647,24 +647,24 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
         <td className="py-3 px-5">
           {p.transaction_id ? (
             <div>
-              <div className="font-mono text-[10px] text-neutral-500">{p.transaction_id}</div>
+              <div className="font-mono text-[10px] text-muted">{p.transaction_id}</div>
               {p.carte_masquee && (
                 <div className="text-neutral-400 text-xs mt-0.5">{p.carte_masquee}</div>
               )}
             </div>
           ) : (
-            <span className="text-neutral-600 text-xs">—</span>
+            <span className="text-muted text-xs">—</span>
           )}
         </td>
         <td className="py-3 px-5">
           <StatutPaiement statut={p.statut_affichage || p.statut} showIcon={false} />
           {p.code_erreur_gateway && (
-            <div className="text-[10px] text-neutral-600 mt-0.5 font-mono">
+            <div className="text-[10px] text-muted mt-0.5 font-mono">
               {p.code_erreur_gateway}
             </div>
           )}
         </td>
-        <td className="py-3 px-5 text-neutral-500 text-xs">
+        <td className="py-3 px-5 text-muted text-xs">
           {p.date_paiement ? formatDate(p.date_paiement) : '—'}
         </td>
         <td className="py-3 px-5 text-right">
@@ -702,7 +702,7 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
               <Detail label="Référence externe" value={p.reference_externe || '—'} mono />
               {p.note_admin && (
                 <div className="col-span-2 md:col-span-4">
-                  <p className="text-neutral-500 mb-1">Note admin</p>
+                  <p className="text-muted mb-1">Note admin</p>
                   <p className="text-neutral-300 bg-neutral-800/50 rounded-lg p-2 leading-relaxed">
                     {p.note_admin}
                   </p>
@@ -710,7 +710,7 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
               )}
               {p.reservation && (
                 <div className="col-span-2 md:col-span-4 border-t border-neutral-800 pt-3">
-                  <p className="text-neutral-500 mb-1">Réservation</p>
+                  <p className="text-muted mb-1">Réservation</p>
                   <p className="text-neutral-300">
                     {p.reservation.numero}
                     {p.reservation.client?.nom_complet && ` — ${p.reservation.client.nom_complet}`}
@@ -729,7 +729,7 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
 function Detail({ label, value, accent, mono }) {
   return (
     <div>
-      <p className="text-neutral-500 mb-1">{label}</p>
+      <p className="text-muted mb-1">{label}</p>
       <p className={`text-neutral-300 ${mono ? 'font-mono text-[11px] break-all' : ''} ${accent ? 'text-blue-400' : ''}`}>
         {value}
       </p>

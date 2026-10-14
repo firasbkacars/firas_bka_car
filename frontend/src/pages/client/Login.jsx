@@ -40,7 +40,7 @@ export default function ClientLogin() {
         {error && (
           <div
             role="alert"
-            className="flex items-start gap-2.5 bg-[#dc2626]/10 border border-[#dc2626]/20 text-[#dc2626] text-sm px-4 py-3 rounded-xl mb-5"
+            className="flex items-start gap-2.5 bg-[#dc2626]/10 border border-[#dc2626]/20 text-primary-light text-sm px-4 py-3 rounded-xl mb-5"
           >
             <AlertTriangle size={16} className="shrink-0" />
             <span>{error}</span>
@@ -50,7 +50,7 @@ export default function ClientLogin() {
         <div className="space-y-4">
           {/* Email */}
           <div>
-            <label htmlFor="login-email" className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+            <label htmlFor="login-email" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
               Email
             </label>
             <input
@@ -62,17 +62,17 @@ export default function ClientLogin() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               placeholder="vous@exemple.com"
-              className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+              className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
             />
           </div>
 
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="login-password" className="text-white/50 text-[11px] font-medium uppercase tracking-wider">
+              <label htmlFor="login-password" className="text-white/70 text-[11px] font-medium uppercase tracking-wider">
                 Mot de passe
               </label>
-              <Link to="/client/login" className="text-[#dc2626] text-[11px] hover:underline transition-colors">
+              <Link to="/client/login" className="text-primary-light text-[11px] hover:underline transition-colors">
                 Mot de passe oublié ?
               </Link>
             </div>
@@ -89,7 +89,7 @@ export default function ClientLogin() {
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors p-0.5"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
                 aria-label={showPw ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -114,7 +114,7 @@ export default function ClientLogin() {
               onChange={(e) => setRemember(e.target.checked)}
               className="sr-only"
             />
-            <span className="text-white/50 text-sm group-hover/check:text-white/70 transition-colors">Se souvenir de moi</span>
+            <span className="text-white/70 text-sm group-hover/check:text-white/70 transition-colors">Se souvenir de moi</span>
           </label>
         </div>
 
@@ -122,16 +122,16 @@ export default function ClientLogin() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-white/30 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
+          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-disabled disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
           {loading ? 'Connexion en cours...' : 'Se connecter'}
         </button>
 
         {/* Register link */}
-        <p className="text-center text-white/30 text-sm mt-5">
+        <p className="text-center text-muted text-sm mt-5">
           Pas encore de compte ?{' '}
-          <Link to="/client/register" className="text-[#dc2626] hover:underline font-medium">
+          <Link to="/client/register" className="text-primary-light hover:underline font-medium">
             S'inscrire
           </Link>
         </p>

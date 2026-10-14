@@ -26,7 +26,7 @@ export default function VehicleDetail({ route }) {
   if (!vehicule) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#dc2626" size="large" />
+        <ActivityIndicator color="#dc2626" size="large" accessibilityLabel="Chargement du véhicule" />
       </View>
     );
   }
@@ -38,7 +38,11 @@ export default function VehicleDetail({ route }) {
 
   return (
     <ScrollView style={{ backgroundColor: '#0a0a0a' }}>
-      <Image source={{ uri }} style={styles.image} />
+      <Image
+        source={{ uri }}
+        style={styles.image}
+        accessibilityLabel={`Photo du véhicule ${vehicule.marque} ${vehicule.modele}`}
+      />
       <View style={{ padding: 16 }}>
         <Text style={styles.title}>{vehicule.marque} {vehicule.modele}</Text>
         <Text style={styles.price}>{vehicule.prix_jour} DH / jour</Text>

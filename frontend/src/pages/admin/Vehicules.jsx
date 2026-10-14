@@ -49,7 +49,7 @@ function VehicleImage({ src, alt, className = 'w-12 h-8', size = 16 }) {
   if (!src || error) {
     return (
       <div className={`${className} bg-neutral-800 border border-neutral-700 rounded flex items-center justify-center flex-shrink-0`}>
-        <Car size={size} className="text-neutral-500" />
+        <Car size={size} className="text-muted" />
       </div>
     );
   }
@@ -356,7 +356,7 @@ export default function AdminVehicules() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Véhicules</h1>
-            <p className="text-neutral-500 text-sm">{vehicules.length} véhicule(s)</p>
+            <p className="text-muted text-sm">{vehicules.length} véhicule(s)</p>
           </div>
         </div>
         <button
@@ -372,7 +372,7 @@ export default function AdminVehicules() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[820px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Véhicule</th>
                 <th className="text-left py-3 px-5 font-medium">Catégorie</th>
                 <th className="text-left py-3 px-5 font-medium">Agence</th>
@@ -396,8 +396,8 @@ export default function AdminVehicules() {
                 ))
               ) : vehicules.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-neutral-500">
-                    <Car size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={7} className="text-center py-12 text-muted">
+                    <Car size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun véhicule</p>
                   </td>
                 </tr>
@@ -416,7 +416,7 @@ export default function AdminVehicules() {
                         />
                         <div>
                           <p className="text-white font-medium">{v.marque} {v.modele}</p>
-                          <p className="text-neutral-500 text-xs">{v.transmission} · {v.carburant} · {v.places}p</p>
+                          <p className="text-muted text-xs">{v.transmission} · {v.carburant} · {v.places}p</p>
                         </div>
                       </div>
                     </td>
@@ -425,7 +425,7 @@ export default function AdminVehicules() {
                       {v.agence ? (
                         <span className="text-neutral-300">{v.agence.ville}</span>
                       ) : (
-                        <span className="text-neutral-600">—</span>
+                        <span className="text-muted">—</span>
                       )}
                     </td>
                     <td className="py-3 px-5 text-neutral-300">{v.annee}</td>
@@ -476,20 +476,20 @@ export default function AdminVehicules() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Marque *</label>
-                  <input required value={form.marque} onChange={(e) => setForm({ ...form, marque: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-480">Marque *</label>
+                  <input id="ctl-480" required value={form.marque} onChange={(e) => setForm({ ...form, marque: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Modèle *</label>
-                  <input required value={form.modele} onChange={(e) => setForm({ ...form, modele: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-485">Modèle *</label>
+                  <input id="ctl-485" required value={form.modele} onChange={(e) => setForm({ ...form, modele: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
               </div>
 
               <div>
-                <label className="text-neutral-400 text-xs mb-1 block">Description</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-492">Description</label>
+                <textarea id="ctl-492" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3}
                   placeholder="Description du véhicule affichée sur la fiche publique"
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition resize-none" />
@@ -497,8 +497,8 @@ export default function AdminVehicules() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Catégorie</label>
-                  <select value={form.categorie} onChange={(e) => setForm({ ...form, categorie: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-501">Catégorie</label>
+                  <select id="ctl-501" value={form.categorie} onChange={(e) => setForm({ ...form, categorie: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition">
                     <option>Berline</option>
                     <option>Compacte</option>
@@ -506,24 +506,24 @@ export default function AdminVehicules() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Année</label>
-                  <input type="number" value={form.annee} onChange={(e) => setForm({ ...form, annee: parseInt(e.target.value) || 2024 })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-510">Année</label>
+                  <input id="ctl-510" type="number" value={form.annee} onChange={(e) => setForm({ ...form, annee: parseInt(e.target.value) || 2024 })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Transmission</label>
-                  <select value={form.transmission} onChange={(e) => setForm({ ...form, transmission: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-518">Transmission</label>
+                  <select id="ctl-518" value={form.transmission} onChange={(e) => setForm({ ...form, transmission: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition">
                     <option value="automatique">Automatique</option>
                     <option value="manuelle">Manuelle</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Carburant</label>
-                  <select value={form.carburant} onChange={(e) => setForm({ ...form, carburant: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-526">Carburant</label>
+                  <select id="ctl-526" value={form.carburant} onChange={(e) => setForm({ ...form, carburant: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition">
                     <option value="essence">Essence</option>
                     <option value="diesel">Diesel</option>
@@ -534,23 +534,23 @@ export default function AdminVehicules() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Places</label>
-                  <input type="number" value={form.places} onChange={(e) => setForm({ ...form, places: parseInt(e.target.value) || 5 })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-538">Places</label>
+                  <input id="ctl-538" type="number" value={form.places} onChange={(e) => setForm({ ...form, places: parseInt(e.target.value) || 5 })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Prix/Jour (DH)</label>
-                  <input type="number" value={form.prix_jour} onChange={(e) => setForm({ ...form, prix_jour: parseFloat(e.target.value) })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-543">Prix/Jour (DH)</label>
+                  <input id="ctl-543" type="number" value={form.prix_jour} onChange={(e) => setForm({ ...form, prix_jour: parseFloat(e.target.value) })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Caution (DH)</label>
-                  <input type="number" value={form.montant_caution} onChange={(e) => setForm({ ...form, montant_caution: parseFloat(e.target.value) || 0 })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-548">Caution (DH)</label>
+                  <input id="ctl-548" type="number" value={form.montant_caution} onChange={(e) => setForm({ ...form, montant_caution: parseFloat(e.target.value) || 0 })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition" />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-xs mb-1 block">Statut</label>
-                  <select value={form.statut} onChange={(e) => setForm({ ...form, statut: e.target.value })}
+                  <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-553">Statut</label>
+                  <select id="ctl-553" value={form.statut} onChange={(e) => setForm({ ...form, statut: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition">
                     <option value="disponible">Disponible</option>
                     <option value="en_location">En location</option>
@@ -560,8 +560,8 @@ export default function AdminVehicules() {
               </div>
 
               <div>
-                <label className="text-neutral-400 text-xs mb-1 block">Agence</label>
-                <select
+                <label className="text-neutral-400 text-xs mb-1 block" htmlFor="ctl-564">Agence</label>
+                <select id="ctl-564"
                   value={form.agence_id}
                   onChange={(e) => setForm({ ...form, agence_id: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
@@ -573,7 +573,7 @@ export default function AdminVehicules() {
                     </option>
                   ))}
                 </select>
-                <p className="text-neutral-600 text-xs mt-1">
+                <p className="text-muted text-xs mt-1">
                   L'agence détermine le lieu de prise en charge et le filtre « Agence » du catalogue.
                 </p>
               </div>
@@ -582,8 +582,8 @@ export default function AdminVehicules() {
                 <label className="text-neutral-400 text-xs mb-1 block">Contrats</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-neutral-500 text-xs mb-1 block">Expiration assurance</label>
-                    <input
+                    <label className="text-muted text-xs mb-1 block" htmlFor="ctl-586">Expiration assurance</label>
+                    <input id="ctl-586"
                       type="date"
                       value={form.date_expiration_assurance}
                       onChange={(e) => setForm({ ...form, date_expiration_assurance: e.target.value })}
@@ -591,8 +591,8 @@ export default function AdminVehicules() {
                     />
                   </div>
                   <div>
-                    <label className="text-neutral-500 text-xs mb-1 block">Expiration carte grise</label>
-                    <input
+                    <label className="text-muted text-xs mb-1 block" htmlFor="ctl-595">Expiration carte grise</label>
+                    <input id="ctl-595"
                       type="date"
                       value={form.date_expiration_carte_grise}
                       onChange={(e) => setForm({ ...form, date_expiration_carte_grise: e.target.value })}
@@ -600,7 +600,7 @@ export default function AdminVehicules() {
                     />
                   </div>
                 </div>
-                <p className="text-neutral-600 text-xs mt-1">
+                <p className="text-muted text-xs mt-1">
                   Un contrat expire retire le véhicule du catalogue public et bloque les réservations.
                   Un rappel est envoyé 30 jours avant l'échéance.
                 </p>
@@ -608,8 +608,8 @@ export default function AdminVehicules() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-neutral-500 text-xs mb-1 block">Seuil kilométrage (alerte)</label>
-                  <input
+                  <label className="text-muted text-xs mb-1 block" htmlFor="ctl-612">Seuil kilométrage (alerte)</label>
+                  <input id="ctl-612"
                     type="number"
                     min="0"
                     value={form.kilometrage_alerte}
@@ -617,11 +617,11 @@ export default function AdminVehicules() {
                     placeholder="Ex : 100000"
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
                   />
-                  <p className="text-neutral-600 text-xs mt-1">Email admin une fois le seuil atteint (G4).</p>
+                  <p className="text-muted text-xs mt-1">Email admin une fois le seuil atteint (G4).</p>
                 </div>
                 <div>
-                  <label className="text-neutral-500 text-xs mb-1 block">Latitude (GPS)</label>
-                  <input
+                  <label className="text-muted text-xs mb-1 block" htmlFor="ctl-624">Latitude (GPS)</label>
+                  <input id="ctl-624"
                     type="number"
                     step="0.0000001"
                     value={form.latitude}
@@ -631,8 +631,8 @@ export default function AdminVehicules() {
                   />
                 </div>
                 <div>
-                  <label className="text-neutral-500 text-xs mb-1 block">Longitude (GPS)</label>
-                  <input
+                  <label className="text-muted text-xs mb-1 block" htmlFor="ctl-635">Longitude (GPS)</label>
+                  <input id="ctl-635"
                     type="number"
                     step="0.0000001"
                     value={form.longitude}
@@ -640,7 +640,7 @@ export default function AdminVehicules() {
                     placeholder="Ex : -7.5898"
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition"
                   />
-                  <p className="text-neutral-600 text-xs mt-1">Affichée sur carte OpenStreetMap côté client (V6).</p>
+                  <p className="text-muted text-xs mt-1">Affichée sur carte OpenStreetMap côté client (V6).</p>
                 </div>
               </div>
 
@@ -648,7 +648,7 @@ export default function AdminVehicules() {
               <div>
                 <label className="text-neutral-400 text-xs mb-1 block">
                   Photos du véhicule
-                  <span className="text-neutral-600 ml-1">({photos.length}/{PHOTO_LIMIT})</span>
+                  <span className="text-muted ml-1">({photos.length}/{PHOTO_LIMIT})</span>
                 </label>
 
                 <div
@@ -662,13 +662,13 @@ export default function AdminVehicules() {
                       : 'border-neutral-700 hover:border-red-600/50'
                   }`}
                 >
-                  <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-red-500' : 'text-neutral-500'}`} />
+                  <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-red-500' : 'text-muted'}`} />
                   <p className="text-neutral-400 text-sm">
                     Glissez-déposez vos images ici ou{' '}
                     <span className="text-red-500 font-medium">parcourez vos fichiers</span>
                   </p>
-                  <p className="text-neutral-600 text-xs mt-1">JPG, PNG, WebP — max 5 Mo — {PHOTO_LIMIT} max</p>
-                  <input
+                  <p className="text-muted text-xs mt-1">JPG, PNG, WebP — max 5 Mo — {PHOTO_LIMIT} max</p>
+                  <input aria-label="Ajouter des photos du véhicule"
                     ref={fileInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
@@ -694,7 +694,7 @@ export default function AdminVehicules() {
                           }}
                         />
                         {i === 0 && (
-                          <span className="absolute top-1 left-1 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded font-medium">
+                          <span className="absolute top-1 left-1 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
                             Principale
                           </span>
                         )}

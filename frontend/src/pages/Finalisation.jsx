@@ -420,7 +420,7 @@ export default function Finalisation() {
                 <p className="text-red-400 text-sm mb-3">Motif : {client.permis_rejet_motif}</p>
               )}
               <div className="flex items-center gap-3">
-                <input
+                <input aria-label="Téléverser le permis de conduire"
                   type="file"
                   accept="image/*,.pdf"
                   onChange={(e) => setPermisFile(e.target.files[0])}
@@ -462,7 +462,7 @@ export default function Finalisation() {
                 Vous devez telecharger une photo de votre permis de conduire avant de pouvoir reserver.
               </p>
               <div className="flex items-center gap-3">
-                <input
+                <input aria-label="Téléverser le permis de conduire"
                   type="file"
                   accept="image/*,.pdf"
                   onChange={(e) => setPermisFile(e.target.files[0])}
@@ -489,24 +489,24 @@ export default function Finalisation() {
               <h2 className="text-white font-semibold text-lg mb-4">Vos informations</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Nom complet</label>
-                  <input type="text" value={client?.nom_complet || ''} disabled
-                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-gray-500 text-sm cursor-not-allowed" />
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-493">Nom complet</label>
+                  <input id="ctl-493" type="text" value={client?.nom_complet || ''} disabled
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Telephone</label>
-                  <input type="tel" value={client?.telephone || ''} disabled
-                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-gray-500 text-sm cursor-not-allowed" />
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-498">Telephone</label>
+                  <input id="ctl-498" type="tel" value={client?.telephone || ''} disabled
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Email</label>
-                  <input type="email" value={client?.email || ''} disabled
-                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-gray-500 text-sm cursor-not-allowed" />
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-503">Email</label>
+                  <input id="ctl-503" type="email" value={client?.email || ''} disabled
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">CIN</label>
-                  <input type="text" value={client?.cin || ''} disabled
-                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-gray-500 text-sm cursor-not-allowed" />
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-508">CIN</label>
+                  <input id="ctl-508" type="text" value={client?.cin || ''} disabled
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-gray-400 text-xs mb-1 block">Permis de conduire</label>
@@ -535,7 +535,7 @@ export default function Finalisation() {
                       <option key={agence.id} value={agence.id}>{agence.nom} - {agence.ville}</option>
                     ))}
                   </select>
-                  <p className="text-gray-500 text-xs mt-1.5">
+                  <p className="text-muted text-xs mt-1.5">
                     {form.agence_id
                       ? `Prise en charge et retour : ${lieu}`
                       : vehicule?.agence
@@ -561,7 +561,7 @@ export default function Finalisation() {
             {/* Conducteur additionnel */}
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
-                <User size={18} className="text-[#dc2626]" />
+                <User size={18} className="text-primary-light" />
                 <h2 className="text-white font-semibold text-lg">Conducteur additionnel (optionnel)</h2>
               </div>
               <p className="text-gray-400 text-sm mb-4">
@@ -569,8 +569,8 @@ export default function Finalisation() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Nom du conducteur</label>
-                  <input
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-573">Nom du conducteur</label>
+                  <input id="ctl-573"
                     type="text"
                     value={form.conducteur_additionnel_nom}
                     onChange={(e) => setForm({ ...form, conducteur_additionnel_nom: e.target.value })}
@@ -579,8 +579,8 @@ export default function Finalisation() {
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Telephone</label>
-                  <input
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-583">Telephone</label>
+                  <input id="ctl-583"
                     type="tel"
                     value={form.conducteur_additionnel_telephone}
                     onChange={(e) => setForm({ ...form, conducteur_additionnel_telephone: e.target.value })}
@@ -589,8 +589,8 @@ export default function Finalisation() {
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">N° Permis</label>
-                  <input
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-593">N° Permis</label>
+                  <input id="ctl-593"
                     type="text"
                     value={form.conducteur_additionnel_permis}
                     onChange={(e) => setForm({ ...form, conducteur_additionnel_permis: e.target.value })}
@@ -628,14 +628,14 @@ export default function Finalisation() {
                     <div className="flex flex-col items-center gap-1">
                       <m.icon size={18} className="text-gray-400" aria-hidden="true" />
                       <div className="text-sm font-medium text-white">{m.label}</div>
-                      <div className="text-xs text-gray-500">{m.desc}</div>
+                      <div className="text-xs text-muted">{m.desc}</div>
                     </div>
                   </label>
                 ))}
               </div>
               {form.mode_paiement === 'cmi' && (
-                <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
-                  <Shield size={13} className="text-[#dc2626] shrink-0" />
+                <p className="text-xs text-muted mt-3 flex items-center gap-1.5">
+                  <Shield size={13} className="text-primary-light shrink-0" />
                   Paiement securise via le Centre Monetique Interbancaire. Votre
                   carte n'est jamais stockee par nos serveurs.
                 </p>
@@ -661,7 +661,7 @@ export default function Finalisation() {
                   <div>
                     <h4 className="text-white font-medium text-sm">{vehicule.marque} {vehicule.modele}</h4>
                     <p className="text-gray-400 text-xs">{vehicule.transmission} • {vehicule.carburant} • {vehicule.places} places</p>
-                    <p className="text-[#dc2626] font-bold text-sm mt-1">{formatMAD(vehicule.prix_jour)} / jour</p>
+                    <p className="text-primary-light font-bold text-sm mt-1">{formatMAD(vehicule.prix_jour)} / jour</p>
                   </div>
                 </div>
               </div>
@@ -744,7 +744,7 @@ export default function Finalisation() {
               {cmiPaymentUrl && (
                 <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mt-4">
                   <h3 className="text-white font-semibold text-sm mb-1">Paiement securise CMI</h3>
-                  <p className="text-gray-500 text-xs mb-3">
+                  <p className="text-muted text-xs mb-3">
                     Saisissez les informations de votre carte dans le cadre ci-dessous.
                   </p>
                   <iframe
@@ -766,11 +766,11 @@ export default function Finalisation() {
 
               <div className="flex justify-between text-white font-bold text-lg pt-2 border-t border-[#2a2a2a]">
                 <span>Total</span>
-                <span className="text-[#dc2626]">{formatMAD(details.totalApresRemise)}</span>
+                <span className="text-primary-light">{formatMAD(details.totalApresRemise)}</span>
               </div>
               <div className="flex justify-between text-gray-400 text-xs">
                 <span>Acompte a payer maintenant ({tauxAcompte}%)</span>
-                <span className="text-[#dc2626] font-semibold">{formatMAD(details.acompte)}</span>
+                <span className="text-primary-light font-semibold">{formatMAD(details.acompte)}</span>
               </div>
               {details.totalApresRemise > 0 && (
                 <div className="flex justify-between text-gray-400 text-xs">
@@ -811,7 +811,7 @@ export default function Finalisation() {
                   type="checkbox"
                   checked={acceptConditions}
                   onChange={(e) => setAcceptConditions(e.target.checked)}
-                  className="mt-0.5 rounded border-gray-600 bg-[#0a0a0a] text-[#dc2626] focus:ring-[#dc2626]"
+                  className="mt-0.5 rounded border-gray-600 bg-[#0a0a0a] text-primary-light focus:ring-[#dc2626]"
                 />
                 <span className="text-white text-sm">
                   J'ai lu et j'accepte les conditions de location et la politique d'annulation
@@ -841,7 +841,7 @@ export default function Finalisation() {
               }
             </button>
 
-            <p className="text-center text-gray-500 text-xs">
+            <p className="text-center text-muted text-xs">
               Acompte de {tauxAcompte}% requis pour confirmer la reservation. Le reste est paye a la prise en charge.
             </p>
         </div>

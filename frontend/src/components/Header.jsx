@@ -5,46 +5,60 @@ import { useTranslation } from 'react-i18next';
 import { setLangue } from '../i18n';
 import { Globe, LayoutDashboard, MessageSquare, User, LogOut, ChevronDown } from 'lucide-react';
 
-export default function Header() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { client, loading, logout } = useAuth();
+function LangueSwitcher() {
   const { t, i18n } = useTranslation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const lastScroll = useRef(0);
-  const menuRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
 
   useEffect(() => {
-    const onClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    if (!open) return undefined;
+    const onPointerDown = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, []);
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        wrapRef.current?.querySelector('button')?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
 
-  useEffect(() => {
-    setMenuOpen(false);
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  const LangueSwitcher = () => (
-    <div className="relative group/lang">
+  return (
+    <div className="relative" ref={wrapRef}>
       <button
-        className="flex items-center gap-1 text-white/60 hover:text-white text-sm font-medium transition-colors px-2 py-2"
+        type="button"
+        onClick={() => setOpen((o) => !o)}
         aria-label={t('langue.label')}
+        aria-haspopup="true"
+        aria-expanded={open}
+        className="flex items-center gap-1 text-white/60 hover:text-white text-sm font-medium transition-colors px-2 py-2"
       >
-        <Globe size={15} />
+        <Globe size={15} aria-hidden="true" />
         <span className="uppercase text-xs">{i18n.language}</span>
       </button>
-      <div className="absolute right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl overflow-hidden opacity-0 invisible group-hover/lang:opacity-100 group-hover/lang:visible transition-all shadow-xl z-50">
+      <div
+        role="menu"
+        aria-label={t('langue.label')}
+        className={`absolute right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-xl z-50 ${open ? '' : 'hidden'}`}
+      >
         {['fr', 'ar', 'en'].map((lng) => (
           <button
             key={lng}
-            onClick={() => setLangue(lng)}
+            type="button"
+            role="menuitemradio"
+            aria-checked={i18n.language === lng}
+            onClick={() => {
+              setLangue(lng);
+              setOpen(false);
+            }}
             className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-              i18n.language === lng ? 'text-[#dc2626] bg-white/5' : 'text-white/70 hover:text-white hover:bg-white/5'
+              i18n.language === lng ? 'text-primary-light bg-white/5' : 'text-white/70 hover:text-white hover:bg-white/5'
             }`}
           >
             {t(`langue.${lng}`)}
@@ -53,6 +67,38 @@ export default function Header() {
       </div>
     </div>
   );
+}
+
+export default function Header() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { client, loading, logout } = useAuth();
+  const { t } = useTranslation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScroll = useRef(0);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const onPointerDown = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -107,7 +153,7 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            <LangueSwitcher />
+                <LangueSwitcher key={location.pathname} />
             {!loading && (
               client ? (
                 <div ref={menuRef} className="relative">
@@ -128,7 +174,7 @@ export default function Header() {
                     <div className="absolute right-0 top-full mt-2 w-56 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50 z-50">
                       <div className="px-4 py-3 border-b border-white/10">
                         <p className="text-white text-sm font-semibold truncate">{client.nom_complet}</p>
-                        <p className="text-white/40 text-xs truncate">{client.email}</p>
+                        <p className="text-muted text-xs truncate">{client.email}</p>
                       </div>
                       <div className="py-1">
                         {[
@@ -142,7 +188,7 @@ export default function Header() {
                             onClick={() => setMenuOpen(false)}
                             className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                               location.pathname === item.to
-                                ? 'text-[#dc2626] bg-[#dc2626]/5'
+                                ? 'text-primary-light bg-[#dc2626]/5'
                                 : 'text-white/70 hover:text-white hover:bg-white/5'
                             }`}
                           >
@@ -223,7 +269,7 @@ export default function Header() {
             ))}
             <div className="border-t border-white/10 pt-3 mt-3 space-y-2">
               <div className="px-4">
-                <LangueSwitcher />
+            <LangueSwitcher key={location.pathname} />
               </div>
               {!loading && client && (
                 <div className="space-y-1">
@@ -233,7 +279,7 @@ export default function Header() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-white text-sm font-medium truncate">{client.nom_complet}</p>
-                      <p className="text-white/40 text-xs truncate">{client.email}</p>
+                      <p className="text-muted text-xs truncate">{client.email}</p>
                     </div>
                   </div>
                   {[

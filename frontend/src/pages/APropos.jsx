@@ -42,7 +42,7 @@ export default function APropos() {
           <div className="space-y-3">
             {engagements.map((e, i) => (
               <div key={i} className="flex items-center gap-2 text-gray-300 text-sm">
-                <Check size={16} className="text-[#dc2626] shrink-0" />
+                <Check size={16} className="text-primary-light shrink-0" />
                 {e}
               </div>
             ))}

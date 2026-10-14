@@ -97,7 +97,7 @@ export default function Compare() {
     }
   };
 
-  const inputCls = 'bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 text-white text-sm placeholder:text-white/20 focus:border-[#dc2626]/50 outline-none';
+  const inputCls = 'bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 outline-none';
 
   if (ids.length < 2) {
     return (
@@ -108,45 +108,45 @@ export default function Compare() {
         />
         <div className="max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-2 text-white/70 mb-2">
-            <SlidersHorizontal size={18} className="text-[#dc2626]" />
+            <SlidersHorizontal size={18} className="text-primary-light" />
             <h2 className="font-semibold">Selectionnez 2 a 3 vehicules</h2>
           </div>
-          <p className="text-white/40 text-sm mb-6">
+          <p className="text-muted text-sm mb-6">
             Utilisez les filtres pour trouver les vehicules a comparer.
           </p>
 
           {/* V10 : filtres */}
           <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-4 mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <select value={filtres.categorie} onChange={(e) => setFiltres({ ...filtres, categorie: e.target.value })} className={inputCls}>
+            <select aria-label="Catégorie" value={filtres.categorie} onChange={(e) => setFiltres({ ...filtres, categorie: e.target.value })} className={inputCls}>
               <option value="">Catégorie</option>
               <option value="Berline">Berline</option>
               <option value="SUV">SUV</option>
               <option value="Citadine">Citadine</option>
               <option value="Van">Van</option>
             </select>
-            <select value={filtres.transmission} onChange={(e) => setFiltres({ ...filtres, transmission: e.target.value })} className={inputCls}>
+            <select aria-label="Transmission" value={filtres.transmission} onChange={(e) => setFiltres({ ...filtres, transmission: e.target.value })} className={inputCls}>
               <option value="">Transmission</option>
               <option value="automatique">Automatique</option>
               <option value="manuelle">Manuelle</option>
             </select>
-            <select value={filtres.carburant} onChange={(e) => setFiltres({ ...filtres, carburant: e.target.value })} className={inputCls}>
+            <select aria-label="Carburant" value={filtres.carburant} onChange={(e) => setFiltres({ ...filtres, carburant: e.target.value })} className={inputCls}>
               <option value="">Carburant</option>
               <option value="essence">Essence</option>
               <option value="diesel">Diesel</option>
               <option value="hybride">Hybride</option>
             </select>
-            <input type="number" min="0" placeholder="Prix min" value={filtres.prix_min}
+            <input aria-label="Prix min" type="number" min="0" placeholder="Prix min" value={filtres.prix_min}
               onChange={(e) => setFiltres({ ...filtres, prix_min: e.target.value })} className={inputCls} />
-            <input type="number" min="0" placeholder="Prix max" value={filtres.prix_max}
+            <input aria-label="Prix max" type="number" min="0" placeholder="Prix max" value={filtres.prix_max}
               onChange={(e) => setFiltres({ ...filtres, prix_max: e.target.value })} className={inputCls} />
-            <input type="number" min="2" max="9" placeholder="Places min" value={filtres.places}
+            <input aria-label="Places min" type="number" min="2" max="9" placeholder="Places min" value={filtres.places}
               onChange={(e) => setFiltres({ ...filtres, places: e.target.value })} className={inputCls} />
           </div>
 
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setFiltres(FILTRES_VIDES)}
-              className="text-white/40 hover:text-white text-sm transition-colors"
+              className="text-muted hover:text-white text-sm transition-colors"
             >
               Reinitialiser les filtres
             </button>
@@ -164,7 +164,7 @@ export default function Compare() {
               {[0, 1, 2].map((i) => <div key={i} className="h-44 bg-white/[0.04] rounded-2xl animate-pulse" />)}
             </div>
           ) : catalogue.length === 0 ? (
-            <p className="text-white/40 text-sm text-center py-12">Aucun vehicule ne correspond aux filtres.</p>
+            <p className="text-muted text-sm text-center py-12">Aucun vehicule ne correspond aux filtres.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {catalogue.map((v) => {
@@ -191,13 +191,13 @@ export default function Compare() {
                         {selected ? <Check size={14} /> : <Plus size={14} />}
                       </div>
                       <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-lg">
-                        <span className="text-[#dc2626] font-bold text-sm">{v.prix_jour}</span>
-                        <span className="text-white/50 text-xs ml-1">DH/jour</span>
+                        <span className="text-primary-light font-bold text-sm">{v.prix_jour}</span>
+                        <span className="text-white/70 text-xs ml-1">DH/jour</span>
                       </div>
                     </div>
                     <div className="p-3">
                       <h3 className="text-white font-semibold text-sm">{v.marque} {v.modele}</h3>
-                      <p className="text-white/40 text-xs mt-0.5">{v.annee} - {v.categorie}</p>
+                      <p className="text-muted text-xs mt-0.5">{v.annee} - {v.categorie}</p>
                     </div>
                   </button>
                 );
@@ -235,7 +235,7 @@ export default function Compare() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-16">
         <Link
           to="/vehicules"
-          className="inline-flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm mb-6 transition-colors"
         >
           <ArrowLeft size={16} />
           Retour au catalogue
@@ -257,13 +257,13 @@ export default function Compare() {
                     onError={(e) => { e.target.src = FALLBACK_IMG; }}
                   />
                   <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                    <span className="text-[#dc2626] font-bold">{v.prix_jour}</span>
-                    <span className="text-white/50 text-xs ml-1">DH/jour</span>
+                    <span className="text-primary-light font-bold">{v.prix_jour}</span>
+                    <span className="text-white/70 text-xs ml-1">DH/jour</span>
                   </div>
                 </div>
                 <div className="p-4 text-center">
                   <h3 className="text-white font-semibold">{v.marque} {v.modele}</h3>
-                  <p className="text-white/40 text-xs mt-1">{v.annee} - {v.categorie}</p>
+                  <p className="text-muted text-xs mt-1">{v.annee} - {v.categorie}</p>
                 </div>
               </div>
             );
@@ -276,7 +276,7 @@ export default function Compare() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  <th className="text-left px-6 py-4 text-white/50 text-sm font-medium w-40">Caracteristique</th>
+                  <th className="text-left px-6 py-4 text-white/70 text-sm font-medium w-40">Caracteristique</th>
                   {vehicules.map(v => (
                     <th key={v.id} className="text-center px-6 py-4 text-white text-sm font-semibold">
                       {v.marque} {v.modele}
@@ -287,12 +287,12 @@ export default function Compare() {
               <tbody>
                 {SPECS.map((spec, i) => (
                   <tr key={spec.key} className={`border-b border-white/[0.04] ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
-                    <td className="px-6 py-3.5 text-white/50 text-sm">{spec.label}</td>
+                    <td className="px-6 py-3.5 text-white/70 text-sm">{spec.label}</td>
                     {vehicules.map(v => {
                       const value = v[spec.key];
                       const formatted = spec.format ? spec.format(value) : value;
                       return (
-                        <td key={v.id} className={`text-center px-6 py-3.5 text-sm ${spec.highlight ? 'text-[#dc2626] font-bold' : 'text-white'}`}>
+                        <td key={v.id} className={`text-center px-6 py-3.5 text-sm ${spec.highlight ? 'text-primary-light font-bold' : 'text-white'}`}>
                           {formatted}
                         </td>
                       );
@@ -301,7 +301,7 @@ export default function Compare() {
                 ))}
                 {/* Equipements row */}
                 <tr className="border-b border-white/[0.04] bg-white/[0.01]">
-                  <td className="px-6 py-3.5 text-white/50 text-sm">Equipements</td>
+                  <td className="px-6 py-3.5 text-white/70 text-sm">Equipements</td>
                   {vehicules.map(v => (
                     <td key={v.id} className="text-center px-6 py-3.5">
                       <div className="flex flex-col items-center gap-1">
@@ -312,7 +312,7 @@ export default function Compare() {
                           </span>
                         ))}
                         {(!v.equipements || v.equipements.length === 0) && (
-                          <span className="text-white/30 text-xs">Aucun</span>
+                          <span className="text-muted text-xs">Aucun</span>
                         )}
                       </div>
                     </td>

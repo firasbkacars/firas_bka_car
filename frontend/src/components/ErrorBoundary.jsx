@@ -31,7 +31,7 @@ export default class ErrorBoundary extends Component {
             <h1 className="text-2xl font-bold text-white mb-3">
               Une erreur est survenue
             </h1>
-            <p className="text-gray-500 text-sm mb-8">
+            <p className="text-muted text-sm mb-8">
               L'application a rencontre un probleme inattendu. Vous pouvez reessayer ou retourner a l'accueil.
             </p>
             <div className="flex items-center justify-center gap-3">

@@ -42,8 +42,10 @@ function App() {
   return (
     <AuthProvider>
       <FavorisProvider>
+        <a href="#main-content" className="skip-link">Aller au contenu principal</a>
         <ScrollToTop />
-        <Routes>
+        <main id="main-content" tabIndex={-1}>
+          <Routes>
           <Route path="/" element={<><Header /><Home /><Footer /></>} />
           <Route path="/services" element={<><Header /><Services /><Footer /></>} />
           <Route path="/a-propos" element={<><Header /><APropos /><Footer /></>} />
@@ -79,8 +81,9 @@ function App() {
             <Route path="etats-lieux" element={<AdminEtatsLieux />} />
             <Route path="parametres" element={<AdminParametres />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+          <Route path="*" element={<><Header /><NotFound /><Footer /></>} />
+          </Routes>
+        </main>
       </FavorisProvider>
     </AuthProvider>
   )

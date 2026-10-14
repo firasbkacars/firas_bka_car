@@ -110,7 +110,7 @@ export default function CodesPromo() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Codes Promo</h1>
-            <p className="text-neutral-500 text-sm">{codes.length} code(s)</p>
+            <p className="text-muted text-sm">{codes.length} code(s)</p>
           </div>
         </div>
         <button
@@ -126,7 +126,7 @@ export default function CodesPromo() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5 font-medium">Code</th>
                 <th className="text-left py-3 px-5 font-medium">Type</th>
                 <th className="text-left py-3 px-5 font-medium">Valeur</th>
@@ -145,8 +145,8 @@ export default function CodesPromo() {
                 ))
               ) : codes.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-neutral-500">
-                    <Tag size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={7} className="text-center py-12 text-muted">
+                    <Tag size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucun code promo</p>
                   </td>
                 </tr>
@@ -229,7 +229,7 @@ export default function CodesPromo() {
                 <p className="text-neutral-400 text-sm">Utilisations</p>
               </div>
               <div className="bg-neutral-800 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-[#dc2626]">{stats.total_remise} DH</p>
+                <p className="text-2xl font-bold text-primary-light">{stats.total_remise} DH</p>
                 <p className="text-neutral-400 text-sm">Total remise</p>
               </div>
             </div>
@@ -246,8 +246,8 @@ export default function CodesPromo() {
             <h3 className="text-white font-semibold mb-4">{editCode ? 'Modifier le code' : 'Nouveau code promo'}</h3>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="text-neutral-400 text-sm mb-1 block">Code</label>
-                <input
+                <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-250">Code</label>
+                <input id="ctl-250"
                   type="text"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
@@ -258,8 +258,8 @@ export default function CodesPromo() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-sm mb-1 block">Type</label>
-                  <select
+                  <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-262">Type</label>
+                  <select id="ctl-262"
                     value={form.type}
                     onChange={(e) => setForm({ ...form, type: e.target.value })}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
@@ -269,8 +269,8 @@ export default function CodesPromo() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-sm mb-1 block">Valeur</label>
-                  <input
+                  <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-273">Valeur</label>
+                  <input id="ctl-273"
                     type="number"
                     min="0"
                     step="0.01"
@@ -284,8 +284,8 @@ export default function CodesPromo() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-neutral-400 text-sm mb-1 block">Expiration</label>
-                  <input
+                  <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-288">Expiration</label>
+                  <input id="ctl-288"
                     type="date"
                     value={form.date_expiration}
                     onChange={(e) => setForm({ ...form, date_expiration: e.target.value })}
@@ -294,8 +294,8 @@ export default function CodesPromo() {
                   />
                 </div>
                 <div>
-                  <label className="text-neutral-400 text-sm mb-1 block">Usage max</label>
-                  <input
+                  <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-298">Usage max</label>
+                  <input id="ctl-298"
                     type="number"
                     min="1"
                     value={form.usage_max}
@@ -311,7 +311,7 @@ export default function CodesPromo() {
                   type="checkbox"
                   checked={form.actif}
                   onChange={(e) => setForm({ ...form, actif: e.target.checked })}
-                  className="rounded border-gray-600 bg-neutral-800 text-red-600 focus:ring-red-600"
+                  className="rounded border-gray-600 bg-neutral-800 text-red-400 focus:ring-red-600"
                 />
                 <span className="text-white text-sm">Actif</span>
               </label>

@@ -57,7 +57,7 @@ function SortButton({ field, sort, onSort, children }) {
   return (
     <button
       onClick={() => onSort(field)}
-      className={`flex items-center gap-1 font-medium transition ${active ? 'text-red-400' : 'text-neutral-500 hover:text-neutral-300'}`}
+      className={`flex items-center gap-1 font-medium transition ${active ? 'text-red-400' : 'text-muted hover:text-neutral-300'}`}
     >
       {children}
       {active ? (
@@ -236,7 +236,7 @@ export default function AdminReservations() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-white">Réservations</h1>
-          <p className="text-neutral-500 text-sm">
+          <p className="text-muted text-sm">
             {filtered.length} réservation(s) — {totalMontant.toLocaleString('fr-FR')} DH
           </p>
         </div>
@@ -246,17 +246,17 @@ export default function AdminReservations() {
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="relative sm:col-span-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-            <input
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input aria-label="Rechercher par client ou n°..."
               type="text"
               placeholder="Rechercher par client ou n°..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-red-600 transition"
+              className="w-full bg-neutral-800 border border-neutral-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-placeholder focus:outline-none focus:border-red-600 transition"
             />
           </div>
 
-          <select
+          <select aria-label="Filtrer par statut"
             value={filterStatut}
             onChange={(e) => setFilterStatut(e.target.value)}
             className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition appearance-none cursor-pointer"
@@ -268,7 +268,7 @@ export default function AdminReservations() {
             <option value="annulee">Annulée</option>
           </select>
 
-          <select
+          <select aria-label="Filtrer par véhicule"
             value={filterVehicule}
             onChange={(e) => setFilterVehicule(e.target.value)}
             className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition appearance-none cursor-pointer"
@@ -282,8 +282,8 @@ export default function AdminReservations() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="relative">
-            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-            <input
+            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input aria-label="Date de début"
               type="date"
               value={filterDateStart}
               onChange={(e) => setFilterDateStart(e.target.value)}
@@ -291,8 +291,8 @@ export default function AdminReservations() {
             />
           </div>
           <div className="relative">
-            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-            <input
+            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input aria-label="Date de fin"
               type="date"
               value={filterDateEnd}
               onChange={(e) => setFilterDateEnd(e.target.value)}
@@ -307,15 +307,15 @@ export default function AdminReservations() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[800px]">
             <thead>
-              <tr className="text-neutral-500 border-b border-neutral-800">
+              <tr className="text-muted border-b border-neutral-800">
                 <th className="text-left py-3 px-5"><SortButton field="numero" sort={sort} onSort={handleSort}>N° Réservation</SortButton></th>
                 <th className="text-left py-3 px-5"><SortButton field="client" sort={sort} onSort={handleSort}>Client</SortButton></th>
                 <th className="text-left py-3 px-5"><SortButton field="vehicule" sort={sort} onSort={handleSort}>Véhicule</SortButton></th>
                 <th className="text-left py-3 px-5"><SortButton field="date_debut" sort={sort} onSort={handleSort}>Dates</SortButton></th>
                 <th className="text-left py-3 px-5"><SortButton field="prix_total" sort={sort} onSort={handleSort}>Montant</SortButton></th>
                 <th className="text-left py-3 px-5"><SortButton field="statut" sort={sort} onSort={handleSort}>Statut</SortButton></th>
-                <th className="text-left py-3 px-5 font-medium text-neutral-500">Caution</th>
-                <th className="text-right py-3 px-5 font-medium text-neutral-500">Actions</th>
+                <th className="text-left py-3 px-5 font-medium text-muted">Caution</th>
+                <th className="text-right py-3 px-5 font-medium text-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -323,8 +323,8 @@ export default function AdminReservations() {
                 Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
               ) : paged.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-16 text-neutral-500">
-                    <Inbox size={40} className="mx-auto mb-3 text-neutral-600" />
+                  <td colSpan={8} className="text-center py-16 text-muted">
+                    <Inbox size={40} className="mx-auto mb-3 text-muted" />
                     <p className="text-sm">Aucune réservation trouvée</p>
                   </td>
                 </tr>
@@ -350,7 +350,7 @@ export default function AdminReservations() {
                   <td className="py-3 px-5 text-neutral-300">
                     {r.vehicule?.marque} {r.vehicule?.modele}
                   </td>
-                  <td className="py-3 px-5 text-neutral-500 text-xs whitespace-nowrap">
+                  <td className="py-3 px-5 text-muted text-xs whitespace-nowrap">
                     {new Date(r.date_debut).toLocaleDateString('fr-FR')} — {new Date(r.date_fin).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="py-3 px-5 text-white font-medium">
@@ -385,14 +385,14 @@ export default function AdminReservations() {
                         </button>
                         <button
                           onClick={() => showCautionHistorique(r)}
-                          className="p-1 rounded text-neutral-500 hover:text-white hover:bg-neutral-800 transition"
+                          className="p-1 rounded text-muted hover:text-white hover:bg-neutral-800 transition"
                           title="Historique des caution"
                         >
                           <History size={13} />
                         </button>
                       </div>
                     ) : (
-                      <span className="text-neutral-600 text-xs">-</span>
+                      <span className="text-muted text-xs">-</span>
                     )}
                   </td>
                   <td className="py-3 px-5 text-right">
@@ -417,9 +417,9 @@ export default function AdminReservations() {
         {/* Pagination */}
         {!loading && filtered.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-neutral-800">
-            <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <div className="flex items-center gap-2 text-sm text-muted">
               <span>Afficher</span>
-              <select
+              <select aria-label="Éléments par page"
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
                 className="bg-neutral-800 border border-neutral-700 rounded-lg px-2 py-1 text-white text-sm focus:outline-none focus:border-red-600 cursor-pointer"
@@ -486,8 +486,8 @@ export default function AdminReservations() {
               Reservation {cautionModal.numero} | {cautionModal.montant_caution} DH
             </p>
             <div className="space-y-3">
-              <label className="text-neutral-400 text-sm block">Statut de la caution</label>
-              <select
+              <label className="text-neutral-400 text-sm block" htmlFor="ctl-490">Statut de la caution</label>
+              <select id="ctl-490"
                 value={cautionStatut}
                 onChange={(e) => setCautionStatut(e.target.value)}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
@@ -499,8 +499,8 @@ export default function AdminReservations() {
               {cautionStatut === 'retenue_partiellement' && (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-neutral-400 text-sm mb-1 block">Montant retenu (DH)</label>
-                    <input
+                    <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-503">Montant retenu (DH)</label>
+                    <input id="ctl-503"
                       type="number"
                       min="0"
                       max={cautionModal.montant_caution}
@@ -512,8 +512,8 @@ export default function AdminReservations() {
                     />
                   </div>
                   <div>
-                    <label className="text-neutral-400 text-sm mb-1 block">Motif de la retenue</label>
-                    <textarea
+                    <label className="text-neutral-400 text-sm mb-1 block" htmlFor="ctl-516">Motif de la retenue</label>
+                    <textarea id="ctl-516"
                       value={cautionMotif}
                       onChange={(e) => setCautionMotif(e.target.value)}
                       rows={3}
@@ -546,18 +546,18 @@ export default function AdminReservations() {
                 <Loader2 size={20} className="animate-spin text-neutral-400" />
               </div>
             ) : cautionHist.entries.length === 0 ? (
-              <p className="text-neutral-500 text-sm text-center py-6">Aucune modification de caution enregistree.</p>
+              <p className="text-muted text-sm text-center py-6">Aucune modification de caution enregistree.</p>
             ) : (
               <div className="space-y-3">
                 {cautionHist.entries.map((h) => (
                   <div key={h.id} className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/50">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="text-neutral-500">{h.ancien_statut || '-'}</span>
-                        <span className="text-neutral-600">→</span>
+                        <span className="text-muted">{h.ancien_statut || '-'}</span>
+                        <span className="text-muted">→</span>
                         <span className="text-white font-medium">{h.nouveau_statut}</span>
                       </div>
-                      <span className="text-neutral-500 text-xs">
+                      <span className="text-muted text-xs">
                         {new Date(h.created_at).toLocaleString('fr-FR')}
                       </span>
                     </div>
@@ -565,7 +565,7 @@ export default function AdminReservations() {
                       <p className="text-yellow-400 text-xs mb-1">Retenu : {Number(h.montant_retenu).toLocaleString('fr-FR')} DH</p>
                     )}
                     {h.motif && <p className="text-neutral-400 text-xs mb-1">Motif : {h.motif}</p>}
-                    <p className="text-neutral-500 text-xs">Par : {h.agent?.name || 'Système'}</p>
+                    <p className="text-muted text-xs">Par : {h.agent?.name || 'Système'}</p>
                   </div>
                 ))}
               </div>

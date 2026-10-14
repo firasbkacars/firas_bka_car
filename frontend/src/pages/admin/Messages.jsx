@@ -51,7 +51,7 @@ export default function Messages() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white">Messages clients</h1>
-          <p className="text-neutral-500 text-sm">{clients.length} conversation(s)</p>
+          <p className="text-muted text-sm">{clients.length} conversation(s)</p>
         </div>
       </div>
 
@@ -64,8 +64,8 @@ export default function Messages() {
                 {[0, 1, 2].map((i) => <div key={i} className="h-12 bg-neutral-800 rounded animate-pulse" />)}
               </div>
             ) : clients.length === 0 ? (
-              <div className="p-8 text-center text-neutral-500 text-sm">
-                <Inbox size={32} className="mx-auto mb-2 text-neutral-600" />
+              <div className="p-8 text-center text-muted text-sm">
+                <Inbox size={32} className="mx-auto mb-2 text-muted" />
                 Aucune conversation
               </div>
             ) : clients.map((c) => (
@@ -84,7 +84,7 @@ export default function Messages() {
                     </span>
                   )}
                 </div>
-                <span className="text-neutral-500 text-xs">{c.email}</span>
+                <span className="text-muted text-xs">{c.email}</span>
               </button>
             ))}
           </div>
@@ -92,7 +92,7 @@ export default function Messages() {
 
         <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col" style={{ minHeight: '60vh' }}>
           {!selection ? (
-            <div className="flex-1 flex items-center justify-center text-neutral-500 text-sm">
+            <div className="flex-1 flex items-center justify-center text-muted text-sm">
               Selectionnez une conversation
             </div>
           ) : (
@@ -105,7 +105,7 @@ export default function Messages() {
                       m.from_admin ? 'bg-red-600 text-white rounded-br-md' : 'bg-neutral-800 text-neutral-200 rounded-bl-md'
                     }`}>
                       <p className="whitespace-pre-wrap">{m.message}</p>
-                      <span className={`block text-[10px] mt-1 ${m.from_admin ? 'text-white/60' : 'text-neutral-500'}`}>
+                      <span className={`block text-[10px] mt-1 ${m.from_admin ? 'text-white/60' : 'text-muted'}`}>
                         {new Date(m.created_at).toLocaleString('fr-FR')}
                       </span>
                     </div>
@@ -114,7 +114,7 @@ export default function Messages() {
                 <div ref={bottomRef} />
               </div>
               <form onSubmit={envoyer} className="p-3 border-t border-neutral-800 flex gap-2">
-                <input
+                <input aria-label="Votre reponse..."
                   value={texte}
                   onChange={(e) => setTexte(e.target.value)}
                   placeholder="Votre reponse..."

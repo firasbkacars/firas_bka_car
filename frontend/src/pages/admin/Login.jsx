@@ -87,7 +87,7 @@ export default function AdminLogin() {
         </form>
 
         <div className="text-center mt-4">
-          <Link to="/" className="text-gray-500 hover:text-white text-sm transition-colors">
+          <Link to="/" className="text-muted hover:text-white text-sm transition-colors">
             ← Retour à l'accueil
           </Link>
         </div>

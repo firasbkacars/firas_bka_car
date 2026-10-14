@@ -76,8 +76,8 @@ export default function Confirmation() {
       <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
         <p className="text-gray-400 mb-4">{error || 'Aucune réservation trouvée.'}</p>
         <div className="flex items-center justify-center gap-4 text-sm">
-          <Link to="/" className="text-[#dc2626] hover:underline">Retour à l'accueil</Link>
-          <Link to="/vehicules" className="text-[#dc2626] hover:underline">Voir les véhicules</Link>
+          <Link to="/" className="text-primary-light hover:underline">Retour à l'accueil</Link>
+          <Link to="/vehicules" className="text-primary-light hover:underline">Voir les véhicules</Link>
         </div>
       </div>
     );
@@ -102,8 +102,8 @@ export default function Confirmation() {
       {/* Reservation Number */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 text-center mb-6">
         <p className="text-gray-400 text-sm mb-2">Numéro de réservation</p>
-        <p className="text-[#dc2626] font-bold text-3xl tracking-wider">{reservation.numero}</p>
-        <p className="text-gray-500 text-xs mt-2">Conservez ce numéro pour toute référence future.</p>
+        <p className="text-primary-light font-bold text-3xl tracking-wider">{reservation.numero}</p>
+        <p className="text-muted text-xs mt-2">Conservez ce numéro pour toute référence future.</p>
       </div>
 
       {/* Details */}
@@ -150,7 +150,7 @@ export default function Confirmation() {
         <h3 className="text-white font-semibold mb-3">Montant payé</h3>
         <div className="flex justify-between items-center">
           <span className="text-gray-400">Total</span>
-          <span className="text-[#dc2626] font-bold text-2xl">{reservation.prix_total} DH</span>
+          <span className="text-primary-light font-bold text-2xl">{reservation.prix_total} DH</span>
         </div>
         <div className="flex justify-between items-center mt-2">
           <span className="text-gray-400">Statut</span>
@@ -178,7 +178,7 @@ export default function Confirmation() {
       </div>
 
       <div className="text-center mt-8">
-        <Link to="/" className="text-[#dc2626] hover:underline">← Retour à l'accueil</Link>
+        <Link to="/" className="text-primary-light hover:underline">← Retour à l'accueil</Link>
       </div>
     </div>
   );
