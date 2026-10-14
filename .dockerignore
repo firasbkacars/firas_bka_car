@@ -12,7 +12,17 @@ backend/storage/logs/*
 backend/database/database.sqlite
 img/
 .git/
+.github/
+.cloudflare/
+.wrangler/
+.sprite/
+mobile/
+e2e/
+photoInspiration.png
+worker.js
+wrangler.jsonc
 *.md
 fly.toml
+fly.mysql.toml
 render.yaml
 Dockerfile
