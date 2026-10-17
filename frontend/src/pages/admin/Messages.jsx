@@ -28,6 +28,8 @@ export default function Messages() {
       const { data } = await api.get(`/messages-admin/${clientId}`);
       setFil(data.messages);
       setClients((prev) => prev.map((c) => (c.id === clientId ? { ...c, non_lus: 0 } : c)));
+      // Le fil est ouvert : messages clients marques lus, badge a jour.
+      window.dispatchEvent(new Event('admin-notifications-refresh'));
     } catch (err) { console.error(err); }
   };
 

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\FideliteController;
 use App\Http\Controllers\Api\FournisseurContratController;
 use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaiementController;
 use App\Http\Controllers\Api\ParrainageController;
 use App\Http\Controllers\Api\ParametreController;
@@ -119,6 +120,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/client/messages', [MessageController::class, 'indexClient']);
         Route::post('/client/messages', [MessageController::class, 'storeClient']);
 
+        // V9 : indices de nouveaute cote client (badges menu)
+        Route::get('/client/notifications', [NotificationController::class, 'clientCounts']);
+        Route::post('/client/notifications/reservations-vues', [NotificationController::class, 'reservationsVuesClient']);
+
         // Client annulation
         Route::put('/client/reservations/{id}/annuler', [ReservationController::class, 'annulerParClient']);
         Route::get('/client/reservations/{id}/annulation-preview', [ReservationController::class, 'apercuAnnulation']);
@@ -204,6 +209,11 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/messages-admin', [MessageController::class, 'indexAdmin']);
     Route::get('/messages-admin/{clientId}', [MessageController::class, 'filAdmin']);
     Route::post('/messages-admin/{clientId}', [MessageController::class, 'storeAdmin']);
+
+    // V9 : indices de nouveaute cote admin (badges sidebar)
+    Route::get('/notifications-admin', [NotificationController::class, 'adminCounts']);
+    Route::post('/notifications-admin/reservations-vues', [NotificationController::class, 'reservationsVuesAdmin']);
+    Route::post('/notifications-admin/clients-vus', [NotificationController::class, 'clientsVusAdmin']);
 
     // Admin maintenance
     Route::apiResource('maintenances', MaintenanceController::class);

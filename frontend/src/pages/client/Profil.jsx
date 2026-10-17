@@ -160,6 +160,11 @@ export default function ClientProfil() {
       setReservationsLoading(true);
       const { data } = await api.get('/client/reservations');
       setReservations(data);
+      // Les reservations viennent d'etre affichees : on marque la
+      // consultation et on rafraichit le badge du menu client.
+      api.post('/client/notifications/reservations-vues')
+        .then(() => window.dispatchEvent(new Event('client-notifications-refresh')))
+        .catch(() => {});
     } catch (err) {
       console.error(err);
     } finally {

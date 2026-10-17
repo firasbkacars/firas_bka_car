@@ -37,6 +37,8 @@ export default function Avis() {
       setActionId(id);
       await api.put(`/avis/${id}/moderation`, { statut });
       setAvis((prev) => prev.map((a) => (a.id === id ? { ...a, statut } : a)));
+      // Un avis modere en moins a traiter : badge sidebar a jour.
+      window.dispatchEvent(new Event('admin-notifications-refresh'));
     } catch (err) { console.error(err); }
     finally { setActionId(null); }
   };

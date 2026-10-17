@@ -40,7 +40,16 @@ const sidebarLinks = [
   { path: '/admin/parametres', label: 'Parametres', icon: Settings },
 ];
 
-function SidebarContent({ isActive, onLogout }) {
+// Indices de nouveaute : compteur affiche en pastille par page de la sidebar.
+const NOTIF_KEYS = {
+  '/admin/reservations': 'reservations',
+  '/admin/clients': 'clients',
+  '/admin/paiements': 'paiements',
+  '/admin/avis': 'avis',
+  '/admin/messages': 'messages',
+};
+
+function SidebarContent({ isActive, onLogout, counts = {} }) {
   return (
     <>
       <div className="p-5 border-b border-neutral-800">
@@ -53,6 +62,7 @@ function SidebarContent({ isActive, onLogout }) {
         {sidebarLinks.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.path);
+          const badge = counts[NOTIF_KEYS[link.path]] || 0;
           return (
             <Link
               key={link.path}
@@ -65,6 +75,15 @@ function SidebarContent({ isActive, onLogout }) {
             >
               <Icon size={18} className={active ? 'text-red-500' : ''} />
               {link.label}
+              {badge > 0 && (
+                <span
+                  className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center"
+                  title={badge > 1 ? `${badge} nouveautés` : '1 nouveauté'}
+                  data-notif-badge={badge}
+                >
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -89,6 +108,8 @@ export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [checking, setChecking] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
+  // Compteurs de nouveaute affiches en pastille dans la sidebar.
+  const [notifications, setNotifications] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
@@ -116,6 +137,34 @@ export default function AdminLayout() {
       cancelled = true;
     };
   }, [navigate]);
+
+  // Badges de nouveaute (reservations, clients, messages, paiements, avis) :
+  // rafraichis toutes les 30 s et a la demande via l'evenement
+  // 'admin-notifications-refresh' emis par les pages qui marquent "vu".
+  useEffect(() => {
+    if (!adminUser) return undefined;
+
+    let cancelled = false;
+
+    const fetchNotifications = async () => {
+      try {
+        const { data } = await api.get('/notifications-admin');
+        if (!cancelled) setNotifications(data);
+      } catch {
+        // silencieux : un badge manquant ne doit pas casser la page
+      }
+    };
+
+    fetchNotifications();
+    const timer = setInterval(fetchNotifications, 30000);
+    window.addEventListener('admin-notifications-refresh', fetchNotifications);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener('admin-notifications-refresh', fetchNotifications);
+    };
+  }, [adminUser]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -156,7 +205,7 @@ export default function AdminLayout() {
     <div className="flex h-screen bg-neutral-950">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-64 bg-neutral-900 border-r border-neutral-800 flex-col">
-        <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} />
+        <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} counts={notifications} />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -174,7 +223,7 @@ export default function AdminLayout() {
             >
               <X size={20} />
             </button>
-            <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} />
+            <SidebarContent location={location} isActive={isActive} onLogout={handleLogout} counts={notifications} />
           </aside>
         </div>
       )}

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { setLangue } from '../i18n';
 import { Globe, LayoutDashboard, MessageSquare, User, LogOut, ChevronDown } from 'lucide-react';
+import api from '../services/api';
 
 function LangueSwitcher() {
   const { t, i18n } = useTranslation();
@@ -77,6 +78,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
+  // Indices de nouveaute client : messages non lus + reservations modifiees.
+  const [notifs, setNotifs] = useState({ messages: 0, reservations: 0 });
   const lastScroll = useRef(0);
   const menuRef = useRef(null);
 
@@ -94,6 +97,34 @@ export default function Header() {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, []);
+
+  // Badges client : rafraichis toutes les 30 s et a la demande via
+  // l'evenement 'client-notifications-refresh' (messagerie ou page
+  // reservations ouverte).
+  useEffect(() => {
+    if (!client) return undefined;
+
+    let cancelled = false;
+
+    const fetchNotifs = async () => {
+      try {
+        const { data } = await api.get('/client/notifications');
+        if (!cancelled) setNotifs(data);
+      } catch {
+        // silencieux : un badge manquant ne doit pas casser la page
+      }
+    };
+
+    fetchNotifs();
+    const timer = setInterval(fetchNotifs, 30000);
+    window.addEventListener('client-notifications-refresh', fetchNotifs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener('client-notifications-refresh', fetchNotifs);
+    };
+  }, [client]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -124,6 +155,8 @@ export default function Header() {
     { path: '/a-propos', label: t('nav.apropos') },
     { path: '/contact', label: t('nav.contact') },
   ];
+
+  const totalNotifs = (notifs.messages || 0) + (notifs.reservations || 0);
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full'}`}>
@@ -162,9 +195,15 @@ export default function Header() {
                     className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors px-3 py-2 rounded-full hover:bg-white/5"
                     aria-expanded={menuOpen}
                     aria-haspopup="true"
+                    data-user-menu
                   >
-                    <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      {client.nom_complet?.charAt(0)}
+                    <div className="relative shrink-0">
+                      <div className="w-7 h-7 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        {client.nom_complet?.charAt(0)}
+                      </div>
+                      {totalNotifs > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-black rounded-full" aria-hidden="true" data-notif-dot />
+                      )}
                     </div>
                     <span className="max-w-[100px] truncate">{client.nom_complet?.split(' ')[0]}</span>
                     <ChevronDown size={14} className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
@@ -179,8 +218,8 @@ export default function Header() {
                       <div className="py-1">
                         {[
                           { to: '/client/tableau-de-bord', icon: LayoutDashboard, label: t('nav.tableauDeBord') },
-                          { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie') },
-                          { to: '/client/profil', icon: User, label: t('nav.profil') },
+                          { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie'), badge: notifs.messages },
+                          { to: '/client/profil', icon: User, label: t('nav.profil'), badge: notifs.reservations },
                         ].map((item) => (
                           <Link
                             key={item.to}
@@ -194,6 +233,11 @@ export default function Header() {
                           >
                             <item.icon size={16} />
                             {item.label}
+                            {item.badge > 0 && (
+                              <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center" data-notif-badge={item.badge}>
+                                {item.badge > 99 ? '99+' : item.badge}
+                              </span>
+                            )}
                           </Link>
                         ))}
                       </div>
@@ -274,8 +318,13 @@ export default function Header() {
               {!loading && client && (
                 <div className="space-y-1">
                   <div className="px-4 py-2 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      {client.nom_complet?.charAt(0)}
+                    <div className="relative shrink-0">
+                      <div className="w-8 h-8 bg-[#dc2626] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        {client.nom_complet?.charAt(0)}
+                      </div>
+                      {totalNotifs > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-black rounded-full" aria-hidden="true" data-notif-dot />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-white text-sm font-medium truncate">{client.nom_complet}</p>
@@ -284,8 +333,8 @@ export default function Header() {
                   </div>
                   {[
                     { to: '/client/tableau-de-bord', icon: LayoutDashboard, label: t('nav.tableauDeBord') },
-                    { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie') },
-                    { to: '/client/profil', icon: User, label: t('nav.profil') },
+                    { to: '/client/messagerie', icon: MessageSquare, label: t('nav.messagerie'), badge: notifs.messages },
+                    { to: '/client/profil', icon: User, label: t('nav.profil'), badge: notifs.reservations },
                   ].map((item) => (
                     <Link
                       key={item.to}
@@ -299,6 +348,11 @@ export default function Header() {
                     >
                       <item.icon size={16} />
                       {item.label}
+                      {item.badge > 0 && (
+                        <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center" data-notif-badge={item.badge}>
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
                     </Link>
                   ))}
                   <button

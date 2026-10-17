@@ -28,6 +28,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'reservations_vues_le',
+        'clients_vus_le',
     ];
 
     /**
@@ -50,6 +52,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'reservations_vues_le' => 'datetime',
+            'clients_vus_le' => 'datetime',
         ];
     }
 

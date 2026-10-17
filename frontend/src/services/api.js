@@ -22,6 +22,7 @@ const ADMIN_PREFIXES = [
   '/upload',
   '/contrats-fournisseurs',
   '/messages-admin',
+  '/notifications-admin',
 ];
 
 // Routes ambigues : le meme chemin sert l'admin et le client.

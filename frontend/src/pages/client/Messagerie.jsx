@@ -14,6 +14,9 @@ export default function Messagerie() {
     try {
       const { data } = await api.get('/client/messages');
       setMessages(data);
+      // La messagerie ouverte marque les messages admin comme lus :
+      // on rafraichit le badge du menu client.
+      window.dispatchEvent(new Event('client-notifications-refresh'));
     } catch (err) { console.error(err); }
     finally { if (initial) setLoading(false); }
   };

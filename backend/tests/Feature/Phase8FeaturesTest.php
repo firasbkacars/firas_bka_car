@@ -253,7 +253,13 @@ class Phase8FeaturesTest extends TestCase
         $fil->assertOk();
         $this->assertCount(2, $fil->json());
         $this->assertTrue($fil->json()[1]['from_admin']);
-        $this->assertNotNull($fil->json()[1]['read_at']);
+        // V9 : le message admin nait non lu puis est marque lu a
+        // l'ouverture de la messagerie par le client.
+        $this->assertDatabaseMissing('messages', [
+            'client_id' => $client->id,
+            'from_admin' => true,
+            'read_at' => null,
+        ]);
     }
 
     // ------------------------------------------------------------- M2

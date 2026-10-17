@@ -245,6 +245,8 @@ export default function Paiements() {
       showToast(`Remboursement de ${formatMAD(refundMontant)} enregistré.`);
       setRefundTarget(null);
       fetchPaiements();
+      // Paiement traite : badge sidebar a jour.
+      window.dispatchEvent(new Event('admin-notifications-refresh'));
     } catch (err) {
       showToast(err.response?.data?.message || 'Remboursement impossible.', 'error');
     } finally {

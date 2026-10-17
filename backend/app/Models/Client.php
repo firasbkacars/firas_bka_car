@@ -34,6 +34,7 @@ class Client extends Authenticatable
         'nombre_locations',
         'points_fidelite',
         'niveau_fidelite',
+        'reservations_vues_le',
     ];
 
     protected $hidden = [
@@ -49,6 +50,7 @@ class Client extends Authenticatable
             'date_expiration_permis' => 'date',
             'permis_rappel_envoye_le' => 'date',
             'parrain_recompense' => 'boolean',
+            'reservations_vues_le' => 'datetime',
         ];
     }
 

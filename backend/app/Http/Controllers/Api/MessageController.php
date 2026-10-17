@@ -87,11 +87,12 @@ class MessageController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
+        // Le message nait non lu : il sera marque lu quand le client
+        // ouvrira sa messagerie (indice de nouveaute cote client).
         $message = Message::create([
             'client_id' => $clientId,
             'from_admin' => true,
             'message' => $validated['message'],
-            'read_at' => now(),
         ]);
 
         return response()->json($message, 201);

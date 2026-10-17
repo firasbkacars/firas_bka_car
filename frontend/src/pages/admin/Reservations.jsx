@@ -98,6 +98,10 @@ export default function AdminReservations() {
       setLoading(true);
       const { data } = await api.get('/reservations');
       setReservations(data);
+      // Nouvelles reservations vues : on remet le badge sidebar a zero.
+      api.post('/notifications-admin/reservations-vues')
+        .then(() => window.dispatchEvent(new Event('admin-notifications-refresh')))
+        .catch(() => {});
     } catch (err) {
       console.error(err);
     } finally {

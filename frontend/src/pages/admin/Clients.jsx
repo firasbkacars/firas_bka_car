@@ -22,6 +22,10 @@ export default function Clients() {
     try {
       const { data } = await api.get('/clients');
       setClients(data);
+      // Nouveaux clients vus : on remet le badge sidebar a zero.
+      api.post('/notifications-admin/clients-vus')
+        .then(() => window.dispatchEvent(new Event('admin-notifications-refresh')))
+        .catch(() => {});
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
