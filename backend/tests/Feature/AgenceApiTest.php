@@ -67,22 +67,44 @@ class AgenceApiTest extends TestCase
         $admin = $this->createAdmin();
 
         $create = $this->actingAs($admin, 'sanctum')->postJson('/api/agences', [
-            'nom' => 'FIRAS BKA CAR Rabat',
+            'nom' => 'FIRAS BKA CAR Tanger',
             'adresse' => '12 Avenue Hassan II',
-            'ville' => 'Rabat',
+            'ville' => 'Tanger',
             'telephone' => '0537000000',
             'active' => true,
         ]);
 
         $create->assertCreated();
-        $this->assertDatabaseHas('agences', ['nom' => 'FIRAS BKA CAR Rabat', 'ville' => 'Rabat']);
+        $this->assertDatabaseHas('agences', ['nom' => 'FIRAS BKA CAR Tanger', 'ville' => 'Tanger']);
 
         $update = $this->actingAs($admin, 'sanctum')->putJson("/api/agences/{$create->json('id')}", [
-            'ville' => 'SalÃ©',
+            'nom' => 'FIRAS BKA CAR Tanger 2',
+            'ville' => 'Tanger',
         ]);
 
         $update->assertOk();
-        $this->assertDatabaseHas('agences', ['id' => $create->json('id'), 'ville' => 'SalÃ©']);
+        $this->assertDatabaseHas('agences', [
+            'id' => $create->json('id'),
+            'nom' => 'FIRAS BKA CAR Tanger 2',
+            'ville' => 'Tanger',
+        ]);
+    }
+
+    public function test_agence_ville_is_restricted_to_tanger(): void
+    {
+        $admin = $this->createAdmin();
+
+        $this->actingAs($admin, 'sanctum')->postJson('/api/agences', [
+            'nom' => 'FIRAS BKA CAR Rabat',
+            'adresse' => '12 Avenue Hassan II',
+            'ville' => 'Rabat',
+        ])->assertStatus(422)->assertJsonValidationErrors(['ville']);
+
+        $agence = Agence::factory()->create();
+
+        $this->actingAs($admin, 'sanctum')->putJson("/api/agences/{$agence->id}", [
+            'ville' => 'Casablanca',
+        ])->assertStatus(422)->assertJsonValidationErrors(['ville']);
     }
 
     public function test_client_cannot_manage_agences(): void

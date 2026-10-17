@@ -20,7 +20,7 @@ class AgenceFactory extends Factory
         return [
             'nom' => fake()->company().' Location',
             'adresse' => fake()->streetAddress(),
-            'ville' => fake()->randomElement(['Tanger', 'Casablanca', 'Rabat', 'Marrakech']),
+            'ville' => 'Tanger',
             'telephone' => fake()->numerify('06########'),
             'email' => fake()->unique()->safeEmail(),
             'active' => true,

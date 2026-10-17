@@ -27,10 +27,12 @@ class AgenceController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
             'adresse' => 'required|string|max:255',
-            'ville' => 'required|string|max:255',
+            'ville' => 'required|string|max:255|in:Tanger',
             'telephone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'active' => 'boolean',
+        ], [
+            'ville.in' => 'Seule la ville de Tanger est autorisee.',
         ]);
 
         $agence = Agence::create($validated);
@@ -52,10 +54,12 @@ class AgenceController extends Controller
         $validated = $request->validate([
             'nom' => 'sometimes|string|max:255',
             'adresse' => 'sometimes|string|max:255',
-            'ville' => 'sometimes|string|max:255',
+            'ville' => 'sometimes|string|max:255|in:Tanger',
             'telephone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'active' => 'boolean',
+        ], [
+            'ville.in' => 'Seule la ville de Tanger est autorisee.',
         ]);
 
         $agence->update($validated);

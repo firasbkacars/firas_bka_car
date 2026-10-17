@@ -8,7 +8,7 @@ import { useConfirm } from '../../context/ConfirmContext';
 const EMPTY_FORM = {
   nom: '',
   adresse: '',
-  ville: '',
+  ville: 'Tanger',
   telephone: '',
   email: '',
   active: true,
@@ -46,7 +46,7 @@ export default function Agences() {
       setForm({
         nom: agence.nom,
         adresse: agence.adresse,
-        ville: agence.ville,
+        ville: 'Tanger',
         telephone: agence.telephone || '',
         email: agence.email || '',
         active: agence.active,
@@ -262,11 +262,11 @@ export default function Agences() {
             <input
               id="agence-ville"
               type="text"
-              value={form.ville}
-              onChange={setField('ville')}
-              className={inputClass}
-              required
+              value="Tanger"
+              readOnly
+              className={`${inputClass} opacity-70 cursor-not-allowed`}
             />
+            <p className="text-neutral-500 text-[11px] mt-1">Seule la ville de Tanger est disponible.</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

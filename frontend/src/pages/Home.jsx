@@ -13,10 +13,10 @@ const BRANDS = [
   { name: 'Volkswagen', logo: '/images/brands/volkswagen.svg' },
   { name: 'BMW', logo: '/images/brands/bmw.svg' },
   { name: 'Mercedes-Benz', logo: '/images/brands/mercedes.svg' },
-  { name: 'Audi', logo: '/images/brands/audi.svg' },
-  { name: 'Toyota', logo: '/images/brands/toyota.svg' },
-  { name: 'Hyundai', logo: '/images/brands/hyundai.svg' },
-  { name: 'Dacia', logo: '/images/brands/dacia.svg' },
+  { name: 'Audi', logo: '/images/brands/audi.svg', w: 'w-24' },
+  { name: 'Toyota', logo: '/images/brands/toyota.svg', w: 'w-20' },
+  { name: 'Hyundai', logo: '/images/brands/hyundai.svg', w: 'w-20' },
+  { name: 'Dacia', logo: '/images/brands/dacia.svg', w: 'w-28' },
 ];
 
 function VehicleCard({ v }) {
@@ -88,8 +88,6 @@ export default function Home() {
   const [vehiculesPopulaires, setVehiculesPopulaires] = useState([]);
   const [populairesLoading, setPopulairesLoading] = useState(true);
   const [search, setSearch] = useState({
-    lieuPrise: 'Tanger',
-    lieuRetour: 'Tanger',
     datePrise: '',
     heurePrise: '10:00',
     dateRetour: '',
@@ -109,8 +107,8 @@ export default function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     const params = new URLSearchParams({
-      lieu_prise: search.lieuPrise,
-      lieu_retour: search.lieuRetour,
+      lieu_prise: 'Tanger',
+      lieu_retour: 'Tanger',
       date_prise: `${search.datePrise} ${search.heurePrise}`,
       date_retour: `${search.dateRetour} ${search.heureRetour}`,
     });
@@ -168,18 +166,12 @@ export default function Home() {
         <form onSubmit={handleSearch} className="max-w-7xl mx-auto bg-[#111] border border-white/[0.08] rounded-2xl p-6 md:p-8 shadow-2xl shadow-black/50">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5" htmlFor="ctl-174">
+              <span className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <MapPin size={12} className="text-primary-light" /> Lieu de prise
-              </label>
-              <select id="ctl-174"
-                value={search.lieuPrise}
-                onChange={(e) => setSearch({ ...search, lieuPrise: e.target.value })}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition"
-              >
-                <option value="Tanger">Tanger</option>
-                <option value="Casablanca">Casablanca</option>
-                <option value="Rabat">Rabat</option>
-              </select>
+              </span>
+              <div id="ctl-174" className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white/80 text-sm">
+                Tanger
+              </div>
             </div>
             <div>
               <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -221,7 +213,7 @@ export default function Home() {
             {BRANDS.map((brand, i) => (
               <div
                 key={i}
-                className="group flex items-center justify-center h-14 w-16 shrink-0 opacity-55 hover:opacity-100 transition-all duration-300"
+                className={`group flex items-center justify-center h-14 ${brand.w || 'w-16'} shrink-0 opacity-55 hover:opacity-100 transition-all duration-300`}
                 title={brand.name}
               >
                 <img
