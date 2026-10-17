@@ -1,16 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 350" fill="none">
   <defs>
-    <linearGradient id="ch" x1="40" y1="8" x2="40" y2="72" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="22%" stop-color="#e8e8e8"/>
-      <stop offset="45%" stop-color="#9a9a9a"/>
-      <stop offset="52%" stop-color="#f5f5f5"/>
-      <stop offset="70%" stop-color="#b0b0b0"/>
-      <stop offset="100%" stop-color="#6e6e6e"/>
+    <linearGradient id="rim" x1="160" y1="16" x2="160" y2="342" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7f7f7"/>
+      <stop offset=".2" stop-color="#c9c9c9"/>
+      <stop offset=".45" stop-color="#8e8e8e"/>
+      <stop offset=".52" stop-color="#e8e8e8"/>
+      <stop offset=".75" stop-color="#9d9d9d"/>
+      <stop offset="1" stop-color="#5f5f5f"/>
     </linearGradient>
+    <linearGradient id="field" x1="160" y1="22" x2="160" y2="342" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111215"/>
+      <stop offset=".5" stop-color="#07080a"/>
+      <stop offset="1" stop-color="#141518"/>
+    </linearGradient>
+    <linearGradient id="ch" x1="160" y1="90" x2="160" y2="310" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".3" stop-color="#e8e8e8"/>
+      <stop offset=".55" stop-color="#b9b9b9"/>
+      <stop offset=".75" stop-color="#dedede"/>
+      <stop offset="1" stop-color="#8a8a8a"/>
+    </linearGradient>
+    <filter id="ds" x="-25%" y="-15%" width="150%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity=".45"/>
+    </filter>
   </defs>
-  <path d="M40 8 L62 18 V40 C62 55 52 66 40 72 C28 66 18 55 18 40 V18 Z" stroke="url(#ch)" stroke-width="5" fill="none" stroke-linejoin="round"/>
-  <path d="M48 28 C44 24 36 24 33 30 C30 36 34 42 30 48 C26 54 30 62 38 62 C34 56 36 50 40 46 C44 42 48 36 46 30 C45 27 42 26 40 28 C38 30 40 34 42 36" stroke="url(#ch)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M44 24 L50 20 L48 28 Z" fill="url(#ch)"/>
-  <path d="M36 58 L44 58 L40 66 Z" fill="url(#ch)"/>
+
+  <!-- shield: outer chrome band -->
+  <path d="M 44 34 C 88 24 232 24 276 34 C 294 38 302 46 302 60 L 299 160 C 296 228 263 283 210 318 L 168 340 C 163 343 157 343 152 340 L 110 318 C 57 283 24 228 21 160 L 18 60 C 18 46 26 38 44 34 Z" fill="url(#rim)"/>
+
+  <!-- black gap band -->
+  <path d="M 48 42 C 90 33 230 33 272 42 C 287 45 294 52 294 64 L 291 160 C 288 224 257 276 206 310 L 168 331 C 163 334 157 334 152 331 L 114 310 C 63 276 32 224 29 160 L 26 64 C 26 52 33 45 48 42 Z" fill="url(#field)"/>
+
+  <!-- inner chrome hairline + field -->
+  <path d="M 50 46 C 92 37 228 37 270 46 C 283 49 289 55 289 66 L 286 160 C 283 221 253 271 203 304 L 168 325 C 163 327 157 327 152 325 L 117 304 C 67 271 37 221 34 160 L 31 66 C 31 55 37 49 50 46 Z" fill="url(#field)" stroke="url(#rim)" stroke-width="2.5"/>
+
+  <!-- wordmark -->
+  <text x="164" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="30" letter-spacing="12" fill="#f0f0f0">PEUGEOT</text>
+
+  <!-- lion head, line art -->
+  <g stroke="url(#ch)" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#ds)">
+    <g stroke-width="9.5">
+      <path d="M 104 116 C 92 118 82 126 72 140"/>
+      <path d="M 78 140 C 72 148 67 154 65 162"/>
+      <path d="M 65 162 C 70 172 78 178 90 180"/>
+      <path d="M 92 184 C 82 190 74 192 68 190"/>
+      <path d="M 68 190 C 74 200 82 206 92 208 C 98 236 106 262 114 284 C 118 290 121 293 123 296"/>
+      <path d="M 150 120 C 174 118 192 130 202 152 C 212 176 210 200 196 222"/>
+      <path d="M 196 224 C 188 250 170 272 144 288 C 136 292 129 295 123 296"/>
+    </g>
+    <g stroke-width="8">
+      <path d="M 118 120 L 130 104 L 142 116"/>
+      <path d="M 146 142 C 162 146 172 158 176 176 C 180 194 174 210 162 222"/>
+    </g>
+  </g>
+
+  <!-- mane top spikes + fang (chrome fills) -->
+  <g filter="url(#ds)">
+    <path d="M 146 118 L 154 98 L 164 114 Z" fill="url(#ch)"/>
+    <path d="M 168 122 L 184 104 L 188 124 Z" fill="url(#ch)"/>
+    <path d="M 78 176 L 82 188 L 88 178 Z" fill="url(#ch)"/>
+    <path d="M 76 143 Q 84 133 96 137 Q 88 147 76 143 Z" fill="url(#ch)"/>
+  </g>
+
+  <!-- eye pupil slit -->
+  <path d="M 84 137 L 89 145" stroke="#07080a" stroke-width="2.5" stroke-linecap="round"/>
 </svg>

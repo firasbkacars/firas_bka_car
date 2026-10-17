@@ -1,63 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
   <defs>
-    <linearGradient id="chrome" x1="200" y1="20" x2="200" y2="380" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#f5f5f5"/>
-      <stop offset="18%" stop-color="#d4d4d4"/>
-      <stop offset="42%" stop-color="#6b6b6b"/>
-      <stop offset="50%" stop-color="#eeeeee"/>
-      <stop offset="58%" stop-color="#8a8a8a"/>
-      <stop offset="82%" stop-color="#cfcfcf"/>
-      <stop offset="100%" stop-color="#5a5a5a"/>
+    <!-- Bezel chrome -->
+    <linearGradient id="bezel" x1="200" y1="0" x2="200" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fbfbfb"/>
+      <stop offset="0.1" stop-color="#dcdcdc"/>
+      <stop offset="0.28" stop-color="#9a9a9a"/>
+      <stop offset="0.4" stop-color="#e6e6e6"/>
+      <stop offset="0.5" stop-color="#7c7c7c"/>
+      <stop offset="0.62" stop-color="#cfcfcf"/>
+      <stop offset="0.78" stop-color="#5f5f5f"/>
+      <stop offset="1" stop-color="#8f8f8f"/>
     </linearGradient>
-    <linearGradient id="ring" x1="200" y1="30" x2="200" y2="370" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#9a9a9a"/>
-      <stop offset="25%" stop-color="#6a6a6a"/>
-      <stop offset="50%" stop-color="#b8b8b8"/>
-      <stop offset="75%" stop-color="#555555"/>
-      <stop offset="100%" stop-color="#7a7a7a"/>
+    <!-- Bande noire -->
+    <radialGradient id="band" cx="0.38" cy="0.34" r="0.8">
+      <stop offset="0" stop-color="#313131"/>
+      <stop offset="0.5" stop-color="#1b1b1b"/>
+      <stop offset="1" stop-color="#060606"/>
+    </radialGradient>
+    <!-- Quartiers bleus (haut-gauche et bas-droite) -->
+    <linearGradient id="blueQ" x1="150" y1="90" x2="300" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bfe0f5"/>
+      <stop offset="0.3" stop-color="#55a8db"/>
+      <stop offset="0.62" stop-color="#1a6fae"/>
+      <stop offset="1" stop-color="#0a3f66"/>
     </linearGradient>
-    <radialGradient id="qLight" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#d8d8d8"/>
-      <stop offset="100%" stop-color="#a8a8a8"/>
-    </radialGradient>
-    <radialGradient id="qDark" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#2a2a2a"/>
-      <stop offset="100%" stop-color="#0d0d0d"/>
-    </radialGradient>
+    <!-- Quartiers blancs (haut-droite et bas-gauche) -->
+    <linearGradient id="whiteQ" x1="150" y1="90" x2="280" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#eaeaea"/>
+      <stop offset="1" stop-color="#b9bfc3"/>
+    </linearGradient>
+    <!-- Croix séparatrice -->
+    <linearGradient id="cross" x1="200" y1="70" x2="200" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#c7c7c7"/>
+      <stop offset="0.5" stop-color="#8d8d8d"/>
+      <stop offset="0.6" stop-color="#e2e2e2"/>
+      <stop offset="0.8" stop-color="#6a6a6a"/>
+      <stop offset="1" stop-color="#4e4e4e"/>
+    </linearGradient>
+    <path id="txtPath" d="M115.2 64.3 A160 160 0 0 1 284.8 64.3" fill="none"/>
   </defs>
 
-  <!-- Fond -->
-  <circle cx="200" cy="200" r="200" fill="#0a0a0a"/>
+  <!-- Bezel chrome extérieur -->
+  <circle cx="200" cy="200" r="190" fill="none" stroke="url(#bezel)" stroke-width="20"/>
+  <circle cx="200" cy="200" r="199.2" fill="none" stroke="#1a1a1a" stroke-width="1.6" opacity="0.9"/>
+  <circle cx="200" cy="200" r="180.8" fill="none" stroke="#151515" stroke-width="1.6" opacity="0.9"/>
 
-  <!-- Anneau extérieur chrome -->
-  <circle cx="200" cy="200" r="175" stroke="url(#chrome)" stroke-width="28" fill="none"/>
-  <circle cx="200" cy="200" r="189" stroke="url(#ring)" stroke-width="4" fill="none"/>
-  <circle cx="200" cy="200" r="161" stroke="url(#ring)" stroke-width="4" fill="none"/>
+  <!-- Bande noire du lettrage -->
+  <circle cx="200" cy="200" r="180" fill="url(#band)"/>
 
-  <!-- Texte BMW sur l'anneau -->
-  <path id="bmwArc" d="M 78 250 A 140 140 0 0 1 322 250" fill="none"/>
-  <text fill="url(#chrome)" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" letter-spacing="18">
-    <textPath href="#bmwArc" startOffset="50%" text-anchor="middle">BMW</textPath>
+  <!-- Lettrage BMW chrome -->
+  <text font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700" letter-spacing="12" fill="url(#bezel)">
+    <textPath href="#txtPath" startOffset="50%" text-anchor="middle">BMW</textPath>
   </text>
 
-  <!-- Cercle central -->
-  <circle cx="200" cy="200" r="120" fill="#0a0a0a" stroke="url(#chrome)" stroke-width="8"/>
+  <!-- Anneau chrome intérieur -->
+  <circle cx="200" cy="200" r="131" fill="none" stroke="url(#bezel)" stroke-width="14"/>
+  <circle cx="200" cy="200" r="138.2" fill="none" stroke="#141414" stroke-width="1.4" opacity="0.9"/>
+  <circle cx="200" cy="200" r="123.8" fill="none" stroke="#141414" stroke-width="1.4" opacity="0.9"/>
+  <circle cx="200" cy="200" r="121" fill="none" stroke="#0d0d0d" stroke-width="3.4"/>
 
-  <!-- 4 quadrants (hélice BMW) monochromes -->
-  <!-- Haut-gauche : clair -->
-  <path d="M200 200 L200 80 A120 120 0 0 0 80 200 Z" fill="url(#qLight)"/>
-  <!-- Haut-droite : sombre -->
-  <path d="M200 200 L200 80 A120 120 0 0 1 320 200 Z" fill="url(#qDark)"/>
-  <!-- Bas-gauche : sombre -->
-  <path d="M200 200 L80 200 A120 120 0 0 0 200 320 Z" fill="url(#qDark)"/>
-  <!-- Bas-droite : clair -->
-  <path d="M200 200 L320 200 A120 120 0 0 1 200 320 Z" fill="url(#qLight)"/>
+  <!-- Quartiers : bleu haut-gauche / blanc haut-droite / blanc bas-gauche / bleu bas-droite -->
+  <path d="M200 200 L200 79 A121 121 0 0 0 79 200 Z" fill="url(#blueQ)" stroke="#101010" stroke-width="1.6"/>
+  <path d="M200 200 L321 200 A121 121 0 0 0 200 79 Z" fill="url(#whiteQ)" stroke="#101010" stroke-width="1.6"/>
+  <path d="M200 200 L79 200 A121 121 0 0 0 200 321 Z" fill="url(#whiteQ)" stroke="#101010" stroke-width="1.6"/>
+  <path d="M200 200 L200 321 A121 121 0 0 0 321 200 Z" fill="url(#blueQ)" stroke="#101010" stroke-width="1.6"/>
 
-  <!-- Séparateurs -->
-  <line x1="200" y1="80" x2="200" y2="320" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="80" y1="200" x2="320" y2="200" stroke="#0a0a0a" stroke-width="3"/>
-
-  <!-- Cercle central fin -->
-  <circle cx="200" cy="200" r="120" stroke="url(#chrome)" stroke-width="7" fill="none"/>
-  <circle cx="200" cy="200" r="175" stroke="url(#chrome)" stroke-width="10" fill="none"/>
+  <!-- Croix chrome -->
+  <rect x="196.4" y="78" width="7.2" height="244" fill="url(#cross)" stroke="#101010" stroke-width="1.2"/>
+  <rect x="78" y="196.4" width="244" height="7.2" fill="url(#cross)" stroke="#101010" stroke-width="1.2"/>
 </svg>
