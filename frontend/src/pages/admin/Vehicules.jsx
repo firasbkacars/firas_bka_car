@@ -502,6 +502,7 @@ export default function AdminVehicules() {
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-red-600 outline-none transition">
                     <option>Berline</option>
                     <option>Compacte</option>
+                    <option>Citadine</option>
                     <option>SUV</option>
                   </select>
                 </div>

@@ -283,6 +283,7 @@ export default function Vehicules() {
           <option value="">Toutes catégories</option>
           <option value="Berline">Berline</option>
           <option value="Compacte">Compacte</option>
+          <option value="Citadine">Citadine</option>
           <option value="SUV">SUV</option>
         </select>
       </div>

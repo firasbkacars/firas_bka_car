@@ -29,52 +29,7 @@ class DatabaseSeeder extends Seeder
 
         $agence = Agence::first();
 
-        $vehicules = [
-            [
-                'marque' => 'Dacia', 'modele' => 'Duster',
-                'description' => 'SUV polyvalent et robuste, pensé pour les routes marocaines. Grand espace bagages, garde au sol généreuse et consommation sobre. Parfait pour les escapades en famille ou les longs trajets.',
-                'categorie' => 'SUV',
-                'annee' => 2023, 'transmission' => 'manuelle', 'carburant' => 'diesel',
-                'places' => 5, 'puissance' => '115 ch', 'kilometrage' => 28000,
-                'prix_jour' => 400, 'statut' => 'disponible', 'populaire' => true,
-                'photos' => ['vehicules/dacia-duster.png'],
-                'equipements' => ['Climatisation', 'Bluetooth', 'Caméra de recul', 'GPS', 'Barres de toit'],
-            ],
-            [
-                'marque' => 'Dacia', 'modele' => 'Logan',
-                'description' => 'Berline familiale au meilleur rapport qualité-prix du marché. Coffre volumineux, sièges confortables et entretien économique. Le choix malin pour une location simple et sans surprise.',
-                'categorie' => 'Berline',
-                'annee' => 2022, 'transmission' => 'manuelle', 'carburant' => 'essence',
-                'places' => 5, 'puissance' => '90 ch', 'kilometrage' => 41000,
-                'prix_jour' => 300, 'statut' => 'disponible', 'populaire' => false,
-                'photos' => ['vehicules/dacia-logan.png'],
-                'equipements' => ['Climatisation', 'Bluetooth', 'Vitres électriques', 'Direction assistée'],
-            ],
-            [
-                'marque' => 'SEAT', 'modele' => 'Ibiza FR',
-                'description' => 'Citadine sportive et nerveuse, finition FR généreuse. Tenue de route précise et look affirmé. Idéale pour évoluer en ville et profiter des routes côtières autour de Tanger.',
-                'categorie' => 'Compacte',
-                'annee' => 2023, 'transmission' => 'manuelle', 'carburant' => 'essence',
-                'places' => 5, 'puissance' => '115 ch', 'kilometrage' => 19000,
-                'prix_jour' => 350, 'statut' => 'disponible', 'populaire' => true,
-                'photos' => ['vehicules/seat-ibiza-fr.png'],
-                'equipements' => ['Climatisation', 'Bluetooth', 'Caméra de recul', 'Sièges sport', 'Jantes alliage'],
-            ],
-            [
-                'marque' => 'Volkswagen', 'modele' => 'T-Roc R-Line',
-                'description' => 'SUV compact premium avec finition R-Line distinctive. Posture dynamique, habitacle soigné et équipements de sécurité complets. Le compromis idéal entre confort, style et polyvalence.',
-                'categorie' => 'SUV',
-                'annee' => 2023, 'transmission' => 'automatique', 'carburant' => 'essence',
-                'places' => 5, 'puissance' => '150 ch', 'kilometrage' => 15000,
-                'prix_jour' => 550, 'statut' => 'disponible', 'populaire' => false,
-                'photos' => ['vehicules/vw-t-roc-r-line.png'],
-                'equipements' => ['Climatisation', 'Bluetooth', 'Caméra de recul', 'GPS', 'Sièges cuir', 'Démarrage sans clé'],
-            ],
-        ];
-
-        foreach ($vehicules as $v) {
-            Vehicule::create([...$v, 'agence_id' => $agence->id]);
-        }
+        $this->call(VehiculeSeeder::class);
 
         $clients = [
             ['nom_complet' => 'Mohammed Ghanmi', 'telephone' => '0612345678', 'email' => 'mohammed@gmail.com', 'cin' => 'AB123456', 'adresse' => 'Tanger, Maroc', 'password' => 'password', 'permis_conduire' => 'permis/mohammed.jpg'],
