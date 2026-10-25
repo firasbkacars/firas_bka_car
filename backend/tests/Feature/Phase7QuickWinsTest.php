@@ -107,7 +107,7 @@ class Phase7QuickWinsTest extends TestCase
 
         Mail::assertQueued(\App\Mail\AlerteSanteServeur::class, function ($mail) {
             return str_contains(implode(' ', $mail->problemes), 'failed_jobs')
-                && $mail->hasTo(config('mail.from.address'));
+                && $mail->hasTo(config('mail.admin_address'));
         });
     }
 

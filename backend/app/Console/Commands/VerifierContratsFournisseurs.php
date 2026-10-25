@@ -24,7 +24,7 @@ class VerifierContratsFournisseurs extends Command
             ->whereDate('date_expiration', '<=', $seuil)
             ->get();
 
-        $destinataire = config('mail.from.address');
+        $destinataire = config('mail.admin_address');
         $envoyes = 0;
 
         foreach ($contrats as $contrat) {

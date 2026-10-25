@@ -226,7 +226,7 @@ class ReservationController extends Controller
         // Notification admin en file : un envoi bloquant dans la meme requete
         // ajoutait la latence SMTP a la creation de reservation.
         QueuedMail::send(
-            config('mail.from.address', 'firasbkacars@gmail.com'),
+            config('mail.admin_address'),
             new AdminNewReservation($reservation),
             'admin-nouvelle-reservation'
         );
@@ -493,7 +493,7 @@ class ReservationController extends Controller
         // N6 : l'admin doit savoir qu'une place vient de se liberer, sans
         // attendre d'ouvrir le back-office.
         QueuedMail::send(
-            config('mail.from.address', 'firasbkacars@gmail.com'),
+            config('mail.admin_address'),
             new AdminReservationCancelled(
                 $reservation,
                 (float) $result['montant_rembourse'],

@@ -21,7 +21,7 @@ class VerifierKilometrage extends Command
             ->whereColumn('kilometrage', '>=', 'kilometrage_alerte')
             ->get();
 
-        $destinataire = config('mail.from.address');
+        $destinataire = config('mail.admin_address');
         $envoyes = 0;
 
         foreach ($vehicules as $vehicule) {

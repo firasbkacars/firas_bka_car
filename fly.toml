@@ -26,12 +26,17 @@ primary_region = 'ams'
   SANCTUM_STATEFUL_DOMAINS = 'firasbkacar.fly.dev'
   CACHE_STORE = 'database'
   QUEUE_CONNECTION = 'database'
+  # Gmail SMTP. MAIL_PASSWORD est un secret (mot de passe d'application
+  # Google, 16 caracteres) : `fly secrets set MAIL_PASSWORD=xxxx`.
   MAIL_MAILER = 'smtp'
+  MAIL_SCHEME = 'smtp'
   MAIL_HOST = 'smtp.gmail.com'
   MAIL_PORT = '587'
-  MAIL_ENCRYPTION = 'tls'
+  MAIL_USERNAME = 'firasbkacars@gmail.com'
   MAIL_FROM_ADDRESS = 'firasbkacars@gmail.com'
   MAIL_FROM_NAME = 'FIRAS BKA CAR'
+  # Destinataire des notifications internes (reservations, contact, alertes).
+  MAIL_ADMIN_ADDRESS = 'firasbkacars@gmail.com'
   LOG_CHANNEL = 'stderr'
   MEDIA_DISK = 'public'
   PHP_CLI_SERVER_WORKERS = '4'

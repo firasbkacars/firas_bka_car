@@ -115,4 +115,19 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Adresse de l'administration
+    |--------------------------------------------------------------------------
+    |
+    | Destinataire de toutes les notifications internes : nouvelle
+    | reservation, annulation, formulaire de contact, messages clients et
+    | alertes techniques. Cette adresse est volontairement distincte de
+    | MAIL_FROM_ADDRESS : changer l'expediteur ne doit pas detourner
+    | silencieusement les alertes de l'agence.
+    |
+    */
+
+    'admin_address' => env('MAIL_ADMIN_ADDRESS', env('MAIL_FROM_ADDRESS', 'firasbkacars@gmail.com')),
+
 ];

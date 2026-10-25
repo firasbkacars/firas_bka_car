@@ -18,7 +18,7 @@ class ContactController extends Controller
             'message' => 'required|string|min:5|max:2000',
         ]);
 
-        $to = config('mail.from.address', 'firasbkacars@gmail.com');
+        $to = config('mail.admin_address');
 
         // Le message du visiteur est accepte quoi qu'il arrive : un envoi
         // synchrone retournait un 500 au visiteur des que SMTP n'etait pas

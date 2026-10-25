@@ -44,7 +44,7 @@ class MessageController extends Controller
         ]);
 
         // Copie email a l'admin (best effort, jamais bloquant).
-        QueuedMail::send(config('mail.from.address'), new MessageAdmin($request->user(), $validated['message']), 'message-client');
+        QueuedMail::send(config('mail.admin_address'), new MessageAdmin($request->user(), $validated['message']), 'message-client');
 
         return response()->json($message, 201);
     }

@@ -29,7 +29,7 @@ class VerifierSanteServeur extends Command
         }
 
         QueuedMail::send(
-            config('mail.from.address'),
+            config('mail.admin_address'),
             new AlerteSanteServeur($problemes),
             'sante-serveur',
         );
