@@ -19,8 +19,8 @@ use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaiementController;
-use App\Http\Controllers\Api\ParrainageController;
 use App\Http\Controllers\Api\ParametreController;
+use App\Http\Controllers\Api\ParrainageController;
 use App\Http\Controllers\Api\RapportController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\VehiculeController;
@@ -111,6 +111,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/client/reservations/{id}/facture', [FactureController::class, 'download']);
         Route::get('/client/reservations/{id}/facture/preview', [FactureController::class, 'preview']);
         Route::get('/client/reservations/{id}/contrat', [FactureController::class, 'downloadContrat']);
+        Route::get('/client/reservations/{id}/contrat/preview', [FactureController::class, 'previewContrat']);
 
         // Client fidelite
         Route::get('/client/fidelite', [FideliteController::class, 'show']);
@@ -189,6 +190,12 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/reservations/{id}/caution-historique', [ReservationController::class, 'cautionHistorique']);
     Route::put('/reservations-admin/{id}/prolonger', [ReservationController::class, 'prolonger']);
     Route::get('/reservations-admin/{id}/prolongation-apercu', [ReservationController::class, 'apercuProlongation']);
+
+    // Contrats de location : impression et telechargement par l'admin.
+    // Le contrat est fige au numero de la reservation et peut etre
+    // imprime pour etre cachete et signe a la remise du vehicule.
+    Route::get('/reservations-admin/{id}/contrat/preview', [FactureController::class, 'adminContratPreview']);
+    Route::get('/reservations-admin/{id}/contrat', [FactureController::class, 'adminContrat']);
 
     // Admin paiements
     Route::post('/paiements', [PaiementController::class, 'store'])

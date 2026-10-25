@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../../services/api';
+import api, { CLIENT_SESSION_EXPIRED_EVENT } from '../../services/api';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -18,6 +18,8 @@ export default function AdminLogin() {
       localStorage.removeItem('client_token');
       localStorage.setItem('admin_token', data.token);
       delete api.defaults.headers.common['Authorization'];
+      // L'AuthContext client doit oublier l'ancienne session immediatement.
+      window.dispatchEvent(new Event(CLIENT_SESSION_EXPIRED_EVENT));
       navigate('/admin');
     } catch (err) {
       if (err.response?.status === 429) {

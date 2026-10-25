@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+export const CLIENT_SESSION_EXPIRED_EVENT = 'client-session-expired';
+
 const api = axios.create({
   baseURL: '/api',
   headers: {
@@ -39,6 +41,21 @@ const ADMIN_METHOD_PATHS = [
 // Prefere le token client, l'admin reste accepte en secours.
 const SHARED_READ_PREFIXES = ['/reservations/'];
 
+// Routes strictement reservees aux clients : un token admin y provoquerait
+// un 403 (middleware EnsureClient), il ne doit donc jamais servir de secours.
+function isClientPath(url = '') {
+  const path = url.split('?')[0];
+  return path === '/client' || path.startsWith('/client/');
+}
+
+function requestAuthHeader(config) {
+  const headers = config?.headers;
+  if (typeof headers?.get === 'function') {
+    return headers.get('Authorization') ?? headers.get('authorization') ?? null;
+  }
+  return headers?.Authorization ?? headers?.authorization ?? null;
+}
+
 function isAdminPath(url = '', method = 'GET') {
   const path = url.split('?')[0];
   const upper = (method || 'GET').toUpperCase();
@@ -60,7 +77,12 @@ api.interceptors.request.use((config) => {
     const clientToken = localStorage.getItem('client_token');
     const adminToken = localStorage.getItem('admin_token');
     const admin = isAdminPath(config.url, config.method);
-    const token = admin ? adminToken : (clientToken || adminToken);
+    const client = isClientPath(config.url);
+
+    let token = clientToken || adminToken;
+    if (admin) token = adminToken;
+    else if (client) token = clientToken;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -73,20 +95,36 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const onAdminLogin = window.location.pathname === '/admin/login';
-    const onClientLogin = window.location.pathname === '/client/login';
 
-    if (status === 401 || (status === 403 && isAdminPath(error.config?.url, error.config?.method))) {
-      const adminRequest = isAdminPath(error.config?.url, error.config?.method);
+    const adminRequest = isAdminPath(error.config?.url, error.config?.method);
+    const clientRequest = isClientPath(error.config?.url);
+
+    if (status === 401 || status === 403) {
       const clientToken = localStorage.getItem('client_token');
       const adminToken = localStorage.getItem('admin_token');
+      const requestAuth = requestAuthHeader(error.config);
+      // Ne pas deconnecter une session plus recente si une ancienne requete
+      // echoue apres une reconnexion.
+      const usedClientToken = !!clientToken && requestAuth === `Bearer ${clientToken}`;
+      const usedAdminToken = !!adminToken && requestAuth === `Bearer ${adminToken}`;
 
-      if (adminRequest && adminToken) {
+      // Un 403 avec un token client valide est un refus de droits (ex. facture
+      // d'un autre client), pas une session expiree. En revanche un 401, ou un
+      // 403 sur /client/* sans token client, signifie que l'etat React est
+      // obsolete : on le vide pour arreter les requetes repetitives.
+      const clientSessionExpired =
+        (status === 401 && !adminRequest && usedClientToken)
+        || (clientRequest && !clientToken && (status === 401 || status === 403));
+
+      if (adminRequest && usedAdminToken) {
         localStorage.removeItem('admin_token');
         if (!onAdminLogin) window.location.href = '/admin/login';
-      } else if (clientToken && !adminRequest) {
+      } else if (clientSessionExpired) {
         localStorage.removeItem('client_token');
-        if (!onClientLogin) window.location.href = '/client/login';
-      } else if (adminToken && !adminRequest && !onAdminLogin) {
+        delete api.defaults.headers.common['Authorization'];
+        window.dispatchEvent(new Event(CLIENT_SESSION_EXPIRED_EVENT));
+      } else if (!adminRequest && !clientRequest && status === 401 && usedAdminToken && !onAdminLogin) {
+        // Route partagee servie avec le token admin en secours.
         localStorage.removeItem('admin_token');
         window.location.href = '/admin/login';
       }

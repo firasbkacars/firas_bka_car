@@ -11,6 +11,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'numero',
+        'numero_contrat',
         'client_id',
         'vehicule_id',
         'agence_id',
@@ -92,6 +93,19 @@ class Reservation extends Model
     public function cautionHistories()
     {
         return $this->hasMany(CautionHistory::class);
+    }
+
+    /**
+     * Un contrat est etabli des la creation de la reservation. Le numero
+     * est fige : le document imprime reste identifiable et tracable.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Reservation $reservation) {
+            if (empty($reservation->numero_contrat) && ! empty($reservation->numero)) {
+                $reservation->numero_contrat = 'CTR-'.$reservation->numero;
+            }
+        });
     }
 
     // --------------------------------------------------- acompte / solde ----

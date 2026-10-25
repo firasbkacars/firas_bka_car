@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import api from './api';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import api, { CLIENT_SESSION_EXPIRED_EVENT } from './api';
 
 let captured;
 
@@ -27,6 +27,20 @@ async function capture(url, method = 'get') {
   return captured;
 }
 
+function rejectWithStatus(status) {
+  api.defaults.adapter = async (config) => {
+    const error = new Error('Request failed');
+    error.config = config;
+    error.response = { status, data: {}, statusText: '', headers: {}, config };
+    throw error;
+  };
+}
+
+async function expectRejected(url, status) {
+  rejectWithStatus(status);
+  await expect(api.get(url)).rejects.toBeTruthy();
+}
+
 describe('api request interceptor', () => {
   it('uses the admin token on admin routes', async () => {
     localStorage.setItem('admin_token', 'admin-token');
@@ -46,12 +60,12 @@ describe('api request interceptor', () => {
     expect(authHeader(config)).toBe('Bearer client-token');
   });
 
-  it('falls back to the admin token on client routes', async () => {
+  it('never sends the admin token on client routes', async () => {
     localStorage.setItem('admin_token', 'admin-token');
 
     const config = await capture('/client/profil');
 
-    expect(authHeader(config)).toBe('Bearer admin-token');
+    expect(authHeader(config)).toBeNull();
   });
 
   it('prefers the client token for shared reads', async () => {
@@ -77,5 +91,74 @@ describe('api request interceptor', () => {
     });
 
     expect(authHeader(captured)).toBe('Bearer explicite');
+  });
+});
+
+describe('api response interceptor', () => {
+  function watchSessionExpired() {
+    const listener = vi.fn();
+    window.addEventListener(CLIENT_SESSION_EXPIRED_EVENT, listener);
+    return {
+      listener,
+      stop: () => window.removeEventListener(CLIENT_SESSION_EXPIRED_EVENT, listener),
+    };
+  }
+
+  it('clears an invalid client session and emits an event on 401', async () => {
+    localStorage.setItem('client_token', 'client-token');
+    localStorage.setItem('admin_token', 'admin-token');
+    const { listener, stop } = watchSessionExpired();
+
+    try {
+      await expectRejected('/client/notifications', 401);
+
+      expect(localStorage.getItem('client_token')).toBeNull();
+      expect(localStorage.getItem('admin_token')).toBe('admin-token');
+      expect(listener).toHaveBeenCalledTimes(1);
+    } finally {
+      stop();
+    }
+  });
+
+  it('clears the client session on a 401 from a shared route', async () => {
+    localStorage.setItem('client_token', 'client-token');
+    const { listener, stop } = watchSessionExpired();
+
+    try {
+      await expectRejected('/reservations/RES-0001', 401);
+
+      expect(localStorage.getItem('client_token')).toBeNull();
+      expect(listener).toHaveBeenCalledTimes(1);
+    } finally {
+      stop();
+    }
+  });
+
+  it('does not log out on a 403 from an authenticated client', async () => {
+    localStorage.setItem('client_token', 'client-token');
+    const { listener, stop } = watchSessionExpired();
+
+    try {
+      await expectRejected('/client/reservations/42/facture', 403);
+
+      expect(localStorage.getItem('client_token')).toBe('client-token');
+      expect(listener).not.toHaveBeenCalled();
+    } finally {
+      stop();
+    }
+  });
+
+  it('clears stale React state when a client route fails without a client token', async () => {
+    localStorage.setItem('admin_token', 'admin-token');
+    const { listener, stop } = watchSessionExpired();
+
+    try {
+      await expectRejected('/client/notifications', 403);
+
+      expect(localStorage.getItem('admin_token')).toBe('admin-token');
+      expect(listener).toHaveBeenCalledTimes(1);
+    } finally {
+      stop();
+    }
   });
 });

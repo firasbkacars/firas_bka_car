@@ -1,12 +1,39 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import api, { CLIENT_SESSION_EXPIRED_EVENT } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('client_token'));
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // api.js supprime le token expire et emet cet evenement. On remet l'etat
+    // React a zero pour stopper les composants qui interrogent /client/*.
+    const handleSessionExpired = () => {
+      setToken(null);
+      setClient(null);
+      setLoading(false);
+
+      const { pathname, search } = window.location;
+      const protectedClientPage = pathname.startsWith('/client/')
+        && !pathname.startsWith('/client/login')
+        && !pathname.startsWith('/client/register');
+
+      if (protectedClientPage) {
+        navigate('/client/login', {
+          replace: true,
+          state: { from: `${pathname}${search}` },
+        });
+      }
+    };
+
+    window.addEventListener(CLIENT_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => window.removeEventListener(CLIENT_SESSION_EXPIRED_EVENT, handleSessionExpired);
+  }, [navigate]);
 
   useEffect(() => {
     // Un ancien build pouvait laisser un Authorization global qui court-circuite
@@ -21,13 +48,23 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const fetchProfile = async () => {
+    const requestToken = token;
     try {
       const { data } = await api.get('/client/profile');
+      // La session a pu changer pendant la requete (connexion admin, logout).
+      if (!requestToken || localStorage.getItem('client_token') !== requestToken) return;
       setClient(data);
     } catch (err) {
       // Ne pas déconnecter sur erreur réseau, uniquement sur session invalide.
-      if (err.response?.status === 401) {
-        logout();
+      // On ne rappelle pas /client/logout : le token est deja invalide.
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        const currentToken = localStorage.getItem('client_token');
+        // Si une nouvelle session a demarre entre-temps, ne pas l'effacer.
+        if (currentToken === null || currentToken === requestToken) {
+          localStorage.removeItem('client_token');
+          setToken(null);
+          setClient(null);
+        }
       }
     } finally {
       setLoading(false);

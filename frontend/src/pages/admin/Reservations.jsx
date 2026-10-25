@@ -13,6 +13,8 @@ import {
   History,
   Loader2,
   X,
+  Printer,
+  FileDown,
 } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -88,6 +90,7 @@ export default function AdminReservations() {
   const [cautionRetenu, setCautionRetenu] = useState('');
   const [cautionHist, setCautionHist] = useState(null);
   const [cautionHistLoading, setCautionHistLoading] = useState(false);
+  const [contratLoading, setContratLoading] = useState(null);
 
   useEffect(() => {
     fetchReservations();
@@ -130,6 +133,49 @@ export default function AdminReservations() {
       field,
       dir: prev.field === field && prev.dir === 'desc' ? 'asc' : 'desc',
     }));
+  };
+
+  /**
+   * Ouvre le contrat en apercu (impression navigateur) ou le telecharge.
+   * Le PDF est genere cote serveur avec le numero de contrat fige.
+   */
+  const handleContrat = async (reservation, mode = 'preview') => {
+    const key = `${reservation.id}:${mode}`;
+    // Fenetre ouverte immediatement pour eviter le blocage des popups
+    // pendant l'appel API asynchrone.
+    const previewWindow = mode === 'preview' ? window.open('', '_blank') : null;
+
+    setContratLoading(key);
+    try {
+      const suffix = mode === 'preview' ? '/preview' : '';
+      const { data } = await api.get(`/reservations-admin/${reservation.id}/contrat${suffix}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([data], { type: 'application/pdf' }));
+
+      if (mode === 'preview') {
+        if (previewWindow) {
+          previewWindow.location.href = url;
+        } else {
+          window.open(url, '_blank', 'noopener');
+        }
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `contrat-${reservation.numero_contrat || reservation.numero}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+
+      // Laisse le temps au navigateur d'ouvrir le PDF avant revocation.
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      previewWindow?.close();
+      toast.error(err.response?.data?.message || 'Impossible de generer le contrat.');
+    } finally {
+      setContratLoading(null);
+    }
   };
 
   const handleUpdateCaution = async () => {
@@ -334,7 +380,12 @@ export default function AdminReservations() {
                 </tr>
               ) : paged.map((r) => (
                 <tr key={r.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition">
-                  <td className="py-3 px-5 text-white font-mono text-xs">{r.numero}</td>
+                  <td className="py-3 px-5 text-white font-mono text-xs">
+                    <span className="block">{r.numero}</span>
+                    <span className="block text-[10px] font-sans text-muted mt-0.5">
+                      Contrat : {r.numero_contrat || '—'}
+                    </span>
+                  </td>
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-red-600/15 flex items-center justify-center text-red-400 text-[10px] font-bold flex-shrink-0">
@@ -401,6 +452,30 @@ export default function AdminReservations() {
                   </td>
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => handleContrat(r, 'preview')}
+                        disabled={contratLoading === `${r.id}:preview`}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:bg-blue-500/10 hover:text-blue-400 transition disabled:opacity-40"
+                        title="Imprimer le contrat (cachet et signature)"
+                      >
+                        {contratLoading === `${r.id}:preview` ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Printer size={16} />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleContrat(r, 'download')}
+                        disabled={contratLoading === `${r.id}:download`}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition disabled:opacity-40"
+                        title="Telecharger le contrat"
+                      >
+                        {contratLoading === `${r.id}:download` ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <FileDown size={16} />
+                        )}
+                      </button>
                       {r.statut !== 'annulee' && r.statut !== 'terminee' && (
                         <button
                           onClick={() => handleAnnuler(r.id)}

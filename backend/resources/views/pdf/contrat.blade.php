@@ -1,215 +1,368 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="utf-8">
+    <title>Contrat de location {{ $reservation->numero_contrat }}</title>
     <style>
+        @page { margin: 16mm 14mm 14mm 14mm; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #333; line-height: 1.6; }
-        .container { width: 100%; padding: 25px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; border-bottom: 3px solid #dc2626; padding-bottom: 15px; }
-        .company-info h1 { font-size: 22px; color: #dc2626; font-weight: bold; margin-bottom: 3px; }
-        .company-info p { color: #666; font-size: 10px; }
-        .contract-title { text-align: right; }
-        .contract-title h2 { font-size: 20px; color: #1a1a1a; font-weight: bold; }
-        .contract-title .number { color: #dc2626; font-size: 12px; margin-top: 3px; }
-        .section { margin-bottom: 20px; }
-        .section-title { font-size: 12px; font-weight: bold; color: #dc2626; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
-        .info-grid { display: flex; gap: 30px; }
-        .info-block { flex: 1; }
-        .info-block p { margin-bottom: 2px; font-size: 10px; color: #666; }
-        .info-block .value { color: #1a1a1a; font-weight: 500; }
-        .terms { background: #f9fafb; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-top: 15px; }
-        .terms h3 { font-size: 12px; font-weight: bold; color: #1a1a1a; margin-bottom: 8px; }
-        .terms ol { padding-left: 18px; }
-        .terms li { margin-bottom: 6px; font-size: 10px; color: #555; }
-        .signatures { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .signature-block { width: 45%; text-align: center; }
-        .signature-block .line { border-bottom: 1px solid #333; height: 40px; margin-bottom: 5px; }
-        .signature-block p { font-size: 10px; color: #666; }
-        .footer { margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; font-size: 9px; color: #999; }
+
+        body {
+            font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif;
+            font-size: 9px;
+            color: #1f2937;
+            line-height: 1.45;
+        }
+
+        .header { width: 100%; border-bottom: 3px solid #dc2626; padding-bottom: 10px; margin-bottom: 12px; }
+        .header td { vertical-align: top; }
+        .brand-name { font-size: 20px; font-weight: bold; color: #dc2626; letter-spacing: 0.5px; }
+        .company-line { color: #6b7280; font-size: 8.5px; }
+        .doc-title { text-align: right; }
+        .doc-title h1 { font-size: 17px; color: #111827; letter-spacing: 0.5px; }
+        .doc-title .numero { color: #dc2626; font-size: 11px; font-weight: bold; margin-top: 3px; }
+        .doc-title .reservation { color: #6b7280; font-size: 8.5px; margin-top: 2px; }
+
+        .reference-bar {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            padding: 5px 8px;
+            margin-bottom: 12px;
+            color: #991b1b;
+            font-size: 8.5px;
+        }
+
+        .section { margin-bottom: 11px; page-break-inside: avoid; }
+        .section-title {
+            font-size: 9.5px;
+            font-weight: bold;
+            color: #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 3px;
+            margin-bottom: 6px;
+        }
+
+        .info-table { width: 100%; }
+        .info-table td { width: 50%; vertical-align: top; padding-right: 12px; }
+        .info-table td:last-child { padding-right: 0; padding-left: 12px; }
+        .info-block .label { color: #6b7280; font-size: 8px; }
+        .info-block .value { color: #111827; font-weight: bold; }
+        .info-block p { margin-bottom: 2px; }
+        .muted { color: #6b7280; }
+
+        table.data { width: 100%; border-collapse: collapse; }
+        table.data th {
+            background: #dc2626;
+            color: #ffffff;
+            padding: 5px 6px;
+            text-align: left;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        table.data td { padding: 5px 6px; border-bottom: 1px solid #e5e7eb; font-size: 8.5px; }
+        table.data tr:nth-child(even) td { background: #fafafa; }
+        table.data td.right, table.data th.right { text-align: right; }
+
+        table.finance { width: 100%; border-collapse: collapse; }
+        table.finance td { padding: 4px 6px; border-bottom: 1px solid #e5e7eb; font-size: 8.5px; }
+        table.finance td.right { text-align: right; }
+        table.finance tr.total td { background: #fef2f2; font-weight: bold; font-size: 10px; color: #dc2626; border-bottom: none; }
+        table.finance tr.deposit td { color: #1d4ed8; }
+
+        .terms { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px 10px; page-break-inside: avoid; }
+        .terms h3 { font-size: 9px; color: #111827; margin-bottom: 4px; }
+        .terms ol { padding-left: 14px; }
+        .terms li { font-size: 8px; color: #4b5563; margin-bottom: 2.5px; }
+
+        .fait-a { text-align: right; margin: 12px 0 6px; font-size: 9px; }
+
+        .signature-table { width: 100%; border-collapse: collapse; page-break-inside: avoid; }
+        .signature-table td { width: 50%; vertical-align: top; padding: 0 8px; }
+        .signature-table td:first-child { padding-left: 0; }
+        .signature-table td:last-child { padding-right: 0; }
+        .signature-card { border: 1px solid #d1d5db; border-radius: 5px; padding: 8px 10px; height: 150px; }
+        .signature-heading { font-size: 9px; font-weight: bold; color: #111827; margin-bottom: 2px; }
+        .signature-note { font-size: 7.5px; color: #6b7280; margin-bottom: 6px; }
+        .stamp-box {
+            border: 1.5px dashed #9ca3af;
+            border-radius: 4px;
+            height: 68px;
+            line-height: 68px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 7.5px;
+            letter-spacing: 0.5px;
+            margin: 4px 0 8px;
+        }
+        .signature-area { height: 58px; }
+        .signature-line { border-top: 1px solid #374151; padding-top: 2px; font-size: 7.5px; color: #6b7280; }
+        .signature-name { font-size: 8.5px; font-weight: bold; color: #111827; margin-top: 1px; }
+
+        .footer {
+            margin-top: 10px;
+            padding-top: 6px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 7.5px;
+            color: #9ca3af;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="company-info">
-                <h1>FIRAS BKA CAR</h1>
-                <p>Location de vehicules</p>
-                <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
-                <p>Tel: +212 774 623 448</p>
-            </div>
-            <div class="contract-title">
-                <h2>CONTRAT DE LOCATION</h2>
-                <div class="number">{{ $reservation->numero }}</div>
-            </div>
-        </div>
+    @php
+        $numeroContrat = $reservation->numero_contrat ?: 'CTR-'.$reservation->numero;
+        $agence = $reservation->agence;
+        $client = $reservation->client;
+        $vehicule = $reservation->vehicule;
+        $jours = max(1, (int) $reservation->date_debut->diffInDays($reservation->date_fin));
+        $pieceIdentite = $client->est_etranger ? $client->passeport : $client->cin;
+        $cautionStatuts = [
+            'bloquee' => 'Bloquee',
+            'restituee' => 'Restituee',
+            'retenue_partiellement' => 'Retenue partiellement',
+            'non_bloquee' => 'Non bloquee',
+        ];
+        $modesPaiement = [
+            'especes' => 'Especes',
+            'cmi' => 'Carte bancaire (CMI)',
+            'virement' => 'Virement',
+            'cheque' => 'Cheque',
+        ];
+    @endphp
 
-        <div class="section">
-            <div class="section-title">Parties</div>
-            <div class="info-grid">
-                <div class="info-block">
-                    <p><strong>Loueur :</strong></p>
-                    <p>FIRAS BKA CAR SARL</p>
-                    <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
-                    <p>RC: 001234567</p>
-                    <p>IF: 12345678</p>
-                </div>
-                <div class="info-block">
-                    <p><strong>Locataire :</strong></p>
-                    <p>{{ $reservation->client->nom_complet }}</p>
-                    <p>{{ $reservation->client->adresse ?: 'Tanger, Maroc' }}</p>
-                    <p>CIN: {{ $reservation->client->cin ?: 'N/A' }}</p>
-                    <p>Tel: {{ $reservation->client->telephone }}</p>
-                    <p>Email: {{ $reservation->client->email }}</p>
-                </div>
-            </div>
-        </div>
+    <table class="header">
+        <tr>
+            <td style="width: 55%;">
+                <div class="brand-name">FIRAS BKA CAR</div>
+                <div class="company-line">Location de vehicules</div>
+                <div class="company-line">Lot 583N, Rue 50, Branes 1, Tanger 90060</div>
+                <div class="company-line">Tel : +212 774 623 448 - firasbkacars@gmail.com</div>
+            </td>
+            <td class="doc-title" style="width: 45%;">
+                <h1>CONTRAT DE LOCATION</h1>
+                <div class="numero">N° {{ $numeroContrat }}</div>
+                <div class="reservation">Reservation : {{ $reservation->numero }}</div>
+                <div class="reservation">Edite le : {{ now()->format('d/m/Y') }}</div>
+            </td>
+        </tr>
+    </table>
 
-        <div class="section">
-            <div class="section-title">Objet du contrat - Vehicule</div>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 8px;">
-                <thead>
-                    <tr style="background: #dc2626; color: white;">
-                        <th style="padding: 8px; text-align: left; font-size: 10px;">Marque/Modele</th>
-                        <th style="padding: 8px; text-align: left; font-size: 10px;">Categorie</th>
-                        <th style="padding: 8px; text-align: left; font-size: 10px;">Transmission</th>
-                        <th style="padding: 8px; text-align: left; font-size: 10px;">Carburant</th>
-                        <th style="padding: 8px; text-align: left; font-size: 10px;">Places</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 10px;">{{ $reservation->vehicule->marque }} {{ $reservation->vehicule->modele }}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 10px;">{{ $reservation->vehicule->categorie }}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 10px;">{{ ucfirst($reservation->vehicule->transmission) }}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 10px;">{{ ucfirst($reservation->vehicule->carburant) }}</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 10px;">{{ $reservation->vehicule->places }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="reference-bar">
+        Contrat de location de vehicule - document a imprimer, cacheter et signer par les deux parties lors de la remise des cles.
+    </div>
 
-        <div class="section">
-            <div class="section-title">Conditions de location</div>
-            <div class="info-grid">
-                <div class="info-block">
-                    <p>Date de debut : <span class="value">{{ $reservation->date_debut->format('d/m/Y H:i') }}</span></p>
-                    <p>Lieu de prise en charge : <span class="value">{{ $reservation->lieu_prise }}</span></p>
-                </div>
-                <div class="info-block">
-                    <p>Date de fin : <span class="value">{{ $reservation->date_fin->format('d/m/Y H:i') }}</span></p>
-                    <p>Lieu de retour : <span class="value">{{ $reservation->lieu_retour }}</span></p>
-                </div>
-            </div>
-        </div>
+    <div class="section">
+        <div class="section-title">Parties au contrat</div>
+        <table class="info-table">
+            <tr>
+                <td>
+                    <div class="info-block">
+                        <p><span class="label">Loueur</span></p>
+                        <p class="value">FIRAS BKA CAR SARL</p>
+                        <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
+                        <p>RC : 001234567 - IF : 12345678</p>
+                        <p>Tel : +212 774 623 448</p>
+                        @if ($agence)
+                            <p class="muted">Agence de depart : {{ $agence->nom }} - {{ $agence->adresse }}, {{ $agence->ville }}</p>
+                        @endif
+                    </div>
+                </td>
+                <td>
+                    <div class="info-block">
+                        <p><span class="label">Locataire</span></p>
+                        <p class="value">{{ $client->nom_complet }}</p>
+                        <p>{{ $client->adresse ?: 'Tanger, Maroc' }}</p>
+                        <p>CIN / Passeport : {{ $pieceIdentite ?: 'N/A' }}</p>
+                        <p>Permis de conduire : {{ $client->permis_conduire ? 'Fourni et valide' : 'Non fourni' }}</p>
+                        <p>Tel : {{ $client->telephone }} - Email : {{ $client->email }}</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-        @if($reservation->conducteur_additionnel_nom)
-        <div class="section">
-            <div class="section-title">Conducteur additionnel autorise</div>
-            <div class="info-grid">
-                <div class="info-block">
-                    <p>Nom : <span class="value">{{ $reservation->conducteur_additionnel_nom }}</span></p>
-                    <p>Telephone : <span class="value">{{ $reservation->conducteur_additionnel_telephone ?: 'N/A' }}</span></p>
-                </div>
-                <div class="info-block">
-                    <p>Permis n° : <span class="value">{{ $reservation->conducteur_additionnel_permis }}</span></p>
-                    <p>Assurance additionnelle : <span class="value">{{ $reservation->assurance_conducteur_additionnel ? 'Oui' : 'Non' }}</span></p>
-                </div>
-            </div>
-        </div>
-        @endif
+    <div class="section">
+        <div class="section-title">Vehicule loue</div>
+        <table class="data">
+            <thead>
+                <tr>
+                    <th>Marque / Modele</th>
+                    <th>Categorie</th>
+                    <th>Annee</th>
+                    <th>Transmission</th>
+                    <th>Carburant</th>
+                    <th>Places</th>
+                    <th>Kilometrage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ $vehicule->marque }} {{ $vehicule->modele }}</td>
+                    <td>{{ $vehicule->categorie }}</td>
+                    <td>{{ $vehicule->annee }}</td>
+                    <td>{{ ucfirst($vehicule->transmission) }}</td>
+                    <td>{{ ucfirst($vehicule->carburant) }}</td>
+                    <td>{{ $vehicule->places }}</td>
+                    <td>{{ $vehicule->kilometrage ? number_format($vehicule->kilometrage, 0, ',', ' ').' km' : 'N/A' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <div class="section">
-            <div class="section-title">Conditions financieres</div>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tbody>
-                    <tr>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px;">Prix journalier</td>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px; text-align: right;">{{ number_format($reservation->vehicule->prix_jour, 2, ',', ' ') }} DH</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px;">Nombre de jours</td>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px; text-align: right;">{{ $reservation->date_debut->diffInDays($reservation->date_fin) }}</td>
-                    </tr>
-                    @if($reservation->remise > 0)
-                    <tr>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px; color: #16a34a;">Remise ({{ $reservation->code_promo }})</td>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 10px; text-align: right; color: #16a34a;">-{{ number_format($reservation->remise, 2, ',', ' ') }} DH</td>
-                    </tr>
+    <div class="section">
+        <div class="section-title">Conditions de location</div>
+        <table class="info-table">
+            <tr>
+                <td>
+                    <div class="info-block">
+                        <p>Date et heure de debut : <span class="value">{{ $reservation->date_debut->format('d/m/Y H:i') }}</span></p>
+                        <p>Lieu de prise en charge : <span class="value">{{ $reservation->lieu_prise }}</span></p>
+                        <p>Mode de paiement : <span class="value">{{ $modesPaiement[$reservation->mode_paiement] ?? $reservation->mode_paiement }}</span></p>
+                    </div>
+                </td>
+                <td>
+                    <div class="info-block">
+                        <p>Date et heure de fin : <span class="value">{{ $reservation->date_fin->format('d/m/Y H:i') }}</span></p>
+                        <p>Lieu de retour : <span class="value">{{ $reservation->lieu_retour }}</span></p>
+                        <p>Caution : <span class="value">{{ number_format($reservation->montant_caution, 2, ',', ' ') }} DH</span>
+                            ({{ $cautionStatuts[$reservation->caution_statut] ?? $reservation->caution_statut }})</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @if ($reservation->conducteur_additionnel_nom)
+    <div class="section">
+        <div class="section-title">Conducteur additionnel autorise</div>
+        <table class="info-table">
+            <tr>
+                <td>
+                    <div class="info-block">
+                        <p>Nom : <span class="value">{{ $reservation->conducteur_additionnel_nom }}</span></p>
+                        <p>Telephone : <span class="value">{{ $reservation->conducteur_additionnel_telephone ?: 'N/A' }}</span></p>
+                    </div>
+                </td>
+                <td>
+                    <div class="info-block">
+                        <p>Permis n° : <span class="value">{{ $reservation->conducteur_additionnel_permis }}</span></p>
+                        <p>Assurance additionnelle : <span class="value">{{ $reservation->assurance_conducteur_additionnel ? 'Oui' : 'Non' }}</span></p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    @endif
+
+    <div class="section">
+        <div class="section-title">Conditions financieres</div>
+        <table class="finance">
+            <tr>
+                <td>Prix journalier</td>
+                <td class="right">{{ number_format($vehicule->prix_jour, 2, ',', ' ') }} DH</td>
+            </tr>
+            <tr>
+                <td>Nombre de jours de location</td>
+                <td class="right">{{ $jours }}</td>
+            </tr>
+            @if ($reservation->supplement_conducteur > 0)
+            <tr>
+                <td>Supplement conducteur additionnel</td>
+                <td class="right">{{ number_format($reservation->supplement_conducteur, 2, ',', ' ') }} DH</td>
+            </tr>
+            @endif
+            @if ($reservation->remise > 0)
+            <tr>
+                <td>Remise ({{ $reservation->code_promo }})</td>
+                <td class="right">-{{ number_format($reservation->remise, 2, ',', ' ') }} DH</td>
+            </tr>
+            @endif
+            <tr class="total">
+                <td>Montant total du contrat</td>
+                <td class="right">{{ number_format($reservation->prix_total, 2, ',', ' ') }} DH</td>
+            </tr>
+            <tr>
+                <td>
+                    Acompte attendu
+                    @if ($reservation->acompte_paye > 0)
+                        - regle : {{ number_format($reservation->acompte_paye, 2, ',', ' ') }} DH
+                    @else
+                        - non regle
                     @endif
-                    <tr style="background: #fef2f2;">
-                        <td style="padding: 8px; font-size: 11px; font-weight: bold;">Montant total</td>
-                        <td style="padding: 8px; font-size: 11px; font-weight: bold; text-align: right; color: #dc2626;">{{ number_format($reservation->prix_total, 2, ',', ' ') }} DH</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 6px 8px; font-size: 10px;">
-                            Acompte attendu
-                            @if ($reservation->acompte_paye > 0)
-                                &mdash; regle : {{ number_format($reservation->acompte_paye, 2, ',', ' ') }} DH
-                            @else
-                                &mdash; non regle
-                            @endif
-                        </td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right; {{ $reservation->acompte_paye > 0 ? 'color: #16a34a;' : 'color: #dc2626;' }}">
-                            {{ number_format($reservation->acompte, 2, ',', ' ') }} DH
-                        </td>
-                    </tr>
-                    @if ($reservation->rembourse > 0)
-                    <tr>
-                        <td style="padding: 6px 8px; font-size: 10px; color: #2563eb;">Dont rembourse</td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right; color: #2563eb;">-{{ number_format($reservation->rembourse, 2, ',', ' ') }} DH</td>
-                    </tr>
-                    @endif
-                    <tr>
-                        <td style="padding: 6px 8px; font-size: 10px;">Reste a payer</td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->solde_restant, 2, ',', ' ') }} DH</td>
-                    </tr>
-                    @if((float) $reservation->montant_caution > 0)
-                    <tr>
-                        <td style="padding: 6px 8px; font-size: 10px;">Caution (remboursable)</td>
-                        <td style="padding: 6px 8px; font-size: 10px; text-align: right;">{{ number_format($reservation->montant_caution, 2, ',', ' ') }} DH</td>
-                    </tr>
-                    @endif
-                </tbody>
-            </table>
-        </div>
+                </td>
+                <td class="right">{{ number_format($reservation->acompte, 2, ',', ' ') }} DH</td>
+            </tr>
+            @if ($reservation->rembourse > 0)
+            <tr class="deposit">
+                <td>Dont rembourse</td>
+                <td class="right">-{{ number_format($reservation->rembourse, 2, ',', ' ') }} DH</td>
+            </tr>
+            @endif
+            <tr>
+                <td>Reste a payer</td>
+                <td class="right">{{ number_format($reservation->solde_restant, 2, ',', ' ') }} DH</td>
+            </tr>
+            @if ((float) $reservation->montant_caution > 0)
+            <tr>
+                <td>Caution (remboursable apres etat des lieux de retour)</td>
+                <td class="right">{{ number_format($reservation->montant_caution, 2, ',', ' ') }} DH</td>
+            </tr>
+            @endif
+        </table>
+    </div>
 
-        <div class="terms">
-            <h3>Conditions generales</h3>
-            <ol>
-                <li>Le locataire s'engage a restituer le vehicule dans l'etat ou il l'a recu, usure normale exceptee.</li>
-                <li>Le locataire doit presenter un permis de conduire valide et une piece d'identite.</li>
-                <li>Le vehicule ne peut etre conduit que par le locataire designe dans le present contrat
-                    @if($reservation->conducteur_additionnel_nom)
+    <div class="terms">
+        <h3>Conditions generales</h3>
+        <ol>
+            <li>Le locataire declare avoir recu le vehicule en bon etat de fonctionnement, avec les documents de circulation et le niveau de carburant indique lors de l'etat des lieux de depart.</li>
+            <li>Le locataire s'engage a restituer le vehicule dans l'etat ou il l'a recu, usure normale exceptee, au lieu et a la date convenus.</li>
+            <li>Le vehicule ne peut etre conduit que par le locataire designe ci-dessus
+                @if ($reservation->conducteur_additionnel_nom)
                     ou par le conducteur additionnel autorise ({{ $reservation->conducteur_additionnel_nom }})
-                    @endif
-                    .</li>
-                <li>Le locataire est responsable de toutes les infractions et amendes pendant la periode de location.</li>
-                <li>En cas de retard de restitution, des penalites de 50% du tarif journalier seront appliquees par jour de retard.</li>
-                <li>Le locataire s'engage a signaler tout incident ou dommage dans les plus brefs delais.</li>
-                <li>Le contrat est soumis au droit marocain. Les tribunaux de Tanger sont competents en cas de litige.</li>
-            </ol>
-        </div>
+                @endif
+                , titulaire d'un permis de conduire valide.</li>
+            <li>Le locataire est responsable de toutes les infractions, amendes et frais de fourriere survenus pendant la periode de location.</li>
+            <li>En cas de retard de restitution, des penalites de 50% du tarif journalier seront appliquees par jour de retard, sans prejudice des dommages causes au vehicule.</li>
+            <li>Le locataire s'engage a signaler tout incident, accident ou dommage dans les plus brefs delais et a fournir un constat amiable en cas d'accident.</li>
+            <li>La caution est bloquee a la reservation. Elle est restituee apres etat des lieux de retour, deduction faite des eventuels dommages, amendes ou frais restes a la charge du locataire.</li>
+            <li>Le contrat est soumis au droit marocain. Les tribunaux de Tanger sont competents en cas de litige.</li>
+        </ol>
+    </div>
 
-        <div class="signatures">
-            <div class="signature-block">
-                <div class="line"></div>
-                <p>Le Locataire</p>
-                <p>{{ $reservation->client->nom_complet }}</p>
-                <p>Date: {{ $reservation->created_at->format('d/m/Y') }}</p>
-            </div>
-            <div class="signature-block">
-                <div class="line"></div>
-                <p>Le Loueur</p>
-                <p>FIRAS BKA CAR</p>
-                <p>Date: {{ $reservation->created_at->format('d/m/Y') }}</p>
-            </div>
-        </div>
+    <div class="fait-a">
+        Fait a {{ $agence->ville ?? 'Tanger' }}, le {{ now()->format('d/m/Y') }}
+    </div>
 
-        <div class="footer">
-            <p>Contrat genere le {{ $reservation->created_at->format('d/m/Y H:i') }} - FIRAS BKA CAR</p>
-            <p>Lot 583N, Rue 50, Branes 1, Tanger 90060 | Tel: +212 774 623 448</p>
-        </div>
+    <table class="signature-table">
+        <tr>
+            <td>
+                <div class="signature-card">
+                    <div class="signature-heading">Le locataire</div>
+                    <div class="signature-note">Signature precedee de la mention manuscrite « Lu et approuve »</div>
+                    <div class="signature-area"></div>
+                    <div class="signature-line">Signature</div>
+                    <div class="signature-name">{{ $client->nom_complet }}</div>
+                </div>
+            </td>
+            <td>
+                <div class="signature-card">
+                    <div class="signature-heading">Le loueur</div>
+                    <div class="stamp-box">CACHET DE L'AGENCE</div>
+                    <div class="signature-line">Signature et cachet</div>
+                    <div class="signature-name">FIRAS BKA CAR</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Contrat N° {{ $numeroContrat }} - Reservation N° {{ $reservation->numero }} - FIRAS BKA CAR
+        - Lot 583N, Rue 50, Branes 1, Tanger 90060 - Tel : +212 774 623 448
     </div>
 </body>
 </html>

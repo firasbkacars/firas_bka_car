@@ -35,27 +35,75 @@ class FactureController extends Controller
 
         $pdf = Pdf::loadView('pdf.facture', ['reservation' => $reservation]);
 
-        return $pdf->inline('facture-'.$reservation->numero.'.pdf');
+        return $pdf->stream('facture-'.$reservation->numero.'.pdf');
     }
 
     public function downloadContrat($reservationId, Request $request)
     {
-        $user = $request->user();
+        $reservation = $this->reservationContratAutorisee($reservationId, $request->user());
 
-        $reservation = Reservation::with(['client', 'vehicule', 'paiements'])
-            ->where('id', $reservationId)
-            ->firstOrFail();
+        return $this->contratPdf($reservation)
+            ->download($this->nomFichierContrat($reservation));
+    }
+
+    public function previewContrat($reservationId, Request $request)
+    {
+        $reservation = $this->reservationContratAutorisee($reservationId, $request->user());
+
+        return $this->contratPdf($reservation)
+            ->stream($this->nomFichierContrat($reservation));
+    }
+
+    /**
+     * L'admin imprime le contrat depuis la fiche reservation pour le
+     * faire cacheter et signer lors de la remise du vehicule.
+     */
+    public function adminContrat($reservationId)
+    {
+        $reservation = $this->reservationContrat($reservationId);
+
+        return $this->contratPdf($reservation)
+            ->download($this->nomFichierContrat($reservation));
+    }
+
+    public function adminContratPreview($reservationId)
+    {
+        $reservation = $this->reservationContrat($reservationId);
+
+        return $this->contratPdf($reservation)
+            ->stream($this->nomFichierContrat($reservation));
+    }
+
+    private function reservationContrat(int $reservationId): Reservation
+    {
+        return Reservation::with(['client', 'vehicule', 'agence', 'paiements'])
+            ->findOrFail($reservationId);
+    }
+
+    private function reservationContratAutorisee(int $reservationId, $user): Reservation
+    {
+        $reservation = $this->reservationContrat($reservationId);
 
         if ($user instanceof User) {
-            // Admin can access any contract
-        } elseif ($user->id === $reservation->client_id) {
-            // Owner can access their own contract
-        } else {
-            abort(403);
+            return $reservation;
         }
 
-        $pdf = Pdf::loadView('pdf.contrat', ['reservation' => $reservation]);
+        if ($user && $user->id === $reservation->client_id) {
+            return $reservation;
+        }
 
-        return $pdf->download('contrat-location-'.$reservation->numero.'.pdf');
+        abort(403);
+    }
+
+    private function contratPdf(Reservation $reservation)
+    {
+        return Pdf::loadView('pdf.contrat', ['reservation' => $reservation]);
+    }
+
+    private function nomFichierContrat(Reservation $reservation): string
+    {
+        $numero = $reservation->numero_contrat ?: 'CTR-'.$reservation->numero;
+
+        return 'contrat-location-'.$numero.'.pdf';
     }
 }
