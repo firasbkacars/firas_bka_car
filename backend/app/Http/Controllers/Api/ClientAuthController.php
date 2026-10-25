@@ -10,6 +10,7 @@ use App\Models\Client;
 use App\Services\DocumentPhotoVerifier;
 use App\Services\FideliteService;
 use App\Services\ParrainageService;
+use App\Support\NormaliseurChampsClient;
 use App\Support\QueuedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -140,6 +141,8 @@ class ClientAuthController extends Controller
     {
         $client = $request->user();
 
+        $this->normaliserChampsProfil($request);
+
         // Regles sous forme de tableaux : la regex du telephone contient une
         // alternative (`\+212|0`). Sous forme de chaine, Laravel decoupe sur
         // ce `|` et transmet `/^(\+212` a preg_match, ce qui provoquait un
@@ -153,6 +156,14 @@ class ClientAuthController extends Controller
             'est_etranger' => ['sometimes', 'boolean'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'date_expiration_permis' => ['nullable', 'date'],
+        ], [
+            'nom_complet.min' => 'Le nom complet doit contenir au moins 2 caracteres.',
+            'telephone.regex' => 'Le telephone doit etre au format 0612345678 ou +212612345678.',
+            'email.email' => "L'adresse email n'est pas valide.",
+            'email.unique' => 'Cette adresse email est deja utilisee par un autre compte.',
+            'cin.regex' => 'Le CIN doit contenir 1 ou 2 lettres suivies de 4 a 6 chiffres (ex. AB123456).',
+            'passeport.regex' => 'Le passeport doit contenir entre 6 et 20 lettres ou chiffres.',
+            'date_expiration_permis.date' => "La date d'expiration du permis n'est pas valide.",
         ]);
 
         $attributes = $validated;
@@ -394,5 +405,29 @@ class ClientAuthController extends Controller
             'message' => 'Permis '.($validated['statut'] === 'valide' ? 'valide' : 'rejete'),
             'client' => $client,
         ]);
+    }
+
+    /**
+     * Normalise telephone, CIN et passeport avant validation. Une saisie
+     * comme « 06 12 34 56 78 » ou « ab-123456 » est legitime pour un client
+     * mais ne correspondait pas aux regex, d'ou un 422 difficile a comprendre.
+     */
+    private function normaliserChampsProfil(Request $request): void
+    {
+        $donnees = [];
+
+        if ($request->exists('telephone')) {
+            $donnees['telephone'] = NormaliseurChampsClient::telephone($request->input('telephone'));
+        }
+
+        foreach (['cin', 'passeport'] as $champ) {
+            if ($request->exists($champ)) {
+                $donnees[$champ] = NormaliseurChampsClient::pieceIdentite($request->input($champ));
+            }
+        }
+
+        if ($donnees !== []) {
+            $request->merge($donnees);
+        }
     }
 }

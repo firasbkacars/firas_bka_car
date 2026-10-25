@@ -4,18 +4,26 @@
     <meta charset="utf-8">
     <title>Contrat de location {{ $reservation->numero_contrat }}</title>
     <style>
-        @page { margin: 16mm 14mm 14mm 14mm; }
+        /*
+         * DomPDF applique le style @page au cadre racine (<html>). Un reset
+         * `* { margin: 0 }` ecraserait donc ces marges et le contenu serait
+         * imprime bord a bord (texte coupe a droite). On ne remet a zero que
+         * les elements de contenu, jamais la racine.
+         */
+        @page { margin: 14mm 12mm 12mm 12mm; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { padding: 0; box-sizing: border-box; }
+        p, h1, h2, h3, ol, ul { margin: 0; }
 
         body {
+            margin: 0;
             font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif;
             font-size: 9px;
             color: #1f2937;
-            line-height: 1.45;
+            line-height: 1.32;
         }
 
-        .header { width: 100%; border-bottom: 3px solid #dc2626; padding-bottom: 10px; margin-bottom: 12px; }
+        .header { width: 100%; border-bottom: 3px solid #dc2626; padding-bottom: 8px; margin-bottom: 10px; }
         .header td { vertical-align: top; }
         .brand-name { font-size: 20px; font-weight: bold; color: #dc2626; letter-spacing: 0.5px; }
         .company-line { color: #6b7280; font-size: 8.5px; }
@@ -28,13 +36,13 @@
             background: #fef2f2;
             border: 1px solid #fecaca;
             border-radius: 4px;
-            padding: 5px 8px;
-            margin-bottom: 12px;
+            padding: 4px 8px;
+            margin-bottom: 10px;
             color: #991b1b;
             font-size: 8.5px;
         }
 
-        .section { margin-bottom: 11px; page-break-inside: avoid; }
+        .section { margin-bottom: 8px; page-break-inside: avoid; }
         .section-title {
             font-size: 9.5px;
             font-weight: bold;
@@ -58,13 +66,13 @@
         table.data th {
             background: #dc2626;
             color: #ffffff;
-            padding: 5px 6px;
+            padding: 4px 6px;
             text-align: left;
             font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-        table.data td { padding: 5px 6px; border-bottom: 1px solid #e5e7eb; font-size: 8.5px; }
+        table.data td { padding: 4px 6px; border-bottom: 1px solid #e5e7eb; font-size: 8.5px; }
         table.data tr:nth-child(even) td { background: #fafafa; }
         table.data td.right, table.data th.right { text-align: right; }
 
@@ -74,38 +82,38 @@
         table.finance tr.total td { background: #fef2f2; font-weight: bold; font-size: 10px; color: #dc2626; border-bottom: none; }
         table.finance tr.deposit td { color: #1d4ed8; }
 
-        .terms { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px 10px; page-break-inside: avoid; }
+        .terms { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 7px 9px; page-break-inside: avoid; }
         .terms h3 { font-size: 9px; color: #111827; margin-bottom: 4px; }
         .terms ol { padding-left: 14px; }
-        .terms li { font-size: 8px; color: #4b5563; margin-bottom: 2.5px; }
+        .terms li { font-size: 8px; color: #4b5563; margin-bottom: 2px; }
 
-        .fait-a { text-align: right; margin: 12px 0 6px; font-size: 9px; }
+        .fait-a { text-align: right; margin: 8px 0 4px; font-size: 9px; }
 
         .signature-table { width: 100%; border-collapse: collapse; page-break-inside: avoid; }
         .signature-table td { width: 50%; vertical-align: top; padding: 0 8px; }
         .signature-table td:first-child { padding-left: 0; }
         .signature-table td:last-child { padding-right: 0; }
-        .signature-card { border: 1px solid #d1d5db; border-radius: 5px; padding: 8px 10px; height: 150px; }
+        .signature-card { border: 1px solid #d1d5db; border-radius: 5px; padding: 7px 10px; height: 132px; }
         .signature-heading { font-size: 9px; font-weight: bold; color: #111827; margin-bottom: 2px; }
-        .signature-note { font-size: 7.5px; color: #6b7280; margin-bottom: 6px; }
+        .signature-note { font-size: 7.5px; color: #6b7280; margin-bottom: 3px; }
         .stamp-box {
             border: 1.5px dashed #9ca3af;
             border-radius: 4px;
-            height: 68px;
-            line-height: 68px;
+            height: 52px;
+            padding-top: 18px;
             text-align: center;
             color: #9ca3af;
             font-size: 7.5px;
             letter-spacing: 0.5px;
-            margin: 4px 0 8px;
+            margin: 2px 0 3px;
         }
-        .signature-area { height: 58px; }
+        .signature-area { height: 52px; }
         .signature-line { border-top: 1px solid #374151; padding-top: 2px; font-size: 7.5px; color: #6b7280; }
         .signature-name { font-size: 8.5px; font-weight: bold; color: #111827; margin-top: 1px; }
 
         .footer {
-            margin-top: 10px;
-            padding-top: 6px;
+            margin-top: 6px;
+            padding-top: 4px;
             border-top: 1px solid #e5e7eb;
             text-align: center;
             font-size: 7.5px;

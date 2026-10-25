@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\NormaliseurChampsClient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,6 +11,25 @@ class RegisterClientRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $donnees = [];
+
+        if ($this->exists('telephone')) {
+            $donnees['telephone'] = NormaliseurChampsClient::telephone($this->input('telephone'));
+        }
+
+        foreach (['cin', 'passeport'] as $champ) {
+            if ($this->exists($champ)) {
+                $donnees[$champ] = NormaliseurChampsClient::pieceIdentite($this->input($champ));
+            }
+        }
+
+        if ($donnees !== []) {
+            $this->merge($donnees);
+        }
     }
 
     public function rules(): array

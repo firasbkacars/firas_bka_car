@@ -147,4 +147,18 @@ class ContratReservationTest extends TestCase
             ->get("/api/reservations-admin/{$reservation->id}/contrat/preview")
             ->assertForbidden();
     }
+
+    public function test_template_contrat_conserve_les_marges_dimpression(): void
+    {
+        $reservation = $this->createReservation($this->createClient(), $this->createVehicule());
+        $reservation->load(['client', 'vehicule', 'agence', 'paiements']);
+
+        $html = view('pdf.contrat', ['reservation' => $reservation])->render();
+
+        // DomPDF applique le style @page au cadre racine. Un reset
+        // `* { margin: 0 }` ecrase ces marges et imprime le contrat bord a
+        // bord, avec le texte coupe a droite. Cette regression a deja eu lieu.
+        $this->assertStringContainsString('@page { margin:', $html);
+        $this->assertDoesNotMatchRegularExpression('/^\s*\*\s*\{\s*margin\s*:/m', $html);
+    }
 }

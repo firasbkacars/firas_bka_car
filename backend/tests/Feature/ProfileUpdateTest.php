@@ -103,4 +103,70 @@ class ProfileUpdateTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors('email');
     }
+
+    public function test_phone_with_spaces_is_normalized_before_saving(): void
+    {
+        $client = $this->createClient();
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson('/api/client/profile', [
+                'telephone' => '06 12 34 56 78',
+            ])
+            ->assertOk()
+            ->assertJsonPath('telephone', '0612345678');
+
+        $this->assertDatabaseHas('clients', [
+            'id' => $client->id,
+            'telephone' => '0612345678',
+        ]);
+    }
+
+    public function test_international_phone_variants_are_normalized(): void
+    {
+        $client = $this->createClient();
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson('/api/client/profile', [
+                'telephone' => '+212 6 98 76 54 32',
+            ])
+            ->assertOk()
+            ->assertJsonPath('telephone', '+212698765432');
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson('/api/client/profile', [
+                'telephone' => '00212 6 98 76 54 32',
+            ])
+            ->assertOk()
+            ->assertJsonPath('telephone', '+212698765432');
+    }
+
+    public function test_cin_and_passport_are_uppercased_and_stripped(): void
+    {
+        $client = $this->createClient();
+
+        $this->actingAs($client, 'sanctum')
+            ->putJson('/api/client/profile', [
+                'cin' => 'ab-123456',
+                'passeport' => 'x 123 4567',
+            ])
+            ->assertOk()
+            ->assertJsonPath('cin', 'AB123456')
+            ->assertJsonPath('passeport', 'X1234567');
+    }
+
+    public function test_registration_normalizes_phone_and_cin(): void
+    {
+        $response = $this->postJson('/api/client/register', [
+            'nom_complet' => 'Nouveau Client',
+            'email' => 'nouveau@example.test',
+            'telephone' => '06 98 76 54 32',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'cin' => 'ab-123456',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('client.telephone', '0698765432')
+            ->assertJsonPath('client.cin', 'AB123456');
+    }
 }
