@@ -23,6 +23,16 @@ const STATUS_LABELS = {
 };
 
 /**
+ * Extrait le message lisible d'une erreur API : erreur de validation
+ * (422), message metier ou repli generique.
+ */
+function messageErreurApi(err, fallback) {
+  const data = err?.response?.data;
+  const premiere = Object.values(data?.errors || {}).flat().find(Boolean);
+  return premiere || data?.message || fallback;
+}
+
+/**
  * Paliers de la politique d'annulation, reflets de RefundPolicy (backend).
  * Uniquement pour rendre l'apercu lisible : le montant affiche vient
  * toujours de /annulation-preview, calcule par le backend.
@@ -228,19 +238,25 @@ export default function ClientProfil() {
       await updateProfile({ ...form, est_etranger: Boolean(form.est_etranger) });
       showToast('Profil mis a jour avec succes !');
     } catch (err) {
-      const data = err.response?.data;
-      const premiereErreur = Object.values(data?.errors || {}).flat().find(Boolean);
-      showToast(premiereErreur || data?.message || 'Erreur lors de la mise a jour', 'error');
+      showToast(messageErreurApi(err, 'Erreur lors de la mise a jour'), 'error');
     } finally {
       setSaving(false);
     }
   };
 
   const envoyerDocumentIdentite = async (type, file) => {
-    await uploadIdentityDocument(type, file);
-    showToast(type === 'carte_nationale'
-      ? 'Carte nationale envoyee. Elle sera verifiee par un agent.'
-      : 'Passeport envoye. Il sera verifie par un agent.');
+    try {
+      await uploadIdentityDocument(type, file);
+      showToast(type === 'carte_nationale'
+        ? 'Carte nationale envoyee. Elle sera verifiee par un agent.'
+        : 'Passeport envoye. Il sera verifie par un agent.');
+    } catch (err) {
+      showToast(
+        messageErreurApi(err, "L'envoi du document a echoue. Verifiez la photo et reessayez."),
+        'error'
+      );
+      throw err;
+    }
   };
 
   const handleAvatarSelect = async (e) => {
@@ -259,8 +275,8 @@ export default function ClientProfil() {
     try {
       await uploadPhoto(file);
       showToast('Photo de profil mise a jour !');
-    } catch {
-      showToast("Erreur lors de l'upload de la photo", 'error');
+    } catch (err) {
+      showToast(messageErreurApi(err, "Erreur lors de l'upload de la photo"), 'error');
     } finally {
       setUploadingPhoto(false);
     }
@@ -827,8 +843,16 @@ export default function ClientProfil() {
             fieldName="permis_conduire"
             inputId="profil-permis-document"
             onUpload={async (file) => {
-              await uploadPermis(file);
-              showToast('Permis envoyé. Il sera vérifié par un agent.');
+              try {
+                await uploadPermis(file);
+                showToast('Permis envoye. Il sera verifie par un agent.');
+              } catch (err) {
+                showToast(
+                  messageErreurApi(err, "L'envoi du permis a echoue. Verifiez la photo et reessayez."),
+                  'error'
+                );
+                throw err;
+              }
             }}
           />
 
