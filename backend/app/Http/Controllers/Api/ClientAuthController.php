@@ -140,15 +140,19 @@ class ClientAuthController extends Controller
     {
         $client = $request->user();
 
+        // Regles sous forme de tableaux : la regex du telephone contient une
+        // alternative (`\+212|0`). Sous forme de chaine, Laravel decoupe sur
+        // ce `|` et transmet `/^(\+212` a preg_match, ce qui provoquait un
+        // 500 sur chaque mise a jour de profil.
         $validated = $request->validate([
-            'nom_complet' => 'sometimes|string|max:255|min:2',
-            'telephone' => 'sometimes|string|regex:/^(\+212|0)[5-7]\d{8}$/',
-            'email' => 'sometimes|email:rfc|max:255|unique:clients,email,'.$client->id,
-            'cin' => 'nullable|string|regex:/^[A-Z]{1,2}\d{4,6}$/|max:20',
-            'passeport' => 'nullable|string|regex:/^[A-Z0-9]{6,20}$/|max:20',
-            'est_etranger' => 'sometimes|boolean',
-            'adresse' => 'nullable|string|max:255',
-            'date_expiration_permis' => 'nullable|date',
+            'nom_complet' => ['sometimes', 'string', 'max:255', 'min:2'],
+            'telephone' => ['sometimes', 'string', 'regex:/^(\+212|0)[5-7]\d{8}$/'],
+            'email' => ['sometimes', 'email:rfc', 'max:255', 'unique:clients,email,'.$client->id],
+            'cin' => ['nullable', 'string', 'regex:/^[A-Z]{1,2}\d{4,6}$/', 'max:20'],
+            'passeport' => ['nullable', 'string', 'regex:/^[A-Z0-9]{6,20}$/', 'max:20'],
+            'est_etranger' => ['sometimes', 'boolean'],
+            'adresse' => ['nullable', 'string', 'max:255'],
+            'date_expiration_permis' => ['nullable', 'date'],
         ]);
 
         $attributes = $validated;
