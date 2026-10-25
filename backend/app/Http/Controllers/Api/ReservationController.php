@@ -63,6 +63,31 @@ class ReservationController extends Controller
             return response()->json(['message' => 'Votre permis de conduire a expire : mettez a jour sa date de validite depuis votre profil'], 422);
         }
 
+        // Piece d'identite obligatoire : CIN pour les Marocains, passeport
+        // pour les etrangers. Un document rejete ou en attente bloque aussi
+        // la reservation, comme pour le permis.
+        $documentIdentite = $client->documentIdentiteRequis();
+
+        if (empty($client->{$documentIdentite['champ']})) {
+            return response()->json([
+                'message' => "Vous devez telecharger votre {$documentIdentite['label']} avant de reserver",
+                'document_manquant' => $documentIdentite['type'],
+            ], 422);
+        }
+
+        if ($client->{$documentIdentite['statut']} !== 'valide') {
+            $message = "Votre {$documentIdentite['label']} doit etre {$documentIdentite['accord']} par un agent avant de reserver";
+
+            if ($client->{$documentIdentite['statut']} === 'rejete' && $client->{$documentIdentite['motif']}) {
+                $message .= ' Motif : '.$client->{$documentIdentite['motif']};
+            }
+
+            return response()->json([
+                'message' => $message,
+                'document_manquant' => $documentIdentite['type'],
+            ], 422);
+        }
+
         $validated = $request->validated();
 
         $reservation = DB::transaction(function () use ($validated, $client) {

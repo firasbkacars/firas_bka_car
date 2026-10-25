@@ -33,6 +33,8 @@ class ClientController extends Controller
             'telephone' => 'sometimes|string|max:20',
             'email' => 'nullable|email|max:255',
             'cin' => 'nullable|string|max:20',
+            'passeport' => 'nullable|string|max:20',
+            'est_etranger' => 'sometimes|boolean',
             'adresse' => 'nullable|string|max:255',
         ]);
 

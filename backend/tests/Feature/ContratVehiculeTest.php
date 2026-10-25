@@ -23,6 +23,9 @@ class ContratVehiculeTest extends TestCase
             'password' => 'password123',
             'permis_conduire' => 'permis/contrats.jpg',
             'permis_statut' => 'valide',
+            'est_etranger' => false,
+            'carte_nationale' => 'documents/carte-nationale/cin.jpg',
+            'carte_nationale_statut' => 'valide',
         ], $overrides));
     }
 

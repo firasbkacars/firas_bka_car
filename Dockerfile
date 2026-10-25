@@ -1,8 +1,11 @@
 FROM php:8.3-cli
 
 # Install system dependencies
+# GD doit pouvoir decoder JPEG et WebP : la verification automatique des
+# photos de permis / CIN / passeport en depend en production.
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev \
+    git curl zip unzip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev libonig-dev libxml2-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -13,6 +16,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Les photos de documents peuvent peser jusqu'a 5 Mo : sans ces limites PHP
+# rejetterait silencieusement les fichiers des 2 Mo (valeur par defaut).
+RUN printf "upload_max_filesize=6M\npost_max_size=8M\nmemory_limit=512M\nmax_execution_time=60\n" \
+    > /usr/local/etc/php/conf.d/firas-uploads.ini
 
 WORKDIR /var/www
 

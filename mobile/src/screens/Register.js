@@ -13,6 +13,9 @@ export default function Register({ navigation }) {
     telephone: '',
     password: '',
     password_confirmation: '',
+    est_etranger: false,
+    cin: '',
+    passeport: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +32,14 @@ export default function Register({ navigation }) {
     if (form.password.length < 8) return setError('Le mot de passe doit contenir au moins 8 caractères.');
     if (form.password !== form.password_confirmation) return setError('Les mots de passe ne correspondent pas.');
 
+    if (form.est_etranger) {
+      if (!/^[A-Z0-9]{6,20}$/.test(form.passeport.trim())) {
+        return setError('Numéro de passeport invalide (6 à 20 lettres majuscules ou chiffres).');
+      }
+    } else if (!/^[A-Z]{1,2}\d{4,6}$/.test(form.cin.trim())) {
+      return setError('CIN invalide (ex : A12345 ou AB123456).');
+    }
+
     setLoading(true);
     try {
       await register({
@@ -37,6 +48,9 @@ export default function Register({ navigation }) {
         telephone: form.telephone.trim(),
         password: form.password,
         password_confirmation: form.password_confirmation,
+        est_etranger: form.est_etranger,
+        cin: form.est_etranger ? '' : form.cin.trim(),
+        passeport: form.est_etranger ? form.passeport.trim() : '',
       });
       navigation.replace('Profil');
     } catch (err) {
@@ -83,6 +97,71 @@ export default function Register({ navigation }) {
           </View>
         ))}
 
+        <Text style={styles.label}>Nationalité</Text>
+        <View style={styles.segments} accessibilityRole="radiogroup" accessibilityLabel="Nationalité">
+          {[
+            { value: false, label: 'Marocaine — CIN' },
+            { value: true, label: 'Étrangère — passeport' },
+          ].map((option) => {
+            const actif = form.est_etranger === option.value;
+            return (
+              <TouchableOpacity
+                key={option.label}
+                style={[styles.segment, actif && styles.segmentActif]}
+                onPress={() => setForm((f) => ({
+                  ...f,
+                  est_etranger: option.value,
+                  cin: option.value ? '' : f.cin,
+                  passeport: option.value ? f.passeport : '',
+                }))}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: actif }}
+                accessibilityLabel={option.label}
+              >
+                <Text style={[styles.segmentText, actif && styles.segmentTextActif]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {form.est_etranger ? (
+          <View>
+            <Text style={styles.label}>Numéro de passeport</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="X1234567"
+              placeholderTextColor={colors.dim}
+              value={form.passeport}
+              onChangeText={(v) => setForm((f) => ({ ...f, passeport: v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20) }))}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              accessibilityLabel="Numéro de passeport"
+            />
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.label}>CIN</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="AB123456"
+              placeholderTextColor={colors.dim}
+              value={form.cin}
+              onChangeText={(v) => setForm((f) => ({ ...f, cin: v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) }))}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              accessibilityLabel="CIN"
+            />
+          </View>
+        )}
+
+        <Text style={styles.documentHint}>
+          Après l'inscription, vous devrez téléverser une photo nette de votre permis
+          et de votre {form.est_etranger ? 'passeport' : 'carte nationale'} dans votre profil.
+          Les photos floues, sombres ou au format PDF sont refusées automatiquement.
+        </Text>
+
         {error ? <Text style={styles.error} accessibilityRole="alert">{error}</Text> : null}
 
         <TouchableOpacity
@@ -117,6 +196,12 @@ const styles = StyleSheet.create({
   hint: { color: colors.sub, fontSize: 13, lineHeight: 19, marginBottom: 20 },
   label: { color: colors.dim, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 14, marginBottom: 6 },
   input: { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1, borderRadius: 12, color: colors.text, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15 },
+  segments: { flexDirection: 'row', gap: 8 },
+  segment: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center', backgroundColor: colors.card },
+  segmentActif: { borderColor: colors.danger, backgroundColor: 'rgba(220,38,38,0.12)' },
+  segmentText: { color: colors.sub, fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  segmentTextActif: { color: colors.text },
+  documentHint: { color: colors.dim, fontSize: 12, lineHeight: 18, marginTop: 16 },
   error: { color: colors.dangerLight, fontSize: 13, marginTop: 16 },
   cta: { backgroundColor: colors.danger, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 24 },
   ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },

@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, X, FileText, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2 } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2 } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatutPaiement from '../../components/StatutPaiement';
+import DocumentUpload from '../../components/DocumentUpload';
 import { formatMAD, formatDate, formatDateTime } from '../../lib/formatters';
 
 const STATUS_COLORS = {
@@ -88,24 +89,21 @@ function statutPaiementReservation(res) {
 }
 
 export default function ClientProfil() {
-  const { client, token, loading: authLoading, logout, updateProfile, uploadPermis, uploadPhoto } = useAuth();
+  const { client, token, loading: authLoading, logout, updateProfile, uploadPermis, uploadPhoto, uploadIdentityDocument } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     nom_complet: '',
     telephone: '',
     email: '',
     cin: '',
+    passeport: '',
+    est_etranger: false,
     adresse: '',
     date_expiration_permis: '',
   });
 
-  const [permisFile, setPermisFile] = useState(null);
-  const [permisPreview, setPermisPreview] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState(null);
 
   const [reservations, setReservations] = useState([]);
@@ -141,10 +139,20 @@ export default function ClientProfil() {
         telephone: client.telephone || '',
         email: client.email || '',
         cin: client.cin || '',
+        passeport: client.passeport || '',
+        est_etranger: Boolean(client.est_etranger),
         adresse: client.adresse || '',
         date_expiration_permis: client.date_expiration_permis ? String(client.date_expiration_permis).split(' ')[0].split('T')[0] : '',
       });
     }
+  }, [client]);
+
+  // Les liens depuis la reservation pointent vers #documents-identite :
+  // on amene l'utilisateur directement a la section concernee.
+  useEffect(() => {
+    if (!client || !window.location.hash) return;
+    const cible = document.getElementById(window.location.hash.slice(1));
+    if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [client]);
 
   useEffect(() => {
@@ -217,66 +225,22 @@ export default function ClientProfil() {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateProfile(form);
+      await updateProfile({ ...form, est_etranger: Boolean(form.est_etranger) });
       showToast('Profil mis a jour avec succes !');
-    } catch {
-      showToast('Erreur lors de la mise a jour', 'error');
+    } catch (err) {
+      const data = err.response?.data;
+      const premiereErreur = Object.values(data?.errors || {}).flat().find(Boolean);
+      showToast(premiereErreur || data?.message || 'Erreur lors de la mise a jour', 'error');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleFileSelect = (file) => {
-    if (!file) return;
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showToast('Le fichier depasse 5 Mo', 'error');
-      return;
-    }
-    setPermisFile(file);
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => setPermisPreview(e.target.result);
-      reader.readAsDataURL(file);
-    } else {
-      setPermisPreview(null);
-    }
-  };
-
-  const handleFileInput = (e) => {
-    handleFileSelect(e.target.files[0]);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    handleFileSelect(file);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-  };
-
-  const handleUploadPermis = async () => {
-    if (!permisFile) return;
-    setUploading(true);
-    try {
-      await uploadPermis(permisFile);
-      setPermisFile(null);
-      setPermisPreview(null);
-      showToast('Permis uploade avec succes !');
-    } catch {
-      showToast("Erreur lors de l'upload du permis", 'error');
-    } finally {
-      setUploading(false);
-    }
+  const envoyerDocumentIdentite = async (type, file) => {
+    await uploadIdentityDocument(type, file);
+    showToast(type === 'carte_nationale'
+      ? 'Carte nationale envoyee. Elle sera verifiee par un agent.'
+      : 'Passeport envoye. Il sera verifie par un agent.');
   };
 
   const handleAvatarSelect = async (e) => {
@@ -307,6 +271,13 @@ export default function ClientProfil() {
       ? client.photo_profil
       : `/storage/${client.photo_profil}`)
     : null;
+
+  const estEtranger = Boolean(client?.est_etranger);
+  const typeIdentite = estEtranger ? 'passeport' : 'carte_nationale';
+  const libelleIdentite = estEtranger ? 'passeport' : 'carte nationale';
+  const cheminIdentite = estEtranger ? client?.passeport_document : client?.carte_nationale;
+  const statutIdentite = estEtranger ? client?.passeport_statut : client?.carte_nationale_statut;
+  const motifIdentite = estEtranger ? client?.passeport_rejet_motif : client?.carte_nationale_rejet_motif;
 
   const handleLogout = async () => {
     await logout();
@@ -813,106 +784,58 @@ export default function ClientProfil() {
           )}
         </div>
 
+        {/* Pièce d'identité obligatoire */}
+        <div id="documents-identite" className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
+          <h2 className="text-white font-semibold mb-2">Pièce d'identité</h2>
+          <p className="text-muted text-sm mb-5">
+            {estEtranger
+              ? 'En tant que client étranger, vous devez téléverser une photo de votre passeport pour pouvoir réserver.'
+              : 'Vous devez téléverser une photo de votre carte nationale (CIN) pour pouvoir réserver.'}
+          </p>
+
+          <DocumentUpload
+            titre={estEtranger ? 'Passeport' : 'Carte nationale (CIN)'}
+            description={`Photo nette et lisible de votre ${libelleIdentite}, avec les quatre coins visibles.`}
+            documentPath={cheminIdentite}
+            statut={statutIdentite}
+            motif={motifIdentite}
+            fieldName={estEtranger ? 'passeport_document' : 'carte_nationale'}
+            inputId="profil-document-identite"
+            onUpload={(file) => envoyerDocumentIdentite(typeIdentite, file)}
+          />
+
+          <p className="text-muted text-xs mt-4 leading-relaxed">
+            La photo est vérifiée automatiquement (format, résolution, netteté et luminosité).
+            Une photo floue, trop sombre, rognée ou de travers est refusée. Un agent valide
+            ensuite le document avant votre première réservation.
+          </p>
+        </div>
+
         {/* Permis de conduire */}
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <h2 className="text-white font-semibold mb-2">Permis de conduire</h2>
           <p className="text-muted text-sm mb-5">
-            Vous devez telecharger une photo de votre permis pour pouvoir reserver.
+            Vous devez téléverser une photo de votre permis pour pouvoir réserver.
           </p>
 
-          <div className="mb-5">
-            {client?.permis_conduire ? (
-              <span className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1.5 rounded-full text-sm font-medium">
-                <CheckCircle2 size={14} />
-                Permis vérifié
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-full text-sm font-medium">
-                <XCircle size={14} />
-                Permis non uploadé
-              </span>
-            )}
-          </div>
+          <DocumentUpload
+            titre="Permis de conduire"
+            description="Photo nette et lisible du permis, avec la date de validité visible."
+            documentPath={client?.permis_conduire}
+            statut={client?.permis_statut}
+            motif={client?.permis_rejet_motif}
+            fieldName="permis_conduire"
+            inputId="profil-permis-document"
+            onUpload={async (file) => {
+              await uploadPermis(file);
+              showToast('Permis envoyé. Il sera vérifié par un agent.');
+            }}
+          />
 
-          {!permisFile ? (
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
-                dragOver
-                  ? 'border-[#dc2626] bg-[#dc2626]/5'
-                  : 'border-neutral-700 hover:border-[#dc2626]/50'
-              }`}
-            >
-              <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-primary-light' : 'text-muted'}`} />
-              <p className="text-gray-400 text-sm">
-                Glissez votre permis ici ou{' '}
-                <span className="text-primary-light font-medium">parcourez vos fichiers</span>
-              </p>
-              <p className="text-muted text-xs mt-1">JPG, PNG ou PDF - 5 Mo max</p>
-              <input aria-label="Téléverser le permis de conduire"
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,.pdf"
-                className="hidden"
-                onChange={handleFileInput}
-              />
-            </div>
-          ) : (
-            <div className="border border-white/[0.06] rounded-xl p-4">
-              <div className="flex items-start gap-4">
-                {permisPreview ? (
-                  <img
-                    src={permisPreview}
-                    alt="Apercu du permis"
-                    className="w-20 h-20 object-cover rounded-lg border border-white/10 shrink-0"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-neutral-800 border border-neutral-700 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText size={24} className="text-muted" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">{permisFile.name}</p>
-                  <p className="text-muted text-xs mt-0.5">
-                    {(permisFile.size / 1024 / 1024).toFixed(2)} Mo
-                  </p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <button
-                      onClick={handleUploadPermis}
-                      disabled={uploading}
-                      className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 flex items-center gap-2"
-                    >
-                      {uploading ? (
-                        <>
-                          <Loader2 size={14} className="animate-spin" />
-                          Envoi...
-                        </>
-                      ) : (
-                        'Uploader le permis'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => { setPermisFile(null); setPermisPreview(null); }}
-                      disabled={uploading}
-                      className="text-muted hover:text-white px-3 py-2 rounded-lg text-sm transition hover:bg-white/5"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setPermisFile(null); setPermisPreview(null); }}
-                  disabled={uploading}
-                  className="text-muted hover:text-red-500 transition-colors shrink-0 p-1"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          )}
+          <p className="text-muted text-xs mt-4 leading-relaxed">
+            La photo du permis est soumise au même contrôle automatique de qualité.
+            Pensez à renseigner la date d'expiration dans vos informations.
+          </p>
         </div>
 
         {/* Programme de fidelite */}
@@ -1104,15 +1027,48 @@ export default function ClientProfil() {
               <p className="text-muted text-xs mt-1">L'email ne peut pas être modifié</p>
             </div>
             <div>
-              <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
-              <input
-                id="profil-cin"
-                type="text"
-                value={form.cin}
-                readOnly
-                className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/70 text-sm cursor-not-allowed"
-              />
-              <p className="text-muted text-xs mt-1">Le CIN ne peut pas être modifié</p>
+              <label htmlFor="profil-nationalite" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Nationalité</label>
+              <select
+                id="profil-nationalite"
+                value={form.est_etranger ? 'etranger' : 'marocain'}
+                onChange={(e) => setForm({ ...form, est_etranger: e.target.value === 'etranger' })}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
+              >
+                <option value="marocain">Marocaine — carte nationale</option>
+                <option value="etranger">Étrangère — passeport</option>
+              </select>
+              <p className="text-muted text-xs mt-1">
+                La pièce à téléverser dépend de votre nationalité.
+              </p>
+            </div>
+            <div>
+              {form.est_etranger ? (
+                <>
+                  <label htmlFor="profil-passeport" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Numéro de passeport</label>
+                  <input
+                    id="profil-passeport"
+                    type="text"
+                    value={form.passeport}
+                    onChange={(e) => setForm({ ...form, passeport: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20) })}
+                    placeholder="X1234567"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626] outline-none transition"
+                  />
+                  <p className="text-muted text-xs mt-1">6 à 20 lettres majuscules ou chiffres.</p>
+                </>
+              ) : (
+                <>
+                  <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
+                  <input
+                    id="profil-cin"
+                    type="text"
+                    value={form.cin}
+                    onChange={(e) => setForm({ ...form, cin: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) })}
+                    placeholder="AB123456"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626] outline-none transition"
+                  />
+                  <p className="text-muted text-xs mt-1">Ex : A12345 ou AB123456.</p>
+                </>
+              )}
             </div>
             <div>
               <label htmlFor="profil-permis-exp" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Expiration du permis</label>

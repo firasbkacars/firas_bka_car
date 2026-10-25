@@ -55,7 +55,9 @@ export default function Profil({ navigation }) {
       nom_complet: profil?.nom_complet || '',
       telephone: profil?.telephone || '',
       email: profil?.email || '',
+      est_etranger: Boolean(profil?.est_etranger),
       cin: profil?.cin || '',
+      passeport: profil?.passeport || '',
       adresse: profil?.adresse || '',
       date_expiration_permis: profil?.date_expiration_permis
         ? formatDate(profil.date_expiration_permis)
@@ -72,7 +74,11 @@ export default function Profil({ navigation }) {
     }
     setSaving(true);
     try {
-      const payload = { ...form };
+      const payload = {
+        ...form,
+        cin: form.est_etranger ? null : (form.cin || null),
+        passeport: form.est_etranger ? (form.passeport || null) : null,
+      };
       if (payload.date_expiration_permis) payload.date_expiration_permis = toISO(parseDate(payload.date_expiration_permis));
       else payload.date_expiration_permis = null;
       const { data } = await api.put('/client/profile', payload);
@@ -97,30 +103,66 @@ export default function Profil({ navigation }) {
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      quality: 0.7,
-      allowsEditing: true,
+      quality: 0.8,
+      // Sur iOS, force une representation compatible JPEG : le backend
+      // refuse les formats qu'il ne peut pas verifier (HEIC notamment).
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode?.Compatible,
+      // Un document d'identité ne doit jamais être rogné : seuls les quatre
+      // coins visibles permettent à l'agent de vérifier la pièce.
+      allowsEditing: destination === 'photo',
       aspect: destination === 'photo' ? [1, 1] : undefined,
     });
     if (result.canceled || !result.assets?.length) return;
 
     const asset = result.assets[0];
+    const documents = {
+      'carte-nationale': {
+        endpoint: '/client/carte-nationale',
+        champ: 'carte_nationale',
+        fichier: 'carte-nationale.jpg',
+      },
+      passeport: {
+        endpoint: '/client/passeport',
+        champ: 'passeport_document',
+        fichier: 'passeport.jpg',
+      },
+      permis: {
+        endpoint: '/client/permis',
+        champ: 'permis_conduire',
+        fichier: 'permis.jpg',
+      },
+      photo: {
+        endpoint: '/client/photo',
+        champ: 'photo',
+        fichier: 'photo.jpg',
+      },
+    };
+    const configuration = documents[destination];
+
     setUploading(destination);
     try {
       const formData = new FormData();
-      formData.append(destination === 'permis' ? 'permis_conduire' : 'photo', {
+      formData.append(configuration.champ, {
         uri: asset.uri,
-        name: destination === 'permis' ? 'permis.jpg' : 'photo.jpg',
-        type: 'image/jpeg',
+        name: configuration.fichier,
+        type: asset.mimeType || 'image/jpeg',
       });
-      await api.post(destination === 'permis' ? '/client/permis' : '/client/photo', formData, {
+      await api.post(configuration.endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       await recharger();
-      Alert.alert('Succès', destination === 'permis'
-        ? 'Permis envoyé. Un agent validera votre document.'
-        : 'Photo de profil mise à jour.');
+
+      const succes = {
+        permis: 'Permis envoyé. Un agent validera votre document.',
+        'carte-nationale': 'Carte nationale envoyée. Un agent validera votre document.',
+        passeport: 'Passeport envoyé. Un agent validera votre document.',
+        photo: 'Photo de profil mise à jour.',
+      };
+      Alert.alert('Succès', succes[destination]);
     } catch (err) {
-      Alert.alert('Erreur', err.response?.data?.message || 'L’envoi a échoué.');
+      const premiereErreur = Object.values(err.response?.data?.errors || {}).flat().find(Boolean);
+      Alert.alert('Erreur', premiereErreur || err.response?.data?.message || 'L’envoi a échoué.');
     } finally {
       setUploading(null);
     }
@@ -149,6 +191,23 @@ export default function Profil({ navigation }) {
   }
 
   const statutPermis = profil.permis_statut || 'en_attente';
+  const estEtranger = Boolean(profil.est_etranger);
+  const libelleIdentite = estEtranger ? 'passeport' : 'carte nationale';
+  const cheminIdentite = estEtranger ? profil.passeport_document : profil.carte_nationale;
+  const statutIdentite = cheminIdentite ? (estEtranger ? profil.passeport_statut : profil.carte_nationale_statut) || 'en_attente' : 'non_fourni';
+  const motifIdentite = estEtranger ? profil.passeport_rejet_motif : profil.carte_nationale_rejet_motif;
+  const destinationIdentite = estEtranger ? 'passeport' : 'carte-nationale';
+
+  const editerEtranger = edition ? Boolean(form.est_etranger) : estEtranger;
+
+  const champsEdition = [
+    { key: 'nom_complet', label: 'Nom complet', keyboard: 'default' },
+    { key: 'telephone', label: 'Téléphone', keyboard: 'phone-pad' },
+    { key: 'email', label: 'Email', keyboard: 'email-address' },
+    { key: editerEtranger ? 'passeport' : 'cin', label: editerEtranger ? 'Numéro de passeport' : 'CIN', keyboard: 'default' },
+    { key: 'adresse', label: 'Adresse' },
+    { key: 'date_expiration_permis', label: 'Expiration permis (JJ/MM/AAAA)' },
+  ];
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -190,21 +249,43 @@ export default function Profil({ navigation }) {
       <Section titre="Mon profil">
         {edition ? (
           <>
-            {[
-              { key: 'nom_complet', label: 'Nom complet', keyboard: 'default' },
-              { key: 'telephone', label: 'Téléphone', keyboard: 'phone-pad' },
-              { key: 'email', label: 'Email', keyboard: 'email-address' },
-              { key: 'cin', label: 'CIN' },
-              { key: 'adresse', label: 'Adresse' },
-              { key: 'date_expiration_permis', label: 'Expiration permis (JJ/MM/AAAA)' },
-            ].map((champ) => (
+            <Text style={styles.inputLabel}>Nationalité</Text>
+            <View style={styles.segments} accessibilityRole="radiogroup" accessibilityLabel="Nationalité">
+              {[
+                { value: false, label: 'Marocaine — CIN' },
+                { value: true, label: 'Étrangère — passeport' },
+              ].map((option) => {
+                const actif = Boolean(form.est_etranger) === option.value;
+                return (
+                  <TouchableOpacity
+                    key={option.label}
+                    style={[styles.segment, actif && styles.segmentActif]}
+                    onPress={() => setForm((f) => ({
+                      ...f,
+                      est_etranger: option.value,
+                      cin: option.value ? '' : f.cin,
+                      passeport: option.value ? f.passeport : '',
+                    }))}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: actif }}
+                    accessibilityLabel={option.label}
+                  >
+                    <Text style={[styles.segmentText, actif && styles.segmentTextActif]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {champsEdition.map((champ) => (
               <View key={champ.key}>
                 <Text style={styles.inputLabel}>{champ.label}</Text>
                 <TextInput
                   style={styles.input}
                   value={form[champ.key] ?? ''}
                   onChangeText={(v) => setForm((f) => ({ ...f, [champ.key]: v }))}
-                  autoCapitalize={champ.key === 'email' || champ.key === 'cin' ? 'none' : 'words'}
+                  autoCapitalize={champ.key === 'email' ? 'none' : (champ.key === 'cin' || champ.key === 'passeport' ? 'characters' : 'words')}
                   keyboardType={champ.keyboard || 'default'}
                   accessibilityLabel={champ.label}
                 />
@@ -236,7 +317,8 @@ export default function Profil({ navigation }) {
             <Info label="Nom complet" valeur={profil.nom_complet} />
             <Info label="Téléphone" valeur={profil.telephone} />
             <Info label="Email" valeur={profil.email} />
-            <Info label="CIN" valeur={profil.cin} />
+            <Info label="Nationalité" valeur={estEtranger ? 'Étrangère' : 'Marocaine'} />
+            <Info label={estEtranger ? 'Passeport' : 'CIN'} valeur={estEtranger ? profil.passeport : profil.cin} />
             <Info label="Adresse" valeur={profil.adresse} />
             <TouchableOpacity
               style={styles.edit}
@@ -248,6 +330,40 @@ export default function Profil({ navigation }) {
             </TouchableOpacity>
           </>
         )}
+      </Section>
+
+      <Section titre="Pièce d'identité">
+        <View style={styles.ligne}>
+          <Text style={styles.ligneLabel}>{estEtranger ? 'Passeport' : 'Carte nationale'}</Text>
+          <View style={[styles.badge, { backgroundColor: `${PERMIS_COLORS[statutIdentite] || colors.dim}22` }]}>
+            <Text style={[styles.badgeText, { color: PERMIS_COLORS[statutIdentite] || colors.dim }]}>
+              {statutIdentite === 'non_fourni' ? 'Non fournie' : PERMIS_LABELS[statutIdentite] || statutIdentite}
+            </Text>
+          </View>
+        </View>
+        {motifIdentite ? <Text style={styles.error}>Motif : {motifIdentite}</Text> : null}
+        <Info label="Document" valeur={cheminIdentite ? 'Envoyé' : 'Aucun document'} />
+        <TouchableOpacity
+          style={styles.ghost}
+          onPress={() => choisirPhoto(destinationIdentite)}
+          disabled={uploading === destinationIdentite}
+          accessibilityRole="button"
+          accessibilityLabel={cheminIdentite ? 'Remplacer la pièce d’identité' : 'Envoyer la pièce d’identité'}
+        >
+          {uploading === destinationIdentite
+            ? <ActivityIndicator color={colors.text} />
+            : (
+              <Text style={styles.ghostText}>
+                {cheminIdentite
+                  ? `Remplacer mon ${libelleIdentite}`
+                  : `Envoyer mon ${libelleIdentite} (photo)`}
+              </Text>
+            )}
+        </TouchableOpacity>
+        <Text style={styles.hint}>
+          Photo nette et lisible, sans rognage. Les photos floues, trop sombres ou au format PDF
+          sont refusées automatiquement. Un agent valide ensuite la pièce avant votre première réservation.
+        </Text>
       </Section>
 
       <Section titre="Permis de conduire">
@@ -327,6 +443,11 @@ const styles = StyleSheet.create({
   ligneValue: { color: colors.text, fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right' },
   inputLabel: { color: colors.dim, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 10, marginBottom: 5 },
   input: { backgroundColor: '#0d0d0d', borderColor: colors.border, borderWidth: 1, borderRadius: 10, color: colors.text, paddingHorizontal: 12, paddingVertical: 11, fontSize: 14 },
+  segments: { flexDirection: 'row', gap: 8, marginTop: 6 },
+  segment: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 6, alignItems: 'center', backgroundColor: '#0d0d0d' },
+  segmentActif: { borderColor: colors.danger, backgroundColor: 'rgba(220,38,38,0.12)' },
+  segmentText: { color: colors.sub, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  segmentTextActif: { color: colors.text },
   row: { flexDirection: 'row', marginTop: 16 },
   cta: { backgroundColor: colors.danger, borderRadius: 12, paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
   ctaText: { color: '#fff', fontWeight: '700' },

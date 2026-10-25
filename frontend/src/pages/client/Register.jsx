@@ -15,7 +15,7 @@ function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle
           id={id}
           type={show ? 'text' : 'password'}
           required
-          minLength={6}
+          minLength={8}
           autoComplete="new-password"
           autoFocus={autoFocus}
           value={value}
@@ -60,7 +60,8 @@ export default function ClientRegister() {
   const [form, setForm] = useState({
     nom_complet: '', email: '', telephone: '',
     password: '', password_confirmation: '',
-    cin: '', adresse: '', code_parrainage: '',
+    cin: '', passeport: '', est_etranger: false,
+    adresse: '', code_parrainage: '',
   });
   const [showPw, setShowPw] = useState(false);
   const [showPwConf, setShowPwConf] = useState(false);
@@ -98,13 +99,22 @@ export default function ClientRegister() {
   }, [form.telephone]);
 
   const cinError = useMemo(() => {
-    if (!form.cin) return '';
+    if (form.est_etranger || !form.cin) return '';
     if (!/^[A-Z]{1,2}\d{4,6}$/.test(form.cin)) return 'Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456)';
     return '';
-  }, [form.cin]);
+  }, [form.cin, form.est_etranger]);
 
-  const isValid = form.nom_complet && form.email && form.telephone && form.password.length >= 6
-    && form.password === form.password_confirmation && cgu && !phoneError && !cinError;
+  const passeportError = useMemo(() => {
+    if (!form.est_etranger || !form.passeport) return '';
+    if (!/^[A-Z0-9]{6,20}$/.test(form.passeport)) return 'Le numéro de passeport doit contenir 6 à 20 lettres majuscules ou chiffres';
+    return '';
+  }, [form.passeport, form.est_etranger]);
+
+  const documentIdentiteManquant = form.est_etranger ? !form.passeport : !form.cin;
+
+  const isValid = form.nom_complet && form.email && form.telephone && form.password.length >= 8
+    && form.password === form.password_confirmation && cgu && !phoneError && !cinError
+    && !passeportError && !documentIdentiteManquant;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,7 +123,12 @@ export default function ClientRegister() {
     setFieldErrors({});
     setLoading(true);
     try {
-      await register(form);
+      await register({
+        ...form,
+        // Seule la pièce correspondant à la nationalité est transmise.
+        cin: form.est_etranger ? '' : form.cin,
+        passeport: form.est_etranger ? form.passeport : '',
+      });
       setSuccess(true);
       setTimeout(() => navigate('/client/profil'), 2500);
     } catch (err) {
@@ -130,13 +145,16 @@ export default function ClientRegister() {
 
   if (success) {
     return (
-      <AuthLayout title="Inscription réussie" subtitle="Redirection vers la connexion...">
+      <AuthLayout title="Inscription réussie" subtitle="Redirection vers votre profil...">
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={20} className="text-emerald-500" />
           </div>
           <h2 className="text-white font-semibold text-lg mb-2">Compte créé avec succès</h2>
-          <p className="text-muted text-sm">Vous allez être redirigé vers la page de connexion.</p>
+          <p className="text-muted text-sm">
+            Dernière étape : téléversez votre permis et votre{' '}
+            {form.est_etranger ? 'passeport' : 'carte nationale'} depuis votre profil.
+          </p>
         </div>
       </AuthLayout>
     );
@@ -224,7 +242,7 @@ export default function ClientRegister() {
             label="Mot de passe *"
             value={form.password}
             onChange={(e) => update('password', e.target.value)}
-            placeholder="Min. 6 caractères"
+            placeholder="Min. 8 caractères"
             show={showPw}
             onToggle={() => setShowPw(!showPw)}
           />
@@ -255,26 +273,78 @@ export default function ClientRegister() {
             )}
           </div>
 
-          {/* CIN + Adresse */}
+          {/* Nationalité */}
+          <div>
+            <label htmlFor="reg-nationalite" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+              Nationalité *
+            </label>
+            <select
+              id="reg-nationalite"
+              value={form.est_etranger ? 'etranger' : 'marocain'}
+              onChange={(e) => {
+                const etranger = e.target.value === 'etranger';
+                setForm(p => ({
+                  ...p,
+                  est_etranger: etranger,
+                  cin: etranger ? '' : p.cin,
+                  passeport: etranger ? p.passeport : '',
+                }));
+                setFieldErrors(p => ({ ...p, cin: '', passeport: '' }));
+              }}
+              className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+            >
+              <option value="marocain">Marocaine — carte nationale (CIN)</option>
+              <option value="etranger">Étrangère — passeport</option>
+            </select>
+          </div>
+
+          {/* Pièce d'identité + Adresse */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="reg-cin" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                CIN
-              </label>
-              <input
-                id="reg-cin"
-                type="text"
-                autoComplete="off"
-                value={form.cin}
-                onChange={(e) => update('cin', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
-                placeholder="AB123456"
-                maxLength={8}
-                className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
-                  cinError || fieldErrors.cin ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
-                }`}
-              />
-              {(cinError || fieldErrors.cin) && (
-                <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.cin || cinError}</p>
+              {form.est_etranger ? (
+                <>
+                  <label htmlFor="reg-passeport" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+                    Numéro de passeport *
+                  </label>
+                  <input
+                    id="reg-passeport"
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={form.passeport}
+                    onChange={(e) => update('passeport', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
+                    placeholder="X1234567"
+                    maxLength={20}
+                    className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
+                      passeportError || fieldErrors.passeport ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
+                    }`}
+                  />
+                  {(passeportError || fieldErrors.passeport) && (
+                    <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.passeport || passeportError}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <label htmlFor="reg-cin" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
+                    CIN *
+                  </label>
+                  <input
+                    id="reg-cin"
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={form.cin}
+                    onChange={(e) => update('cin', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
+                    placeholder="AB123456"
+                    maxLength={8}
+                    className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
+                      cinError || fieldErrors.cin ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
+                    }`}
+                  />
+                  {(cinError || fieldErrors.cin) && (
+                    <p className="text-primary-light text-xs mt-1" role="alert">{fieldErrors.cin || cinError}</p>
+                  )}
+                </>
               )}
             </div>
             <div>
@@ -291,6 +361,17 @@ export default function ClientRegister() {
               />
             </div>
           </div>
+
+          {/* Documents obligatoires */}
+          <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
+            <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-muted text-xs leading-relaxed">
+              Après l'inscription, vous devrez téléverser une photo nette de votre permis de conduire
+              et de votre {form.est_etranger ? 'passeport' : 'carte nationale'} dans votre profil.
+              Les photos floues, trop sombres, rognées ou au format PDF sont refusées automatiquement.
+            </p>
+          </div>
+
 
           {/* Code parrainage (V2) */}
           <div>

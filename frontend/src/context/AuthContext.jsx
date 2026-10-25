@@ -77,7 +77,35 @@ export function AuthProvider({ children }) {
     const { data } = await api.post('/client/permis', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    setClient((prev) => ({ ...prev, permis_conduire: data.permis_conduire }));
+    setClient((prev) => ({
+      ...prev,
+      permis_conduire: data.permis_conduire,
+      permis_statut: data.permis_statut || 'en_attente',
+      permis_rejet_motif: null,
+    }));
+    return data;
+  };
+
+  const uploadIdentityDocument = async (type, file) => {
+    const carteNationale = type === 'carte_nationale';
+    const champ = carteNationale ? 'carte_nationale' : 'passeport_document';
+    const endpoint = carteNationale ? '/client/carte-nationale' : '/client/passeport';
+    const statutChamp = carteNationale ? 'carte_nationale_statut' : 'passeport_statut';
+    const motifChamp = carteNationale ? 'carte_nationale_rejet_motif' : 'passeport_rejet_motif';
+
+    const formData = new FormData();
+    formData.append(champ, file);
+    const { data } = await api.post(endpoint, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    setClient((prev) => ({
+      ...prev,
+      [champ]: data[champ],
+      [statutChamp]: data[statutChamp] || 'en_attente',
+      [motifChamp]: null,
+    }));
+
     return data;
   };
 
@@ -94,7 +122,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       client, token, loading,
-      login, register, logout, updateProfile, uploadPermis, uploadPhoto,
+      login, register, logout, updateProfile, uploadPermis, uploadPhoto, uploadIdentityDocument,
     }}>
       {children}
     </AuthContext.Provider>

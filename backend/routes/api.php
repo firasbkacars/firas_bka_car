@@ -93,6 +93,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/client/profile', [ClientAuthController::class, 'profile']);
         Route::put('/client/profile', [ClientAuthController::class, 'updateProfile']);
         Route::post('/client/permis', [ClientAuthController::class, 'uploadPermis']);
+        Route::post('/client/carte-nationale', [ClientAuthController::class, 'uploadCarteNationale']);
+        Route::post('/client/passeport', [ClientAuthController::class, 'uploadPasseport']);
         Route::post('/client/photo', [ClientAuthController::class, 'uploadPhoto']);
         Route::get('/client/reservations', [ReservationController::class, 'mesReservations']);
 
@@ -233,6 +235,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     // Admin - Validation permis
     Route::put('/clients/{id}/permis', [ClientAuthController::class, 'validerPermis']);
+
+    // Admin - Validation carte nationale / passeport
+    Route::put('/clients/{id}/documents/{type}', [ClientAuthController::class, 'validerDocumentIdentite']);
 
     // Admin - Parametres
     // GET /parametres est public (enregistre plus haut) : seul l'ecriture reste admin.

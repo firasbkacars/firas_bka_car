@@ -22,6 +22,7 @@ export default function ReservationForm({ navigation, route }) {
   const [tauxAcompte, setTauxAcompte] = useState(30);
   const [error, setError] = useState(null);
   const [permisError, setPermisError] = useState(false);
+  const [documentManquant, setDocumentManquant] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function ReservationForm({ navigation, route }) {
   const submit = async () => {
     setError(null);
     setPermisError(false);
+    setDocumentManquant(null);
 
     const d1 = parseDate(dateDebut);
     const d2 = parseDate(dateFin);
@@ -93,6 +95,9 @@ export default function ReservationForm({ navigation, route }) {
           returnTo: { name: 'ReservationForm', params: { vehiculeId, vehicule } },
         });
         return;
+      }
+      if (err.response?.data?.document_manquant) {
+        setDocumentManquant(err.response.data.document_manquant);
       }
       if (/permis/i.test(message)) {
         setPermisError(true);
@@ -226,14 +231,20 @@ export default function ReservationForm({ navigation, route }) {
         {error ? (
           <View style={styles.errorBox}>
             <Text style={styles.error} accessibilityRole="alert">{error}</Text>
-            {permisError ? (
+            {permisError || documentManquant ? (
               <TouchableOpacity
                 style={styles.link}
                 onPress={() => navigation.navigate('Profil')}
                 accessibilityRole="button"
-                accessibilityLabel="Aller à mon profil pour le permis"
+                accessibilityLabel={documentManquant
+                  ? 'Aller à mon profil pour la pièce d’identité'
+                  : 'Aller à mon profil pour le permis'}
               >
-                <Text style={styles.linkText}>Mettre à jour mon permis →</Text>
+                <Text style={styles.linkText}>
+                  {documentManquant
+                    ? 'Mettre à jour ma pièce d’identité →'
+                    : 'Mettre à jour mon permis →'}
+                </Text>
               </TouchableOpacity>
             ) : null}
           </View>

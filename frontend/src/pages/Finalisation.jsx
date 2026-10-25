@@ -4,6 +4,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatMAD, formatDate } from '../lib/formatters';
+import { validateDocumentPhotoFile } from '../lib/documentPhoto';
 import { Skeleton } from '../components/Skeleton';
 import { AlertTriangle, CheckCircle2, XCircle, Banknote, CreditCard, Tag, Loader2, Shield, User, Info, ExternalLink } from 'lucide-react';
 
@@ -29,6 +30,7 @@ export default function Finalisation() {
   const [loadError, setLoadError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [documentManquant, setDocumentManquant] = useState(null);
   const [parametres, setParametres] = useState({});
   const [parametresError, setParametresError] = useState(false);
 
@@ -48,7 +50,6 @@ export default function Finalisation() {
   const [uploadingPermis, setUploadingPermis] = useState(false);
   const [acceptConditions, setAcceptConditions] = useState(false);
   const [cmiPaymentUrl, setCmiPaymentUrl] = useState(null);
-
   const dateDebut = searchParams.get('date_debut') || '';
   const dateFin = searchParams.get('date_fin') || '';
 
@@ -225,13 +226,22 @@ export default function Finalisation() {
 
   const handleUploadPermis = async () => {
     if (!permisFile) return;
+
+    const controle = await validateDocumentPhotoFile(permisFile);
+    if (!controle.valid) {
+      toast.error(controle.message);
+      return;
+    }
+
     setUploadingPermis(true);
     try {
       await uploadPermis(permisFile);
       setPermisFile(null);
       toast.success('Permis transmis. Il sera verifie par un agent.');
-    } catch {
-      toast.error("Erreur lors de l'envoi du permis. Reessayez.");
+    } catch (err) {
+      const erreurs = err.response?.data?.errors || {};
+      const premiere = Object.values(erreurs).flat().find(Boolean);
+      toast.error(premiere || err.response?.data?.message || "Erreur lors de l'envoi du permis. Reessayez.");
     } finally {
       setUploadingPermis(false);
     }
@@ -242,6 +252,7 @@ export default function Finalisation() {
     if (!acceptConditions || dateError) return;
     setSubmitting(true);
     setSubmitError(null);
+    setDocumentManquant(null);
 
     let reservation;
     try {
@@ -263,6 +274,7 @@ export default function Finalisation() {
     } catch (err) {
       const message = err.response?.data?.message || 'Erreur lors de la reservation. Veuillez reessayer.';
       setSubmitError(message);
+      setDocumentManquant(err.response?.data?.document_manquant || null);
       toast.error(message);
       setSubmitting(false);
       return;
@@ -364,6 +376,15 @@ export default function Finalisation() {
   const permisEnAttente = client?.permis_conduire && client?.permis_statut === 'en_attente';
   const permisRejete = client?.permis_statut === 'rejete';
 
+  const estEtranger = Boolean(client?.est_etranger);
+  const libelleIdentite = estEtranger ? 'passeport' : 'carte nationale';
+  const cheminIdentite = estEtranger ? client?.passeport_document : client?.carte_nationale;
+  const statutIdentite = estEtranger ? client?.passeport_statut : client?.carte_nationale_statut;
+  const motifIdentite = estEtranger ? client?.passeport_rejet_motif : client?.carte_nationale_rejet_motif;
+  const hasIdentite = Boolean(cheminIdentite) && statutIdentite === 'valide';
+  const identiteEnAttente = Boolean(cheminIdentite) && statutIdentite === 'en_attente';
+  const identiteRejetee = statutIdentite === 'rejete';
+
   const vehiculePhoto = vehicule.photos?.[0];
   const vehiculePhotoSrc = vehiculePhoto && !vehiculePhoto.startsWith('http') && !vehiculePhoto.startsWith('/')
     ? `/storage/${vehiculePhoto}`
@@ -384,7 +405,17 @@ export default function Finalisation() {
       {submitError && (
         <div role="alert" className="bg-red-500/10 border border-red-500/25 rounded-xl p-4 mb-6 flex items-start gap-3">
           <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
-          <p className="text-red-200/90 text-sm leading-relaxed">{submitError}</p>
+          <div className="text-sm leading-relaxed">
+            <p className="text-red-200/90">{submitError}</p>
+            {documentManquant && (
+              <Link
+                to="/client/profil#documents-identite"
+                className="inline-flex items-center gap-1.5 text-primary-light hover:underline font-medium mt-2"
+              >
+                Mettre à jour ma pièce d'identité
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
@@ -406,6 +437,73 @@ export default function Finalisation() {
         </div>
       )}
 
+      {/* Pièce d'identité obligatoire */}
+      {identiteRejetee && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <XCircle size={24} className="text-red-500 shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-red-500 font-semibold mb-1">
+                {estEtranger ? 'Passeport rejeté' : 'Carte nationale rejetée'}
+              </h3>
+              <p className="text-gray-400 text-sm mb-2">
+                Votre {libelleIdentite} a été rejetée. Téléversez une nouvelle photo nette
+                et lisible depuis votre profil.
+              </p>
+              {motifIdentite && (
+                <p className="text-red-400 text-sm mb-3">Motif : {motifIdentite}</p>
+              )}
+              <Link
+                to="/client/profil#documents-identite"
+                className="inline-flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                Mettre à jour ma pièce d'identité
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {identiteEnAttente && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <Info size={24} className="text-yellow-500 shrink-0" />
+            <div>
+              <h3 className="text-yellow-500 font-semibold mb-1">
+                {estEtranger ? 'Passeport en cours de vérification' : 'Carte nationale en cours de vérification'}
+              </h3>
+              <p className="text-gray-400 text-sm">
+                Votre {libelleIdentite} est en attente de validation par un agent.
+                Vous pourrez réserver une fois le document validé.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!cheminIdentite && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <AlertTriangle size={24} className="text-red-500 shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-red-500 font-semibold mb-1">
+                {estEtranger ? 'Passeport requis' : 'Carte nationale requise'}
+              </h3>
+              <p className="text-gray-400 text-sm mb-3">
+                Vous devez téléverser une photo de votre {libelleIdentite} avant de pouvoir réserver.
+                Seules les photos JPG, PNG ou WebP nettes et lisibles sont acceptées.
+              </p>
+              <Link
+                to="/client/profil#documents-identite"
+                className="inline-flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                Téléverser ma pièce d'identité
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Permis Warning */}
       {permisRejete && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-6">
@@ -422,7 +520,7 @@ export default function Finalisation() {
               <div className="flex items-center gap-3">
                 <input aria-label="Téléverser le permis de conduire"
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={(e) => setPermisFile(e.target.files[0])}
                   className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#dc2626] file:text-white hover:file:bg-[#b91c1c] file:cursor-pointer"
                 />
@@ -464,7 +562,7 @@ export default function Finalisation() {
               <div className="flex items-center gap-3">
                 <input aria-label="Téléverser le permis de conduire"
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={(e) => setPermisFile(e.target.files[0])}
                   className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#dc2626] file:text-white hover:file:bg-[#b91c1c] file:cursor-pointer"
                 />
@@ -504,9 +602,25 @@ export default function Finalisation() {
                     className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-508">CIN</label>
-                  <input id="ctl-508" type="text" value={client?.cin || ''} disabled
+                  <label className="text-gray-400 text-xs mb-1 block" htmlFor="ctl-508">
+                    {estEtranger ? 'Passeport' : 'CIN'}
+                  </label>
+                  <input id="ctl-508" type="text" value={(estEtranger ? client?.passeport : client?.cin) || ''} disabled
                     className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-muted text-sm cursor-not-allowed" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-gray-400 text-xs mb-1 block">Pièce d'identité ({estEtranger ? 'passeport' : 'carte nationale'})</label>
+                  <div className="flex items-center gap-2">
+                    {hasIdentite ? (
+                      <span className="inline-flex items-center gap-1.5 bg-green-500/20 text-green-500 px-3 py-1 rounded-full text-sm"><CheckCircle2 size={14} /> Validée</span>
+                    ) : identiteRejetee ? (
+                      <span className="inline-flex items-center gap-1.5 bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-sm"><XCircle size={14} /> Rejetée</span>
+                    ) : identiteEnAttente ? (
+                      <span className="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-sm"><Info size={14} /> En attente</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-sm"><XCircle size={14} /> Non fournie</span>
+                    )}
+                  </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-gray-400 text-xs mb-1 block">Permis de conduire</label>
@@ -821,23 +935,27 @@ export default function Finalisation() {
 
             <button
               type="submit"
-              disabled={submitting || !hasPermis || !acceptConditions || !!dateError || details.jours <= 0}
+              disabled={submitting || !hasPermis || !hasIdentite || !acceptConditions || !!dateError || details.jours <= 0}
               aria-busy={submitting}
               className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
             >
               {dateError || details.jours <= 0
                 ? 'Dates invalides pour reserver'
-                : !hasPermis
-                  ? 'Permis requis pour reserver'
-                  : !acceptConditions
-                    ? 'Acceptez les conditions'
-                    : submitting
-                      ? (form.mode_paiement === 'cmi'
-                          ? 'Ouverture du paiement...'
-                          : 'Reservation en cours...')
-                      : form.mode_paiement === 'cmi'
-                        ? <>Payer {formatMAD(details.acompte)} via CMI <ExternalLink size={16} /></>
-                        : `Payer l'acompte ${formatMAD(details.acompte)}`
+                : !hasIdentite
+                  ? (identiteEnAttente
+                      ? 'Pièce d\'identité en attente de validation'
+                      : `Pièce d'identité requise (${estEtranger ? 'passeport' : 'CIN'})`)
+                  : !hasPermis
+                    ? 'Permis requis pour reserver'
+                    : !acceptConditions
+                      ? 'Acceptez les conditions'
+                      : submitting
+                        ? (form.mode_paiement === 'cmi'
+                            ? 'Ouverture du paiement...'
+                            : 'Reservation en cours...')
+                        : form.mode_paiement === 'cmi'
+                          ? <>Payer {formatMAD(details.acompte)} via CMI <ExternalLink size={16} /></>
+                          : `Payer l'acompte ${formatMAD(details.acompte)}`
               }
             </button>
 

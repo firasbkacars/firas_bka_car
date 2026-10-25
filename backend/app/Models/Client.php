@@ -18,6 +18,13 @@ class Client extends Authenticatable
         'email',
         'cin',
         'passeport',
+        'est_etranger',
+        'carte_nationale',
+        'carte_nationale_statut',
+        'carte_nationale_rejet_motif',
+        'passeport_document',
+        'passeport_statut',
+        'passeport_rejet_motif',
         'adresse',
         'photo_profil',
         'permis_conduire',
@@ -42,11 +49,16 @@ class Client extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'document_identite',
+    ];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'est_etranger' => 'boolean',
             'date_expiration_permis' => 'date',
             'permis_rappel_envoye_le' => 'date',
             'parrain_recompense' => 'boolean',
@@ -92,6 +104,60 @@ class Client extends Authenticatable
     {
         return $this->date_expiration_permis !== null
             && $this->date_expiration_permis->isPast();
+    }
+
+    /**
+     * Document d'identite impose par la nationalite declaree.
+     *
+     * @return array{type:string, champ:string, statut:string, motif:string, label:string, accord:string}
+     */
+    public function documentIdentiteRequis(): array
+    {
+        if ($this->est_etranger) {
+            return [
+                'type' => 'passeport',
+                'champ' => 'passeport_document',
+                'statut' => 'passeport_statut',
+                'motif' => 'passeport_rejet_motif',
+                'label' => 'passeport',
+                'accord' => 'valide',
+            ];
+        }
+
+        return [
+            'type' => 'carte_nationale',
+            'champ' => 'carte_nationale',
+            'statut' => 'carte_nationale_statut',
+            'motif' => 'carte_nationale_rejet_motif',
+            'label' => 'carte nationale',
+            'accord' => 'validee',
+        ];
+    }
+
+    public function documentIdentiteEstValide(): bool
+    {
+        $document = $this->documentIdentiteRequis();
+
+        return ! empty($this->{$document['champ']})
+            && $this->{$document['statut']} === 'valide';
+    }
+
+    /**
+     * Etat lisible par le web et le mobile sans dupliquer la logique de
+     * nationalite dans chaque interface.
+     */
+    public function getDocumentIdentiteAttribute(): array
+    {
+        $document = $this->documentIdentiteRequis();
+        $chemin = $this->{$document['champ']};
+
+        return [
+            'type' => $document['type'],
+            'label' => $document['label'],
+            'document' => $chemin,
+            'statut' => $chemin ? ($this->{$document['statut']} ?: 'en_attente') : 'non_fourni',
+            'motif' => $this->{$document['motif']},
+        ];
     }
 
     protected static function booted(): void

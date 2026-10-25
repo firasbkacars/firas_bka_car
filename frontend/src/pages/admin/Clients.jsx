@@ -13,6 +13,7 @@ export default function Clients() {
   const [editClient, setEditClient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showPermisModal, setShowPermisModal] = useState(null);
+  const [showIdentiteModal, setShowIdentiteModal] = useState(null);
   const [rejetMotif, setRejetMotif] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -83,6 +84,51 @@ export default function Clients() {
     }
   };
 
+  const identiteDe = (c) => {
+    if (c.est_etranger) {
+      return {
+        type: 'passeport',
+        label: 'Passeport',
+        numero: c.passeport,
+        chemin: c.passeport_document,
+        statut: c.passeport_statut,
+        motif: c.passeport_rejet_motif,
+      };
+    }
+    return {
+      type: 'carte-nationale',
+      label: 'CIN',
+      numero: c.cin,
+      chemin: c.carte_nationale,
+      statut: c.carte_nationale_statut,
+      motif: c.carte_nationale_rejet_motif,
+    };
+  };
+
+  const handleValiderIdentite = async (clientId, type) => {
+    try {
+      await api.put(`/clients/${clientId}/documents/${type}`, { statut: 'valide' });
+      toast.success('Pièce d\'identité validée.');
+      fetchClients();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Impossible de valider la pièce d\'identité');
+    }
+  };
+
+  const handleRejeterIdentite = async () => {
+    if (!showIdentiteModal) return;
+    const { client, type } = showIdentiteModal;
+    try {
+      await api.put(`/clients/${client.id}/documents/${type}`, { statut: 'rejete', motif: rejetMotif });
+      setShowIdentiteModal(null);
+      setRejetMotif('');
+      toast.success('Pièce d\'identité rejetée.');
+      fetchClients();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors du rejet');
+    }
+  };
+
   const filtered = clients.filter(c =>
     c.nom_complet?.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -94,6 +140,17 @@ export default function Clients() {
       return <span className="text-muted bg-neutral-800 px-2 py-1 rounded-full text-xs font-medium">Non uploade</span>;
     }
     switch (c.permis_statut) {
+      case 'valide':
+        return <span className="text-green-400 bg-green-500/15 px-2 py-1 rounded-full text-xs font-medium">Valide</span>;
+      case 'rejete':
+        return <span className="text-red-400 bg-red-500/15 px-2 py-1 rounded-full text-xs font-medium">Rejete</span>;
+      default:
+        return <span className="text-yellow-400 bg-yellow-500/15 px-2 py-1 rounded-full text-xs font-medium">En attente</span>;
+    }
+  };
+
+  const getIdentiteBadge = (statut) => {
+    switch (statut) {
       case 'valide':
         return <span className="text-green-400 bg-green-500/15 px-2 py-1 rounded-full text-xs font-medium">Valide</span>;
       case 'rejete':
@@ -135,7 +192,7 @@ export default function Clients() {
                 <th className="text-left py-3 px-5 font-medium">Nom</th>
                 <th className="text-left py-3 px-5 font-medium">Email</th>
                 <th className="text-left py-3 px-5 font-medium">Telephone</th>
-                <th className="text-left py-3 px-5 font-medium">CIN</th>
+                <th className="text-left py-3 px-5 font-medium">Pièce d'identité</th>
                 <th className="text-left py-3 px-5 font-medium">Permis</th>
                 <th className="text-right py-3 px-5 font-medium">Actions</th>
               </tr>
@@ -166,7 +223,54 @@ export default function Clients() {
                   </td>
                   <td className="py-3 px-5 text-neutral-400">{c.email}</td>
                   <td className="py-3 px-5 text-neutral-400">{c.telephone}</td>
-                  <td className="py-3 px-5 text-neutral-400 font-mono text-xs">{c.cin}</td>
+                  <td className="py-3 px-5">
+                    {(() => {
+                      const identite = identiteDe(c);
+                      return (
+                        <div className="space-y-1.5 max-w-[220px]">
+                          <p className="text-muted text-[10px] uppercase tracking-wider">
+                            {identite.label}{c.est_etranger ? ' (étranger)' : ''}
+                          </p>
+                          <p className="text-neutral-300 font-mono text-xs">{identite.numero || '—'}</p>
+                          {identite.chemin ? (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {getIdentiteBadge(identite.statut)}
+                              {identite.statut !== 'valide' && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleValiderIdentite(c.id, identite.type)}
+                                    className="p-1 rounded hover:bg-green-500/10 text-green-400 transition"
+                                    title={`Valider ${identite.label}`}
+                                  >
+                                    <CheckCircle2 size={14} />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejetMotif('');
+                                      setShowIdentiteModal({
+                                        client: c,
+                                        type: identite.type,
+                                        label: identite.label,
+                                      });
+                                    }}
+                                    className="p-1 rounded hover:bg-red-500/10 text-red-400 transition"
+                                    title={`Rejeter ${identite.label}`}
+                                  >
+                                    <XCircle size={14} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted bg-neutral-800 px-2 py-1 rounded-full text-xs font-medium inline-block">Non fournie</span>
+                          )}
+                          {identite.statut === 'rejete' && identite.motif && (
+                            <p className="text-red-400/80 text-[11px] leading-snug">{identite.motif}</p>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </td>
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-2">
                       {getPermisBadge(c)}
@@ -180,7 +284,7 @@ export default function Clients() {
                             <CheckCircle2 size={14} />
                           </button>
                           <button
-                            onClick={() => setShowPermisModal(c)}
+                            onClick={() => { setRejetMotif(''); setShowPermisModal(c); }}
                             className="p-1 rounded hover:bg-red-500/10 text-red-400 transition"
                             title="Rejeter le permis"
                           >
@@ -192,6 +296,18 @@ export default function Clients() {
                   </td>
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {(() => {
+                        const identite = identiteDe(c);
+                        return identite.chemin ? (
+                          <button
+                            onClick={() => window.open(`/storage/${identite.chemin}`, '_blank')}
+                            className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                            title={`Voir ${identite.label}`}
+                          >
+                            <Eye size={15} />
+                          </button>
+                        ) : null;
+                      })()}
                       {c.permis_conduire && (
                         <button
                           onClick={() => window.open(`/storage/${c.permis_conduire}`, '_blank')}
@@ -227,7 +343,23 @@ export default function Clients() {
               <input aria-label="Nom complet" type="text" value={editClient.nom_complet || ''} onChange={e => setEditClient({ ...editClient, nom_complet: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Nom complet" />
               <input aria-label="Email" type="email" value={editClient.email || ''} onChange={e => setEditClient({ ...editClient, email: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Email" />
               <input aria-label="Telephone" type="text" value={editClient.telephone || ''} onChange={e => setEditClient({ ...editClient, telephone: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Telephone" />
-              <input aria-label="CIN" type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
+              <select
+                aria-label="Nationalité"
+                value={editClient.est_etranger ? 'etranger' : 'marocain'}
+                onChange={e => setEditClient({
+                  ...editClient,
+                  est_etranger: e.target.value === 'etranger',
+                })}
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
+              >
+                <option value="marocain">Marocaine — carte nationale</option>
+                <option value="etranger">Étrangère — passeport</option>
+              </select>
+              {editClient.est_etranger ? (
+                <input aria-label="Numéro de passeport" type="text" value={editClient.passeport || ''} onChange={e => setEditClient({ ...editClient, passeport: e.target.value.toUpperCase() })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Numéro de passeport" />
+              ) : (
+                <input aria-label="CIN" type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value.toUpperCase() })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
+              )}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
                 <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
@@ -258,6 +390,36 @@ export default function Clients() {
               <button onClick={() => setShowPermisModal(null)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
               <button
                 onClick={() => handleRejeterPermis(showPermisModal.id)}
+                disabled={!rejetMotif.trim()}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
+              >
+                Rejeter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal rejet pièce d'identité */}
+      {showIdentiteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowIdentiteModal(null)} />
+          <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <button onClick={() => setShowIdentiteModal(null)} className="absolute top-4 right-4 text-neutral-400 hover:text-white"><X size={20} /></button>
+            <h3 className="text-white font-semibold mb-2">Rejeter le {showIdentiteModal.label}</h3>
+            <p className="text-neutral-400 text-sm mb-4">
+              Client : <span className="text-white">{showIdentiteModal.client.nom_complet}</span>
+            </p>
+            <textarea aria-label="Motif du rejet de la pièce d'identité"
+              value={rejetMotif}
+              onChange={(e) => setRejetMotif(e.target.value)}
+              rows={3}
+              className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 resize-none mb-4"
+              placeholder="Motif du rejet (obligatoire)..."
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setShowIdentiteModal(null)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
+              <button
+                onClick={handleRejeterIdentite}
                 disabled={!rejetMotif.trim()}
                 className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
               >

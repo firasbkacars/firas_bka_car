@@ -7,6 +7,7 @@ use App\Http\Requests\LoginClientRequest;
 use App\Http\Requests\RegisterClientRequest;
 use App\Mail\PermisValidation;
 use App\Models\Client;
+use App\Services\DocumentPhotoVerifier;
 use App\Services\FideliteService;
 use App\Services\ParrainageService;
 use App\Support\QueuedMail;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class ClientAuthController extends Controller
@@ -35,6 +37,8 @@ class ClientAuthController extends Controller
             'telephone' => $validated['telephone'],
             'password' => $validated['password'],
             'cin' => $validated['cin'] ?? null,
+            'passeport' => $validated['passeport'] ?? null,
+            'est_etranger' => $validated['est_etranger'] ?? false,
             'adresse' => $validated['adresse'] ?? null,
         ]);
 
@@ -141,6 +145,8 @@ class ClientAuthController extends Controller
             'telephone' => 'sometimes|string|regex:/^(\+212|0)[5-7]\d{8}$/',
             'email' => 'sometimes|email:rfc|max:255|unique:clients,email,'.$client->id,
             'cin' => 'nullable|string|regex:/^[A-Z]{1,2}\d{4,6}$/|max:20',
+            'passeport' => 'nullable|string|regex:/^[A-Z0-9]{6,20}$/|max:20',
+            'est_etranger' => 'sometimes|boolean',
             'adresse' => 'nullable|string|max:255',
             'date_expiration_permis' => 'nullable|date',
         ]);
@@ -176,8 +182,8 @@ class ClientAuthController extends Controller
 
         $client = $request->user();
 
-        if ($client->photo_profil && \Storage::disk('public')->exists($client->photo_profil)) {
-            \Storage::disk('public')->delete($client->photo_profil);
+        if ($client->photo_profil && Storage::disk('public')->exists($client->photo_profil)) {
+            Storage::disk('public')->delete($client->photo_profil);
         }
 
         $path = $request->file('photo')->store('photos', 'public');
@@ -193,16 +199,22 @@ class ClientAuthController extends Controller
     public function uploadPermis(Request $request)
     {
         $request->validate([
-            'permis_conduire' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'permis_conduire' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
+        ], [
+            'permis_conduire.required' => 'Selectionnez une photo de votre permis de conduire.',
+            'permis_conduire.mimes' => 'Format non accepte : envoyez une photo JPG, PNG ou WebP.',
+            'permis_conduire.max' => 'La photo du permis depasse 5 Mo.',
         ]);
 
         $client = $request->user();
+        $file = $request->file('permis_conduire');
 
-        if ($client->permis_conduire && \Storage::disk('public')->exists($client->permis_conduire)) {
-            \Storage::disk('public')->delete($client->permis_conduire);
+        app(DocumentPhotoVerifier::class)->verifier($file, 'permis_conduire');
+
+        if ($client->permis_conduire && Storage::disk('public')->exists($client->permis_conduire)) {
+            Storage::disk('public')->delete($client->permis_conduire);
         }
 
-        $file = $request->file('permis_conduire');
         $path = $file->store('permis', 'public');
 
         $client->update([
@@ -212,9 +224,132 @@ class ClientAuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Permis uploade avec succes',
+            'message' => 'Permis envoye. Il sera verifie par un agent.',
             'permis_conduire' => $path,
+            'permis_statut' => 'en_attente',
         ]);
+    }
+
+    public function uploadCarteNationale(Request $request)
+    {
+        return $this->uploadDocumentIdentite($request, 'carte_nationale');
+    }
+
+    public function uploadPasseport(Request $request)
+    {
+        return $this->uploadDocumentIdentite($request, 'passeport');
+    }
+
+    /**
+     * CIN (Marocains) et passeport (etrangers) partagent exactement les memes
+     * controles de qualite et le meme cycle de validation.
+     */
+    private function uploadDocumentIdentite(Request $request, string $type)
+    {
+        $type = str_replace('_', '-', $type);
+        $configuration = $this->documentsIdentite()[$type];
+        $champ = $configuration['champ'];
+        $label = $configuration['label'];
+
+        $request->validate([
+            $champ => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
+        ], [
+            $champ.'.required' => 'Selectionnez une photo de votre '.$label.'.',
+            $champ.'.mimes' => 'Format non accepte : envoyez une photo JPG, PNG ou WebP.',
+            $champ.'.max' => 'La photo depasse 5 Mo.',
+        ]);
+
+        $file = $request->file($champ);
+
+        app(DocumentPhotoVerifier::class)->verifier($file, $champ);
+
+        $client = $request->user();
+
+        if ($client->{$champ} && Storage::disk('public')->exists($client->{$champ})) {
+            Storage::disk('public')->delete($client->{$champ});
+        }
+
+        $path = $file->store($configuration['dossier'], 'public');
+
+        $client->update([
+            $champ => $path,
+            $configuration['statut'] => 'en_attente',
+            $configuration['motif'] => null,
+        ]);
+
+        $client->refresh();
+
+        return response()->json([
+            'message' => 'Document envoye. Il sera verifie par un agent.',
+            $champ => $path,
+            $configuration['statut'] => 'en_attente',
+            'document_identite' => $client->document_identite,
+        ]);
+    }
+
+    public function validerDocumentIdentite(Request $request, $id, string $type)
+    {
+        $type = str_replace('_', '-', $type);
+        $configuration = $this->documentsIdentite()[$type] ?? null;
+
+        if (! $configuration) {
+            return response()->json(['message' => 'Type de document inconnu.'], 422);
+        }
+
+        $validated = $request->validate([
+            'statut' => 'required|in:valide,rejete',
+            'motif' => 'nullable|string|max:500|required_if:statut,rejete|min:3',
+        ], [
+            'motif.required_if' => 'Le motif est obligatoire pour rejeter un document.',
+            'motif.min' => 'Le motif doit contenir au moins 3 caracteres.',
+        ]);
+
+        $client = Client::findOrFail($id);
+        $champ = $configuration['champ'];
+
+        if (empty($client->{$champ})) {
+            return response()->json([
+                'message' => 'Impossible de valider : aucun document n\'a ete envoye.',
+            ], 422);
+        }
+
+        $update = [$configuration['statut'] => $validated['statut']];
+
+        if ($validated['statut'] === 'rejete') {
+            $update[$configuration['motif']] = $validated['motif'];
+        } else {
+            $update[$configuration['motif']] = null;
+        }
+
+        $client->update($update);
+
+        return response()->json([
+            'message' => 'Document '.($validated['statut'] === 'valide' ? 'valide' : 'rejete'),
+            'client' => $client->fresh(),
+        ]);
+    }
+
+    /**
+     * @return array<string, array{champ:string, statut:string, motif:string, dossier:string, label:string}>
+     */
+    private function documentsIdentite(): array
+    {
+        return [
+            'carte-nationale' => [
+                'champ' => 'carte_nationale',
+                'statut' => 'carte_nationale_statut',
+                'motif' => 'carte_nationale_rejet_motif',
+                'dossier' => 'documents/carte-nationale',
+                'label' => 'carte nationale',
+            ],
+            'passeport' => [
+                'champ' => 'passeport_document',
+                'statut' => 'passeport_statut',
+                'motif' => 'passeport_rejet_motif',
+                'dossier' => 'documents/passeport',
+                'label' => 'passeport',
+            ],
+        ];
     }
 
     public function validerPermis(Request $request, $id)
