@@ -141,6 +141,13 @@
             'virement' => 'Virement',
             'cheque' => 'Cheque',
         ];
+        // Identifiants legaux reels uniquement : la ligne disparait tant que
+        // ENTREPRISE_RC / ENTREPRISE_IF / ENTREPRISE_ICE ne sont pas definis.
+        $mentionsLegales = collect([
+            config('entreprise.rc') ? 'RC : '.trim((string) config('entreprise.rc')) : null,
+            config('entreprise.if') ? 'IF : '.trim((string) config('entreprise.if')) : null,
+            config('entreprise.ice') ? 'ICE : '.trim((string) config('entreprise.ice')) : null,
+        ])->filter()->implode(' - ');
     @endphp
 
     <table class="header">
@@ -173,7 +180,9 @@
                         <p><span class="label">Loueur</span></p>
                         <p class="value">FIRAS BKA CAR SARL</p>
                         <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
-                        <p>RC : 001234567 - IF : 12345678</p>
+                        @if ($mentionsLegales !== '')
+                            <p>{{ $mentionsLegales }}</p>
+                        @endif
                         <p>Tel : +212 774 623 448</p>
                         @if ($agence)
                             <p class="muted">Agence de depart : {{ $agence->nom }} - {{ $agence->adresse }}, {{ $agence->ville }}</p>

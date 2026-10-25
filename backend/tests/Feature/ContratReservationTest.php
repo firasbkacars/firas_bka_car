@@ -150,15 +150,47 @@ class ContratReservationTest extends TestCase
 
     public function test_template_contrat_conserve_les_marges_dimpression(): void
     {
-        $reservation = $this->createReservation($this->createClient(), $this->createVehicule());
-        $reservation->load(['client', 'vehicule', 'agence', 'paiements']);
-
-        $html = view('pdf.contrat', ['reservation' => $reservation])->render();
+        $html = $this->renderContratHtml();
 
         // DomPDF applique le style @page au cadre racine. Un reset
         // `* { margin: 0 }` ecrase ces marges et imprime le contrat bord a
         // bord, avec le texte coupe a droite. Cette regression a deja eu lieu.
         $this->assertStringContainsString('@page { margin:', $html);
         $this->assertDoesNotMatchRegularExpression('/^\s*\*\s*\{\s*margin\s*:/m', $html);
+    }
+
+    public function test_contrat_n_imprime_pas_didentifiants_legaux_fictifs(): void
+    {
+        $html = $this->renderContratHtml();
+
+        // Des RC / IF inventes sur un contrat signe engageraient l'entreprise
+        // sur de fausses mentions legales. Tant que les vraies valeurs ne sont
+        // pas configurees, la ligne doit disparaitre.
+        $this->assertStringNotContainsString('001234567', $html);
+        $this->assertStringNotContainsString('RC :', $html);
+    }
+
+    public function test_contrat_imprime_les_identifiants_legaux_configurees(): void
+    {
+        config([
+            'entreprise.rc' => 'RC-CASA-123',
+            'entreprise.if' => 'IF-987654',
+            'entreprise.ice' => 'ICE-000111222',
+        ]);
+
+        $html = $this->renderContratHtml();
+
+        $this->assertStringContainsString(
+            'RC : RC-CASA-123 - IF : IF-987654 - ICE : ICE-000111222',
+            $html
+        );
+    }
+
+    private function renderContratHtml(): string
+    {
+        $reservation = $this->createReservation($this->createClient(), $this->createVehicule());
+        $reservation->load(['client', 'vehicule', 'agence', 'paiements']);
+
+        return view('pdf.contrat', ['reservation' => $reservation])->render();
     }
 }
