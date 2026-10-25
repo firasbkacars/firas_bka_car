@@ -310,4 +310,11 @@ class SecurityTest extends TestCase
 
         $this->withToken($plain)->getJson('/api/admin/user')->assertUnauthorized();
     }
+
+    public function test_unauthenticated_api_request_returns_json_401_without_accept_header(): void
+    {
+        $this->get('/api/client/notifications')
+            ->assertUnauthorized()
+            ->assertJson(['message' => 'Unauthenticated.']);
+    }
 }
