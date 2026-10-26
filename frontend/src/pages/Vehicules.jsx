@@ -1,21 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { GitCompareArrows, X, ChevronRight } from 'lucide-react';
+import {
+  Calendar, Check, ChevronDown, ChevronRight, Fuel, GitCompareArrows,
+  Search, Settings2, SlidersHorizontal, Users, X,
+} from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
+const SELECT_CLASS =
+  'min-h-11 w-full appearance-none rounded-xl border border-line-strong bg-neutral-800 px-4 pe-10 text-base text-white outline-none transition-colors focus:border-primary sm:text-sm';
+
 function SkeletonCard() {
   return (
-    <div className="bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-52 bg-white/[0.04]" />
-      <div className="p-5 space-y-3">
-        <div className="h-5 bg-white/[0.06] rounded w-2/3" />
-        <div className="h-4 bg-white/[0.04] rounded w-1/2" />
-        <div className="flex justify-between items-center pt-2">
-          <div className="h-6 bg-white/[0.06] rounded w-1/4" />
-          <div className="h-8 bg-white/[0.04] rounded-full w-20" />
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface" aria-hidden="true">
+      <div className="aspect-[16/10] animate-pulse bg-white/[0.04]" />
+      <div className="space-y-3 p-4 md:p-5">
+        <div className="h-5 w-2/3 animate-pulse rounded bg-white/[0.06]" />
+        <div className="h-4 w-1/2 animate-pulse rounded bg-white/[0.04]" />
+        <div className="flex items-center justify-between pt-2">
+          <div className="h-6 w-1/4 animate-pulse rounded bg-white/[0.06]" />
+          <div className="h-8 w-20 animate-pulse rounded-full bg-white/[0.04]" />
         </div>
       </div>
     </div>
@@ -29,7 +35,7 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
-    <div className="group bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-[#dc2626]/40 hover:shadow-xl hover:shadow-[#dc2626]/5 transition-all duration-300 relative">
+    <div className="group relative overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-neutral-700">
       <button
         type="button"
         role="checkbox"
@@ -40,29 +46,25 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
           e.stopPropagation();
           onToggleCompare(v);
         }}
-        className="absolute top-1 right-1 z-10 w-11 h-11 flex items-center justify-center rounded-lg"
+        className="absolute start-1 top-1 z-10 flex h-11 w-11 items-center justify-center rounded-xl"
       >
         <span
-          className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+          className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-colors ${
             isSelected
-              ? 'bg-[#dc2626] border-[#dc2626]'
-              : 'bg-black/50 border-white/30 hover:border-white/60'
+              ? 'border-primary bg-primary'
+              : 'border-line-strong bg-black/50 hover:border-white'
           }`}
         >
-          {isSelected && (
-            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-          )}
+          {isSelected && <Check size={14} className="text-white" aria-hidden="true" />}
         </span>
       </button>
 
-      <FavoriButton vehiculeId={v.id} className="absolute top-1 left-1" />
+      <FavoriButton vehiculeId={v.id} className="absolute end-1 top-1" />
 
       <Link to={`/vehicules/${v.id}`} className="block">
-        <div className="relative h-52 bg-white/[0.02] overflow-hidden">
+        <div className="relative aspect-[16/10] overflow-hidden bg-white/[0.02]">
           {!imgLoaded && (
-            <div className="absolute inset-0 bg-white/[0.03] animate-pulse" />
+            <div className="absolute inset-0 animate-pulse bg-white/[0.03]" aria-hidden="true" />
           )}
           <img
             src={imgSrc}
@@ -70,49 +72,49 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
             loading="lazy"
             onError={() => setImgSrc(FALLBACK_IMG)}
             onLoad={() => setImgLoaded(true)}
-            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`h-full w-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           {v.populaire && (
-            <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[11px] px-2.5 py-1 rounded-full font-semibold tracking-wide uppercase">
+            <span className="absolute bottom-3 start-3 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white">
               Populaire
             </span>
           )}
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
+          <div className="absolute bottom-3 end-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
+              <ChevronRight size={18} aria-hidden="true" />
             </div>
           </div>
         </div>
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="text-white font-semibold text-base group-hover:text-primary-light transition-colors">
+        <div className="p-4 md:p-5">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <h3 className="text-base font-semibold text-white transition-colors group-hover:text-primary-light">
               {v.marque} {v.modele}
             </h3>
-            <span className="text-primary-light font-bold text-lg whitespace-nowrap">
+            <span className="whitespace-nowrap text-lg font-bold tabular-nums text-primary-light">
               {v.prix_jour}
-              <span className="text-xs text-muted font-normal ml-0.5">DH</span>
+              <span className="ms-0.5 text-xs font-normal text-muted">DH</span>
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[13px] text-muted">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span className="flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <Calendar size={12} aria-hidden="true" />
               {v.annee}
             </span>
-            <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>{v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
-            <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>{v.carburant}</span>
-            <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>{v.places} places</span>
+            <span className="flex items-center gap-1.5">
+              <Settings2 size={12} aria-hidden="true" />
+              {v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Fuel size={12} aria-hidden="true" />
+              {v.carburant}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Users size={12} aria-hidden="true" />
+              {v.places} places
+            </span>
           </div>
           {v.description && (
-            <p className="text-muted text-[12px] mt-2.5 line-clamp-2 leading-relaxed">
+            <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-muted">
               {v.description}
             </p>
           )}
@@ -125,21 +127,39 @@ function VehicleCard({ v, isSelected, onToggleCompare }) {
 function EmptyState({ onReset }) {
   return (
     <div className="col-span-full flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-20 h-20 rounded-full bg-white/[0.04] flex items-center justify-center mb-6">
-        <svg className="w-10 h-10 text-muted" fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-line bg-surface">
+        <Search size={40} className="text-muted" aria-hidden="true" />
       </div>
-      <h3 className="text-white font-semibold text-lg mb-2">Aucun véhicule trouvé</h3>
-      <p className="text-muted text-sm max-w-sm mb-6">
+      <h3 className="mb-2 text-lg font-semibold text-white">Aucun véhicule trouvé</h3>
+      <p className="mb-6 max-w-sm text-sm leading-relaxed text-muted">
         Aucun véhicule ne correspond à vos critères de recherche. Essayez de modifier vos filtres.
       </p>
       <button
         onClick={onReset}
-        className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-6 py-2.5 rounded-full text-sm font-medium transition-colors"
+        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
       >
         Réinitialiser les filtres
       </button>
+    </div>
+  );
+}
+
+function FilterSelect({ id, label, value, onChange, children }) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">
+        {label}
+      </label>
+      <div className="relative">
+        <select id={id} value={value} onChange={onChange} className={SELECT_CLASS}>
+          {children}
+        </select>
+        <ChevronDown
+          size={16}
+          aria-hidden="true"
+          className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-muted"
+        />
+      </div>
     </div>
   );
 }
@@ -197,6 +217,15 @@ export default function Vehicules() {
     fetchAgences();
   }, [filters, search, tri]);
 
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setFiltersOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [filtersOpen]);
+
   const fetchVehicules = async () => {
     try {
       setLoading(true);
@@ -253,68 +282,53 @@ export default function Vehicules() {
 
   const FiltersContent = () => (
     <div className="space-y-6">
-      <div>
-        <label htmlFor="f-agence" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-2 block">
-          Agence
-        </label>
-        <select
-          id="f-agence"
-          value={filters.agence_id}
-          onChange={(e) => updateFilter('agence_id', e.target.value)}
-          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
-        >
-          <option value="">Toutes les agences</option>
-          {agences.map((agence) => (
-            <option key={agence.id} value={agence.id}>{agence.nom}</option>
-          ))}
-        </select>
-      </div>
+      <FilterSelect
+        id="f-agence"
+        label="Agence"
+        value={filters.agence_id}
+        onChange={(e) => updateFilter('agence_id', e.target.value)}
+      >
+        <option value="">Toutes les agences</option>
+        {agences.map((agence) => (
+          <option key={agence.id} value={agence.id}>{agence.nom}</option>
+        ))}
+      </FilterSelect>
 
-      <div>
-        <label htmlFor="f-categorie" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-2 block">
-          Catégorie
-        </label>
-        <select
-          id="f-categorie"
-          value={filters.categorie}
-          onChange={(e) => updateFilter('categorie', e.target.value)}
-          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
-        >
-          <option value="">Toutes catégories</option>
-          <option value="Berline">Berline</option>
-          <option value="Compacte">Compacte</option>
-          <option value="Citadine">Citadine</option>
-          <option value="SUV">SUV</option>
-        </select>
-      </div>
+      <FilterSelect
+        id="f-categorie"
+        label="Catégorie"
+        value={filters.categorie}
+        onChange={(e) => updateFilter('categorie', e.target.value)}
+      >
+        <option value="">Toutes catégories</option>
+        <option value="Berline">Berline</option>
+        <option value="Compacte">Compacte</option>
+        <option value="Citadine">Citadine</option>
+        <option value="SUV">SUV</option>
+      </FilterSelect>
 
-      <div>
-        <label htmlFor="f-marque" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-2 block">
-          Marque
-        </label>
-        <select
-          id="f-marque"
-          value={filters.marque}
-          onChange={(e) => updateFilter('marque', e.target.value)}
-          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
-        >
-          <option value="">Toutes marques</option>
-          <option value="BMW">BMW</option>
-          <option value="Mercedes">Mercedes</option>
-          <option value="Audi">Audi</option>
-          <option value="Volkswagen">Volkswagen</option>
-          <option value="Peugeot">Peugeot</option>
-          <option value="Renault">Renault</option>
-          <option value="Toyota">Toyota</option>
-          <option value="Hyundai">Hyundai</option>
-        </select>
-      </div>
+      <FilterSelect
+        id="f-marque"
+        label="Marque"
+        value={filters.marque}
+        onChange={(e) => updateFilter('marque', e.target.value)}
+      >
+        <option value="">Toutes marques</option>
+        <option value="BMW">BMW</option>
+        <option value="Mercedes">Mercedes</option>
+        <option value="Audi">Audi</option>
+        <option value="Volkswagen">Volkswagen</option>
+        <option value="Peugeot">Peugeot</option>
+        <option value="Renault">Renault</option>
+        <option value="Toyota">Toyota</option>
+        <option value="Hyundai">Hyundai</option>
+      </FilterSelect>
 
-      <div>
-        <span className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-3 block">
+      <fieldset>
+        <legend className="mb-3 block text-xs font-medium uppercase tracking-wider text-muted">
           Transmission
-        </span>
-        <div className="space-y-2">
+        </legend>
+        <div className="space-y-1">
           {[
             { value: '', label: 'Tous' },
             { value: 'automatique', label: 'Automatique' },
@@ -322,15 +336,15 @@ export default function Vehicules() {
           ].map((opt) => (
             <label
               key={opt.value}
-              className="flex items-center gap-3 text-sm text-white/70 cursor-pointer group/radio"
+              className="group/radio flex min-h-11 cursor-pointer items-center gap-3 text-sm text-muted transition-colors hover:text-white"
             >
-              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+              <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
                 filters.transmission === opt.value
-                  ? 'border-[#dc2626] bg-[#dc2626]'
-                  : 'border-white/20 group-hover/radio:border-white/40'
+                  ? 'border-primary bg-primary'
+                  : 'border-line-strong group-hover/radio:border-white'
               }`}>
                 {filters.transmission === opt.value && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 )}
               </span>
               <input
@@ -345,13 +359,13 @@ export default function Vehicules() {
             </label>
           ))}
         </div>
-      </div>
+      </fieldset>
 
-      <div>
-        <span className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-3 block">
+      <fieldset>
+        <legend className="mb-3 block text-xs font-medium uppercase tracking-wider text-muted">
           Carburant
-        </span>
-        <div className="space-y-2">
+        </legend>
+        <div className="space-y-1">
           {[
             { value: '', label: 'Tous' },
             { value: 'essence', label: 'Essence' },
@@ -360,15 +374,15 @@ export default function Vehicules() {
           ].map((opt) => (
             <label
               key={opt.value}
-              className="flex items-center gap-3 text-sm text-white/70 cursor-pointer group/radio"
+              className="group/radio flex min-h-11 cursor-pointer items-center gap-3 text-sm text-muted transition-colors hover:text-white"
             >
-              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+              <span className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
                 filters.carburant === opt.value
-                  ? 'border-[#dc2626] bg-[#dc2626]'
-                  : 'border-white/20 group-hover/radio:border-white/40'
+                  ? 'border-primary bg-primary'
+                  : 'border-line-strong group-hover/radio:border-white'
               }`}>
                 {filters.carburant === opt.value && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 )}
               </span>
               <input
@@ -383,14 +397,14 @@ export default function Vehicules() {
             </label>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="f-prix" className="text-white/70 text-[11px] font-medium uppercase tracking-wider">
+        <div className="mb-2 flex items-center justify-between">
+          <label htmlFor="f-prix" className="text-xs font-medium uppercase tracking-wider text-muted">
             Prix max / jour
           </label>
-          <span className="text-primary-light text-xs font-semibold">
+          <span className="text-xs font-semibold tabular-nums text-primary-light">
             {filters.prix_max ? `${filters.prix_max} DH` : '1500 DH'}
           </span>
         </div>
@@ -402,9 +416,9 @@ export default function Vehicules() {
           step="50"
           value={filters.prix_max || 1500}
           onChange={(e) => updateFilter('prix_max', e.target.value === '1500' ? '' : e.target.value)}
-          className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#dc2626]"
+          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-primary"
         />
-        <div className="flex justify-between text-xs text-muted mt-1">
+        <div className="mt-1 flex justify-between text-xs tabular-nums text-muted">
           <span>200 DH</span>
           <span>1500 DH</span>
         </div>
@@ -413,7 +427,7 @@ export default function Vehicules() {
       {activeFilterCount > 0 && (
         <button
           onClick={resetFilters}
-          className="w-full py-2.5 rounded-xl text-sm font-medium border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-all"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-neutral-700 bg-neutral-800 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
         >
           Réinitialiser ({activeFilterCount})
         </button>
@@ -422,7 +436,7 @@ export default function Vehicules() {
   );
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-dvh bg-dark-bg">
       {/* Hero Banner */}
       <div className="relative overflow-hidden">
         <img
@@ -430,30 +444,22 @@ export default function Vehicules() {
           alt=""
           aria-hidden="true"
           loading="eager"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black" />
+        <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-dark-bg" aria-hidden="true" />
 
-        <div className="relative z-10 pt-24 pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="relative z-10 pb-16 pt-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
-            <nav className="text-[13px] text-muted mb-6" aria-label="Breadcrumb">
-              <ol className="flex items-center gap-2">
-                <li>
-                  <Link to="/" className="hover:text-white transition-colors">Accueil</Link>
-                </li>
-                <li>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </li>
-                <li className="text-white/70">Nos véhicules</li>
-              </ol>
+            <nav className="mb-6 flex items-center gap-2 text-xs text-muted" aria-label="Fil d'Ariane">
+              <Link to="/" className="transition-colors hover:text-white">Accueil</Link>
+              <ChevronRight size={12} aria-hidden="true" className="rtl:rotate-180" />
+              <span className="text-white" aria-current="page">Nos véhicules</span>
             </nav>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Notre flotte</h1>
-            <p className="text-white/70 text-sm sm:text-base max-w-lg">
+            <h1 className="mb-2 text-2xl font-bold tracking-tight text-white md:text-3xl">Notre flotte</h1>
+            <p className="max-w-lg text-sm leading-relaxed text-muted sm:text-base">
               Découvrez notre sélection de véhicules récents et bien entretenus.
             </p>
           </div>
@@ -461,15 +467,15 @@ export default function Vehicules() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className={`mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 ${compareList.length > 0 ? 'pb-32' : ''}`}>
+        <div className="flex flex-col gap-8 lg:flex-row">
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 shrink-0">
-            <div className="sticky top-28 bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-white font-semibold text-sm">Filtres</h3>
+          <aside className="hidden w-72 shrink-0 lg:block">
+            <div className="sticky top-28 rounded-2xl border border-line bg-surface p-6">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-white">Filtres</h2>
                 {activeFilterCount > 0 && (
-                  <span className="w-5 h-5 bg-[#dc2626] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
                     {activeFilterCount}
                   </span>
                 )}
@@ -482,14 +488,12 @@ export default function Vehicules() {
           <div className="lg:hidden">
             <button
               onClick={() => setFiltersOpen(true)}
-              className="flex items-center gap-2 bg-[#111] border border-white/[0.08] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:border-white/15 transition-colors"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-white transition-colors hover:border-neutral-700"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-              </svg>
+              <SlidersHorizontal size={16} aria-hidden="true" />
               Filtres
               {activeFilterCount > 0 && (
-                <span className="w-5 h-5 bg-[#dc2626] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
                   {activeFilterCount}
                 </span>
               )}
@@ -499,14 +503,25 @@ export default function Vehicules() {
           {/* Mobile Filters Drawer */}
           {filtersOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} />
-              <div className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-[#111] border-l border-white/[0.08] p-6 overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-white font-semibold">Filtres</h3>
-                  <button onClick={() => setFiltersOpen(false)} className="text-muted hover:text-white transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+              <div
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                onClick={() => setFiltersOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Filtres"
+                className="absolute inset-y-0 end-0 w-80 max-w-[85vw] overflow-y-auto border-s border-line bg-surface p-6"
+              >
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="font-semibold text-white">Filtres</h2>
+                  <button
+                    onClick={() => setFiltersOpen(false)}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white"
+                    aria-label="Fermer les filtres"
+                  >
+                    <X size={20} aria-hidden="true" />
                   </button>
                 </div>
                 <FiltersContent />
@@ -515,45 +530,49 @@ export default function Vehicules() {
           )}
 
           {/* Main Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Toolbar */}
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-muted text-sm">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <span className="text-sm text-muted">
                 {loading ? '...' : `${total} véhicule${total !== 1 ? 's' : ''} trouvé${total !== 1 ? 's' : ''}`}
               </span>
-              <div className="flex items-center gap-3">
+              <div className="relative">
                 <label htmlFor="tri" className="sr-only">Trier par</label>
                 <select
                   id="tri"
                   value={tri}
                   onChange={(e) => setTri(e.target.value)}
-                  className="bg-[#111] border border-white/[0.08] rounded-xl px-4 py-2 text-white text-sm focus:border-[#dc2626]/50 outline-none transition-all appearance-none cursor-pointer pr-8"
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
+                  className={`${SELECT_CLASS} pe-10`}
                 >
                   <option value="popularite">Popularité</option>
                   <option value="prix_asc">Prix croissant</option>
                   <option value="prix_desc">Prix décroissant</option>
                   <option value="annee">Année</option>
                 </select>
+                <ChevronDown
+                  size={16}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-muted"
+                />
               </div>
             </div>
 
             {/* Criteria coming from the home search bar / footer links */}
             {searchChips.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-6">
+              <div className="mb-6 flex flex-wrap items-center gap-2">
                 {searchChips.map((chip) => (
                   <button
                     key={chip.key}
                     onClick={() => removeSearchParam(chip.key, chip.scope)}
-                    className="group flex items-center gap-1.5 bg-[#dc2626]/10 border border-[#dc2626]/30 text-primary-light text-xs font-medium px-3 py-1.5 rounded-full hover:bg-[#dc2626]/20 transition"
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 text-xs font-medium text-primary-light transition-colors hover:bg-primary/20"
                   >
                     {chip.label}
-                    <X size={12} className="group-hover:scale-125 transition-transform" />
+                    <X size={14} aria-hidden="true" />
                   </button>
                 ))}
                 <button
                   onClick={resetFilters}
-                  className="text-muted text-xs hover:text-white underline underline-offset-2 transition"
+                  className="inline-flex min-h-11 items-center px-2 text-xs text-muted underline underline-offset-2 transition-colors hover:text-white"
                 >
                   Tout effacer
                 </button>
@@ -562,7 +581,7 @@ export default function Vehicules() {
 
             {/* Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
@@ -570,7 +589,7 @@ export default function Vehicules() {
             ) : vehicules.length === 0 ? (
               <EmptyState onReset={resetFilters} />
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
                 {vehicules.map((v) => (
                   <VehicleCard
                     key={v.id}
@@ -587,22 +606,23 @@ export default function Vehicules() {
 
       {/* Floating Compare Bar */}
       {compareList.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#111] border-t border-white/[0.1] shadow-2xl shadow-black/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface shadow-2xl shadow-black/50">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3 overflow-x-auto">
-                <GitCompareArrows size={18} className="text-primary-light shrink-0" />
-                <span className="text-white/60 text-sm shrink-0">
-                  {compareList.length}/3 selected
+                <GitCompareArrows size={18} className="shrink-0 text-primary-light" aria-hidden="true" />
+                <span className="shrink-0 text-sm text-muted">
+                  {compareList.length}/3 sélectionnés
                 </span>
                 {compareList.map(v => (
-                  <div key={v.id} className="flex items-center gap-2 bg-white/[0.06] px-3 py-1.5 rounded-full shrink-0">
-                    <span className="text-white text-sm">{v.marque} {v.modele}</span>
+                  <div key={v.id} className="flex shrink-0 items-center gap-1 rounded-full border border-line bg-white/5 ps-3">
+                    <span className="text-sm text-white">{v.marque} {v.modele}</span>
                     <button
                       onClick={() => removeFromCompare(v.id)}
-                      className="text-muted hover:text-red-400 transition-colors"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-danger"
+                      aria-label={`Retirer ${v.marque} ${v.modele} de la comparaison`}
                     >
-                      <X size={14} />
+                      <X size={14} aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -610,14 +630,14 @@ export default function Vehicules() {
               <button
                 onClick={goToCompare}
                 disabled={compareList.length < 2}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shrink-0 ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors ${
                   compareList.length >= 2
-                    ? 'bg-[#dc2626] hover:bg-[#b91c1c] text-white'
-                    : 'bg-white/[0.06] text-disabled cursor-not-allowed'
+                    ? 'bg-primary text-white hover:bg-primary-dark'
+                    : 'cursor-not-allowed bg-white/5 text-disabled'
                 }`}
               >
                 Comparer ({compareList.length})
-                <ChevronRight size={16} />
+                <ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>
           </div>

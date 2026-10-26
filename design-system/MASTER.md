@@ -409,8 +409,11 @@ Ordre de migration recommandé :
 3. Espace client : `TableauDeBord`, `Profil`, `Messagerie`.
 4. Admin : tableaux, filtres, dashboard, formulaires.
 
-Statut (octobre 2026) : le lot 1 est migré (`Header`, `Footer`, `Modal`,
-`PageHeader`, `DocumentUpload`).
+Statut (octobre 2026) : les lots 1 et 2 sont migrés (`Header`, `Footer`, `Modal`,
+`PageHeader`, `DocumentUpload`, `Home`, `Vehicules`, `VehiculeDetail`, `Finalisation`).
+Les pages publiques ont été vérifiées à 375 px et 1440 px : aucun débordement
+horizontal, et sur `Finalisation` les conditions + le CTA sont dans la colonne de
+résumé (plus de bloc orphelin dans la grille).
 
 Après chaque lot : `npm run build`, `npm test`, vérification visuelle à 375 px et
 1440 px, et contrôle du contraste des nouveaux états.

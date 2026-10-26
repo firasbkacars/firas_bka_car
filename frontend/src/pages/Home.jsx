@@ -19,6 +19,9 @@ const BRANDS = [
   { name: 'Dacia', logo: '/images/brands/dacia.svg', w: 'w-28' },
 ];
 
+const FIELD_CLASS =
+  'min-h-11 w-full rounded-xl border border-line-strong bg-neutral-800 px-3 text-base text-white outline-none transition-colors placeholder:text-placeholder focus:border-primary sm:text-sm';
+
 function VehicleCard({ v }) {
   const photo = v.photos?.[0];
   const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
@@ -27,42 +30,42 @@ function VehicleCard({ v }) {
   return (
     <Link
       to={`/vehicules/${v.id}`}
-      className="group bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-[#dc2626]/40 transition-all duration-300 hover:-translate-y-1"
+      className="group overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-neutral-700"
     >
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={imgSrc}
           alt={`${v.marque} ${v.modele}`}
           loading="lazy"
           onError={() => setImgSrc(FALLBACK_IMG)}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-        <FavoriButton vehiculeId={v.id} className="absolute top-1 right-1" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" aria-hidden="true" />
+        <FavoriButton vehiculeId={v.id} className="absolute end-1 top-1" />
         {v.populaire && (
-          <span className="absolute top-3 left-3 bg-[#dc2626] text-white text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
-            <Star size={10} fill="currentColor" /> Populaire
+          <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+            <Star size={12} fill="currentColor" aria-hidden="true" /> Populaire
           </span>
         )}
-        <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-          <span className="text-primary-light font-bold text-base">{v.prix_jour}</span>
-          <span className="text-muted text-xs ml-0.5">DH/j</span>
+        <div className="absolute bottom-3 end-3 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
+          <span className="text-base font-bold tabular-nums text-primary-light">{v.prix_jour}</span>
+          <span className="ms-0.5 text-xs text-muted">DH/j</span>
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-white font-bold text-base group-hover:text-primary-light transition-colors">
+      <div className="p-4 md:p-5">
+        <h3 className="text-base font-semibold text-white transition-colors group-hover:text-primary-light">
           {v.marque} {v.modele}
         </h3>
-        <div className="flex items-center gap-3 mt-2 text-muted text-xs">
-          <span className="flex items-center gap-1"><Calendar size={12} /> {v.annee}</span>
-          <span className="flex items-center gap-1"><Settings2 size={12} /> {v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
-          <span className="flex items-center gap-1"><Fuel size={12} /> {v.carburant}</span>
-          <span className="flex items-center gap-1"><Users size={12} /> {v.places}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+          <span className="flex items-center gap-1"><Calendar size={12} aria-hidden="true" /> {v.annee}</span>
+          <span className="flex items-center gap-1"><Settings2 size={12} aria-hidden="true" /> {v.transmission === 'automatique' ? 'Auto' : 'Manuelle'}</span>
+          <span className="flex items-center gap-1"><Fuel size={12} aria-hidden="true" /> {v.carburant}</span>
+          <span className="flex items-center gap-1"><Users size={12} aria-hidden="true" /> {v.places}</span>
         </div>
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-muted text-xs">Disponible</span>
-          <span className="text-primary-light text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-            Details <ChevronRight size={12} />
+          <span className="text-xs text-muted">Disponible</span>
+          <span className="flex items-center gap-1 text-xs font-semibold text-primary-light">
+            Details <ChevronRight size={12} aria-hidden="true" />
           </span>
         </div>
       </div>
@@ -72,9 +75,9 @@ function VehicleCard({ v }) {
 
 function VehicleCardSkeleton() {
   return (
-    <div className="bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden" aria-hidden="true">
-      <Skeleton className="h-56 w-full rounded-none" />
-      <div className="p-4 space-y-3">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface" aria-hidden="true">
+      <Skeleton className="aspect-[16/10] w-full rounded-none" />
+      <div className="space-y-3 p-4 md:p-5">
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-3 w-1/2" />
         <Skeleton className="h-3 w-full" />
@@ -118,41 +121,40 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-end overflow-hidden">
+      <section className="relative flex min-h-[90dvh] items-end overflow-hidden">
         <img
           src="/images/hero-bg.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           onError={(e) => { e.target.style.display = 'none'; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/70 to-dark-bg/30" aria-hidden="true" />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pb-20 pt-32">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <span className="inline-block bg-[#dc2626]/10 border border-[#dc2626]/30 text-primary-light text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-6">
+            <span className="mb-6 inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary-light">
               Location de vehicules au Maroc
             </span>
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
+            <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
               Louez la
               <br />
               <span className="text-primary-light">voiture</span>
               <br />
               qui vous correspond
             </h1>
-            <p className="text-white/70 text-lg mt-6 max-w-md leading-relaxed">
+            <p className="mt-6 max-w-md text-base leading-relaxed text-muted md:text-lg">
               Des vehicules premium, un service fiable et des prix transparents. Reservez en quelques clics.
             </p>
-            <div className="flex items-center gap-4 mt-8">
+            <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 to="/vehicules"
-                className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold px-8 py-3.5 rounded-xl transition text-sm"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
               >
                 Voir les vehicules
               </Link>
               <a
                 href="#recherche"
-                className="bg-white/[0.06] hover:bg-white/[0.1] text-white/70 font-semibold px-8 py-3.5 rounded-xl transition text-sm border border-white/[0.06]"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-neutral-700 bg-neutral-800 px-6 text-sm font-semibold text-white transition-colors hover:bg-neutral-700"
               >
                 Reserver maintenant
               </a>
@@ -162,71 +164,96 @@ export default function Home() {
       </section>
 
       {/* Search Bar - Overlapping */}
-      <section id="recherche" className="relative z-20 -mt-8 px-6 md:px-12">
-        <form onSubmit={handleSearch} className="max-w-7xl mx-auto bg-[#111] border border-white/[0.08] rounded-2xl p-6 md:p-8 shadow-2xl shadow-black/50">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div>
-              <span className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin size={12} className="text-primary-light" /> Lieu de prise
-              </span>
-              <div id="ctl-174" className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white/80 text-sm">
-                Tanger
+      <section id="recherche" className="relative z-20 -mt-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <form
+            onSubmit={handleSearch}
+            className="rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/40 md:p-6"
+          >
+            <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-4">
+              <div>
+                <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
+                  <MapPin size={12} className="text-primary-light" aria-hidden="true" /> Lieu de prise
+                </span>
+                <div className="flex min-h-11 w-full items-center rounded-xl border border-line-strong bg-neutral-800 px-3 text-sm text-white">
+                  Tanger
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Calendar size={12} className="text-primary-light" /> Date & Heure
-              </label>
-              <div className="flex gap-2">
-                <input aria-label="Date & Heure de prise en charge" type="date" value={search.datePrise} onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
-                  className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                <input aria-label="Heure de prise en charge" type="time" value={search.heurePrise} onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
-                  className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+              <div>
+                <label className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
+                  <Calendar size={12} className="text-primary-light" aria-hidden="true" /> Date & Heure
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    aria-label="Date & Heure de prise en charge"
+                    type="date"
+                    value={search.datePrise}
+                    onChange={(e) => setSearch({ ...search, datePrise: e.target.value })}
+                    className={`${FIELD_CLASS} flex-1`}
+                  />
+                  <input
+                    aria-label="Heure de prise en charge"
+                    type="time"
+                    value={search.heurePrise}
+                    onChange={(e) => setSearch({ ...search, heurePrise: e.target.value })}
+                    className={`${FIELD_CLASS} w-28`}
+                  />
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="text-muted text-xs font-medium uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin size={12} className="text-muted" /> Retour
-              </label>
-              <div className="flex gap-2">
-                <input aria-label="Date & Heure de retour" type="date" value={search.dateRetour} onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
-                  className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
-                <input aria-label="Heure de retour" type="time" value={search.heureRetour} onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
-                  className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-3 text-white text-sm focus:border-[#dc2626] outline-none transition" />
+              <div>
+                <label className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
+                  <MapPin size={12} className="text-muted" aria-hidden="true" /> Retour
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    aria-label="Date & Heure de retour"
+                    type="date"
+                    value={search.dateRetour}
+                    onChange={(e) => setSearch({ ...search, dateRetour: e.target.value })}
+                    className={`${FIELD_CLASS} flex-1`}
+                  />
+                  <input
+                    aria-label="Heure de retour"
+                    type="time"
+                    value={search.heureRetour}
+                    onChange={(e) => setSearch({ ...search, heureRetour: e.target.value })}
+                    className={`${FIELD_CLASS} w-28`}
+                  />
+                </div>
               </div>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Rechercher
+              </button>
             </div>
-            <button
-              type="submit"
-              className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-3 rounded-lg transition text-sm tracking-wide h-[46px]"
-            >
-              Rechercher
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </section>
 
       {/* Brands */}
-      <section className="py-14 px-6 md:px-12 mt-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-muted text-[10px] uppercase tracking-[0.3em] font-medium mb-8">Nos marques partenaires</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+      <section className="px-4 py-14 sm:px-6 md:pt-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <p className="mb-8 text-center text-xs font-medium uppercase tracking-[0.25em] text-muted">Nos marques partenaires</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             {BRANDS.map((brand, i) => (
               <div
                 key={i}
-                className={`group flex items-center justify-center h-14 ${brand.w || 'w-16'} shrink-0 opacity-55 hover:opacity-100 transition-all duration-300`}
+                className={`group flex h-14 shrink-0 items-center justify-center opacity-60 transition-opacity hover:opacity-100 ${brand.w || 'w-16'}`}
                 title={brand.name}
               >
                 <img
                   src={brand.logo}
                   alt={brand.name}
                   loading="lazy"
-                  className="max-h-11 max-w-full object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition duration-300"
+                  className="max-h-11 max-w-full object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'block';
                   }}
                 />
-                <span className="hidden text-white/60 text-xs font-semibold uppercase tracking-widest">
+                <span className="hidden text-xs font-semibold uppercase tracking-widest text-muted">
                   {brand.name}
                 </span>
               </div>
@@ -236,20 +263,20 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-8 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-3">
           {[
-            { icon: <Car size={20} className="text-primary-light" />, title: 'Meilleurs prix', desc: 'Tarifs competitifs toute l\'annee, sans frais caches.' },
-            { icon: <Shield size={20} className="text-primary-light" />, title: 'Vehicules recents', desc: 'Confort, securite et performance garantis.' },
-            { icon: <Headphones size={20} className="text-primary-light" />, title: 'Support 7j/7', desc: 'Une equipe disponible pour vous accompagner.' },
-          ].map((f, i) => (
-            <div key={i} className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-[#dc2626]/20 transition">
-              <div className="shrink-0 w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center">
-                {f.icon}
+            { icon: Car, title: 'Meilleurs prix', desc: 'Tarifs competitifs toute l\'annee, sans frais caches.' },
+            { icon: Shield, title: 'Vehicules recents', desc: 'Confort, securite et performance garantis.' },
+            { icon: Headphones, title: 'Support 7j/7', desc: 'Une equipe disponible pour vous accompagner.' },
+          ].map((f) => (
+            <div key={f.title} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-neutral-700">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <f.icon size={20} className="text-primary-light" aria-hidden="true" />
               </div>
               <div>
-                <h3 className="text-white font-semibold text-sm">{f.title}</h3>
-                <p className="text-muted text-xs mt-0.5">{f.desc}</p>
+                <h3 className="text-sm font-semibold text-white">{f.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -258,22 +285,22 @@ export default function Home() {
 
       {/* Popular Vehicles */}
       {(populairesLoading || vehiculesPopulaires.length > 0) && (
-        <section className="py-16 px-6 md:px-12" aria-busy={populairesLoading}>
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-end justify-between mb-10">
+        <section className="px-4 py-16 sm:px-6 md:py-24 lg:px-8" aria-busy={populairesLoading}>
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 flex items-end justify-between">
               <div>
-                <span className="text-primary-light text-xs font-bold uppercase tracking-wider">Flotte</span>
-                <h2 className="text-3xl sm:text-4xl font-black text-white mt-1">Vehicules populaires</h2>
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary-light">Flotte</span>
+                <h2 className="mt-1 text-2xl font-bold tracking-tight text-white md:text-3xl">Vehicules populaires</h2>
               </div>
               <Link
                 to="/vehicules"
-                className="hidden sm:flex items-center gap-1.5 text-primary-light font-semibold text-sm hover:gap-2.5 transition-all"
+                className="hidden items-center gap-1.5 text-sm font-semibold text-primary-light transition-colors hover:text-white sm:flex"
               >
-                Tout voir <ChevronRight size={16} />
+                Tout voir <ChevronRight size={16} aria-hidden="true" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
               {populairesLoading
                 ? Array.from({ length: 4 }).map((_, i) => <VehicleCardSkeleton key={i} />)
                 : vehiculesPopulaires.slice(0, 4).map((v) => <VehicleCard key={v.id} v={v} />)}
@@ -281,26 +308,25 @@ export default function Home() {
 
             <Link
               to="/vehicules"
-              className="sm:hidden flex items-center justify-center gap-1.5 text-primary-light font-semibold text-sm mt-8"
+              className="mt-8 flex items-center justify-center gap-1.5 text-sm font-semibold text-primary-light sm:hidden"
             >
-              Tout voir <ChevronRight size={16} />
+              Tout voir <ChevronRight size={16} aria-hidden="true" />
             </Link>
           </div>
         </section>
       )}
 
       {/* CTA */}
-      <section className="px-6 md:px-12 pb-20">
-        <div className="max-w-7xl mx-auto bg-gradient-to-br from-[#dc2626] to-[#991b1b] rounded-2xl p-10 md:p-14 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover opacity-10 mix-blend-overlay" />
+      <section className="px-4 pb-20 sm:px-6 md:pb-24 lg:px-8">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl border border-primary/25 bg-primary/10 p-10 text-center md:p-14">
           <div className="relative z-10">
-            <h2 className="text-white text-3xl md:text-4xl font-black">Pret a rouler ?</h2>
-            <p className="text-white/70 mt-3 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Pret a rouler ?</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted md:text-base">
               Parcourez notre flotte et trouvez le vehicule ideal pour votre prochain trajet.
             </p>
             <Link
               to="/vehicules"
-              className="inline-block bg-white text-primary-light font-bold px-10 py-3.5 rounded-xl mt-8 hover:bg-gray-100 transition text-sm"
+              className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-6 text-sm font-semibold text-primary-dark transition-colors hover:bg-neutral-100"
             >
               Explorer la flotte
             </Link>
