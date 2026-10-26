@@ -94,13 +94,18 @@ body {
   color: #ffffff;
 }
 
-/* —— Selects (toute l'application) —— */
-select {
-  color-scheme: dark;
-  background-color: #111111;
-  color: #ffffff;
-  border-color: #2a2a2a;
-  appearance: auto;
+/* —— Selects (toute l'application) ——
+   Dans @layer base pour que les utilitaires Tailwind (bg-*, border-*, text-*)
+   puissent surcharger ces valeurs. `appearance` n'est volontairement pas forcé :
+   les selects qui affichent un chevron Lucide utilisent `appearance-none`,
+   les autres conservent la flèche native du navigateur. */
+@layer base {
+  select {
+    color-scheme: dark;
+    background-color: #111111;
+    color: #ffffff;
+    border-color: #2a2a2a;
+  }
 }
 
 select:focus,
@@ -131,10 +136,6 @@ select::-ms-expand {
 }
 
 @-moz-document url-prefix() {
-  select {
-    background-color: #111111 !important;
-    color: #ffffff !important;
-  }
   select option {
     background-color: #111111 !important;
     color: #ffffff !important;

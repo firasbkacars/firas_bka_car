@@ -246,7 +246,10 @@ bouton cliquable sans retour visuel.
 - Label **visible** au-dessus du champ (jamais un placeholder comme label).
 - Erreur **sous le champ**, avec `aria-invalid="true"` et `aria-describedby`.
 - Aide persistante pour les champs complexes (CIN, permis, caution).
-- `select` : mêmes styles + chevron Lucide, `appearance-none`.
+- `select` : mêmes styles + chevron Lucide, `appearance-none`. Le CSS global
+  (`index.css`, `@layer base`) ne force jamais `appearance` : les selects sans
+  chevron gardent la flèche native, ceux avec chevron la retirent. Ne jamais
+  remettre `select { appearance: auto }` (duplique la flèche).
 - `textarea` : `min-h-28 py-3`.
 - Checkbox/radio : 20 px, `accent-primary`, ligne cliquable de 44 px.
 - Valider au `blur`, pas à chaque frappe. Après erreur de soumission, focus sur le
@@ -261,12 +264,17 @@ transition-colors hover:border-neutral-700
 ```
 
 - Image `aspect-[16/10] object-cover`, `loading="lazy"` sauf le premier écran.
-- Badge disponibilité en haut à gauche ; favori en haut à droite (44 px).
-- Contenu `p-4 md:p-5` : marque/modèle (`text-base font-semibold`), specs
-  (`text-xs text-muted`), prix (`text-lg font-bold tabular-nums`) + `/jour`.
-- CTA pleine largeur en bas ou flèche circulaire ; toute la carte est cliquable
-  mais le CTA reste un lien réel (pas un `div` avec `onClick`).
-- Pas d'ombre lourde ; le survol change la bordure, pas la taille.
+- Comparaison (case 44 px) en haut à gauche ; favori 44 px en haut à droite.
+- Badge « Populaire » en bas à gauche, disponibilité en bas à droite, sur
+  `bg-black/60 backdrop-blur-sm`.
+- Contenu `p-4 md:p-5` : marque en
+  `text-xs uppercase tracking-[0.16em] text-ink-subtle`, modèle
+  `text-lg font-semibold`, specs `text-xs text-muted` en grille 2×2, prix
+  `text-xl font-bold tabular-nums` + `/jour`.
+- CTA compact « Détails » aligné au prix. Toute la carte est un lien réel ; le
+  CTA est un `span` dans ce lien, jamais un `div` avec `onClick`.
+- Pas d'ombre lourde ; le survol change la bordure et teinte le CTA en
+  `bg-primary`, sans changer la taille de la carte.
 
 ### 8.4 Badges de statut
 
@@ -328,6 +336,21 @@ mobile en bas. Disparition automatique après 4 s, pause au survol.
 - Squelette : `animate-pulse rounded-lg bg-white/[0.06]`, avec la **hauteur exacte**
   du contenu final (évite le CLS).
 - Spinner bloquant interdit au-delà de 1 s : préférer un squelette.
+
+### 8.10 Catalogue flotte (`/vehicules`)
+
+- Sidebar 288 px (`lg:w-72`), carte sticky `lg:top-24`, contenu scrollable
+  `lg:max-h-[calc(100dvh-12rem)]`. Filtres transmission/carburant en pills de
+  44 px (`OptionPill`), sélection = `border-primary bg-primary/10` + point rouge.
+- Mobile : bouton « Filtres » + bottom sheet `max-h-[88dvh]` ; scroll verrouillé,
+  focus trap, Échap, focus rendu au déclencheur. Pied collant avec
+  « Réinitialiser » et « Voir les résultats ».
+- Toolbar : compteur `aria-live`, tri avec chevron Lucide, chips de filtres actifs
+  (une chip = un retrait), « Tout effacer ».
+- Barre de comparaison fixe : 3 véhicules max, bouton désactivé sous 2,
+  `pb-44` sur la page pour ne rien masquer.
+- Squelettes de même hauteur que la carte ; état d'erreur avec « Réessayer » et
+  état vide avec réinitialisation.
 
 ---
 
@@ -414,6 +437,12 @@ Statut (octobre 2026) : les lots 1 et 2 sont migrés (`Header`, `Footer`, `Modal
 Les pages publiques ont été vérifiées à 375 px et 1440 px : aucun débordement
 horizontal, et sur `Finalisation` les conditions + le CTA sont dans la colonne de
 résumé (plus de bloc orphelin dans la grille).
+
+La page `/vehicules` a été refondue (sidebar sticky, pills de filtres, chips
+actifs, bottom sheet mobile, barre de comparaison) et revérifiée à 375/1440 px.
+La flèche dupliquée des selects est corrigée à la source : la règle
+`select { appearance: auto }` a été retirée de `index.css`, et les selects sans
+chevron Lucide (admin `Reservations`) conservent la flèche native.
 
 Après chaque lot : `npm run build`, `npm test`, vérification visuelle à 375 px et
 1440 px, et contrôle du contraste des nouveaux états.

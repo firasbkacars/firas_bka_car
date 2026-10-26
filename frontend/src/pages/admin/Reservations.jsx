@@ -309,7 +309,7 @@ export default function AdminReservations() {
           <select aria-label="Filtrer par statut"
             value={filterStatut}
             onChange={(e) => setFilterStatut(e.target.value)}
-            className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition appearance-none cursor-pointer"
+            className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition cursor-pointer"
           >
             <option value="">Tous les statuts</option>
             <option value="confirmee">Confirmée</option>
@@ -321,7 +321,7 @@ export default function AdminReservations() {
           <select aria-label="Filtrer par véhicule"
             value={filterVehicule}
             onChange={(e) => setFilterVehicule(e.target.value)}
-            className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition appearance-none cursor-pointer"
+            className="bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition cursor-pointer"
           >
             <option value="">Tous les véhicules</option>
             {uniqueVehicules.map(([id, label]) => (
