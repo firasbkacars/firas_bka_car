@@ -316,7 +316,9 @@ mobile en bas. Disparition automatique après 4 s, pause au survol.
   `bg-dark-bg/90 backdrop-blur`.
 - Lien actif : `text-white` + soulignement ou point rouge ; inactif : `text-muted`.
 - Menu mobile : plein écran, focus trap, Échap, verrouillage du scroll.
-- Sidebar admin : 240 px, item actif `bg-primary/10 text-primary-light`.
+- Sidebar admin : 240 px, item actif `bg-primary/10 text-primary-light` sur `surface`
+  (#141414, 4.59:1). Sur `surface-raised` (#1C1C1C), le même fond fait tomber le
+  contraste à 4.25:1 : utiliser `bg-primary/10 font-semibold text-white`.
 - Maximum 5 entrées dans une barre de navigation mobile.
 - Séparer visuellement les actions dangereuses (déconnexion, suppression).
 
@@ -406,6 +408,9 @@ Ordre de migration recommandé :
 2. Pages publiques : `Home`, `Vehicules`, `VehiculeDetail`, `Finalisation`.
 3. Espace client : `TableauDeBord`, `Profil`, `Messagerie`.
 4. Admin : tableaux, filtres, dashboard, formulaires.
+
+Statut (octobre 2026) : le lot 1 est migré (`Header`, `Footer`, `Modal`,
+`PageHeader`, `DocumentUpload`).
 
 Après chaque lot : `npm run build`, `npm test`, vérification visuelle à 375 px et
 1440 px, et contrôle du contraste des nouveaux états.

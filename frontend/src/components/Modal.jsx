@@ -101,17 +101,17 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
-        className={`relative w-full ${sizes[size]} bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl modal-in outline-none ${className}`}
+        className={`relative w-full ${sizes[size]} rounded-t-2xl border border-line bg-surface-raised p-6 shadow-2xl outline-none modal-in sm:rounded-2xl ${className}`}
       >
         {title && (
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h2 id={titleId} className="text-white font-semibold leading-snug">
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <h2 id={titleId} className="text-base font-semibold leading-snug text-white">
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 -mt-1 -mr-1 p-1 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-colors"
+              className="-me-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white"
               aria-label="Fermer"
             >
               <X size={18} aria-hidden="true" />

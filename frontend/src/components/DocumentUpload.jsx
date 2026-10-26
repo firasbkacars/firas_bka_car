@@ -8,27 +8,27 @@ import { DOCUMENT_PHOTO_ACCEPT, validateDocumentPhotoFile } from '../lib/documen
 const STATUTS = {
   valide: {
     label: 'Validé',
-    className: 'bg-green-500/10 border-green-500/20 text-green-400',
+    className: 'border-success/20 bg-success/10 text-success',
     icon: CheckCircle2,
   },
   en_attente: {
     label: 'En attente de validation',
-    className: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400',
+    className: 'border-warning/20 bg-warning/10 text-warning',
     icon: AlertTriangle,
   },
   rejete: {
     label: 'Rejeté',
-    className: 'bg-red-500/10 border-red-500/20 text-red-400',
+    className: 'border-danger/20 bg-danger/10 text-danger',
     icon: XCircle,
   },
   expire: {
     label: 'Expiré',
-    className: 'bg-red-500/10 border-red-500/20 text-red-400',
+    className: 'border-danger/20 bg-danger/10 text-danger',
     icon: XCircle,
   },
   non_fourni: {
     label: 'Non fourni',
-    className: 'bg-neutral-500/10 border-neutral-500/20 text-neutral-400',
+    className: 'border-line bg-white/5 text-muted',
     icon: FileText,
   },
 };
@@ -130,12 +130,12 @@ export default function DocumentUpload({
     <div className={className}>
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-white font-medium">{titre}</h3>
-          {description ? <p className="text-muted text-sm mt-1">{description}</p> : null}
+          <h3 className="font-medium text-white">{titre}</h3>
+          {description ? <p className="mt-1 text-sm text-muted">{description}</p> : null}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className={`inline-flex items-center gap-1.5 border px-3 py-1.5 rounded-full text-xs font-medium ${statutConfig.className}`}>
-            <StatutIcon size={13} />
+        <div className="flex shrink-0 items-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium ${statutConfig.className}`}>
+            <StatutIcon size={13} aria-hidden="true" />
             {statutConfig.label}
           </span>
           {url ? (
@@ -143,10 +143,10 @@ export default function DocumentUpload({
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted hover:text-white border border-white/10 px-3 py-1.5 rounded-full text-xs transition-colors"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 text-xs text-muted transition-colors hover:text-white"
               aria-label={`Voir le document : ${titre}`}
             >
-              <Eye size={13} />
+              <Eye size={13} aria-hidden="true" />
               Voir
             </a>
           ) : null}
@@ -154,8 +154,8 @@ export default function DocumentUpload({
       </div>
 
       {statutKey === 'rejete' && motif ? (
-        <p className="text-red-400 text-sm mb-4 flex items-start gap-2">
-          <XCircle size={15} className="shrink-0 mt-0.5" />
+        <p className="mb-4 flex items-start gap-2 text-sm text-danger">
+          <XCircle size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
           Motif du rejet : {motif}
         </p>
       ) : null}
@@ -184,19 +184,19 @@ export default function DocumentUpload({
               inputRef.current?.click();
             }
           }}
-          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
+          className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
             dragOver
-              ? 'border-[#dc2626] bg-[#dc2626]/5'
-              : 'border-neutral-700 hover:border-[#dc2626]/50'
+              ? 'border-primary bg-primary/5'
+              : 'border-line-strong hover:border-primary/50'
           }`}
           aria-label={`Téléverser ${titre}`}
         >
-          <UploadCloud size={28} className={`mx-auto mb-2 ${dragOver ? 'text-primary-light' : 'text-muted'}`} />
-          <p className="text-gray-400 text-sm">
+          <UploadCloud size={28} aria-hidden="true" className={`mx-auto mb-2 ${dragOver ? 'text-primary-light' : 'text-muted'}`} />
+          <p className="text-sm text-muted">
             Glissez une photo ici ou{' '}
-            <span className="text-primary-light font-medium">parcourez vos fichiers</span>
+            <span className="font-medium text-primary-light">parcourez vos fichiers</span>
           </p>
-          <p className="text-muted text-xs mt-1">
+          <p className="mt-1 text-xs text-muted">
             JPG, PNG ou WebP — {maxSizeMb} Mo max. Photo nette, lisible et non rognée.
           </p>
           <input
@@ -209,34 +209,34 @@ export default function DocumentUpload({
           />
         </div>
       ) : (
-        <div className="border border-white/[0.06] rounded-xl p-4">
+        <div className="rounded-xl border border-line p-4">
           <div className="flex items-start gap-4">
             {preview ? (
               <img
                 src={preview}
                 alt={`Aperçu : ${titre}`}
-                className="w-24 h-24 object-contain rounded-lg border border-white/10 shrink-0 bg-black/40"
+                className="h-24 w-24 shrink-0 rounded-lg border border-line bg-black/40 object-contain"
               />
             ) : (
-              <div className="w-24 h-24 bg-neutral-800 border border-neutral-700 rounded-lg flex items-center justify-center shrink-0">
-                <ImageIcon size={24} className="text-muted" />
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg border border-line bg-neutral-800">
+                <ImageIcon size={24} aria-hidden="true" className="text-muted" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">{file.name}</p>
-              <p className="text-muted text-xs mt-0.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-white">{file.name}</p>
+              <p className="mt-0.5 text-xs text-muted">
                 {(file.size / 1024 / 1024).toFixed(2)} Mo
               </p>
-              <div className="flex flex-wrap items-center gap-2 mt-3">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={envoyer}
                   disabled={uploading}
-                  className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 flex items-center gap-2"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
                 >
                   {uploading ? (
                     <>
-                      <Loader2 size={14} className="animate-spin" />
+                      <Loader2 size={14} aria-hidden="true" className="animate-spin" />
                       Vérification…
                     </>
                   ) : (
@@ -247,7 +247,7 @@ export default function DocumentUpload({
                   type="button"
                   onClick={reinitialiser}
                   disabled={uploading}
-                  className="text-muted hover:text-white px-3 py-2 rounded-lg text-sm transition hover:bg-white/5"
+                  className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-muted transition-colors hover:bg-white/5 hover:text-white"
                 >
                   Annuler
                 </button>
@@ -257,18 +257,18 @@ export default function DocumentUpload({
               type="button"
               onClick={reinitialiser}
               disabled={uploading}
-              className="text-muted hover:text-red-500 transition-colors shrink-0 p-1"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition-colors hover:bg-danger/10 hover:text-danger"
               aria-label="Retirer la photo sélectionnée"
             >
-              <X size={16} />
+              <X size={16} aria-hidden="true" />
             </button>
           </div>
         </div>
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-red-400">
-          <AlertTriangle size={15} className="shrink-0 mt-0.5" />
+        <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-danger">
+          <AlertTriangle size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
           {error}
         </p>
       ) : null}
