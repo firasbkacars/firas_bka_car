@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme static {
   --color-primary: #dc2626;
   --color-primary-dark: #b91c1c;
   /* Red used as TEXT on dark surfaces: #ef4444 = 5.3:1 (AA), vs #dc2626 = 4.1:1 (fail) */
@@ -12,6 +12,29 @@
   --color-muted: #a3a3a3; /* 7.8:1 — secondary text (AA+) */
   --color-placeholder: #8a8a8a; /* 5.7:1 — placeholder text */
   --color-disabled: #4a4a4a; /* disabled only (WCAG-exempt, must still read as disabled) */
+
+  /* —— Design system FIRAS BKA CAR ——
+     Source de verite : design-system/MASTER.md.
+     Contrastes mesures sur #0a0a0a (fond) et #141414 (carte). */
+  --color-surface: #141414; /* cartes, panneaux */
+  --color-surface-raised: #1c1c1c; /* menus, modales, popovers */
+  --color-surface-hover: #262626; /* survol d'une surface */
+  --color-line: #2a2a2a; /* separateurs decoratifs */
+  --color-line-strong: #737373; /* bordures de champs : 3.9:1 sur #141414 */
+  --color-ink-subtle: #8a8a8a; /* texte tertiaire : 5.3:1 sur #141414 */
+
+  --color-success: #22c55e; /* 8.1:1 sur #141414 */
+  --color-warning: #f59e0b; /* 8.6:1 sur #141414 */
+  --color-info: #38bdf8; /* 8.6:1 sur #141414 */
+  --color-danger: #ef4444; /* 4.9:1 sur #141414 */
+
+  /* Palette graphiques (Recharts) — ne jamais coder les couleurs en dur. */
+  --color-chart-1: #ef4444;
+  --color-chart-2: #f59e0b;
+  --color-chart-3: #38bdf8;
+  --color-chart-4: #22c55e;
+  --color-chart-5: #a78bfa;
+  --color-chart-6: #94a3b8;
 }
 
 /* —— Focus visibility (WCAG 2.4.7) ——
@@ -64,6 +87,11 @@ body {
   background-color: #0a0a0a;
   color: #ffffff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background-color: #dc2626;
+  color: #ffffff;
 }
 
 /* —— Selects (toute l'application) —— */
