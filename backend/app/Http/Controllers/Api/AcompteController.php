@@ -191,6 +191,20 @@ class AcompteController extends Controller
             ? round(($acompte / $prixTotal) * 100, 1)
             : (float) Parametre::getNumeric('taux_acompte', 30);
 
+        // Moyens reellement utilisables : le frontend ne doit pas afficher
+        // une carte desactivee quand la configuration est incomplete.
+        $virementDisponible = filled(config('entreprise.rib'))
+            && filled(config('entreprise.beneficiaire'));
+        $wafacashDisponible = filled(config('entreprise.gerant'))
+            && filled(config('entreprise.telephone_transfert'));
+
+        $moyensDisponibles = array_values(array_filter([
+            $virementDisponible ? 'virement' : null,
+            $wafacashDisponible ? 'wafacash' : null,
+        ]));
+
+        $agence = $reservation->agence;
+
         return [
             'reservation' => [
                 'id' => $reservation->id,
@@ -215,19 +229,30 @@ class AcompteController extends Controller
             ],
             'coordonnees' => [
                 'virement' => [
-                    'disponible' => filled(config('entreprise.rib'))
-                        && filled(config('entreprise.beneficiaire')),
+                    'disponible' => $virementDisponible,
                     'banque' => config('entreprise.banque') ?: null,
                     'rib' => config('entreprise.rib') ?: null,
                     'beneficiaire' => config('entreprise.beneficiaire') ?: null,
                 ],
                 'wafacash' => [
-                    'disponible' => filled(config('entreprise.gerant'))
-                        && filled(config('entreprise.telephone_transfert')),
+                    'disponible' => $wafacashDisponible,
                     'beneficiaire' => config('entreprise.gerant') ?: null,
                     'cin' => config('entreprise.cin_gerant') ?: null,
                     'telephone' => config('entreprise.telephone_transfert') ?: null,
                 ],
+            ],
+            // Etat synthetique consomme par la page "Payer l'acompte".
+            'paiement' => [
+                'moyens_disponibles' => $moyensDisponibles,
+                'aucun_moyen_en_ligne' => $moyensDisponibles === [],
+                'montant_du' => (float) $reservation->acompte_restant,
+                'agence' => $agence ? [
+                    'nom' => $agence->nom,
+                    'adresse' => $agence->adresse,
+                    'ville' => $agence->ville,
+                    'telephone' => $agence->telephone,
+                    'email' => $agence->email,
+                ] : null,
             ],
             'recu' => $paiement ? [
                 'paiement_id' => $paiement->id,

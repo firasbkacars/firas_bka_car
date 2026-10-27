@@ -159,7 +159,12 @@ class AcomptePaymentTest extends TestCase
             ->assertJsonPath('coordonnees.virement.disponible', false)
             ->assertJsonPath('coordonnees.wafacash.disponible', false)
             ->assertJsonPath('coordonnees.virement.rib', null)
-            ->assertJsonPath('coordonnees.wafacash.telephone', null);
+            ->assertJsonPath('coordonnees.wafacash.telephone', null)
+            // La page n'affiche plus de moyens desactives : elle recoit la
+            // liste exacte des moyens utilisables.
+            ->assertJsonPath('paiement.moyens_disponibles', [])
+            ->assertJsonPath('paiement.aucun_moyen_en_ligne', true)
+            ->assertJsonPath('paiement.montant_du', 750);
 
         // Aucun placeholder du mockup ne doit fuiter dans la reponse.
         $this->assertStringNotContainsString('000 000 0000000000000000', $response->getContent());
@@ -188,7 +193,9 @@ class AcomptePaymentTest extends TestCase
             ->assertJsonPath('coordonnees.virement.banque', 'Banque Test')
             ->assertJsonPath('coordonnees.virement.rib', '011 780 0000000000000000 12')
             ->assertJsonPath('coordonnees.wafacash.disponible', true)
-            ->assertJsonPath('coordonnees.wafacash.cin', 'AB123456');
+            ->assertJsonPath('coordonnees.wafacash.cin', 'AB123456')
+            ->assertJsonPath('paiement.moyens_disponibles', ['virement', 'wafacash'])
+            ->assertJsonPath('paiement.aucun_moyen_en_ligne', false);
     }
 
     // ------------------------------------------------------------- depot

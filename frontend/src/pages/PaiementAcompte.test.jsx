@@ -54,10 +54,44 @@ function payload(overrides = {}) {
         telephone: null,
       },
     },
+    paiement: {
+      moyens_disponibles: [],
+      aucun_moyen_en_ligne: true,
+      montant_du: 750,
+      agence: {
+        nom: 'Agence Tanger',
+        adresse: '12 avenue Mohammed V',
+        ville: 'Tanger',
+        telephone: '+212 539 000 000',
+        email: null,
+      },
+    },
     recu: null,
     ...overrides,
   };
 }
+
+const virementDisponible = {
+  virement: {
+    disponible: true,
+    banque: 'Banque Test',
+    rib: '011 780 0000000000000000 12',
+    beneficiaire: 'FIRAS BKA CAR SARL',
+  },
+  wafacash: {
+    disponible: false,
+    beneficiaire: null,
+    cin: null,
+    telephone: null,
+  },
+};
+
+const paiementVirement = {
+  moyens_disponibles: ['virement'],
+  aucun_moyen_en_ligne: false,
+  montant_du: 750,
+  agence: null,
+};
 
 function renderPage() {
   return render(
@@ -92,12 +126,21 @@ describe('PaiementAcompte', () => {
     expect(api.get).not.toHaveBeenCalled();
   });
 
-  it('falls back to the agency contact when bank details are missing', async () => {
+  it('shows a single clear agency action when no online method is configured', async () => {
     await renderLoaded();
 
-    expect(screen.getByText('Coordonnées à confirmer')).toBeInTheDocument();
-    expect(screen.getByText(/ne sont pas encore renseignées/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /\+212 774 623 448/ })).toBeInTheDocument();
+    // Le montant et l'action sont annonces des le haut de page.
+    expect(screen.getAllByText('Acompte à régler à l\'agence').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: "Régler l'acompte à l'agence" })).toBeInTheDocument();
+    expect(screen.getAllByText(/Aucun paiement en ligne n'est disponible/).length).toBeGreaterThan(0);
+    expect(screen.getByText('12 avenue Mohammed V, Tanger')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /\+212 539 000 000/ })).toBeInTheDocument();
+
+    // Aucun moyen desactive, aucun formulaire inutile, aucun bouton grise.
+    expect(screen.queryByRole('button', { name: /Virement bancaire/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Wafacash/ })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Choisir le reçu de paiement')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Envoyer le reçu/ })).not.toBeInTheDocument();
     expect(screen.queryByText('Copier le RIB')).not.toBeInTheDocument();
 
     // Montants reels de la reservation, pas ceux du mockup.
@@ -105,23 +148,27 @@ describe('PaiementAcompte', () => {
     expect(screen.getByText(/1\s*750,00\s*DH/)).toBeInTheDocument();
   });
 
+  it('shows only the payment methods that are actually available', async () => {
+    api.get.mockResolvedValue({
+      data: payload({
+        coordonnees: virementDisponible,
+        paiement: paiementVirement,
+      }),
+    });
+
+    await renderLoaded();
+
+    expect(screen.getByRole('button', { name: /Virement bancaire/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Wafacash/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Indisponible/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: "Régler l'acompte à l'agence" })).not.toBeInTheDocument();
+  });
+
   it('shows configured bank coordinates and the deposit rate', async () => {
     api.get.mockResolvedValue({
       data: payload({
-        coordonnees: {
-          virement: {
-            disponible: true,
-            banque: 'Banque Test',
-            rib: '011 780 0000000000000000 12',
-            beneficiaire: 'FIRAS BKA CAR SARL',
-          },
-          wafacash: {
-            disponible: false,
-            beneficiaire: null,
-            cin: null,
-            telephone: null,
-          },
-        },
+        coordonnees: virementDisponible,
+        paiement: paiementVirement,
       }),
     });
 
@@ -131,26 +178,14 @@ describe('PaiementAcompte', () => {
     expect(screen.getByText('011 780 0000000000000000 12')).toBeInTheDocument();
     expect(screen.getByText('FIRAS BKA CAR SARL')).toBeInTheDocument();
     expect(screen.getByText('Banque Test')).toBeInTheDocument();
-    expect(screen.getByText(/Acompte à payer \(30 %\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Acompte \(30 %\)/)).toBeInTheDocument();
   });
 
   it('uploads a receipt and shows the pending-verification state', async () => {
     api.get.mockResolvedValue({
       data: payload({
-        coordonnees: {
-          virement: {
-            disponible: true,
-            banque: 'Banque Test',
-            rib: '011 780 0000000000000000 12',
-            beneficiaire: 'FIRAS BKA CAR SARL',
-          },
-          wafacash: {
-            disponible: false,
-            beneficiaire: null,
-            cin: null,
-            telephone: null,
-          },
-        },
+        coordonnees: virementDisponible,
+        paiement: paiementVirement,
       }),
     });
 
@@ -165,22 +200,10 @@ describe('PaiementAcompte', () => {
     };
     api.post.mockResolvedValue({
       data: {
-        message: 'Recu envoye.',
+        message: 'Reçu envoyé.',
         acompte: payload({
-          coordonnees: {
-            virement: {
-              disponible: true,
-              banque: 'Banque Test',
-              rib: '011 780 0000000000000000 12',
-              beneficiaire: 'FIRAS BKA CAR SARL',
-            },
-            wafacash: {
-              disponible: false,
-              beneficiaire: null,
-              cin: null,
-              telephone: null,
-            },
-          },
+          coordonnees: virementDisponible,
+          paiement: paiementVirement,
           recu,
         }),
       },
@@ -206,10 +229,17 @@ describe('PaiementAcompte', () => {
     expect(config.headers['Content-Type']).toBe('multipart/form-data');
 
     expect(await screen.findByText('Reçu envoyé')).toBeInTheDocument();
-    expect(screen.getAllByText('Reçu en vérification').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Reçu en cours de vérification').length).toBeGreaterThan(0);
   });
 
   it('rejects an unsupported file before calling the API', async () => {
+    api.get.mockResolvedValue({
+      data: payload({
+        coordonnees: virementDisponible,
+        paiement: paiementVirement,
+      }),
+    });
+
     await renderLoaded();
 
     fireEvent.change(screen.getByLabelText('Choisir le reçu de paiement'), {
@@ -230,7 +260,7 @@ describe('PaiementAcompte', () => {
     await renderLoaded();
 
     expect(screen.getAllByText('Réservation annulée').length).toBeGreaterThan(0);
-    expect(screen.getByText(/aucun acompte ne peut être envoyé/)).toBeInTheDocument();
+    expect(screen.getByText(/modalités de remboursement/)).toBeInTheDocument();
     expect(screen.queryByLabelText('Choisir le reçu de paiement')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Envoyer le reçu/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Virement bancaire/ })).not.toBeInTheDocument();
