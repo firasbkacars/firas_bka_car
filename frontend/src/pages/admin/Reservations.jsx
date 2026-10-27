@@ -188,7 +188,7 @@ export default function AdminReservations() {
     try {
       const [clientsRes, vehiculesRes, agencesRes, parametresRes] = await Promise.all([
         api.get('/clients'),
-        api.get('/vehicules-admin'),
+        api.get('/vehicules-admin', { params: { per_page: 100 } }),
         api.get('/agences-admin'),
         api.get('/parametres'),
       ]);
