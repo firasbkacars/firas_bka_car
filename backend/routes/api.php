@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AcompteController;
 use App\Http\Controllers\Api\AgenceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AviController;
+use App\Http\Controllers\Api\ClientActivationController;
 use App\Http\Controllers\Api\ClientAuthController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\CmiPaymentController;
@@ -42,6 +43,15 @@ Route::post('/admin/login', [AuthController::class, 'login'])
 Route::post('/client/register', [ClientAuthController::class, 'register'])
     ->middleware('throttle:3,1');
 Route::post('/client/login', [ClientAuthController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+// Activation d'un compte cree par un agent (reservation par telephone).
+// Le token recu par email est a usage unique et valable sept jours.
+Route::post('/client/activer', [ClientActivationController::class, 'demander'])
+    ->middleware('throttle:3,1');
+Route::get('/client/activer/{token}', [ClientActivationController::class, 'show'])
+    ->middleware('throttle:10,1');
+Route::post('/client/activer/{token}', [ClientActivationController::class, 'activer'])
     ->middleware('throttle:5,1');
 
 Route::get('/vehicules', [VehiculeController::class, 'index'])
@@ -187,6 +197,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('/vehicules-admin/{id}/photos/reorder', [VehiculePhotoController::class, 'reorder']);
 
     // Admin CRUD clients
+    Route::post('/clients/{id}/invitation', [ClientController::class, 'envoyerInvitation']);
     Route::apiResource('clients', ClientController::class)->except(['store']);
 
     // Admin reservations

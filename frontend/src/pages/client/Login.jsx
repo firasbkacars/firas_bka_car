@@ -72,8 +72,8 @@ export default function ClientLogin() {
               <label htmlFor="login-password" className="text-white/70 text-[11px] font-medium uppercase tracking-wider">
                 Mot de passe
               </label>
-              <Link to="/client/login" className="text-primary-light text-[11px] hover:underline transition-colors">
-                Mot de passe oublié ?
+              <Link to="/client/activer" className="text-primary-light text-[11px] hover:underline transition-colors">
+                Première connexion ?
               </Link>
             </div>
             <div className="relative">

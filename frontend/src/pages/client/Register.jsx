@@ -170,6 +170,23 @@ export default function ClientRegister() {
           </div>
         )}
 
+        {(fieldErrors.email || fieldErrors.telephone) && (
+          <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 mb-5">
+            <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-muted text-xs leading-relaxed">
+              Vous avez déjà réservé par téléphone ?{' '}
+              <Link
+                to="/client/activer"
+                state={{ email: form.email }}
+                className="text-primary-light hover:underline font-medium"
+              >
+                Activez votre compte
+              </Link>{' '}
+              avec l'email communiqué à l'agence.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-4">
           {/* Nom complet */}
           <div>

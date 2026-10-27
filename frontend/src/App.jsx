@@ -17,6 +17,8 @@ import PaiementAcompte from './pages/PaiementAcompte'
 import PaiementRetour from './pages/PaiementRetour'
 import ClientLogin from './pages/client/Login'
 import ClientRegister from './pages/client/Register'
+import ClientActiverCompte from './pages/client/ActiverCompte'
+import ClientActiverCompteToken from './pages/client/ActiverCompteToken'
 import ClientProfil from './pages/client/Profil'
 import ClientTableauDeBord from './pages/client/TableauDeBord'
 import AdminLogin from './pages/admin/Login'
@@ -61,6 +63,8 @@ function App() {
 
           <Route path="/client/login" element={<ClientLogin />} />
           <Route path="/client/register" element={<ClientRegister />} />
+          <Route path="/client/activer" element={<ClientActiverCompte />} />
+          <Route path="/client/activer/:token" element={<ClientActiverCompteToken />} />
           <Route path="/client/profil" element={<><Header /><ClientProfil /><Footer /></>} />
           <Route path="/client/tableau-de-bord" element={<><Header /><ClientTableauDeBord /><Footer /></>} />
           <Route path="/client/messagerie" element={<><Header /><ClientMessagerie /><Footer /></>} />

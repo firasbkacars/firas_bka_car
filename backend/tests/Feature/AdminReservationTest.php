@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\InvitationCompte;
 use App\Models\Agence;
 use App\Models\Client;
 use App\Models\Parametre;
@@ -10,6 +11,7 @@ use App\Models\User;
 use App\Models\Vehicule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 /**
@@ -234,6 +236,44 @@ class AdminReservationTest extends TestCase
                 'statut' => 'en_attente',
             ]);
         }
+    }
+
+    public function test_admin_creation_sends_activation_invitation_to_new_client(): void
+    {
+        Mail::fake();
+
+        $admin = $this->createAdmin();
+        $vehicule = $this->createVehicule();
+
+        $this->actingAs($admin, 'sanctum')->postJson('/api/reservations-admin', $this->payload($vehicule, [
+            'client' => [
+                'nom_complet' => 'Nouveau Telephone',
+                'telephone' => '0677889900',
+                'email' => 'nouveau@example.com',
+            ],
+        ]))->assertCreated();
+
+        // Le client n'a pas de mot de passe : il recoit un lien d'activation
+        // pour acceder lui-meme a son espace.
+        Mail::assertQueued(
+            InvitationCompte::class,
+            fn (InvitationCompte $mail) => $mail->hasTo('nouveau@example.com')
+        );
+    }
+
+    public function test_admin_creation_does_not_invite_an_existing_client(): void
+    {
+        Mail::fake();
+
+        $admin = $this->createAdmin();
+        $client = $this->createClient();
+        $vehicule = $this->createVehicule();
+
+        $this->actingAs($admin, 'sanctum')->postJson('/api/reservations-admin', $this->payload($vehicule, [
+            'client_id' => $client->id,
+        ]))->assertCreated();
+
+        Mail::assertNotQueued(InvitationCompte::class);
     }
 
     public function test_client_cannot_use_admin_reservation_endpoint(): void

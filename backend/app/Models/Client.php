@@ -34,6 +34,8 @@ class Client extends Authenticatable
         'permis_rappel_envoye_le',
         'email_verified_at',
         'email_verification_token',
+        'invitation_token',
+        'invitation_expire_le',
         'code_parrainage',
         'parrain_id',
         'parrain_recompense',
@@ -47,10 +49,13 @@ class Client extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'invitation_token',
+        'invitation_expire_le',
     ];
 
     protected $appends = [
         'document_identite',
+        'compte_active',
     ];
 
     protected function casts(): array
@@ -63,6 +68,7 @@ class Client extends Authenticatable
             'permis_rappel_envoye_le' => 'date',
             'parrain_recompense' => 'boolean',
             'reservations_vues_le' => 'datetime',
+            'invitation_expire_le' => 'datetime',
         ];
     }
 
@@ -94,6 +100,16 @@ class Client extends Authenticatable
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Un compte est actif des qu'un mot de passe a ete defini. Les clients
+     * crees par un agent (reservation telephone) restent inactifs tant qu'ils
+     * n'ont pas utilise leur lien d'invitation.
+     */
+    public function getCompteActiveAttribute(): bool
+    {
+        return ! empty($this->password);
     }
 
     /**

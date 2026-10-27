@@ -18,6 +18,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Vehicule;
 use App\Services\FideliteService;
+use App\Services\InvitationClientService;
 use App\Services\RefundPolicy;
 use App\Support\QueuedMail;
 use Carbon\Carbon;
@@ -120,8 +121,9 @@ class ReservationController extends Controller
     public function storeAdmin(StoreAdminReservationRequest $request)
     {
         $validated = $request->validated();
+        $clientCree = false;
 
-        $reservation = DB::transaction(function () use ($validated) {
+        $reservation = DB::transaction(function () use ($validated, &$clientCree) {
             if (! empty($validated['client_id'])) {
                 $client = Client::findOrFail($validated['client_id']);
             } else {
@@ -137,12 +139,20 @@ class ReservationController extends Controller
                     'adresse' => $donneesClient['adresse'] ?? null,
                     'statut' => 'actif',
                 ]);
+
+                $clientCree = true;
             }
 
             return $this->creerReservation($client, $validated);
         });
 
         $reservation->load(['client', 'vehicule', 'agence']);
+
+        // Un client cree a la volee n'a pas de mot de passe : on lui envoie
+        // un lien d'activation pour qu'il puisse suivre sa reservation.
+        if ($clientCree && $reservation->client?->email) {
+            app(InvitationClientService::class)->envoyer($reservation->client);
+        }
 
         // Le job ignore silencieusement les clients sans email (reservation
         // telephone prise sans adresse mail).

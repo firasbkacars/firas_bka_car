@@ -1044,6 +1044,9 @@ export default function AdminReservations() {
                           onChange={(e) => setCreateForm((prev) => ({ ...prev, adresse: e.target.value }))}
                           className={`${inputClass} sm:col-span-2`}
                         />
+                        <p className="text-[11px] text-muted sm:col-span-2">
+                          Un lien d'activation sera envoyé à cette adresse pour que le client définisse son mot de passe.
+                        </p>
                       </div>
                     )}
                   </section>

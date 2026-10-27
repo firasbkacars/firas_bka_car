@@ -21,7 +21,8 @@ export function AuthProvider({ children }) {
       const { pathname, search } = window.location;
       const protectedClientPage = pathname.startsWith('/client/')
         && !pathname.startsWith('/client/login')
-        && !pathname.startsWith('/client/register');
+        && !pathname.startsWith('/client/register')
+        && !pathname.startsWith('/client/activer');
 
       if (protectedClientPage) {
         navigate('/client/login', {
@@ -84,6 +85,22 @@ export function AuthProvider({ children }) {
     const { data } = await api.post('/client/register', {
       ...form,
       password_confirmation: form.password_confirmation,
+    });
+    localStorage.removeItem('admin_token');
+    localStorage.setItem('client_token', data.token);
+    setToken(data.token);
+    setClient(data.client);
+    return data;
+  };
+
+  /**
+   * Activation d'un compte cree par l'agence (reservation telephone) :
+   * le client definit son mot de passe via le lien recu par email.
+   */
+  const activerCompte = async (invitationToken, password, passwordConfirmation) => {
+    const { data } = await api.post(`/client/activer/${invitationToken}`, {
+      password,
+      password_confirmation: passwordConfirmation,
     });
     localStorage.removeItem('admin_token');
     localStorage.setItem('client_token', data.token);
@@ -160,6 +177,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       client, token, loading,
       login, register, logout, updateProfile, uploadPermis, uploadPhoto, uploadIdentityDocument,
+      activerCompte,
     }}>
       {children}
     </AuthContext.Provider>

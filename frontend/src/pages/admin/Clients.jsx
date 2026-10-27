@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Edit2, Trash2, X, CheckCircle2, XCircle, Eye } from 'lucide-react';
+import { Users, Search, Edit2, Trash2, X, CheckCircle2, XCircle, Eye, Mail, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
@@ -16,6 +16,7 @@ export default function Clients() {
   const [showIdentiteModal, setShowIdentiteModal] = useState(null);
   const [rejetMotif, setRejetMotif] = useState('');
   const [saving, setSaving] = useState(false);
+  const [invitingId, setInvitingId] = useState(null);
 
   useEffect(() => { fetchClients(); }, []);
 
@@ -60,6 +61,24 @@ export default function Clients() {
       toast.error(err.response?.data?.message || 'Erreur lors de la sauvegarde');
     }
     finally { setSaving(false); }
+  };
+
+  const handleInviter = async (client) => {
+    if (!client.email) {
+      toast.error("Ajoutez une adresse email à ce client avant de l'inviter.");
+      return;
+    }
+
+    setInvitingId(client.id);
+    try {
+      const { data } = await api.post(`/clients/${client.id}/invitation`);
+      toast.success(data.message || 'Invitation envoyée.');
+      fetchClients();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Erreur lors de l'envoi de l'invitation");
+    } finally {
+      setInvitingId(null);
+    }
   };
 
   const handleValiderPermis = async (id) => {
@@ -219,6 +238,11 @@ export default function Clients() {
                         {c.nom_complet?.charAt(0)}
                       </div>
                       <span className="text-white font-medium">{c.nom_complet}</span>
+                      {!c.compte_active && (
+                        <span className="text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+                          Non activé
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-3 px-5 text-neutral-400">{c.email}</td>
@@ -317,6 +341,18 @@ export default function Clients() {
                           <Eye size={15} />
                         </button>
                       )}
+                      {!c.compte_active && (
+                        <button
+                          onClick={() => handleInviter(c)}
+                          disabled={invitingId === c.id}
+                          className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition disabled:opacity-50"
+                          title={c.email ? "Envoyer l'invitation d'activation" : "Ajoutez un email avant d'inviter"}
+                        >
+                          {invitingId === c.id
+                            ? <Loader2 size={15} className="animate-spin" />
+                            : <Mail size={15} />}
+                        </button>
+                      )}
                       <button onClick={() => { setEditClient(c); setShowModal(true); }} className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition">
                         <Edit2 size={15} />
                       </button>
@@ -359,6 +395,12 @@ export default function Clients() {
                 <input aria-label="Numéro de passeport" type="text" value={editClient.passeport || ''} onChange={e => setEditClient({ ...editClient, passeport: e.target.value.toUpperCase() })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="Numéro de passeport" />
               ) : (
                 <input aria-label="CIN" type="text" value={editClient.cin || ''} onChange={e => setEditClient({ ...editClient, cin: e.target.value.toUpperCase() })} className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" placeholder="CIN" />
+              )}
+              {!editClient.compte_active && (
+                <p className="text-[11px] text-muted leading-relaxed">
+                  Ce client n'a pas encore activé son compte. Renseignez un email, enregistrez,
+                  puis utilisez l'icône enveloppe pour lui envoyer le lien d'activation.
+                </p>
               )}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm hover:bg-neutral-800 transition">Annuler</button>
