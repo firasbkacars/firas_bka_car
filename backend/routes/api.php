@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AcompteController;
 use App\Http\Controllers\Api\AgenceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AviController;
@@ -97,6 +98,12 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::post('/client/passeport', [ClientAuthController::class, 'uploadPasseport']);
         Route::post('/client/photo', [ClientAuthController::class, 'uploadPhoto']);
         Route::get('/client/reservations', [ReservationController::class, 'mesReservations']);
+
+        // Client acompte : virement bancaire ou Wafacash / Cash Plus.
+        Route::get('/client/reservations/{numero}/acompte', [AcompteController::class, 'show']);
+        Route::get('/client/reservations/{numero}/acompte/recu', [AcompteController::class, 'recu']);
+        Route::post('/client/reservations/{numero}/acompte/recu', [AcompteController::class, 'uploadRecu'])
+            ->middleware('throttle:10,1');
 
         // Client favoris (U9)
         Route::get('/client/favoris', [FavoriController::class, 'index']);
@@ -204,6 +211,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         ->middleware('throttle:30,1');
     Route::get('/paiements', [PaiementController::class, 'index']);
     Route::get('/paiements/export', [PaiementController::class, 'export']);
+    Route::get('/paiements/{id}/recu', [PaiementController::class, 'recu']);
+    Route::put('/paiements/{id}/valider-recu', [PaiementController::class, 'validerRecu'])
+        ->middleware('throttle:30,1');
     Route::get('/paiements/{id}', [PaiementController::class, 'show']);
 
     // Admin avis

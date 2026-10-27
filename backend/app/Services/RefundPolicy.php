@@ -105,7 +105,11 @@ class RefundPolicy
     {
         // On rembourse l'encaissement le plus ancien non rembourse.
         $source = Paiement::where('reservation_id', $reservation->id)
-            ->where('methode', 'cmi')
+            ->whereIn('methode', [
+                Paiement::METHODE_CMI,
+                Paiement::METHODE_VIREMENT,
+                Paiement::METHODE_WAFACASH,
+            ])
             ->where('statut', Paiement::STATUT_PAYE)
             ->whereNotNull('date_paiement')
             ->whereNull('rembourse_le')
@@ -159,7 +163,11 @@ class RefundPolicy
         }
 
         return Paiement::where('reservation_id', $courant->reservation_id)
-            ->where('methode', 'cmi')
+            ->whereIn('methode', [
+                Paiement::METHODE_CMI,
+                Paiement::METHODE_VIREMENT,
+                Paiement::METHODE_WAFACASH,
+            ])
             ->where('statut', Paiement::STATUT_PAYE)
             ->whereNotNull('date_paiement')
             ->whereNull('rembourse_le')

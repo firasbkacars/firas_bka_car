@@ -46,7 +46,23 @@ class Paiement extends Model
         self::TYPE_REMBOURSEMENT,
     ];
 
-    public const METHODES = ['especes', 'cmi'];
+    public const METHODE_ESPECES = 'especes';
+    public const METHODE_CMI = 'cmi';
+    public const METHODE_VIREMENT = 'virement';
+    public const METHODE_WAFACASH = 'wafacash';
+
+    public const METHODES = [
+        self::METHODE_ESPECES,
+        self::METHODE_CMI,
+        self::METHODE_VIREMENT,
+        self::METHODE_WAFACASH,
+    ];
+
+    /** Canaux pour lesquels un justificatif peut etre depose par le client. */
+    public const METHODES_AVEC_RECU = [
+        self::METHODE_VIREMENT,
+        self::METHODE_WAFACASH,
+    ];
 
     protected $fillable = [
         'reservation_id',
@@ -73,6 +89,11 @@ class Paiement extends Model
         'paiement_source_id',
         'note_admin',
         'created_by',
+        'recu_path',
+        'recu_nom_original',
+        'recu_mime',
+        'recu_taille',
+        'recu_envoye_le',
     ];
 
     protected $casts = [
@@ -81,7 +102,18 @@ class Paiement extends Model
         'initie_le' => 'datetime',
         'verifie_le' => 'datetime',
         'rembourse_le' => 'datetime',
+        'recu_envoye_le' => 'datetime',
+        'recu_taille' => 'integer',
         'tentatives' => 'integer',
+    ];
+
+    /**
+     * Le chemin disque ne doit jamais sortir dans une reponse JSON : il est
+     * remplace par `recu_disponible` et le fichier passe par une route
+     * authentifiee.
+     */
+    protected $hidden = [
+        'recu_path',
     ];
 
     /** Affiches par l'admin et les clients. */
@@ -91,6 +123,7 @@ class Paiement extends Model
         'statut_affichage',
         'est_remboursement',
         'rembourse_sur',
+        'recu_disponible',
     ];
 
     // ------------------------------------------------------------------ scopes
@@ -145,6 +178,12 @@ class Paiement extends Model
     public function getEstPayeAttribute(): bool
     {
         return $this->statut === self::STATUT_PAYE;
+    }
+
+    /** Un justificatif a ete depose (le fichier reste sur le disque prive). */
+    public function getRecuDisponibleAttribute(): bool
+    {
+        return ! empty($this->recu_path);
     }
 
     /** Montant signe pour l'affichage et le reporting. */

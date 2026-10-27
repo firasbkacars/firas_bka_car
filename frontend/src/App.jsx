@@ -13,6 +13,7 @@ import VehiculeDetail from './pages/VehiculeDetail'
 import Compare from './pages/Compare'
 import Finalisation from './pages/Finalisation'
 import Confirmation from './pages/Confirmation'
+import PaiementAcompte from './pages/PaiementAcompte'
 import PaiementRetour from './pages/PaiementRetour'
 import ClientLogin from './pages/client/Login'
 import ClientRegister from './pages/client/Register'
@@ -55,6 +56,7 @@ function App() {
           <Route path="/vehicules/:id" element={<><Header /><VehiculeDetail /><Footer /></>} />
           <Route path="/reservation/:vehiculeId" element={<><Header /><Finalisation /><Footer /></>} />
           <Route path="/confirmation" element={<><Header /><Confirmation /><Footer /></>} />
+          <Route path="/paiement/acompte/:numero" element={<><Header /><PaiementAcompte /><Footer /></>} />
           <Route path="/paiement/retour" element={<><Header /><PaiementRetour /><Footer /></>} />
 
           <Route path="/client/login" element={<ClientLogin />} />

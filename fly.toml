@@ -39,6 +39,10 @@ primary_region = 'ams'
   MAIL_ADMIN_ADDRESS = 'firasbkacars@gmail.com'
   LOG_CHANNEL = 'stderr'
   MEDIA_DISK = 'public'
+  # Justificatifs d'acompte : bucket Tigris prive (cree avec
+  # `fly storage create -a firasbkacar -n firasbkacar-recus`). Le disque
+  # local ne survit pas aux redeploiements.
+  RECEIPT_DISK = 's3'
   PHP_CLI_SERVER_WORKERS = '4'
 
   # M1 : monitoring des erreurs (Sentry). Le DSN est un secret, pas une
@@ -71,6 +75,7 @@ primary_region = 'ams'
     hard_limit = 250
     soft_limit = 200
 
+# Photos publiques (vehicules, avis, documents clients).
 [[mounts]]
   source = 'app_storage'
   destination = '/var/www/storage/app/public'

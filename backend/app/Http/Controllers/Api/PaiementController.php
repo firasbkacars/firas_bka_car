@@ -8,6 +8,8 @@ use App\Models\Reservation;
 use App\Services\CmiPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class PaiementController extends Controller
 {
@@ -99,7 +101,7 @@ class PaiementController extends Controller
         $validated = $request->validate([
             'reservation_id' => 'required|exists:reservations,id',
             'montant' => 'required|numeric|min:0.01',
-            'methode' => 'required|in:especes,cmi',
+            'methode' => ['required', Rule::in(Paiement::METHODES)],
             'type' => 'nullable|in:acompte,solde,complement,caution',
             'note_admin' => 'nullable|string|max:500',
         ]);
@@ -126,6 +128,86 @@ class PaiementController extends Controller
         $this->syncReservationStatut($reservation);
 
         return response()->json($paiement->load('reservation'), 201);
+    }
+
+    /**
+     * Valide un justificatif de virement / transfert.
+     *
+     * Le passage en `paye` est le seul moment ou l'acompte entre dans les
+     * encaissements : un recu depose par le client ne vaut jamais paiement.
+     */
+    public function validerRecu(Request $request, $id)
+    {
+        $paiement = Paiement::with('reservation')->findOrFail($id);
+        $disque = config('filesystems.receipts_disk', 'local');
+
+        if (
+            ! $paiement->recu_disponible
+            || ! Storage::disk($disque)->exists($paiement->recu_path)
+        ) {
+            return response()->json([
+                'message' => 'Aucun justificatif a valider pour ce paiement.',
+            ], 422);
+        }
+
+        if ($paiement->statut === Paiement::STATUT_PAYE) {
+            return response()->json([
+                'message' => 'Ce paiement est deja valide.',
+                'paiement' => $paiement,
+            ]);
+        }
+
+        if ($paiement->statut !== Paiement::STATUT_EN_ATTENTE) {
+            return response()->json([
+                'message' => 'Ce paiement ne peut plus etre valide.',
+            ], 422);
+        }
+
+        if ($paiement->reservation->statut === 'annulee') {
+            return response()->json([
+                'message' => 'La reservation est annulee : le justificatif ne peut pas etre valide.',
+            ], 422);
+        }
+
+        $paiement->update([
+            'statut' => Paiement::STATUT_PAYE,
+            'date_paiement' => now(),
+            'verifie_le' => now(),
+            'note_admin' => trim(
+                ($paiement->note_admin ? $paiement->note_admin.' — ' : '')
+                .'Recu valide par '.($request->user()?->name ?? 'admin')
+            ),
+        ]);
+
+        $this->syncReservationStatut($paiement->reservation);
+
+        return response()->json([
+            'message' => 'Acompte valide',
+            'paiement' => $paiement->fresh(),
+            'reservation' => $paiement->reservation->fresh(['paiements']),
+        ]);
+    }
+
+    /**
+     * Telechargement du justificatif par un admin (disque prive).
+     */
+    public function recu($id)
+    {
+        $paiement = Paiement::findOrFail($id);
+        $disque = config('filesystems.receipts_disk', 'local');
+
+        abort_unless($paiement->recu_disponible, 404, 'Aucun recu trouve.');
+        abort_unless(
+            Storage::disk($disque)->exists($paiement->recu_path),
+            404,
+            'Recu introuvable.'
+        );
+
+        return Storage::disk($disque)->response(
+            $paiement->recu_path,
+            $paiement->recu_nom_original ?: 'recu',
+            ['Content-Type' => $paiement->recu_mime ?: 'application/octet-stream']
+        );
     }
 
     /**

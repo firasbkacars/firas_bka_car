@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   CreditCard, Search, Download, RotateCcw, AlertTriangle, Loader2, Receipt,
-  ChevronDown, FilterX,
+  ChevronDown, FilterX, FileText, CheckCircle2,
 } from 'lucide-react';
 import api from '../../services/api';
 import StatutPaiement, { montantSigne } from '../../components/StatutPaiement';
 import Modal from '../../components/Modal';
+import { useConfirm } from '../../context/ConfirmContext';
 import { formatMAD, formatDate, formatDateTime } from '../../lib/formatters';
 import { useDebouncedValue } from '../../hooks/useDebounce';
 
@@ -20,6 +21,8 @@ const TYPE_LABELS = {
 const METHODE_LABELS = {
   cmi: 'Carte (CMI)',
   especes: 'Espèces',
+  virement: 'Virement bancaire',
+  wafacash: 'Wafacash / Cash Plus',
 };
 
 const STATUTS = [
@@ -36,6 +39,8 @@ const METHODES = [
   { valeur: '', libelle: 'Tous les canaux' },
   { valeur: 'cmi', libelle: 'Carte (CMI)' },
   { valeur: 'especes', libelle: 'Espèces' },
+  { valeur: 'virement', libelle: 'Virement bancaire' },
+  { valeur: 'wafacash', libelle: 'Wafacash / Cash Plus' },
 ];
 
 const COLUMNS = [
@@ -62,6 +67,7 @@ function csvCell(v) {
 }
 
 export default function Paiements() {
+  const { confirm } = useConfirm();
   const [paiements, setPaiements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -79,6 +85,8 @@ export default function Paiements() {
   const [refundMotif, setRefundMotif] = useState('');
   const [refunding, setRefunding] = useState(false);
   const [toast, setToast] = useState(null);
+  const [validatingId, setValidatingId] = useState(null);
+  const [receiptBusyId, setReceiptBusyId] = useState(null);
 
   const searchDebounced = useDebouncedValue(search.trim().toLowerCase(), 300);
 
@@ -138,9 +146,9 @@ export default function Paiements() {
 
       const haystack = [
         p.transaction_id, p.carte_masquee, p.methode, p.statut, p.statut_affichage,
-        p.type, TYPE_LABELS[p.type], p.reservation?.numero,
+        p.type, TYPE_LABELS[p.type], METHODE_LABELS[p.methode], p.reservation?.numero,
         p.reservation?.client?.nom_complet, p.reservation?.client?.telephone,
-        p.montant, montantSigne(p),
+        p.montant, montantSigne(p), p.recu_nom_original,
       ]
         .filter((v) => v != null)
         .join(' ')
@@ -251,6 +259,47 @@ export default function Paiements() {
       showToast(err.response?.data?.message || 'Remboursement impossible.', 'error');
     } finally {
       setRefunding(false);
+    }
+  };
+
+  const telechargerRecu = async (p) => {
+    setReceiptBusyId(p.id);
+    try {
+      const { data } = await api.get(`/paiements/${p.id}/recu`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', p.recu_nom_original || `recu-paiement-${p.id}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Téléchargement du reçu impossible.', 'error');
+    } finally {
+      setReceiptBusyId(null);
+    }
+  };
+
+  const validerRecu = async (p) => {
+    const ok = await confirm({
+      title: 'Valider l’acompte',
+      message: `Confirmer la réception de ${formatMAD(p.montant)} pour la réservation ${p.reservation?.numero || ''} ? Le paiement sera comptabilisé.`,
+      confirmLabel: 'Valider l’acompte',
+      danger: false,
+    });
+    if (!ok) return;
+
+    setValidatingId(p.id);
+    try {
+      await api.put(`/paiements/${p.id}/valider-recu`);
+      showToast('Acompte validé et comptabilisé.');
+      fetchPaiements();
+      window.dispatchEvent(new Event('admin-notifications-refresh'));
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Validation de l’acompte impossible.', 'error');
+    } finally {
+      setValidatingId(null);
     }
   };
 
@@ -503,6 +552,10 @@ export default function Paiements() {
                     signe={signe}
                     peutRembourser={peutRembourser}
                     onRefund={openRefund}
+                    onDownloadRecu={telechargerRecu}
+                    onValiderRecu={validerRecu}
+                    validating={validatingId === p.id}
+                    downloading={receiptBusyId === p.id}
                   />
                 );
               })}
@@ -609,7 +662,15 @@ export default function Paiements() {
   );
 }
 
-function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembourser, onRefund }) {
+function PaiementRow({
+  p, ouvert, onToggle, estRemboursement, signe, peutRembourser, onRefund,
+  onDownloadRecu, onValiderRecu, validating, downloading,
+}) {
+  const recuAValider =
+    p.recu_disponible
+    && p.statut === 'en_attente'
+    && ['virement', 'wafacash'].includes(p.methode);
+
   return (
     <>
       <tr className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition align-top">
@@ -660,6 +721,12 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
         </td>
         <td className="py-3 px-5">
           <StatutPaiement statut={p.statut_affichage || p.statut} showIcon={false} />
+          {p.recu_disponible && (
+            <div className="mt-1 inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+              <FileText size={10} aria-hidden="true" />
+              {p.statut === 'paye' ? 'Justificatif' : 'Reçu à valider'}
+            </div>
+          )}
           {p.code_erreur_gateway && (
             <div className="text-[10px] text-muted mt-0.5 font-mono">
               {p.code_erreur_gateway}
@@ -670,16 +737,44 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
           {p.date_paiement ? formatDate(p.date_paiement) : '—'}
         </td>
         <td className="py-3 px-5 text-right">
-          {peutRembourser && (
-            <button
-              type="button"
-              onClick={() => onRefund(p)}
-              className="inline-flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium transition"
-            >
-              <RotateCcw size={12} aria-hidden="true" />
-              Rembourser
-            </button>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {p.recu_disponible && (
+              <button
+                type="button"
+                onClick={() => onDownloadRecu(p)}
+                disabled={downloading}
+                className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-neutral-300 px-3 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
+              >
+                {downloading
+                  ? <Loader2 size={12} className="animate-spin" aria-hidden="true" />
+                  : <Download size={12} aria-hidden="true" />}
+                Reçu
+              </button>
+            )}
+            {recuAValider && (
+              <button
+                type="button"
+                onClick={() => onValiderRecu(p)}
+                disabled={validating}
+                className="inline-flex items-center gap-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
+              >
+                {validating
+                  ? <Loader2 size={12} className="animate-spin" aria-hidden="true" />
+                  : <CheckCircle2 size={12} aria-hidden="true" />}
+                Valider l'acompte
+              </button>
+            )}
+            {peutRembourser && (
+              <button
+                type="button"
+                onClick={() => onRefund(p)}
+                className="inline-flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium transition"
+              >
+                <RotateCcw size={12} aria-hidden="true" />
+                Rembourser
+              </button>
+            )}
+          </div>
         </td>
       </tr>
 
@@ -702,6 +797,15 @@ function PaiementRow({ p, ouvert, onToggle, estRemboursement, signe, peutRembour
               <Detail label="Devise" value={p.devise || 'MAD'} />
               <Detail label="Type" value={TYPE_LABELS[p.type] || p.type || '—'} />
               <Detail label="Référence externe" value={p.reference_externe || '—'} mono />
+              {p.recu_disponible && (
+                <>
+                  <Detail
+                    label="Reçu envoyé le"
+                    value={p.recu_envoye_le ? formatDateTime(p.recu_envoye_le) : '—'}
+                  />
+                  <Detail label="Fichier du reçu" value={p.recu_nom_original || '—'} />
+                </>
+              )}
               {p.note_admin && (
                 <div className="col-span-2 md:col-span-4">
                   <p className="text-muted mb-1">Note admin</p>

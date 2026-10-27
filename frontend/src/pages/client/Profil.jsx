@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { XCircle, CheckCircle2, UploadCloud, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2 } from 'lucide-react';
+import { XCircle, CheckCircle2, UploadCloud, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2, Landmark } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import StatutPaiement from '../../components/StatutPaiement';
 import DocumentUpload from '../../components/DocumentUpload';
@@ -619,6 +619,17 @@ export default function ClientProfil() {
                               ? <><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Ouverture...</>
                               : <><CreditCard size={14} aria-hidden="true" /> Payer {formatMAD(res.acompte_restant ?? res.acompte)}</>}
                           </button>
+                        )}
+                        {res.mode_paiement !== 'cmi' &&
+                          res.statut !== 'annulee' &&
+                          parseFloat(res.acompte_restant ?? res.acompte ?? 0) > 0.009 && (
+                          <Link
+                            to={`/paiement/acompte/${encodeURIComponent(res.numero)}`}
+                            className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#dc2626]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Landmark size={14} aria-hidden="true" />
+                            Payer l'acompte {formatMAD(res.acompte_restant ?? res.acompte)}
+                          </Link>
                         )}
                         {parseFloat(res.acompte_paye || 0) > 0 && (
                           <button

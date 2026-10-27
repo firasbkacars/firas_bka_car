@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Phone, MessageCircle } from 'lucide-react';
+import { CheckCircle2, Landmark, Phone, MessageCircle } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '../components/Skeleton';
+import { formatMAD } from '../lib/formatters';
 
 export default function Confirmation() {
   const { state } = useLocation();
@@ -88,6 +89,16 @@ export default function Confirmation() {
     ? `/storage/${vehiculePhoto}`
     : vehiculePhoto;
 
+  const acompteTotal = parseFloat(reservation.acompte ?? 0);
+  const acomptePaye = parseFloat(reservation.acompte_paye ?? 0);
+  const acompteRestant = parseFloat(
+    reservation.acompte_restant ?? Math.max(0, acompteTotal - acomptePaye)
+  );
+  const paiementAcompteAttendu =
+    reservation.mode_paiement !== 'cmi'
+    && reservation.statut !== 'annulee'
+    && acompteRestant > 0.009;
+
   return (
     <div className="max-w-3xl mx-auto px-4 pt-24 pb-16">
       {/* Success Icon */}
@@ -147,16 +158,50 @@ export default function Confirmation() {
 
       {/* Payment */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 mb-6">
-        <h3 className="text-white font-semibold mb-3">Montant payé</h3>
+        <h3 className="text-white font-semibold mb-3">Paiement</h3>
         <div className="flex justify-between items-center">
-          <span className="text-gray-400">Total</span>
-          <span className="text-primary-light font-bold text-2xl">{reservation.prix_total} DH</span>
+          <span className="text-gray-400">Total de la location</span>
+          <span className="text-primary-light font-bold text-2xl">{formatMAD(reservation.prix_total)}</span>
         </div>
+        {acompteTotal > 0 && (
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-gray-400">Acompte</span>
+            <span className={acompteRestant > 0.009 ? 'text-amber-400 font-semibold' : 'text-green-500 font-semibold'}>
+              {acompteRestant > 0.009
+                ? `${formatMAD(acomptePaye)} réglé sur ${formatMAD(acompteTotal)}`
+                : `${formatMAD(acompteTotal)} validé`}
+            </span>
+          </div>
+        )}
         <div className="flex justify-between items-center mt-2">
           <span className="text-gray-400">Statut</span>
           <span className="bg-green-500/20 text-green-500 px-3 py-1 rounded-full text-sm font-medium">Confirmée</span>
         </div>
       </div>
+
+      {paiementAcompteAttendu && (
+        <div className="bg-[#1a1a1a] border border-primary/30 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Landmark size={20} className="text-primary-light" aria-hidden="true" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-white font-semibold">Réglez votre acompte</h3>
+              <p className="mt-1 text-sm leading-relaxed text-gray-400">
+                Payez {formatMAD(acompteRestant)} par virement bancaire ou en agence
+                Wafacash / Cash Plus, puis envoyez votre reçu. L'acompte sera validé
+                par l'agence.
+              </p>
+              <Link
+                to={`/paiement/acompte/${encodeURIComponent(reservation.numero)}`}
+                className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Payer l'acompte
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Help */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 text-center">
