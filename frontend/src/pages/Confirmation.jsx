@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Landmark, Phone, MessageCircle } from 'lucide-react';
+import { CheckCircle2, Phone, MessageCircle, Wallet } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '../components/Skeleton';
@@ -183,14 +183,14 @@ export default function Confirmation() {
         <div className="bg-[#1a1a1a] border border-primary/30 rounded-xl p-6 mb-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <Landmark size={20} className="text-primary-light" aria-hidden="true" />
+              <Wallet size={20} className="text-primary-light" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-white font-semibold">Réglez votre acompte</h3>
               <p className="mt-1 text-sm leading-relaxed text-gray-400">
-                Payez {formatMAD(acompteRestant)} par virement bancaire ou en agence
-                Wafacash / Cash Plus, puis envoyez votre reçu. L'acompte sera validé
-                par l'agence.
+                Réglez votre acompte de {formatMAD(acompteRestant)} selon le moyen proposé
+                sur la page de paiement, puis envoyez votre justificatif. L'agence validera
+                le paiement.
               </p>
               <Link
                 to={`/paiement/acompte/${encodeURIComponent(reservation.numero)}`}
