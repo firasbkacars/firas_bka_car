@@ -190,6 +190,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('clients', ClientController::class)->except(['store']);
 
     // Admin reservations
+    // `storeAdmin` : reservation saisie par un agent pour un booking telephone
+    // (client existant ou cree a la volee), distinct du parcours client.
+    Route::post('/reservations-admin', [ReservationController::class, 'storeAdmin']);
     Route::apiResource('reservations-admin', ReservationController::class)->except(['store', 'show']);
     Route::get('/reservations', [ReservationController::class, 'index']);
     Route::put('/reservations/{id}/annuler', [ReservationController::class, 'annuler']);

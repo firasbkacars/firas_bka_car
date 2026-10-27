@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAdminReservationRequest;
 use App\Http\Requests\StoreReservationRequest;
 use App\Jobs\SendReservationConfirmation;
 use App\Mail\AdminNewReservation;
 use App\Mail\AdminReservationCancelled;
 use App\Models\Agence;
 use App\Models\CautionHistory;
+use App\Models\Client;
 use App\Models\CodePromo;
 use App\Models\Paiement;
 use App\Models\Parametre;
@@ -90,7 +92,75 @@ class ReservationController extends Controller
 
         $validated = $request->validated();
 
-        $reservation = DB::transaction(function () use ($validated, $client) {
+        $reservation = $this->creerReservation($client, $validated);
+
+        $reservation->load(['client', 'vehicule', 'agence']);
+
+        SendReservationConfirmation::dispatch($reservation->id);
+
+        // Notification admin en file : un envoi bloquant dans la meme requete
+        // ajoutait la latence SMTP a la creation de reservation.
+        QueuedMail::send(
+            config('mail.admin_address'),
+            new AdminNewReservation($reservation),
+            'admin-nouvelle-reservation'
+        );
+
+        return response()->json($reservation, 201);
+    }
+
+    /**
+     * Reservation saisie manuellement par un agent (booking par telephone).
+     *
+     * Aucune piece justificative n'est exigee : l'agent peut creer le client
+     * a la volee. La fiche client et la reservation partagent la meme
+     * transaction pour ne pas laisser de client orphelin si le vehicule est
+     * finalement indisponible.
+     */
+    public function storeAdmin(StoreAdminReservationRequest $request)
+    {
+        $validated = $request->validated();
+
+        $reservation = DB::transaction(function () use ($validated) {
+            if (! empty($validated['client_id'])) {
+                $client = Client::findOrFail($validated['client_id']);
+            } else {
+                $donneesClient = $validated['client'];
+
+                $client = Client::create([
+                    'nom_complet' => $donneesClient['nom_complet'],
+                    'telephone' => $donneesClient['telephone'],
+                    'email' => $donneesClient['email'] ?? null,
+                    'cin' => $donneesClient['cin'] ?? null,
+                    'passeport' => $donneesClient['passeport'] ?? null,
+                    'est_etranger' => (bool) ($donneesClient['est_etranger'] ?? false),
+                    'adresse' => $donneesClient['adresse'] ?? null,
+                    'statut' => 'actif',
+                ]);
+            }
+
+            return $this->creerReservation($client, $validated);
+        });
+
+        $reservation->load(['client', 'vehicule', 'agence']);
+
+        // Le job ignore silencieusement les clients sans email (reservation
+        // telephone prise sans adresse mail).
+        SendReservationConfirmation::dispatch($reservation->id);
+
+        return response()->json($reservation, 201);
+    }
+
+    /**
+     * Coeur commun de la creation d'une reservation.
+     *
+     * Partage par le parcours client et la saisie admin afin que le calcul
+     * du prix, de l'acompte, de la caution et la detection de conflit
+     * restent identiques quel que soit le canal.
+     */
+    private function creerReservation(Client $client, array $validated): Reservation
+    {
+        return DB::transaction(function () use ($validated, $client) {
             $vehicule = Vehicule::where('id', $validated['vehicule_id'])
                 ->lockForUpdate()
                 ->first();
@@ -148,14 +218,19 @@ class ReservationController extends Controller
             $agenceId = $validated['agence_id'] ?? $vehicule->agence_id;
             $agence = $agenceId ? Agence::find($agenceId) : null;
 
-            $lieuPrise = $validated['lieu_prise'];
-            $lieuRetour = $validated['lieu_retour'];
+            $lieuPrise = $validated['lieu_prise'] ?? null;
+            $lieuRetour = $validated['lieu_retour'] ?? $lieuPrise;
             if ($agence) {
                 // Lieu derive de l'agence : la valeur client ne peut pas
                 // decrire un point de prise en charge qui n'existe pas.
                 $lieu = trim($agence->adresse.', '.$agence->ville);
                 $lieuPrise = $lieu !== '' ? $lieu : $agence->ville;
                 $lieuRetour = $lieuPrise;
+            } else {
+                // Saisie admin sans agence : on garde le lieu transmis, avec
+                // Tanger comme repli (seule ville desservie).
+                $lieuPrise = $lieuPrise ?: 'Tanger';
+                $lieuRetour = $lieuRetour ?: $lieuPrise;
             }
 
             $supplementConducteur = 0;
@@ -218,20 +293,6 @@ class ReservationController extends Controller
 
             return $reservation;
         });
-
-        $reservation->load(['client', 'vehicule', 'agence']);
-
-        SendReservationConfirmation::dispatch($reservation->id);
-
-        // Notification admin en file : un envoi bloquant dans la meme requete
-        // ajoutait la latence SMTP a la creation de reservation.
-        QueuedMail::send(
-            config('mail.admin_address'),
-            new AdminNewReservation($reservation),
-            'admin-nouvelle-reservation'
-        );
-
-        return response()->json($reservation, 201);
     }
 
     public function show(Request $request, $numero)

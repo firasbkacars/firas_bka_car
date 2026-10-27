@@ -15,10 +15,12 @@ import {
   X,
   Printer,
   FileDown,
+  Plus,
 } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { contratExpire } from '../../lib/formatters';
 
 const STATUT_LABELS = {
   confirmee: 'Confirmée',
@@ -35,6 +37,55 @@ const STATUT_STYLES = {
 };
 
 const PER_PAGE_OPTIONS = [10, 20, 50];
+
+const MODES_PAIEMENT = [
+  { value: 'especes', label: 'Especes (agence)' },
+  { value: 'cmi', label: 'Carte bancaire (CMI)' },
+  { value: 'virement', label: 'Virement bancaire' },
+  { value: 'wafacash', label: 'Wafacash' },
+];
+
+/** Format attendu par <input type="datetime-local"> (heure locale). */
+function toDateTimeLocal(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** Formulaire vierge : prise en charge demain 10h, retour trois jours plus tard. */
+function defaultCreateForm() {
+  const debut = new Date();
+  debut.setDate(debut.getDate() + 1);
+  debut.setHours(10, 0, 0, 0);
+  const fin = new Date(debut);
+  fin.setDate(fin.getDate() + 3);
+
+  return {
+    clientMode: 'existing',
+    client_id: '',
+    nom_complet: '',
+    telephone: '',
+    email: '',
+    cin: '',
+    passeport: '',
+    est_etranger: false,
+    adresse: '',
+    vehicule_id: '',
+    agence_id: '',
+    date_debut: toDateTimeLocal(debut),
+    date_fin: toDateTimeLocal(fin),
+    mode_paiement: 'especes',
+    code_promo: '',
+    notes: '',
+    conducteur_additionnel_nom: '',
+    conducteur_additionnel_telephone: '',
+    conducteur_additionnel_permis: '',
+    assurance_conducteur_additionnel: false,
+  };
+}
+
+function formatDH(value) {
+  return `${Number(value || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} DH`;
+}
 
 function SkeletonRow() {
   return (
@@ -91,6 +142,21 @@ export default function AdminReservations() {
   const [cautionHist, setCautionHist] = useState(null);
   const [cautionHistLoading, setCautionHistLoading] = useState(false);
   const [contratLoading, setContratLoading] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState(defaultCreateForm);
+  const [createSaving, setCreateSaving] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [createDataLoading, setCreateDataLoading] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [vehiculesAdmin, setVehiculesAdmin] = useState([]);
+  const [agences, setAgences] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
+  const [parametres, setParametres] = useState({
+    taux_acompte: 30,
+    supplement_conducteur_jour: 50,
+  });
+
+  const inputClass = 'w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-2.5 text-sm text-white placeholder:text-placeholder focus:border-red-600 focus:outline-none';
 
   useEffect(() => {
     fetchReservations();
@@ -109,6 +175,113 @@ export default function AdminReservations() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openCreateModal = async () => {
+    setCreateForm(defaultCreateForm());
+    setClientSearch('');
+    setCreateError('');
+    setShowCreate(true);
+    setCreateDataLoading(true);
+
+    try {
+      const [clientsRes, vehiculesRes, agencesRes, parametresRes] = await Promise.all([
+        api.get('/clients'),
+        api.get('/vehicules-admin'),
+        api.get('/agences-admin'),
+        api.get('/parametres'),
+      ]);
+
+      setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
+      setVehiculesAdmin(vehiculesRes.data?.data || vehiculesRes.data?.vehicules || []);
+      setAgences(Array.isArray(agencesRes.data) ? agencesRes.data : []);
+
+      const valeurs = {};
+      (Array.isArray(parametresRes.data) ? parametresRes.data : []).forEach((p) => {
+        valeurs[p.cle] = p.valeur;
+      });
+      setParametres({
+        taux_acompte: Number(valeurs.taux_acompte ?? 30),
+        supplement_conducteur_jour: Number(valeurs.supplement_conducteur_jour ?? 50),
+      });
+    } catch (err) {
+      console.error(err);
+      setCreateError('Impossible de charger les clients, vehicules ou agences.');
+    } finally {
+      setCreateDataLoading(false);
+    }
+  };
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    if (createSaving) return;
+    setCreateError('');
+
+    if (!createForm.vehicule_id) {
+      setCreateError('Selectionnez un vehicule.');
+      return;
+    }
+
+    if (createForm.clientMode === 'existing' && !createForm.client_id) {
+      setCreateError('Selectionnez un client existant.');
+      return;
+    }
+
+    if (createForm.clientMode === 'new' && (!createForm.nom_complet.trim() || !createForm.telephone.trim())) {
+      setCreateError('Le nom et le telephone du nouveau client sont obligatoires.');
+      return;
+    }
+
+    if (createJours <= 0) {
+      setCreateError('La date de retour doit etre posterieure a la date de prise en charge.');
+      return;
+    }
+
+    const payload = {
+      vehicule_id: Number(createForm.vehicule_id),
+      agence_id: createForm.agence_id ? Number(createForm.agence_id) : null,
+      date_debut: createForm.date_debut.replace('T', ' '),
+      date_fin: createForm.date_fin.replace('T', ' '),
+      mode_paiement: createForm.mode_paiement,
+      notes: createForm.notes.trim() || null,
+      code_promo: createForm.code_promo.trim() || null,
+      conducteur_additionnel_nom: createForm.conducteur_additionnel_nom.trim() || null,
+      conducteur_additionnel_telephone: createForm.conducteur_additionnel_telephone.trim() || null,
+      conducteur_additionnel_permis: createForm.conducteur_additionnel_permis.trim() || null,
+      assurance_conducteur_additionnel: createForm.assurance_conducteur_additionnel,
+    };
+
+    if (createForm.clientMode === 'existing') {
+      payload.client_id = Number(createForm.client_id);
+    } else {
+      payload.client = {
+        nom_complet: createForm.nom_complet.trim(),
+        telephone: createForm.telephone.trim(),
+        email: createForm.email.trim() || null,
+        cin: createForm.est_etranger ? null : (createForm.cin.trim() || null),
+        passeport: createForm.est_etranger ? (createForm.passeport.trim() || null) : null,
+        est_etranger: createForm.est_etranger,
+        adresse: createForm.adresse.trim() || null,
+      };
+    }
+
+    setCreateSaving(true);
+    try {
+      const { data } = await api.post('/reservations-admin', payload);
+      setShowCreate(false);
+      toast.success(`Reservation ${data.numero} creee.`);
+      fetchReservations();
+    } catch (err) {
+      const erreurs = err.response?.data?.errors;
+      const premiere = erreurs ? Object.values(erreurs).flat().find(Boolean) : null;
+      setCreateError(
+        premiere
+        || err.response?.data?.message
+        || 'Erreur lors de la creation de la reservation.'
+      );
+    } finally {
+      setCreateSaving(false);
     }
   };
 
@@ -215,6 +388,54 @@ export default function AdminReservations() {
     }
   };
 
+  const clientsFiltres = useMemo(() => {
+    const q = clientSearch.trim().toLowerCase();
+    return clients
+      .filter((c) => {
+        if (!q) return true;
+        return c.nom_complet?.toLowerCase().includes(q)
+          || c.telephone?.includes(q)
+          || c.email?.toLowerCase().includes(q);
+      })
+      .sort((a, b) => (a.nom_complet || '').localeCompare(b.nom_complet || ''));
+  }, [clients, clientSearch]);
+
+  const selectedVehicule = useMemo(
+    () => vehiculesAdmin.find((v) => String(v.id) === String(createForm.vehicule_id)) || null,
+    [vehiculesAdmin, createForm.vehicule_id],
+  );
+
+  const createJours = useMemo(() => {
+    if (!createForm.date_debut || !createForm.date_fin) return 0;
+    const debut = new Date(createForm.date_debut);
+    const fin = new Date(createForm.date_fin);
+    if (Number.isNaN(debut.getTime()) || Number.isNaN(fin.getTime())) return 0;
+    return Math.max(0, Math.ceil((fin - debut) / (1000 * 60 * 60 * 24)));
+  }, [createForm.date_debut, createForm.date_fin]);
+
+  const createPreview = useMemo(() => {
+    if (!selectedVehicule || createJours <= 0) return null;
+
+    const sousTotal = Number(selectedVehicule.prix_jour) * createJours;
+    const supplement = createForm.conducteur_additionnel_nom.trim()
+      ? parametres.supplement_conducteur_jour * createJours
+      : 0;
+    const total = sousTotal + supplement;
+
+    return {
+      sousTotal,
+      supplement,
+      total,
+      acompte: total * (parametres.taux_acompte / 100),
+      caution: Number(selectedVehicule.montant_caution || 0),
+    };
+  }, [
+    selectedVehicule,
+    createJours,
+    createForm.conducteur_additionnel_nom,
+    parametres,
+  ]);
+
   const uniqueVehicules = useMemo(() => {
     const map = new Map();
     reservations.forEach(r => {
@@ -290,6 +511,14 @@ export default function AdminReservations() {
             {filtered.length} réservation(s) — {totalMontant.toLocaleString('fr-FR')} DH
           </p>
         </div>
+        <button
+          type="button"
+          onClick={openCreateModal}
+          className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700"
+        >
+          <Plus size={16} />
+          Nouvelle réservation
+        </button>
       </div>
 
       {/* Filters */}
@@ -649,6 +878,397 @@ export default function AdminReservations() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => { if (!createSaving) setShowCreate(false); }}
+          />
+          <div className="relative my-8 w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900 shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-neutral-800 px-6 py-4">
+              <div>
+                <h3 className="font-semibold text-white">Nouvelle réservation</h3>
+                <p className="mt-0.5 text-xs text-muted">Réservation prise par téléphone ou au comptoir</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { if (!createSaving) setShowCreate(false); }}
+                className="text-neutral-400 transition hover:text-white"
+                aria-label="Fermer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSubmit} className="max-h-[75vh] space-y-6 overflow-y-auto p-6">
+              {createError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                  {createError}
+                </div>
+              )}
+
+              {createDataLoading ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted">
+                  <Loader2 size={18} className="animate-spin" />
+                  Chargement des données...
+                </div>
+              ) : (
+                <>
+                  <section className="space-y-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <h4 className="text-sm font-semibold text-white">Client</h4>
+                      <div className="inline-flex w-fit rounded-lg border border-neutral-700 p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setCreateForm((prev) => ({ ...prev, clientMode: 'existing' }))}
+                          className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                            createForm.clientMode === 'existing'
+                              ? 'bg-red-600 text-white'
+                              : 'text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          Client existant
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCreateForm((prev) => ({ ...prev, clientMode: 'new' }))}
+                          className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                            createForm.clientMode === 'new'
+                              ? 'bg-red-600 text-white'
+                              : 'text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          Nouveau client
+                        </button>
+                      </div>
+                    </div>
+
+                    {createForm.clientMode === 'existing' ? (
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div className="relative sm:col-span-2">
+                          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                          <input
+                            type="text"
+                            aria-label="Rechercher un client"
+                            placeholder="Rechercher par nom, téléphone ou email..."
+                            value={clientSearch}
+                            onChange={(e) => setClientSearch(e.target.value)}
+                            className={`${inputClass} pl-10`}
+                          />
+                        </div>
+                        <select
+                          aria-label="Client existant"
+                          value={createForm.client_id}
+                          onChange={(e) => setCreateForm((prev) => ({ ...prev, client_id: e.target.value }))}
+                          className={`${inputClass} cursor-pointer sm:col-span-2`}
+                        >
+                          <option value="">Sélectionner un client...</option>
+                          {clientsFiltres.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.nom_complet} — {c.telephone}{c.email ? ` — ${c.email}` : ''}
+                            </option>
+                          ))}
+                        </select>
+                        {clientsFiltres.length === 0 && (
+                          <p className="text-xs text-yellow-400 sm:col-span-2">
+                            Aucun client ne correspond. Passez en « Nouveau client ».
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <input
+                          type="text"
+                          aria-label="Nom complet"
+                          placeholder="Nom complet *"
+                          value={createForm.nom_complet}
+                          onChange={(e) => setCreateForm((prev) => ({ ...prev, nom_complet: e.target.value }))}
+                          className={inputClass}
+                        />
+                        <input
+                          type="tel"
+                          aria-label="Téléphone"
+                          placeholder="Téléphone * (06...)"
+                          value={createForm.telephone}
+                          onChange={(e) => setCreateForm((prev) => ({ ...prev, telephone: e.target.value }))}
+                          className={inputClass}
+                        />
+                        <input
+                          type="email"
+                          aria-label="Email"
+                          placeholder="Email (optionnel)"
+                          value={createForm.email}
+                          onChange={(e) => setCreateForm((prev) => ({ ...prev, email: e.target.value }))}
+                          className={inputClass}
+                        />
+                        <select
+                          aria-label="Nationalité"
+                          value={createForm.est_etranger ? 'etranger' : 'marocain'}
+                          onChange={(e) => setCreateForm((prev) => ({
+                            ...prev,
+                            est_etranger: e.target.value === 'etranger',
+                          }))}
+                          className={`${inputClass} cursor-pointer`}
+                        >
+                          <option value="marocain">Marocaine — carte nationale</option>
+                          <option value="etranger">Étrangère — passeport</option>
+                        </select>
+                        {createForm.est_etranger ? (
+                          <input
+                            type="text"
+                            aria-label="Numéro de passeport"
+                            placeholder="Numéro de passeport"
+                            value={createForm.passeport}
+                            onChange={(e) => setCreateForm((prev) => ({ ...prev, passeport: e.target.value.toUpperCase() }))}
+                            className={inputClass}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            aria-label="CIN"
+                            placeholder="CIN"
+                            value={createForm.cin}
+                            onChange={(e) => setCreateForm((prev) => ({ ...prev, cin: e.target.value.toUpperCase() }))}
+                            className={inputClass}
+                          />
+                        )}
+                        <input
+                          type="text"
+                          aria-label="Adresse"
+                          placeholder="Adresse (optionnel)"
+                          value={createForm.adresse}
+                          onChange={(e) => setCreateForm((prev) => ({ ...prev, adresse: e.target.value }))}
+                          className={`${inputClass} sm:col-span-2`}
+                        />
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="create-vehicule" className="mb-1 block text-xs font-medium text-muted">
+                        Véhicule *
+                      </label>
+                      <select
+                        id="create-vehicule"
+                        value={createForm.vehicule_id}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const vehicule = vehiculesAdmin.find((v) => String(v.id) === String(value));
+                          setCreateForm((prev) => ({
+                            ...prev,
+                            vehicule_id: value,
+                            agence_id: prev.agence_id || (vehicule?.agence_id ? String(vehicule.agence_id) : ''),
+                          }));
+                        }}
+                        className={`${inputClass} cursor-pointer`}
+                      >
+                        <option value="">Sélectionner un véhicule...</option>
+                        {vehiculesAdmin.map((v) => {
+                          const indisponible = v.statut !== 'disponible'
+                            || contratExpire(v.date_expiration_assurance)
+                            || contratExpire(v.date_expiration_carte_grise);
+                          return (
+                            <option key={v.id} value={v.id} disabled={indisponible}>
+                              {v.marque} {v.modele} — {formatDH(v.prix_jour)}/jour{indisponible ? ' (indisponible)' : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="create-agence" className="mb-1 block text-xs font-medium text-muted">
+                        Agence
+                      </label>
+                      <select
+                        id="create-agence"
+                        value={createForm.agence_id}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, agence_id: e.target.value }))}
+                        className={`${inputClass} cursor-pointer`}
+                      >
+                        <option value="">Agence du véhicule</option>
+                        {agences.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.nom}{a.active === false ? ' (inactive)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </section>
+
+                  <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="create-date-debut" className="mb-1 block text-xs font-medium text-muted">
+                        Prise en charge *
+                      </label>
+                      <input
+                        id="create-date-debut"
+                        type="datetime-local"
+                        value={createForm.date_debut}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, date_debut: e.target.value }))}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="create-date-fin" className="mb-1 block text-xs font-medium text-muted">
+                        Retour *
+                      </label>
+                      <input
+                        id="create-date-fin"
+                        type="datetime-local"
+                        value={createForm.date_fin}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, date_fin: e.target.value }))}
+                        className={inputClass}
+                      />
+                    </div>
+                  </section>
+
+                  <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="create-mode" className="mb-1 block text-xs font-medium text-muted">
+                        Mode de paiement de l'acompte *
+                      </label>
+                      <select
+                        id="create-mode"
+                        value={createForm.mode_paiement}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, mode_paiement: e.target.value }))}
+                        className={`${inputClass} cursor-pointer`}
+                      >
+                        {MODES_PAIEMENT.map((m) => (
+                          <option key={m.value} value={m.value}>{m.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="create-promo" className="mb-1 block text-xs font-medium text-muted">
+                        Code promo
+                      </label>
+                      <input
+                        id="create-promo"
+                        type="text"
+                        placeholder="Optionnel"
+                        value={createForm.code_promo}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, code_promo: e.target.value.toUpperCase() }))}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label htmlFor="create-notes" className="mb-1 block text-xs font-medium text-muted">
+                        Notes internes
+                      </label>
+                      <textarea
+                        id="create-notes"
+                        rows={2}
+                        placeholder="Informations utiles (vol, heure d'arrivée, demandes...)"
+                        value={createForm.notes}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, notes: e.target.value }))}
+                        className={`${inputClass} resize-none`}
+                      />
+                    </div>
+                  </section>
+
+                  <section className="rounded-xl border border-neutral-800 p-4">
+                    <h4 className="mb-3 text-sm font-semibold text-white">Conducteur additionnel</h4>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        aria-label="Nom du conducteur additionnel"
+                        placeholder="Nom complet"
+                        value={createForm.conducteur_additionnel_nom}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, conducteur_additionnel_nom: e.target.value }))}
+                        className={inputClass}
+                      />
+                      <input
+                        type="tel"
+                        aria-label="Téléphone du conducteur additionnel"
+                        placeholder="Téléphone"
+                        value={createForm.conducteur_additionnel_telephone}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, conducteur_additionnel_telephone: e.target.value }))}
+                        className={inputClass}
+                      />
+                      <input
+                        type="text"
+                        aria-label="Permis du conducteur additionnel"
+                        placeholder="Numéro de permis *"
+                        value={createForm.conducteur_additionnel_permis}
+                        onChange={(e) => setCreateForm((prev) => ({ ...prev, conducteur_additionnel_permis: e.target.value }))}
+                        className={inputClass}
+                      />
+                    </div>
+                    <label className="mt-3 flex items-center gap-2 text-xs text-neutral-400">
+                      <input
+                        type="checkbox"
+                        checked={createForm.assurance_conducteur_additionnel}
+                        onChange={(e) => setCreateForm((prev) => ({
+                          ...prev,
+                          assurance_conducteur_additionnel: e.target.checked,
+                        }))}
+                        className="accent-red-600"
+                      />
+                      Assurance conducteur additionnel
+                    </label>
+                  </section>
+
+                  {createPreview ? (
+                    <section className="space-y-2 rounded-xl border border-neutral-700/60 bg-neutral-800/40 p-4 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted">
+                          Véhicule ({createJours} jour{createJours > 1 ? 's' : ''})
+                        </span>
+                        <span className="text-white">{formatDH(createPreview.sousTotal)}</span>
+                      </div>
+                      {createPreview.supplement > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted">Conducteur additionnel</span>
+                          <span className="text-white">{formatDH(createPreview.supplement)}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between border-t border-neutral-700/60 pt-2">
+                        <span className="font-medium text-white">Total</span>
+                        <span className="font-semibold text-white">{formatDH(createPreview.total)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted">Acompte ({parametres.taux_acompte}%)</span>
+                        <span className="font-medium text-red-400">{formatDH(createPreview.acompte)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted">Caution (bloquée)</span>
+                        <span className="text-neutral-300">{formatDH(createPreview.caution)}</span>
+                      </div>
+                      <p className="pt-1 text-[11px] text-muted">
+                        Le code promo éventuel est appliqué par le serveur à la création.
+                      </p>
+                    </section>
+                  ) : (
+                    <p className="text-xs text-muted">
+                      Sélectionnez un véhicule et des dates pour voir le total et l'acompte.
+                    </p>
+                  )}
+                </>
+              )}
+
+              <div className="flex flex-col gap-3 border-t border-neutral-800 pt-4 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => { if (!createSaving) setShowCreate(false); }}
+                  className="flex-1 rounded-xl border border-neutral-700 py-2.5 text-sm text-neutral-400 transition hover:bg-neutral-800"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={createSaving || createDataLoading}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {createSaving && <Loader2 size={16} className="animate-spin" />}
+                  Créer la réservation
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

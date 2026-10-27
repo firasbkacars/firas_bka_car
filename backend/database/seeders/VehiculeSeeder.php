@@ -46,6 +46,16 @@ class VehiculeSeeder extends Seeder
             'equipements' => ['Climatisation', 'Bluetooth', 'Vitres électriques', 'Direction assistée'],
         ],
         [
+            'marque' => 'Dacia', 'modele' => 'Sandero Stepway',
+            'description' => 'Crossover citadin au look baroudeur : garde au sol surélevée, barres de toit et équipements modernes. Coffre généreux, consommation contenue et confort rassurant pour explorer Tanger et ses environs sans se ruiner.',
+            'categorie' => 'Citadine',
+            'annee' => 2024, 'transmission' => 'manuelle', 'carburant' => 'essence',
+            'places' => 5, 'puissance' => '100 ch', 'kilometrage' => 12000,
+            'prix_jour' => 350, 'statut' => 'disponible', 'populaire' => true,
+            'photos' => ['vehicules/dacia-sandero-stepway.jpg'],
+            'equipements' => ['Climatisation', 'Bluetooth', 'Caméra de recul', 'Régulateur de vitesse', 'Apple CarPlay / Android Auto', 'Barres de toit'],
+        ],
+        [
             'marque' => 'SEAT', 'modele' => 'Ibiza FR',
             'description' => 'Citadine sportive et nerveuse, finition FR généreuse. Tenue de route précise et look affirmé. Idéale pour évoluer en ville et profiter des routes côtières autour de Tanger.',
             'categorie' => 'Compacte',
