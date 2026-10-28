@@ -45,5 +45,13 @@ Route::fallback(function () {
         abort(404);
     }
 
+    // Un asset manquant (bundle d'un deploiement precedent encore ouvert dans
+    // un onglet) doit renvoyer un vrai 404. Servir index.html avec un 200
+    // provoque une erreur MIME opaque : "text/html is not a supported
+    // stylesheet MIME type".
+    if (request()->is('assets/*') || pathinfo(request()->path(), PATHINFO_EXTENSION) !== '') {
+        abort(404);
+    }
+
     return spaResponse();
 });

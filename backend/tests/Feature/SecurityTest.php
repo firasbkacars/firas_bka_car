@@ -202,6 +202,14 @@ class SecurityTest extends TestCase
         $this->assertStringContainsString('<div id="root">', $response->getContent());
     }
 
+    public function test_missing_asset_returns_404_instead_of_spa_html(): void
+    {
+        // Un bundle d'un ancien deploiement ne doit pas recevoir index.html
+        // avec un 200 : le navigateur le rejetterait pour cause de MIME.
+        $this->get('/assets/index-ancien-bundle.js')->assertNotFound();
+        $this->get('/assets/index-ancien-bundle.css')->assertNotFound();
+    }
+
     public function test_unknown_api_route_returns_404_json(): void
     {
         $this->getJson('/api/does-not-exist')->assertNotFound();

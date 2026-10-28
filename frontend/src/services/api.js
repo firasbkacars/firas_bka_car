@@ -121,7 +121,10 @@ api.interceptors.response.use(
         (status === 401 && !adminRequest && usedClientToken)
         || (clientRequest && !clientToken && (status === 401 || status === 403));
 
-      if (adminRequest && usedAdminToken) {
+      // Toute requete admin refusee ramene a la connexion, meme sans token :
+      // un onglet reste ouvert sur un ancien bundle (ou vide par une
+      // deconnexion) continuerait sinon d'emettre des 401 en boucle.
+      if (adminRequest && (status === 401 || usedAdminToken)) {
         localStorage.removeItem('admin_token');
         if (!onAdminLogin) window.location.href = '/admin/login';
       } else if (clientSessionExpired) {

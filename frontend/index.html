@@ -12,6 +12,33 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>FIRAS BKA CAR — Location de voitures à Tanger</title>
+    <script>
+      // Un onglet ouvert avant un deploiement peut encore pointer vers des
+      // bundles supprimes. Sans ce garde-fou, le navigateur affiche des erreurs
+      // MIME ("text/html is not a supported stylesheet MIME type") et l'ancien
+      // JS continue de tourner. On recharge alors une seule fois (max. une
+      // fois toutes les 10 s) pour recuperer l'index.html a jour.
+      (function () {
+        var key = 'fbc-asset-reload';
+        window.addEventListener(
+          'error',
+          function (event) {
+            var target = event.target;
+            var url = target && (target.src || target.href);
+            if (!url || url.indexOf('/assets/') === -1) return;
+            try {
+              var last = Number(sessionStorage.getItem(key) || 0);
+              if (Date.now() - last < 10000) return;
+              sessionStorage.setItem(key, String(Date.now()));
+            } catch (e) {
+              return;
+            }
+            window.location.reload();
+          },
+          true
+        );
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
