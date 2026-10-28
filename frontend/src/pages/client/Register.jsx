@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/AuthLayout';
 import { Eye, EyeOff, Loader2, Check, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle, autoFocus }) {
+  const { t } = useTranslation();
   return (
     <div>
       <label htmlFor={id} className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
@@ -21,13 +23,13 @@ function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pr-11 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+          className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pe-11 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
         />
         <button
           type="button"
           onClick={onToggle}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
-          aria-label={show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+          className="absolute end-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
+          aria-label={show ? t('auth.masquerMotDePasse') : t('auth.afficherMotDePasse')}
         >
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
@@ -37,10 +39,11 @@ function PasswordInput({ id, label, value, onChange, placeholder, show, onToggle
 }
 
 function StrengthIndicator({ strength }) {
+  const { t } = useTranslation();
   const config = {
-    weak: { label: 'Faible', color: 'bg-[#dc2626]', text: 'text-primary-light', width: 'w-1/3' },
-    medium: { label: 'Moyen', color: 'bg-amber-500', text: 'text-amber-500', width: 'w-2/3' },
-    strong: { label: 'Fort', color: 'bg-emerald-500', text: 'text-emerald-500', width: 'w-full' },
+    weak: { label: t('register.forceFaible'), color: 'bg-[#dc2626]', text: 'text-primary-light', width: 'w-1/3' },
+    medium: { label: t('register.forceMoyen'), color: 'bg-amber-500', text: 'text-amber-500', width: 'w-2/3' },
+    strong: { label: t('register.forceFort'), color: 'bg-emerald-500', text: 'text-emerald-500', width: 'w-full' },
   };
   if (!strength) return null;
   const s = config[strength];
@@ -49,12 +52,13 @@ function StrengthIndicator({ strength }) {
       <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
         <div className={`h-full ${s.color} ${s.width} rounded-full transition-all duration-500`} />
       </div>
-      <p className={`text-xs mt-1 ${s.text} font-medium`}>Force : {s.label}</p>
+      <p className={`text-xs mt-1 ${s.text} font-medium`}>{t('register.force')} {s.label}</p>
     </div>
   );
 }
 
 export default function ClientRegister() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { register } = useAuth();
   const [form, setForm] = useState({
@@ -94,21 +98,21 @@ export default function ClientRegister() {
 
   const phoneError = useMemo(() => {
     if (!form.telephone) return '';
-    if (!/^(06|07)\d{8}$/.test(form.telephone)) return 'Format invalide (06XXXXXXXX ou 07XXXXXXXX)';
+    if (!/^(06|07)\d{8}$/.test(form.telephone)) return t('register.erreurTelephone');
     return '';
-  }, [form.telephone]);
+  }, [form.telephone, t]);
 
   const cinError = useMemo(() => {
     if (form.est_etranger || !form.cin) return '';
-    if (!/^[A-Z]{1,2}\d{4,6}$/.test(form.cin)) return 'Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456)';
+    if (!/^[A-Z]{1,2}\d{4,6}$/.test(form.cin)) return t('register.erreurCin');
     return '';
-  }, [form.cin, form.est_etranger]);
+  }, [form.cin, form.est_etranger, t]);
 
   const passeportError = useMemo(() => {
     if (!form.est_etranger || !form.passeport) return '';
-    if (!/^[A-Z0-9]{6,20}$/.test(form.passeport)) return 'Le numéro de passeport doit contenir 6 à 20 lettres majuscules ou chiffres';
+    if (!/^[A-Z0-9]{6,20}$/.test(form.passeport)) return t('register.erreurPasseport');
     return '';
-  }, [form.passeport, form.est_etranger]);
+  }, [form.passeport, form.est_etranger, t]);
 
   const documentIdentiteManquant = form.est_etranger ? !form.passeport : !form.cin;
 
@@ -136,7 +140,7 @@ export default function ClientRegister() {
       if (data?.errors) {
         setFieldErrors(data.errors);
       } else {
-        setError(data?.message || 'Erreur lors de l\'inscription');
+        setError(data?.message || t('register.erreurInscription'));
       }
     } finally {
       setLoading(false);
@@ -145,15 +149,16 @@ export default function ClientRegister() {
 
   if (success) {
     return (
-      <AuthLayout title="Inscription réussie" subtitle="Redirection vers votre profil...">
+      <AuthLayout title={t('register.succesTitre')} subtitle={t('register.succesSousTitre')}>
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={20} className="text-emerald-500" />
           </div>
-          <h2 className="text-white font-semibold text-lg mb-2">Compte créé avec succès</h2>
+          <h2 className="text-white font-semibold text-lg mb-2">{t('register.succesCompteCree')}</h2>
           <p className="text-muted text-sm">
-            Dernière étape : téléversez votre permis et votre{' '}
-            {form.est_etranger ? 'passeport' : 'carte nationale'} depuis votre profil.
+            {t('register.succesDerniereEtape', {
+              piece: form.est_etranger ? t('register.passeport') : t('register.carteNationale'),
+            })}
           </p>
         </div>
       </AuthLayout>
@@ -161,7 +166,7 @@ export default function ClientRegister() {
   }
 
   return (
-    <AuthLayout title="Créer un compte" subtitle="Rejoignez-nous pour réserver votre voiture" image="/images/photo2.jpg">
+    <AuthLayout title={t('register.titre')} subtitle={t('register.sousTitre')} image="/images/photo2.jpg">
       <form onSubmit={handleSubmit} className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 sm:p-7">
         {error && (
           <div role="alert" className="flex items-start gap-2.5 bg-[#dc2626]/10 border border-[#dc2626]/20 text-primary-light text-sm px-4 py-3 rounded-xl mb-5">
@@ -174,15 +179,15 @@ export default function ClientRegister() {
           <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 mb-5">
             <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
             <p className="text-muted text-xs leading-relaxed">
-              Vous avez déjà réservé par téléphone ?{' '}
+              {t('register.dejaReserve')}{' '}
               <Link
                 to="/client/activer"
                 state={{ email: form.email }}
                 className="text-primary-light hover:underline font-medium"
               >
-                Activez votre compte
+                {t('register.activerCompte')}
               </Link>{' '}
-              avec l'email communiqué à l'agence.
+              {t('register.dejaReserveFin')}
             </p>
           </div>
         )}
@@ -191,7 +196,7 @@ export default function ClientRegister() {
           {/* Nom complet */}
           <div>
             <label htmlFor="reg-nom" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-              Nom complet *
+              {t('register.nomComplet')}
             </label>
             <input
               id="reg-nom"
@@ -214,7 +219,7 @@ export default function ClientRegister() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="reg-email" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                Email *
+                {t('register.email')}
               </label>
               <input
                 id="reg-email"
@@ -233,7 +238,7 @@ export default function ClientRegister() {
             </div>
             <div>
               <label htmlFor="reg-tel" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                Téléphone *
+                {t('register.telephone')}
               </label>
               <input
                 id="reg-tel"
@@ -242,7 +247,7 @@ export default function ClientRegister() {
                 autoComplete="tel"
                 value={form.telephone}
                 onChange={(e) => update('telephone', e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="06XXXXXXXX"
+                placeholder={t('register.telephonePlaceholder')}
                 className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                   phoneError || fieldErrors.telephone ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
                 }`}
@@ -256,10 +261,10 @@ export default function ClientRegister() {
           {/* Password */}
           <PasswordInput
             id="reg-pw"
-            label="Mot de passe *"
+            label={t('register.motDePasse')}
             value={form.password}
             onChange={(e) => update('password', e.target.value)}
-            placeholder="Min. 8 caractères"
+            placeholder={t('register.motDePassePlaceholder')}
             show={showPw}
             onToggle={() => setShowPw(!showPw)}
           />
@@ -269,23 +274,23 @@ export default function ClientRegister() {
           <div>
             <PasswordInput
               id="reg-pw-conf"
-              label="Confirmer le mot de passe *"
+              label={t('register.confirmerMotDePasse')}
               value={form.password_confirmation}
               onChange={(e) => update('password_confirmation', e.target.value)}
-              placeholder="Retapez le mot de passe"
+              placeholder={t('register.confirmerPlaceholder')}
               show={showPwConf}
               onToggle={() => setShowPwConf(!showPwConf)}
             />
             {passwordsMismatch && (
               <p className="text-primary-light text-xs mt-1.5 flex items-center gap-1" role="alert">
             <AlertTriangle size={16} className="shrink-0" />
-                Les mots de passe ne correspondent pas
+                {t('register.motsDePasseDifferents')}
               </p>
             )}
             {passwordsMatch && (
               <p className="text-emerald-400 text-xs mt-1.5 flex items-center gap-1">
                 <Check size={12} className="text-emerald-400" strokeWidth={3} />
-                Les mots de passe correspondent
+                {t('register.motsDePasseIdentiques')}
               </p>
             )}
           </div>
@@ -293,7 +298,7 @@ export default function ClientRegister() {
           {/* Nationalité */}
           <div>
             <label htmlFor="reg-nationalite" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-              Nationalité *
+              {t('register.nationalite')}
             </label>
             <select
               id="reg-nationalite"
@@ -310,8 +315,8 @@ export default function ClientRegister() {
               }}
               className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
             >
-              <option value="marocain">Marocaine — carte nationale (CIN)</option>
-              <option value="etranger">Étrangère — passeport</option>
+              <option value="marocain">{t('register.optionMarocaine')}</option>
+              <option value="etranger">{t('register.optionEtrangere')}</option>
             </select>
           </div>
 
@@ -321,7 +326,7 @@ export default function ClientRegister() {
               {form.est_etranger ? (
                 <>
                   <label htmlFor="reg-passeport" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                    Numéro de passeport *
+                    {t('register.numeroPasseport')}
                   </label>
                   <input
                     id="reg-passeport"
@@ -330,7 +335,7 @@ export default function ClientRegister() {
                     required
                     value={form.passeport}
                     onChange={(e) => update('passeport', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
-                    placeholder="X1234567"
+                    placeholder={t('register.passeportPlaceholder')}
                     maxLength={20}
                     className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                       passeportError || fieldErrors.passeport ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
@@ -343,7 +348,7 @@ export default function ClientRegister() {
               ) : (
                 <>
                   <label htmlFor="reg-cin" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                    CIN *
+                    {t('register.cin')}
                   </label>
                   <input
                     id="reg-cin"
@@ -352,7 +357,7 @@ export default function ClientRegister() {
                     required
                     value={form.cin}
                     onChange={(e) => update('cin', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
-                    placeholder="AB123456"
+                    placeholder={t('register.cinPlaceholder')}
                     maxLength={8}
                     className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                       cinError || fieldErrors.cin ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
@@ -366,7 +371,7 @@ export default function ClientRegister() {
             </div>
             <div>
               <label htmlFor="reg-adresse" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-                Adresse
+                {t('register.adresse')}
               </label>
               <input
                 id="reg-adresse"
@@ -383,9 +388,9 @@ export default function ClientRegister() {
           <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
             <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
             <p className="text-muted text-xs leading-relaxed">
-              Après l'inscription, vous devrez téléverser une photo nette de votre permis de conduire
-              et de votre {form.est_etranger ? 'passeport' : 'carte nationale'} dans votre profil.
-              Les photos floues, trop sombres, rognées ou au format PDF sont refusées automatiquement.
+              {t('register.documentsInfo', {
+                piece: form.est_etranger ? t('register.passeport') : t('register.carteNationale'),
+              })}
             </p>
           </div>
 
@@ -393,7 +398,7 @@ export default function ClientRegister() {
           {/* Code parrainage (V2) */}
           <div>
             <label htmlFor="reg-parrain" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-              Code de parrainage <span className="normal-case text-muted">(optionnel)</span>
+              {t('register.codeParrainage')} <span className="normal-case text-muted">{t('register.optionnel')}</span>
             </label>
             <input
               id="reg-parrain"
@@ -401,7 +406,7 @@ export default function ClientRegister() {
               autoComplete="off"
               value={form.code_parrainage}
               onChange={(e) => update('code_parrainage', e.target.value.toUpperCase().slice(0, 12))}
-              placeholder="Ex : ABCD1234"
+              placeholder={t('register.parrainagePlaceholder')}
               maxLength={12}
               className={`w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:ring-1 outline-none transition-all ${
                 fieldErrors.code_parrainage ? 'border-[#dc2626]/50 focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20' : 'border-white/[0.08] focus:border-[#dc2626]/50 focus:ring-[#dc2626]/20'
@@ -428,9 +433,9 @@ export default function ClientRegister() {
               className="sr-only"
             />
             <span className="text-white/70 text-[13px] leading-relaxed group-hover/cgu:text-white/70 transition-colors">
-              J'accepte les{' '}
+              {t('register.cguAccepte')}{' '}
               <span className="text-primary-light hover:underline">
-                 conditions générales d'utilisation
+                {t('register.cguLien')}
               </span>
             </span>
           </label>
@@ -443,14 +448,14 @@ export default function ClientRegister() {
           className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-disabled disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
-          {loading ? 'Inscription en cours...' : 'S\'inscrire'}
+          {loading ? t('register.inscriptionEnCours') : t('actions.sInscrire')}
         </button>
 
         {/* Login link */}
         <p className="text-center text-muted text-sm mt-5">
-          Déjà un compte ?{' '}
+          {t('register.dejaCompte')}{' '}
           <Link to="/client/login" className="text-primary-light hover:underline font-medium">
-            Se connecter
+            {t('actions.seConnecter')}
           </Link>
         </p>
       </form>

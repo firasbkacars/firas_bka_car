@@ -1,0 +1,445 @@
+{
+  "reservation": {
+    "chargement": "Loading your booking...",
+    "filAriane": {
+      "label": "Breadcrumb",
+      "finaliser": "Complete your booking"
+    },
+    "titre": "Complete your booking",
+    "parametresErreur": "The configured rates could not be loaded. The amounts shown are estimates: the exact total is recalculated by the server when you confirm.",
+    "erreurs": {
+      "vehiculeIndisponible": "Vehicle unavailable",
+      "chargementImpossible": "Unable to load",
+      "vehiculeNonTrouve": "Vehicle not found.",
+      "vehiculePlusDisponible": "This vehicle is no longer available.",
+      "chargementVehicule": "Unable to load the vehicle. Check your connection and try again.",
+      "dateRetourAvantPrise": "The return date must be later than the pick-up date.",
+      "datePrisePassee": "The pick-up date has already passed.",
+      "codePromoInvalide": "Invalid promo code",
+      "codePromoRetire": "Promo code removed: the total has changed. Apply it again.",
+      "reservationEchouee": "Something went wrong while creating your booking. Please try again.",
+      "paiementInitImpossible": "Unable to start the payment.",
+      "reservationCreeePaiementProfil": "{{message}} Your booking has been created: you can pay from your profile.",
+      "reservationCreee": "{{message}} Your booking has been created.",
+      "permisEnvoye": "Licence uploaded. It will be checked by an agent.",
+      "permisEnvoiEchoue": "Unable to upload your licence. Please try again."
+    },
+    "documents": {
+      "mettreAJour": "Update my ID document",
+      "televerser": "Upload my ID document",
+      "identite": {
+        "passeport": "passport",
+        "carteNationale": "national ID card",
+        "cin": "CIN",
+        "rejeteeTitrePasseport": "Passport rejected",
+        "rejeteeTitreCin": "National ID card rejected",
+        "rejeteeDescriptionPasseport": "Your passport has been rejected. Upload a new clear, legible photo from your profile.",
+        "rejeteeDescriptionCin": "Your national ID card has been rejected. Upload a new clear, legible photo from your profile.",
+        "motif": "Reason: {{motif}}",
+        "enAttenteTitrePasseport": "Passport under review",
+        "enAttenteTitreCin": "National ID card under review",
+        "enAttenteDescription": "Your {{document}} is awaiting validation by an agent. You can book once the document has been validated.",
+        "requiseTitrePasseport": "Passport required",
+        "requiseTitreCin": "National ID card required",
+        "requiseDescription": "You must upload a photo of your {{document}} before you can book. Only clear, legible JPG, PNG or WebP photos are accepted."
+      },
+      "permis": {
+        "rejeteTitre": "Licence rejected",
+        "rejeteDescription": "Your driving licence has been rejected. Please upload a new document.",
+        "enAttenteTitre": "Licence under review",
+        "enAttenteDescription": "Your driving licence is awaiting validation by an agent. You can book once it has been validated.",
+        "requisTitre": "Driving licence required",
+        "requisDescription": "You must upload a photo of your driving licence before you can book.",
+        "uploader": "Upload licence",
+        "envoi": "Uploading...",
+        "televerserAria": "Upload driving licence"
+      }
+    },
+    "formulaire": {
+      "vosInformations": "Your details",
+      "nomComplet": "Full name",
+      "telephone": "Phone",
+      "email": "Email",
+      "pieceIdentite": "ID document ({{document}})",
+      "permisConduire": "Driving licence",
+      "statuts": {
+        "validee": "Validated",
+        "rejetee": "Rejected",
+        "nonFournie": "Not provided",
+        "permisValide": "Licence valid",
+        "permisRejete": "Licence rejected",
+        "nonUploade": "Not uploaded"
+      },
+      "agence": "Pick-up agency",
+      "agencePlaceholder": "Select an agency",
+      "agencePriseRetour": "Pick-up and return: {{lieu}}",
+      "agenceDefaut": "Default: {{agence}} - {{lieu}}",
+      "agenceSelectionner": "Select a pick-up agency.",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Special requests, child seat, etc.",
+      "conducteur": {
+        "titre": "Additional driver (optional)",
+        "supplement": "An extra {{montant}} per day applies if an additional driver is added.",
+        "nom": "Driver's name",
+        "nomPlaceholder": "Full name",
+        "telephone": "Phone",
+        "permis": "Licence no.",
+        "permisPlaceholder": "Licence number"
+      },
+      "paiement": {
+        "titre": "Payment method",
+        "especes": "Cash",
+        "especesDesc": "Pay at pick-up",
+        "cmi": "Bank card",
+        "cmiDesc": "Visa / Mastercard via CMI",
+        "securise": "Secure payment via the Centre Monétique Interbancaire. Your card is never stored on our servers."
+      }
+    },
+    "resume": {
+      "titre": "Booking summary",
+      "parJour": "{{prix}} / day",
+      "places_one": "{{count}} seat",
+      "places_other": "{{count}} seats",
+      "datePrise": "Pick-up date",
+      "dateRetour": "Return date",
+      "duree": "Duration",
+      "prixLigne": "{{prix}} × {{duree}}",
+      "assurance": "Comprehensive insurance",
+      "incluse": "Included",
+      "kilometrage": "Unlimited mileage",
+      "inclus": "Included",
+      "conducteurLigne": "Additional driver ({{jours}} day(s) × {{montant}})",
+      "codePromo": "Promo code",
+      "codePromoPlaceholder": "Enter your code",
+      "appliquer": "Apply",
+      "remise": "Promo discount",
+      "total": "Total",
+      "acompte": "Deposit due now ({{taux}}%)",
+      "reste": "Balance due at pick-up",
+      "caution": "Security deposit (refundable)",
+      "cmiTitre": "Secure CMI payment",
+      "cmiDescription": "Enter your card details in the frame below.",
+      "cmiIframeTitre": "CMI payment form",
+      "paiementCree": "Booking created. Complete the payment in the frame below."
+    },
+    "conditions": {
+      "titre": "Rental terms",
+      "penaliteRetard": "Late return fee: {{pourcentage}}% of the daily rate per day late",
+      "annulationGratuite": "Free cancellation more than {{heures}} hours before pick-up",
+      "remboursementPartiel": "50% refund between {{heuresPartiel}} hours and {{heuresGratuit}} hours before",
+      "acompteNonRemboursable": "Deposit non-refundable less than {{heures}} hours before",
+      "caution": "Security deposit of {{montant}}, refunded after the vehicle condition check",
+      "acceptation": "I have read and accept the rental terms and the cancellation policy"
+    },
+    "cta": {
+      "reessayer": "Try again",
+      "voirVehicules": "View vehicles",
+      "datesInvalides": "Invalid dates for booking",
+      "identiteEnAttente": "ID document awaiting validation",
+      "identiteRequise": "ID document required ({{document}})",
+      "permisRequis": "Licence required to book",
+      "accepterConditions": "Accept the terms",
+      "ouverturePaiement": "Opening payment...",
+      "reservationEnCours": "Creating your booking...",
+      "payerCmi": "Pay {{montant}} via CMI",
+      "payerAcompte": "Pay the {{montant}} deposit",
+      "mention": "A {{taux}}% deposit is required to confirm your booking. The balance is paid at pick-up."
+    }
+  },
+  "confirmation": {
+    "titre": "Booking confirmed!",
+    "sousTitre": "Thank you for your trust. Your booking has been made successfully.",
+    "erreurs": {
+      "connectezVous": "Log in to view this booking.",
+      "aucuneReservation": "No booking found.",
+      "introuvable": "Booking not found."
+    },
+    "retourAccueil": "Back to home",
+    "voirVehicules": "View vehicles",
+    "numero": {
+      "titre": "Booking number",
+      "note": "Keep this number for any future reference."
+    },
+    "details": {
+      "titre": "Rental details",
+      "priseEnCharge": "Pick-up",
+      "retour": "Return",
+      "lieu": "Location"
+    },
+    "vehicule": {
+      "titre": "Vehicle"
+    },
+    "paiement": {
+      "titre": "Payment",
+      "total": "Total rental",
+      "acompte": "Deposit",
+      "regleSur": "{{paye}} paid of {{total}}",
+      "valide": "{{total}} validated",
+      "statut": "Status",
+      "confirmee": "Confirmed"
+    },
+    "acompte": {
+      "titre": "Pay your deposit",
+      "description": "Pay your {{montant}} deposit using the method offered on the payment page, then send your proof of payment. The agency will validate the payment.",
+      "payer": "Pay the deposit"
+    },
+    "aide": {
+      "titre": "Need help?",
+      "texte": "Our team is available for any questions.",
+      "whatsapp": "Chat on WhatsApp"
+    }
+  },
+  "acompte": {
+    "chargement": "Loading deposit payment...",
+    "erreurs": {
+      "envoiImpossible": "Unable to send. Check your connection and try again.",
+      "introuvable": "Booking not found. Check the number or log in with the account that made the booking.",
+      "connexionRequise": "Log in with the account that made this booking to pay the deposit.",
+      "chargementImpossible": "Unable to load this booking at the moment."
+    },
+    "filAriane": {
+      "label": "Breadcrumb",
+      "mesReservations": "My bookings",
+      "payer": "Pay the deposit"
+    },
+    "etape": "Step 3 of 3",
+    "titre": "Pay the deposit",
+    "sousTitre": "The deposit confirms your booking. The rest of the rental and the security deposit are paid at pick-up.",
+    "connexion": {
+      "titre": "Pay the deposit",
+      "descriptionAvant": "Log in with the account that made the booking",
+      "descriptionApres": "to view the amount and send your proof of payment.",
+      "retourVehicules": "Back to vehicles"
+    },
+    "indisponible": {
+      "titre": "Payment unavailable",
+      "introuvable": "Booking not found.",
+      "mesReservations": "My bookings",
+      "contacter": "Contact the agency"
+    },
+    "annulee": {
+      "titre": "Booking cancelled",
+      "description": "Deposit tracking is closed for this booking. If a payment has already been made, contact the agency to find out about refund arrangements."
+    },
+    "sansAcompte": {
+      "titre": "No deposit to pay",
+      "description": "This booking does not require a deposit. Please come to the agency on the agreed date: payment is made at pick-up."
+    },
+    "valide": {
+      "titre": "Deposit validated",
+      "description": "Your deposit has been confirmed by the agency. The rest of the rental is payable at pick-up."
+    },
+    "agence": {
+      "titre": "Pay the deposit at the agency",
+      "description": "Your booking is registered. No online payment is available at the moment: please come to the agency to pay the deposit and confirm your booking.",
+      "montant": "Amount due",
+      "taux": "Deposit of {{taux}}% of the total.",
+      "reste": "The rest of the rental is paid at pick-up.",
+      "agence": "Agency",
+      "reservation": "Booking {{numero}}",
+      "etape1": "Come to the agency with your booking number.",
+      "etape2": "Pay the {{montant}} deposit on site.",
+      "etape3": "The agency records the payment: your deposit is marked as “validated”."
+    },
+    "moyens": {
+      "titre": "Deposit payment method",
+      "description": "Only the methods available for this booking are shown.",
+      "virement": "Bank transfer",
+      "virementDesc": "From your banking app",
+      "wafacash": "Wafacash / Cash Plus",
+      "wafacashDesc": "Cash deposit at a transfer agency"
+    },
+    "virement": {
+      "titre": "Agency bank details",
+      "ribLabel": "RIB (24 digits)",
+      "copie": "Copied",
+      "copier": "Copy RIB",
+      "copieAria": "RIB copied to clipboard.",
+      "beneficiaire": "Beneficiary",
+      "banque": "Bank",
+      "montant": "Exact amount",
+      "motifTitre": "Payment reference required",
+      "motifAvant": "Enter your booking number",
+      "motifApres": "in the payment reference so the agency can find your payment."
+    },
+    "wafacash": {
+      "titre": "Transfer at a Wafacash or Cash Plus agency",
+      "description": "No bank account needed: deposit the cash at any transfer agency using the details below.",
+      "beneficiaire": "Beneficiary",
+      "cin": "CIN no.",
+      "telephone": "Phone",
+      "montant": "Exact amount",
+      "recuTitre": "Keep the paper receipt",
+      "recuAvant": "Take a photo of it and send it below with your booking number",
+      "recuApres": "so the agency can find your payment."
+    },
+    "recu": {
+      "titre": "Proof of payment",
+      "formats": "JPG, PNG or PDF, 5 Mo maximum.",
+      "badgeVerification": "Receipt under review",
+      "badgeAEnvoyer": "Receipt to send",
+      "choisirAria": "Choose the payment receipt",
+      "tailleRemplacer": "{{taille}} · Tap to replace the file",
+      "envoyeLe": "Receipt sent on {{date}} · Tap to replace",
+      "ajouter": "Add a photo or PDF of the receipt",
+      "formatsCourt": "JPG, PNG or PDF, 5 Mo maximum",
+      "dejaEnregistre": "A receipt is already on file. Select a file to replace it.",
+      "envoyeTitre": "Receipt sent",
+      "envoyeDescription": "Your proof of payment is awaiting validation. You can replace the file until the deposit is confirmed.",
+      "envoiEnCours": "Sending...",
+      "envoyerNouveau": "Send a new receipt",
+      "envoyer": "Send the receipt",
+      "mention": "A receipt is not proof of payment: the agency checks the transaction before validating the deposit.",
+      "erreurs": {
+        "format": "Unsupported format: send a JPG, PNG or PDF.",
+        "taille": "The proof of payment exceeds 5 Mo.",
+        "methode": "Choose an available payment method. Contact the agency if needed."
+      }
+    },
+    "recap": {
+      "titre": "Summary",
+      "reservation": "Booking",
+      "total": "Total rental",
+      "dejaRegle": "Already paid",
+      "resteAcompte": "Deposit balance",
+      "acompte": "Deposit",
+      "acompteTaux": "Deposit ({{taux}}%)",
+      "reste": "Balance due at pick-up"
+    },
+    "statut": {
+      "titre": "Booking status",
+      "etapesAria": "Booking steps"
+    },
+    "bandeau": {
+      "annulee": {
+        "surtitre": "Payment closed",
+        "titre": "Booking cancelled",
+        "description": "No deposit can be paid for this booking. Contact the agency if a payment has already been made."
+      },
+      "sansAcompte": {
+        "surtitre": "No amount due",
+        "titre": "No deposit required",
+        "description": "This booking does not require a deposit. Payment is made at pick-up.",
+        "legende": "Deposit"
+      },
+      "valide": {
+        "surtitre": "Payment confirmed",
+        "titre": "Deposit validated",
+        "description": "Your deposit has been confirmed by the agency. The rest of the rental is payable at pick-up.",
+        "legende": "Deposit validated"
+      },
+      "recu": {
+        "surtitre": "Verification in progress",
+        "titre": "Receipt under review",
+        "description": "Your proof of payment has been received. The agency is checking the payment before validating the deposit.",
+        "legendePartiel": "Balance to verify",
+        "legende": "Deposit declared"
+      },
+      "agence": {
+        "surtitre": "Action required",
+        "titre": "Deposit to pay at the agency",
+        "description": "No online payment is available. Please come to the agency to pay the deposit and confirm your booking.",
+        "legende": "Amount due"
+      },
+      "aPayer": {
+        "surtitre": "Action required",
+        "titre": "Deposit to pay",
+        "description": "Choose a payment method, make the payment and then send your proof of payment.",
+        "legendePartiel": "Balance due",
+        "legende": "Deposit due"
+      }
+    },
+    "etapes": {
+      "reservation": {
+        "titre": "Booking registered",
+        "description": "Your details and vehicle are registered."
+      },
+      "paiement": {
+        "titre": "Payment at the agency",
+        "description": "Come to the agency to pay the deposit.",
+        "titreRecu": "Receipt under review",
+        "descriptionRecu": "The agency is checking your payment.",
+        "titreAEnvoyer": "Receipt to send",
+        "descriptionAEnvoyer": "Add your proof of payment."
+      },
+      "validation": {
+        "titre": "Deposit validated by the agency",
+        "description": "The payment is confirmed and linked to your booking."
+      },
+      "priseEnCharge": {
+        "titre": "Vehicle pick-up",
+        "description": "The rest of the rental is paid at the agency."
+      }
+    }
+  },
+  "paiementRetour": {
+    "resultats": {
+      "paye": {
+        "titre": "Payment confirmed",
+        "description": "Your deposit has been received. Your booking is validated."
+      },
+      "echoue": {
+        "titre": "Payment declined",
+        "description": "Your bank declined the transaction. No amount has been debited."
+      },
+      "annule": {
+        "titre": "Payment cancelled",
+        "description": "You cancelled the payment. Your booking is still pending."
+      },
+      "expire": {
+        "titre": "Session expired",
+        "description": "The payment session has expired. You can try again."
+      },
+      "suspect": {
+        "titre": "Payment to verify",
+        "description": "An anomaly has been detected. Our team will check your payment."
+      },
+      "en_attente": {
+        "titre": "Payment in progress",
+        "description": "Your bank's confirmation has not arrived yet. Please wait a few moments."
+      },
+      "rembourse": {
+        "titre": "Payment refunded",
+        "description": "This payment has been refunded. The amount will be returned according to the payment method used."
+      },
+      "rembourse_partiel": {
+        "titre": "Payment partially refunded",
+        "description": "Part of this payment has been refunded. Details are available in your profile."
+      },
+      "unknown": {
+        "titre": "Result unavailable",
+        "description": "We could not determine the outcome of the payment."
+      }
+    },
+    "invalide": {
+      "titre": "Invalid payment link",
+      "description": "This link does not contain a transaction reference. Check your bookings to see the status of your payment.",
+      "voirReservations": "View my bookings"
+    },
+    "verification": {
+      "enCours": "Checking...",
+      "attenteBanque": "Waiting for the bank's confirmation...",
+      "delai": "The confirmation is taking longer than expected. It will be applied automatically; you can contact the agency if needed."
+    },
+    "detail": {
+      "reservation": "Booking",
+      "montant": "Amount",
+      "rembourse": "Refunded",
+      "carte": "Card",
+      "date": "Date",
+      "transaction": "Transaction"
+    },
+    "erreurs": {
+      "relancer": "Unable to restart the payment.",
+      "facture": "Unable to download the invoice."
+    },
+    "actions": {
+      "telechargerFacture": "Download invoice",
+      "ouverturePaiement": "Opening payment...",
+      "reessayer": "Try payment again",
+      "voirReservations": "View my bookings",
+      "contacter": "Contact the agency - {{telephone}}"
+    },
+    "note": "No banking data is stored by FIRAS BKA CAR. Payment is processed by the Centre Monétique Interbancaire."
+  }
+}

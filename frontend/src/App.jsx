@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AuthProvider } from './context/AuthContext'
 import { FavorisProvider } from './context/FavorisContext'
 import ScrollToTop from './components/ScrollToTop'
@@ -42,10 +44,20 @@ import AdminLayout from './components/admin/AdminLayout'
 import NotFound from './pages/NotFound'
 
 function App() {
+  const { t, i18n } = useTranslation()
+
+  // Titre et description suivent la langue active (SEO / partage).
+  useEffect(() => {
+    document.title = t('meta.titre')
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', t('meta.description'))
+  }, [t, i18n.language])
+
   return (
     <AuthProvider>
       <FavorisProvider>
-        <a href="#main-content" className="skip-link">Aller au contenu principal</a>
+        <a href="#main-content" className="skip-link">{t('header.allerContenu')}</a>
         <ScrollToTop />
         <main id="main-content" tabIndex={-1}>
           <Routes>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { formatMAD, formatDateTime } from '../lib/formatters';
@@ -13,64 +14,64 @@ const AGENCY_PHONE_HREF = 'tel:+212774623448';
 
 const OUTCOMES = {
   paye: {
-    title: 'Paiement confirme',
-    description: 'Votre acompte a bien ete encaisse. Votre reservation est validee.',
+    titre: 'paiementRetour.resultats.paye.titre',
+    description: 'paiementRetour.resultats.paye.description',
     Icon: CheckCircle2,
     tone: 'text-green-400',
     ring: 'border-green-500/20 bg-green-500/5',
   },
   echoue: {
-    title: 'Paiement refuse',
-    description: 'Votre banque a refuse l\'operation. Aucun montant n\'a ete debite.',
+    titre: 'paiementRetour.resultats.echoue.titre',
+    description: 'paiementRetour.resultats.echoue.description',
     Icon: XCircle,
     tone: 'text-red-400',
     ring: 'border-red-500/20 bg-red-500/5',
   },
   annule: {
-    title: 'Paiement annule',
-    description: 'Vous avez abandonne le paiement. Votre reservation reste en attente.',
+    titre: 'paiementRetour.resultats.annule.titre',
+    description: 'paiementRetour.resultats.annule.description',
     Icon: Ban,
     tone: 'text-neutral-400',
     ring: 'border-neutral-500/20 bg-neutral-500/5',
   },
   expire: {
-    title: 'Session expiree',
-    description: 'La session de paiement a expire. Vous pouvez retenter.',
+    titre: 'paiementRetour.resultats.expire.titre',
+    description: 'paiementRetour.resultats.expire.description',
     Icon: Hourglass,
     tone: 'text-orange-400',
     ring: 'border-orange-500/20 bg-orange-500/5',
   },
   suspect: {
-    title: 'Paiement a verifier',
-    description: 'Une anomalie a ete detectee. Notre equipe va verifier votre paiement.',
+    titre: 'paiementRetour.resultats.suspect.titre',
+    description: 'paiementRetour.resultats.suspect.description',
     Icon: ShieldAlert,
     tone: 'text-amber-400',
     ring: 'border-amber-500/20 bg-amber-500/5',
   },
   en_attente: {
-    title: 'Paiement en cours',
-    description: 'La confirmation de votre banque n\'est pas encore arrivee. Patientez quelques instants.',
+    titre: 'paiementRetour.resultats.en_attente.titre',
+    description: 'paiementRetour.resultats.en_attente.description',
     Icon: Hourglass,
     tone: 'text-yellow-400',
     ring: 'border-yellow-500/20 bg-yellow-500/5',
   },
   rembourse: {
-    title: 'Paiement rembourse',
-    description: 'Cet encaissement a ete rembourse. Le montant vous sera restitue selon le moyen de paiement utilise.',
+    titre: 'paiementRetour.resultats.rembourse.titre',
+    description: 'paiementRetour.resultats.rembourse.description',
     Icon: RotateCcw,
     tone: 'text-blue-400',
     ring: 'border-blue-500/20 bg-blue-500/5',
   },
   rembourse_partiel: {
-    title: 'Paiement rembourse partiellement',
-    description: 'Une partie de cet encaissement a ete rembourse. Le detail est disponible dans votre profil.',
+    titre: 'paiementRetour.resultats.rembourse_partiel.titre',
+    description: 'paiementRetour.resultats.rembourse_partiel.description',
     Icon: RotateCcw,
     tone: 'text-blue-400',
     ring: 'border-blue-500/20 bg-blue-500/5',
   },
   unknown: {
-    title: 'Resultat indisponible',
-    description: 'Nous n\'avons pas pu determiner l\'issue du paiement.',
+    titre: 'paiementRetour.resultats.unknown.titre',
+    description: 'paiementRetour.resultats.unknown.description',
     Icon: ShieldAlert,
     tone: 'text-neutral-400',
     ring: 'border-neutral-500/20 bg-neutral-500/5',
@@ -108,6 +109,7 @@ const POLL_INTERVAL_MS = 3000;
 export default function PaiementRetour() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { token } = useAuth();
 
   const transactionId = searchParams.get('tx');
@@ -188,7 +190,7 @@ export default function PaiementRetour() {
       }
       navigate('/client/profil');
     } catch (err) {
-      setError(err.response?.data?.message || 'Impossible de relancer le paiement.');
+      setError(err.response?.data?.message || t('paiementRetour.erreurs.relancer'));
       setRetrying(false);
     }
   };
@@ -210,7 +212,7 @@ export default function PaiementRetour() {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      setError('Telechargement de la facture impossible.');
+      setError(t('paiementRetour.erreurs.facture'));
     } finally {
       setDownloading(false);
     }
@@ -221,17 +223,16 @@ export default function PaiementRetour() {
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md border border-neutral-500/20 bg-neutral-500/5 rounded-2xl p-8 text-center">
           <ShieldAlert size={30} className="text-neutral-400 mx-auto mb-4" aria-hidden="true" />
-          <h1 className="text-white font-semibold text-xl mb-2">Lien de paiement invalide</h1>
+          <h1 className="text-white font-semibold text-xl mb-2">{t('paiementRetour.invalide.titre')}</h1>
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
-            Ce lien ne contient pas de reference de transaction. Consultez vos
-            reservations pour verifier l'etat de votre paiement.
+            {t('paiementRetour.invalide.description')}
           </p>
           <Link
             to="/client/profil"
             className="inline-flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/80 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
           >
-            Voir mes reservations
-            <ArrowRight size={15} aria-hidden="true" />
+            {t('paiementRetour.invalide.voirReservations')}
+            <ArrowRight size={15} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
       </div>
@@ -251,42 +252,41 @@ export default function PaiementRetour() {
           </div>
 
           <h1 className={`text-white font-semibold text-xl mb-2 ${outcome.tone}`}>
-            {outcome.title}
+            {t(outcome.titre)}
           </h1>
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
-            {outcome.description}
+            {t(outcome.description)}
           </p>
 
           {(checking || (!isTerminal && attempts < MAX_POLL_ATTEMPTS)) && (
             <p className="text-muted text-xs flex items-center justify-center gap-2 mb-4">
               <Loader2 size={13} className="animate-spin" aria-hidden="true" />
               {checking
-                ? 'Verification en cours...'
-                : 'Confirmation de la banque en attente...'}
+                ? t('paiementRetour.verification.enCours')
+                : t('paiementRetour.verification.attenteBanque')}
             </p>
           )}
 
           {!isTerminal && attempts >= MAX_POLL_ATTEMPTS && !checking && (
             <p className="text-amber-400/90 text-xs mb-4 leading-relaxed">
-              La confirmation prend plus de temps que prevu. Elle sera appliquee
-              automatiquement ; vous pouvez recontacter l'agence si besoin.
+              {t('paiementRetour.verification.delai')}
             </p>
           )}
 
           {detail && (
-            <div className="bg-black/30 rounded-xl p-4 text-left space-y-2 mb-6">
+            <div className="bg-black/30 rounded-xl p-4 text-start space-y-2 mb-6">
               {detail.reservation_numero && (
-                <Row label="Reservation" value={detail.reservation_numero} />
+                <Row label={t('paiementRetour.detail.reservation')} value={detail.reservation_numero} />
               )}
-              <Row label="Montant" value={formatMAD(detail.montant || 0)} />
+              <Row label={t('paiementRetour.detail.montant')} value={formatMAD(detail.montant || 0)} />
               {detail.rembourse_sur > 0 && (
-                <Row label="Dont rembourse" value={formatMAD(detail.rembourse_sur)} />
+                <Row label={t('paiementRetour.detail.rembourse')} value={formatMAD(detail.rembourse_sur)} />
               )}
-              {detail.carte && <Row label="Carte" value={detail.carte} />}
+              {detail.carte && <Row label={t('paiementRetour.detail.carte')} value={detail.carte} />}
               {detail.date_paiement && (
-                <Row label="Date" value={formatDateTime(detail.date_paiement)} />
+                <Row label={t('paiementRetour.detail.date')} value={formatDateTime(detail.date_paiement)} />
               )}
-              <Row label="Transaction" value={transactionId} mono />
+              <Row label={t('paiementRetour.detail.transaction')} value={transactionId} mono />
             </div>
           )}
 
@@ -305,7 +305,7 @@ export default function PaiementRetour() {
                 {downloading
                   ? <Loader2 size={15} className="animate-spin" aria-hidden="true" />
                   : <Download size={15} aria-hidden="true" />}
-                Telecharger la facture
+                {t('paiementRetour.actions.telechargerFacture')}
               </button>
             )}
 
@@ -319,7 +319,7 @@ export default function PaiementRetour() {
                 {retrying
                   ? <Loader2 size={15} className="animate-spin" aria-hidden="true" />
                   : <RefreshCw size={15} aria-hidden="true" />}
-                {retrying ? 'Ouverture du paiement...' : 'Reessayer le paiement'}
+                {retrying ? t('paiementRetour.actions.ouverturePaiement') : t('paiementRetour.actions.reessayer')}
               </button>
             )}
 
@@ -327,8 +327,8 @@ export default function PaiementRetour() {
               to="/client/profil"
               className="w-full flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/80 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
-              Voir mes reservations
-              <ArrowRight size={15} aria-hidden="true" />
+              {t('paiementRetour.actions.voirReservations')}
+              <ArrowRight size={15} className="rtl:rotate-180" aria-hidden="true" />
             </Link>
 
             <a
@@ -336,14 +336,13 @@ export default function PaiementRetour() {
               className="w-full flex items-center justify-center gap-2 bg-white/[0.03] hover:bg-white/[0.07] text-gray-400 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               <Phone size={15} aria-hidden="true" />
-              Contacter l'agence - {AGENCY_PHONE}
+              {t('paiementRetour.actions.contacter', { telephone: AGENCY_PHONE })}
             </a>
           </div>
         </div>
 
         <p className="text-muted text-xs text-center mt-5 leading-relaxed">
-          Aucune donnee bancaire n'est stockee par FIRAS BKA CAR.
-          Le paiement est traite par le Centre Monetique Interbancaire.
+          {t('paiementRetour.note')}
         </p>
       </div>
     </div>
@@ -354,7 +353,7 @@ function Row({ label, value, mono }) {
   return (
     <div className="flex items-center justify-between gap-3 text-xs">
       <span className="text-muted">{label}</span>
-      <span className={`text-white font-medium text-right ${mono ? 'font-mono text-[10px] break-all' : ''}`}>
+      <span className={`text-white font-medium text-end ${mono ? 'font-mono text-[10px] break-all' : ''}`}>
         {value}
       </span>
     </div>

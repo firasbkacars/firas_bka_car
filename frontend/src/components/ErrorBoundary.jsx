@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
+import i18n from '../i18n';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -29,10 +30,10 @@ export default class ErrorBoundary extends Component {
               <AlertTriangle className="text-red-500" size={32} />
             </div>
             <h1 className="text-2xl font-bold text-white mb-3">
-              Une erreur est survenue
+              {i18n.t('errorBoundary.titre')}
             </h1>
             <p className="text-muted text-sm mb-8">
-              L'application a rencontre un probleme inattendu. Vous pouvez reessayer ou retourner a l'accueil.
+              {i18n.t('errorBoundary.description')}
             </p>
             <div className="flex items-center justify-center gap-3">
               <button
@@ -40,13 +41,13 @@ export default class ErrorBoundary extends Component {
                 className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 <RotateCcw size={16} />
-                Reessayer
+                {i18n.t('errorBoundary.reessayer')}
               </button>
               <a
                 href="/"
                 className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors"
               >
-                Accueil
+                {i18n.t('errorBoundary.accueil')}
               </a>
             </div>
             {import.meta.env.DEV && this.state.error && (

@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "accueil": "Home",
+    "vehicules": "Our cars",
+    "services": "Services",
+    "apropos": "About",
+    "contact": "Contact",
+    "tableauDeBord": "Dashboard",
+    "messagerie": "Messages",
+    "profil": "Profile",
+    "deconnexion": "Log out",
+    "connexion": "Log in",
+    "inscription": "Sign up"
+  },
+  "header": {
+    "ouvrirMenu": "Open menu",
+    "fermerMenu": "Close menu",
+    "allerContenu": "Skip to main content",
+    "filAriane": "Breadcrumb"
+  },
+  "hero": {
+    "titre": "Rent the perfect car",
+    "sousTitre": "Renewed fleet, transparent prices, online booking in 2 minutes.",
+    "cta": "Browse cars"
+  },
+  "footer": {
+    "tagline": "Your trusted car rental partner in Tangier. Modern fleet, premium service, competitive prices.",
+    "navigation": "Navigation",
+    "vehicules": "Cars",
+    "contact": "Contact",
+    "categories": {
+      "berlines": "Sedans",
+      "suv": "SUVs",
+      "citadines": "City cars",
+      "utilitaires": "Vans",
+      "populaires": "Popular cars"
+    },
+    "services": {
+      "courteDuree": "Short-term rental",
+      "longueDuree": "Long-term rental",
+      "transfert": "Airport transfer",
+      "conducteur": "Additional driver",
+      "assurance": "Comprehensive insurance"
+    },
+    "horaires": "Mon - Sat: 8am - 8pm",
+    "dimanche": "Sunday: closed",
+    "droits": "All rights reserved.",
+    "espaceAdmin": "Admin area",
+    "contactezNous": "Contact us",
+    "adresse": "Lot 583N, Rue 50, Branes 1",
+    "ville": "Tangier 90060, Morocco"
+  },
+  "authLayout": {
+    "retourAccueil": "Back to home",
+    "tagline": "Premium car rental in Tangier. Book in just a few clicks."
+  },
+  "langue": {
+    "label": "Language",
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  },
+  "communs": {
+    "rechercher": "Search",
+    "filtrer": "Filter",
+    "comparer": "Compare",
+    "reserver": "Book",
+    "voirDetails": "View details",
+    "charger": "Loading..."
+  },
+  "actions": {
+    "enregistrer": "Save",
+    "annuler": "Cancel",
+    "supprimer": "Delete",
+    "modifier": "Edit",
+    "fermer": "Close",
+    "retour": "Back",
+    "suivant": "Next",
+    "precedent": "Previous",
+    "confirmer": "Confirm",
+    "envoyer": "Send",
+    "charger": "Load",
+    "rechercher": "Search",
+    "filtrer": "Filter",
+    "reinitialiser": "Reset",
+    "voir": "View",
+    "voirDetails": "View details",
+    "reserver": "Book",
+    "comparer": "Compare",
+    "telecharger": "Download",
+    "imprimer": "Print",
+    "copier": "Copy",
+    "copie": "Copied",
+    "ajouter": "Add",
+    "choisir": "Choose",
+    "continuer": "Continue",
+    "seConnecter": "Log in",
+    "sInscrire": "Sign up",
+    "seDeconnecter": "Log out",
+    "contacter": "Contact",
+    "appeler": "Call",
+    "whatsapp": "WhatsApp",
+    "oui": "Yes",
+    "non": "No",
+    "tous": "All",
+    "aucun": "None",
+    "toutVoir": "View all"
+  },
+  "etats": {
+    "chargement": "Loading...",
+    "erreur": "Something went wrong.",
+    "aucunResultat": "No results.",
+    "enAttente": "Pending",
+    "valide": "Validated",
+    "refuse": "Rejected",
+    "annule": "Cancelled",
+    "paye": "Paid",
+    "impaye": "Unpaid",
+    "disponible": "Available",
+    "indisponible": "Unavailable",
+    "actif": "Active",
+    "inactif": "Inactive",
+    "confirme": "Confirmed",
+    "enCours": "In progress",
+    "termine": "Completed"
+  },
+  "messages": {
+    "erreurGenerale": "Something went wrong. Please try again.",
+    "erreurReseau": "Connection failed. Check your network and try again.",
+    "champRequis": "This field is required.",
+    "emailInvalide": "Invalid email address.",
+    "telephoneInvalide": "Invalid phone number.",
+    "confirmation": "Are you sure?"
+  },
+  "unites": {
+    "dh": "MAD",
+    "dhParJour": "MAD/day",
+    "km": "km",
+    "places": "seats",
+    "annee": "year",
+    "heure": "hour",
+    "heures": "hours",
+    "minute": "minute",
+    "minutes": "minutes",
+    "octet": "B",
+    "kiloOctet": "KB",
+    "megaOctet": "MB"
+  },
+  "dureeJours_one": "{{count}} day",
+  "dureeJours_other": "{{count}} days",
+  "errorBoundary": {
+    "titre": "Something went wrong",
+    "description": "The application encountered an unexpected problem. You can try again or return to the home page.",
+    "reessayer": "Try again",
+    "accueil": "Home"
+  },
+  "meta": {
+    "titre": "FIRAS BKA CAR — Car rental in Tangier",
+    "description": "FIRAS BKA CAR - Car rental in Tangier, Morocco. Book your vehicle online."
+  },
+  "favoris": {
+    "connexionRequise": "Log in to add favourites.",
+    "ajoute": "Added to favourites.",
+    "retire": "Removed from favourites.",
+    "erreurMaj": "Could not update favourites.",
+    "erreurSuppression": "Could not remove from favourites."
+  },
+  "confirm": {
+    "titre": "Confirmation",
+    "message": "Are you sure?",
+    "confirmer": "Confirm",
+    "annuler": "Cancel"
+  },
+  "toast": {
+    "fermer": "Close notification"
+  }
+}

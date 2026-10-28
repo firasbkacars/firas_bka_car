@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle, CheckCircle2, Eye, FileText, Image as ImageIcon,
   Loader2, UploadCloud, X, XCircle,
@@ -7,27 +8,27 @@ import { DOCUMENT_PHOTO_ACCEPT, validateDocumentPhotoFile } from '../lib/documen
 
 const STATUTS = {
   valide: {
-    label: 'Validé',
+    labelKey: 'documents.statuts.valide',
     className: 'border-success/20 bg-success/10 text-success',
     icon: CheckCircle2,
   },
   en_attente: {
-    label: 'En attente de validation',
+    labelKey: 'documents.statuts.en_attente',
     className: 'border-warning/20 bg-warning/10 text-warning',
     icon: AlertTriangle,
   },
   rejete: {
-    label: 'Rejeté',
+    labelKey: 'documents.statuts.rejete',
     className: 'border-danger/20 bg-danger/10 text-danger',
     icon: XCircle,
   },
   expire: {
-    label: 'Expiré',
+    labelKey: 'documents.statuts.expire',
     className: 'border-danger/20 bg-danger/10 text-danger',
     icon: XCircle,
   },
   non_fourni: {
-    label: 'Non fourni',
+    labelKey: 'documents.statuts.non_fourni',
     className: 'border-line bg-white/5 text-muted',
     icon: FileText,
   },
@@ -39,7 +40,7 @@ function documentUrl(path) {
   return `/storage/${path}`;
 }
 
-function extraireErreur(err, fieldName) {
+function extraireErreur(err, fieldName, fallback) {
   const data = err?.response?.data;
   const erreurs = data?.errors || {};
   const champ = fieldName ? erreurs[fieldName] : null;
@@ -49,7 +50,7 @@ function extraireErreur(err, fieldName) {
   const premiere = Object.values(erreurs).flat().find(Boolean);
   if (premiere) return premiere;
 
-  return data?.message || "L'envoi du document a échoué. Réessayez.";
+  return data?.message || fallback;
 }
 
 /**
@@ -68,6 +69,7 @@ export default function DocumentUpload({
   maxSizeMb = 5,
   className = '',
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -120,7 +122,7 @@ export default function DocumentUpload({
       await onUpload(file);
       reinitialiser();
     } catch (err) {
-      setError(extraireErreur(err, fieldName));
+      setError(extraireErreur(err, fieldName, t('documents.erreurEnvoi')));
     } finally {
       setUploading(false);
     }
@@ -136,7 +138,7 @@ export default function DocumentUpload({
         <div className="flex shrink-0 items-center gap-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium ${statutConfig.className}`}>
             <StatutIcon size={13} aria-hidden="true" />
-            {statutConfig.label}
+            {t(statutConfig.labelKey)}
           </span>
           {url ? (
             <a
@@ -144,10 +146,10 @@ export default function DocumentUpload({
               target="_blank"
               rel="noreferrer"
               className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 text-xs text-muted transition-colors hover:text-white"
-              aria-label={`Voir le document : ${titre}`}
+              aria-label={t('documents.voirDocument', { titre })}
             >
               <Eye size={13} aria-hidden="true" />
-              Voir
+              {t('actions.voir')}
             </a>
           ) : null}
         </div>
@@ -156,7 +158,7 @@ export default function DocumentUpload({
       {statutKey === 'rejete' && motif ? (
         <p className="mb-4 flex items-start gap-2 text-sm text-danger">
           <XCircle size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
-          Motif du rejet : {motif}
+          {t('documents.motifRejet', { motif })}
         </p>
       ) : null}
 
@@ -189,15 +191,15 @@ export default function DocumentUpload({
               ? 'border-primary bg-primary/5'
               : 'border-line-strong hover:border-primary/50'
           }`}
-          aria-label={`Téléverser ${titre}`}
+          aria-label={t('documents.televerser', { titre })}
         >
           <UploadCloud size={28} aria-hidden="true" className={`mx-auto mb-2 ${dragOver ? 'text-primary-light' : 'text-muted'}`} />
           <p className="text-sm text-muted">
-            Glissez une photo ici ou{' '}
-            <span className="font-medium text-primary-light">parcourez vos fichiers</span>
+            {t('documents.glisser')}{' '}
+            <span className="font-medium text-primary-light">{t('documents.parcourir')}</span>
           </p>
           <p className="mt-1 text-xs text-muted">
-            JPG, PNG ou WebP — {maxSizeMb} Mo max. Photo nette, lisible et non rognée.
+            {t('documents.formats', { taille: maxSizeMb })}
           </p>
           <input
             ref={inputRef}
@@ -214,7 +216,7 @@ export default function DocumentUpload({
             {preview ? (
               <img
                 src={preview}
-                alt={`Aperçu : ${titre}`}
+                alt={t('documents.apercu', { titre })}
                 className="h-24 w-24 shrink-0 rounded-lg border border-line bg-black/40 object-contain"
               />
             ) : (
@@ -225,7 +227,7 @@ export default function DocumentUpload({
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-white">{file.name}</p>
               <p className="mt-0.5 text-xs text-muted">
-                {(file.size / 1024 / 1024).toFixed(2)} Mo
+                {t('documents.taille', { taille: (file.size / 1024 / 1024).toFixed(2) })}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
@@ -237,10 +239,10 @@ export default function DocumentUpload({
                   {uploading ? (
                     <>
                       <Loader2 size={14} aria-hidden="true" className="animate-spin" />
-                      Vérification…
+                      {t('documents.verification')}
                     </>
                   ) : (
-                    'Envoyer la photo'
+                    t('documents.envoyer')
                   )}
                 </button>
                 <button
@@ -249,7 +251,7 @@ export default function DocumentUpload({
                   disabled={uploading}
                   className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-muted transition-colors hover:bg-white/5 hover:text-white"
                 >
-                  Annuler
+                  {t('actions.annuler')}
                 </button>
               </div>
             </div>
@@ -258,7 +260,7 @@ export default function DocumentUpload({
               onClick={reinitialiser}
               disabled={uploading}
               className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition-colors hover:bg-danger/10 hover:text-danger"
-              aria-label="Retirer la photo sélectionnée"
+              aria-label={t('documents.retirerPhoto')}
             >
               <X size={16} aria-hidden="true" />
             </button>

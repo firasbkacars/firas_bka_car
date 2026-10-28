@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, XCircle, Info, AlertTriangle, X, Loader2 } from 'lucide-react';
 
 const ToastContext = createContext(null);
@@ -78,6 +79,8 @@ export function useToast() {
 }
 
 function ToastViewport({ toasts, onDismiss }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!toasts.length) return undefined;
     const onKey = (e) => {
@@ -89,7 +92,7 @@ function ToastViewport({ toasts, onDismiss }) {
 
   return (
     <div
-      className="fixed top-20 right-4 sm:right-6 z-[100] flex flex-col gap-2 w-[calc(100vw-2rem)] sm:w-auto sm:max-w-sm"
+      className="fixed top-20 end-4 sm:end-6 z-[100] flex flex-col gap-2 w-[calc(100vw-2rem)] sm:w-auto sm:max-w-sm"
       aria-live="polite"
       aria-atomic="false"
     >
@@ -108,8 +111,8 @@ function ToastViewport({ toasts, onDismiss }) {
             <button
               type="button"
               onClick={() => onDismiss(t.id)}
-              className="shrink-0 -mr-1 -mt-0.5 p-0.5 rounded opacity-60 hover:opacity-100 transition-opacity"
-              aria-label="Fermer la notification"
+              className="shrink-0 -me-1 -mt-0.5 p-0.5 rounded opacity-60 hover:opacity-100 transition-opacity"
+              aria-label={t('toast.fermer')}
             >
               <X size={14} aria-hidden="true" />
             </button>

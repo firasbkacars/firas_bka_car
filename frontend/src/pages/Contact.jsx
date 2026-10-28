@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck, Loader2 } from 'lucide-react';
 import api from '../services/api';
 
-const AGENCE_ADDRESS = 'Lot 583N, Rue 50, Branes 1, Tanger 90060, Maroc';
 const AGENCE_GPS = { lat: 35.7650625, lng: -5.8305469 };
 const GOOGLE_MAPS_EMBED = `https://www.google.com/maps?q=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&z=17&output=embed`;
 const GOOGLE_MAPS_directions = `https://www.google.com/maps/dir/?api=1&destination=${AGENCE_GPS.lat},${AGENCE_GPS.lng}`;
@@ -42,6 +42,7 @@ function InfoCard({ icon: Icon, title, children }) {
 }
 
 export default function Contact() {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -67,7 +68,7 @@ export default function Contact() {
       e.target.reset();
       setTimeout(() => setSubmitted(false), 6000);
     } catch (err) {
-      setError(err.response?.data?.message || "Impossible d'envoyer le message. Réessayez ou contactez-nous sur WhatsApp.");
+      setError(err.response?.data?.message || t('contact.form.erreurEnvoi'));
     } finally {
       setSending(false);
     }
@@ -80,15 +81,15 @@ export default function Contact() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#dc2626]/5 via-transparent to-transparent" />
         <div className="max-w-6xl mx-auto px-4 relative z-10">
           <div className="flex items-center gap-2 text-muted text-sm mb-4">
-            <span>Accueil</span>
+            <span>{t('nav.accueil')}</span>
             <span>/</span>
-            <span className="text-white/70">Contact</span>
+            <span className="text-white/70">{t('nav.contact')}</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Contactez<span className="text-primary-light">-nous</span>
+            {t('contact.hero.titreDebut')}<span className="text-primary-light">{t('contact.hero.titreFin')}</span>
           </h1>
           <p className="text-white/70 text-lg max-w-xl">
-            Nous sommes à votre disposition pour toute question. Notre équipe vous répond sous 24 heures.
+            {t('contact.hero.sousTitre')}
           </p>
         </div>
       </section>
@@ -101,17 +102,17 @@ export default function Contact() {
           <div className="lg:col-span-2 space-y-6">
             {/* Coordonnées */}
             <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-              <h2 className="text-white font-semibold text-lg mb-5">Nos coordonnées</h2>
+              <h2 className="text-white font-semibold text-lg mb-5">{t('contact.coordonnees.titre')}</h2>
               <div className="space-y-5">
-                <InfoCard icon={MapPin} title="Adresse">
-                  <p>{AGENCE_ADDRESS}</p>
+                <InfoCard icon={MapPin} title={t('contact.coordonnees.adresse')}>
+                  <p>{t('contact.coordonnees.adresseValeur')}</p>
                 </InfoCard>
-                <InfoCard icon={Phone} title="Téléphone">
+                <InfoCard icon={Phone} title={t('contact.coordonnees.telephone')}>
                   <p>+212 774 623 448</p>
                 </InfoCard>
-                <InfoCard icon={Clock} title="Horaires">
-                  <p>Lun – Sam : 8h00 – 20h00</p>
-                  <p>Dimanche : 9h00 – 18h00</p>
+                <InfoCard icon={Clock} title={t('contact.coordonnees.horaires')}>
+                  <p>{t('contact.coordonnees.lunSam')}</p>
+                  <p>{t('contact.coordonnees.dimanche')}</p>
                 </InfoCard>
               </div>
             </div>
@@ -127,7 +128,7 @@ export default function Contact() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Localisation FIRAS BKA CAR"
+                  title={t('contact.carte.titre')}
                 />
               </div>
               <div className="p-4 flex gap-3">
@@ -138,7 +139,7 @@ export default function Contact() {
                   className="flex-1 flex items-center justify-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
                 >
                   <Navigation size={15} />
-                  Itinéraire Google Maps
+                  {t('contact.carte.itineraire')}
                 </a>
                 <a
                   href={WAZE_url}
@@ -146,7 +147,7 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/10 text-white/70 hover:text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
                 >
-                  Waze
+                  {t('contact.carte.waze')}
                 </a>
               </div>
             </div>
@@ -156,16 +157,16 @@ export default function Contact() {
           <div className="lg:col-span-3 space-y-6">
             {/* Formulaire */}
             <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 md:p-8">
-              <h2 className="text-white font-semibold text-lg mb-1">Envoyez-nous un message</h2>
-              <p className="text-muted text-sm mb-6">Remplissez le formulaire et nous vous répondrons rapidement.</p>
+              <h2 className="text-white font-semibold text-lg mb-1">{t('contact.form.titre')}</h2>
+              <p className="text-muted text-sm mb-6">{t('contact.form.sousTitre')}</p>
 
               {submitted ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center" role="status">
                   <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
                     <Send size={22} className="text-green-500" />
                   </div>
-                  <p className="text-white font-semibold text-lg">Message envoyé !</p>
-                  <p className="text-muted text-sm mt-1">Nous vous répondrons dans les plus brefs délais.</p>
+                  <p className="text-white font-semibold text-lg">{t('contact.form.succesTitre')}</p>
+                  <p className="text-muted text-sm mt-1">{t('contact.form.succesDesc')}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -175,18 +176,18 @@ export default function Contact() {
                     </div>
                   )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InputField label="Nom complet" name="nom" placeholder="Votre nom" required />
-                    <InputField label="Téléphone ou email" name="contact" placeholder="06 XX XX XX XX" required />
+                    <InputField label={t('contact.form.nom')} name="nom" placeholder={t('contact.form.nomPlaceholder')} required />
+                    <InputField label={t('contact.form.contact')} name="contact" placeholder={t('contact.form.contactPlaceholder')} required />
                   </div>
-                  <InputField label="Sujet" name="sujet" placeholder="Ex: Demande de réservation" required />
-                  <InputField label="Message" name="message" placeholder="Décrivez votre demande..." required rows={4} />
+                  <InputField label={t('contact.form.sujet')} name="sujet" placeholder={t('contact.form.sujetPlaceholder')} required />
+                  <InputField label={t('contact.form.message')} name="message" placeholder={t('contact.form.messagePlaceholder')} required rows={4} />
                   <button
                     type="submit"
                     disabled={sending}
                     className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-disabled disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     {sending && <Loader2 size={16} className="animate-spin" />}
-                    {sending ? 'Envoi en cours...' : 'Envoyer le message'}
+                    {sending ? t('contact.form.envoiEnCours') : t('contact.form.envoyer')}
                   </button>
                 </form>
               )}
@@ -197,7 +198,7 @@ export default function Contact() {
                   <div className="w-full border-t border-white/[0.06]" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-[#111] px-4 text-muted text-xs uppercase tracking-wider">ou</span>
+                  <span className="bg-[#111] px-4 text-muted text-xs uppercase tracking-wider">{t('contact.form.ou')}</span>
                 </div>
               </div>
 
@@ -208,7 +209,7 @@ export default function Contact() {
                 className="flex items-center justify-center gap-3 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] px-6 py-3 rounded-lg font-semibold hover:bg-[#25D366]/20 transition w-full text-sm"
               >
                 <MessageCircle size={17} />
-                Contactez-nous directement sur WhatsApp
+                {t('contact.form.whatsapp')}
               </a>
             </div>
 
@@ -218,22 +219,22 @@ export default function Contact() {
                 <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
                   <Headphones size={18} className="text-primary-light" />
                 </div>
-                <p className="text-white font-medium text-sm">Réponse sous 24h</p>
-                <p className="text-muted text-xs mt-1">Nous traitons chaque demande rapidement</p>
+                <p className="text-white font-medium text-sm">{t('contact.garanties.reponseTitre')}</p>
+                <p className="text-muted text-xs mt-1">{t('contact.garanties.reponseDesc')}</p>
               </div>
               <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 text-center">
                 <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
                   <Shield size={18} className="text-primary-light" />
                 </div>
-                <p className="text-white font-medium text-sm">Devis gratuit</p>
-                <p className="text-muted text-xs mt-1">Estimation sans engagement</p>
+                <p className="text-white font-medium text-sm">{t('contact.garanties.devisTitre')}</p>
+                <p className="text-muted text-xs mt-1">{t('contact.garanties.devisDesc')}</p>
               </div>
               <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 text-center">
                 <div className="w-10 h-10 rounded-full bg-[#dc2626]/10 flex items-center justify-center mx-auto mb-3">
                   <FileCheck size={18} className="text-primary-light" />
                 </div>
-                <p className="text-white font-medium text-sm">Support complet</p>
-                <p className="text-muted text-xs mt-1">Accompagnement de A à Z</p>
+                <p className="text-white font-medium text-sm">{t('contact.garanties.supportTitre')}</p>
+                <p className="text-muted text-xs mt-1">{t('contact.garanties.supportDesc')}</p>
               </div>
             </div>
           </div>

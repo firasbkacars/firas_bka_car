@@ -1,0 +1,178 @@
+{
+  "home": {
+    "hero": {
+      "badge": "Car rental in Morocco",
+      "titreLigne1": "Rent the",
+      "titreAccent": "car",
+      "titreLigne2": "that suits you",
+      "sousTitre": "Premium vehicles, a reliable service and transparent prices. Book in just a few clicks.",
+      "ctaVehicules": "Browse cars",
+      "ctaReserver": "Book now"
+    },
+    "recherche": {
+      "lieuPrise": "Pick-up location",
+      "ville": "Tangier",
+      "dateHeure": "Date & time",
+      "ariaDatePrise": "Pick-up date & time",
+      "ariaHeurePrise": "Pick-up time",
+      "retour": "Return",
+      "ariaDateRetour": "Return date & time",
+      "ariaHeureRetour": "Return time"
+    },
+    "marques": {
+      "titre": "Our partner brands"
+    },
+    "avantages": {
+      "prixTitre": "Best prices",
+      "prixDesc": "Competitive rates all year round, with no hidden fees.",
+      "vehiculesTitre": "Recent vehicles",
+      "vehiculesDesc": "Comfort, safety and performance guaranteed.",
+      "supportTitre": "7-day support",
+      "supportDesc": "A team available to help you."
+    },
+    "vehicule": {
+      "populaire": "Popular",
+      "auto": "Automatic",
+      "manuelle": "Manual",
+      "details": "Details"
+    },
+    "flotte": {
+      "badge": "Fleet",
+      "titre": "Popular vehicles"
+    },
+    "cta": {
+      "titre": "Ready to drive?",
+      "desc": "Browse our fleet and find the ideal vehicle for your next trip.",
+      "bouton": "Explore the fleet"
+    }
+  },
+  "services": {
+    "titre": "Our services",
+    "sousTitre": "Complete services for a stress-free experience.",
+    "items": {
+      "courteDuree": {
+        "titre": "Short-term rental",
+        "desc": "Rent for a day, a weekend or a week. Ideal for occasional trips."
+      },
+      "longueDuree": {
+        "titre": "Long-term rental",
+        "desc": "Competitive monthly contracts for individuals and businesses."
+      },
+      "transfert": {
+        "titre": "Airport transfer",
+        "desc": "Shuttle service between Tangier airport and your destination."
+      },
+      "remplacement": {
+        "titre": "Replacement vehicle",
+        "desc": "If your car breaks down, we provide a courtesy vehicle."
+      },
+      "siegesBebe": {
+        "titre": "Child seats",
+        "desc": "Approved child seats available free of charge on request."
+      },
+      "reservation": {
+        "titre": "Online booking",
+        "desc": "Book in just a few clicks from your phone or computer."
+      }
+    }
+  },
+  "apropos": {
+    "titre": "About us",
+    "sousTitre": "FIRAS BKA CAR, your trusted partner in Tangier.",
+    "histoire": {
+      "titre": "Our story",
+      "p1": "Founded in Tangier, FIRAS BKA CAR was born from the desire to offer a quality vehicle rental service at fair prices. Our agency, located in the Branes 1 district (Rue 50, Tangier), has been serving customers for several years with professionalism and passion.",
+      "p2": "Our fleet is carefully selected and regularly maintained to guarantee your safety and comfort on every journey."
+    },
+    "engagements": {
+      "titre": "Our commitments",
+      "items": [
+        "Recent, well-maintained vehicles",
+        "Transparent prices with no hidden fees",
+        "Comprehensive insurance included",
+        "Unlimited mileage",
+        "Customer service available 7 days a week",
+        "Airport delivery and return",
+        "Payment by credit card"
+      ]
+    },
+    "faq": {
+      "titre": "Frequently asked questions",
+      "sousTitre": "Find quick answers to your questions.",
+      "items": [
+        {
+          "q": "What documents do I need to rent a car?",
+          "a": "You must present a valid driving licence, an identity document (national ID card or passport) and proof of address."
+        },
+        {
+          "q": "What mileage is included?",
+          "a": "All our rentals include unlimited mileage. You can drive without worrying about the kilometres."
+        },
+        {
+          "q": "Is insurance included?",
+          "a": "Yes, comprehensive insurance is included in every rental. You are covered in the event of damage."
+        },
+        {
+          "q": "Can I collect the vehicle at the airport?",
+          "a": "Yes, we provide a shuttle service to and from Tangier Ibn Battouta Airport."
+        },
+        {
+          "q": "How can I pay?",
+          "a": "We accept cash, Visa, Mastercard and CMI payment. A 30% deposit is required at the time of booking."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "hero": {
+      "titreDebut": "Contact",
+      "titreFin": " us",
+      "sousTitre": "We are here to answer any question. Our team will reply within 24 hours."
+    },
+    "coordonnees": {
+      "titre": "Our contact details",
+      "adresse": "Address",
+      "adresseValeur": "Lot 583N, Rue 50, Branes 1, Tangier 90060, Morocco",
+      "telephone": "Phone",
+      "horaires": "Opening hours",
+      "lunSam": "Mon – Sat: 8:00 am – 8:00 pm",
+      "dimanche": "Sunday: 9:00 am – 6:00 pm"
+    },
+    "carte": {
+      "titre": "FIRAS BKA CAR location",
+      "itineraire": "Google Maps directions",
+      "waze": "Waze"
+    },
+    "form": {
+      "titre": "Send us a message",
+      "sousTitre": "Fill in the form and we will get back to you promptly.",
+      "succesTitre": "Message sent!",
+      "succesDesc": "We will reply as soon as possible.",
+      "nom": "Full name",
+      "nomPlaceholder": "Your name",
+      "contact": "Phone or email",
+      "contactPlaceholder": "06 XX XX XX XX",
+      "sujet": "Subject",
+      "sujetPlaceholder": "e.g. Booking request",
+      "message": "Message",
+      "messagePlaceholder": "Describe your request...",
+      "envoiEnCours": "Sending...",
+      "envoyer": "Send message",
+      "erreurEnvoi": "Unable to send the message. Please try again or contact us on WhatsApp.",
+      "ou": "or",
+      "whatsapp": "Contact us directly on WhatsApp"
+    },
+    "garanties": {
+      "reponseTitre": "Reply within 24 hours",
+      "reponseDesc": "We handle every request quickly",
+      "devisTitre": "Free quote",
+      "devisDesc": "No-obligation estimate",
+      "supportTitre": "Full support",
+      "supportDesc": "Support from start to finish"
+    }
+  },
+  "notFound": {
+    "titre": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved."
+  }
+}

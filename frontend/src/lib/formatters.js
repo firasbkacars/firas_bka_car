@@ -1,44 +1,59 @@
-const MAD = new Intl.NumberFormat('fr-FR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+import i18n from '../i18n';
 
-const NUM = new Intl.NumberFormat('fr-FR');
+/**
+ * Formats dependants de la langue active.
+ *
+ * Les montants restent en dirhams (DH / MAD / درهم) ; seuls les separateurs,
+ * l'ordre des dates et le libelle de la devise changent.
+ */
+const LOCALES = {
+  fr: 'fr-FR',
+  ar: 'ar-MA',
+  en: 'en-GB',
+};
+
+function localeCourante() {
+  return LOCALES[i18n.language] || LOCALES.fr;
+}
 
 export function formatNumber(value, { decimals } = {}) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '0';
-  return decimals === undefined ? NUM.format(n) : MAD.format(n);
+  return new Intl.NumberFormat(localeCourante(), decimals === undefined
+    ? undefined
+    : { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n);
 }
 
-export function formatMAD(value, { suffix = 'DH', decimals = 2, withSuffix = true } = {}) {
+export function formatMAD(value, { suffix, decimals = 2, withSuffix = true } = {}) {
   const n = Number(value);
   const formatted = Number.isFinite(n)
-    ? new Intl.NumberFormat('fr-FR', {
+    ? new Intl.NumberFormat(localeCourante(), {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       }).format(n)
     : '0';
-  return withSuffix ? `${formatted} ${suffix}` : formatted;
+  const devise = suffix ?? i18n.t('unites.dh');
+  return withSuffix ? `${formatted} ${devise}` : formatted;
 }
 
-export function formatMADCompact(value, { suffix = 'DH' } = {}) {
+export function formatMADCompact(value, { suffix } = {}) {
   const n = Number(value);
-  if (!Number.isFinite(n)) return `0 ${suffix}`;
+  const devise = suffix ?? i18n.t('unites.dh');
+  if (!Number.isFinite(n)) return `0 ${devise}`;
   if (Math.abs(n) >= 10000) {
-    return `${new Intl.NumberFormat('fr-FR', {
+    return `${new Intl.NumberFormat(localeCourante(), {
       notation: 'compact',
       maximumFractionDigits: 1,
-    }).format(n)} ${suffix}`;
+    }).format(n)} ${devise}`;
   }
-  return formatMAD(n, { suffix });
+  return formatMAD(n, { suffix: devise });
 }
 
 export function formatDate(value, { withTime = false } = {}) {
   if (!value) return '—';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('fr-FR', withTime
+  return d.toLocaleDateString(localeCourante(), withTime
     ? { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
     : { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
@@ -49,7 +64,7 @@ export function formatDateTime(value) {
 
 export function formatDuration(jours) {
   const n = Number(jours) || 0;
-  return `${formatNumber(n)} jour${n > 1 ? 's' : ''}`;
+  return i18n.t('dureeJours', { count: n });
 }
 
 /** Jours restants avant echeance (negatif = deja expire). */

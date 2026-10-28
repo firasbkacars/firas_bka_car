@@ -1,4 +1,5 @@
 import axios from 'axios';
+import i18n from '../i18n';
 
 export const CLIENT_SESSION_EXPIRED_EVENT = 'client-session-expired';
 
@@ -73,6 +74,10 @@ function isAdminPath(url = '', method = 'GET') {
 }
 
 api.interceptors.request.use((config) => {
+  // Permet au backend de localiser ses messages (validation Laravel, erreurs
+  // metier) dans la langue choisie par le visiteur.
+  config.headers['Accept-Language'] = i18n.language || 'fr';
+
   if (!config.headers.Authorization) {
     const clientToken = localStorage.getItem('client_token');
     const adminToken = localStorage.getItem('admin_token');

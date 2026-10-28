@@ -1,0 +1,181 @@
+{
+  "nav": {
+    "accueil": "الرئيسية",
+    "vehicules": "سياراتنا",
+    "services": "الخدمات",
+    "apropos": "من نحن",
+    "contact": "اتصل بنا",
+    "tableauDeBord": "لوحة التحكم",
+    "messagerie": "الرسائل",
+    "profil": "الملف الشخصي",
+    "deconnexion": "تسجيل الخروج",
+    "connexion": "تسجيل الدخول",
+    "inscription": "إنشاء حساب"
+  },
+  "header": {
+    "ouvrirMenu": "فتح القائمة",
+    "fermerMenu": "إغلاق القائمة",
+    "allerContenu": "الانتقال إلى المحتوى الرئيسي",
+    "filAriane": "مسار التنقل"
+  },
+  "hero": {
+    "titre": "استأجر السيارة المثالية",
+    "sousTitre": "أسطول مجدد، أسعار شفافة، حجز إلكتروني في دقيقتين.",
+    "cta": "تصفح السيارات"
+  },
+  "footer": {
+    "tagline": "شريكك الموثوق لكراء السيارات في طنجة. أسطول حديث، خدمة راقية وأسعار تنافسية.",
+    "navigation": "التنقل",
+    "vehicules": "السيارات",
+    "contact": "اتصل بنا",
+    "categories": {
+      "berlines": "سيارات سيدان",
+      "suv": "سيارات SUV",
+      "citadines": "سيارات صغيرة",
+      "utilitaires": "سيارات نفعية",
+      "populaires": "السيارات الأكثر طلبًا"
+    },
+    "services": {
+      "courteDuree": "كراء قصير المدى",
+      "longueDuree": "كراء طويل المدى",
+      "transfert": "النقل من وإلى المطار",
+      "conducteur": "سائق إضافي",
+      "assurance": "تأمين شامل"
+    },
+    "horaires": "الاثنين - السبت: 8:00 - 20:00",
+    "dimanche": "الأحد: مغلق",
+    "droits": "جميع الحقوق محفوظة.",
+    "espaceAdmin": "فضاء الإدارة",
+    "contactezNous": "اتصل بنا",
+    "adresse": "Lot 583N، Rue 50، Branes 1",
+    "ville": "طنجة 90060، المغرب"
+  },
+  "authLayout": {
+    "retourAccueil": "العودة إلى الرئيسية",
+    "tagline": "كراء سيارات راقية في طنجة. احجز في بضع نقرات."
+  },
+  "langue": {
+    "label": "اللغة",
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  },
+  "communs": {
+    "rechercher": "بحث",
+    "filtrer": "تصفية",
+    "comparer": "مقارنة",
+    "reserver": "حجز",
+    "voirDetails": "التفاصيل",
+    "charger": "جاري التحميل..."
+  },
+  "actions": {
+    "enregistrer": "حفظ",
+    "annuler": "إلغاء",
+    "supprimer": "حذف",
+    "modifier": "تعديل",
+    "fermer": "إغلاق",
+    "retour": "رجوع",
+    "suivant": "التالي",
+    "precedent": "السابق",
+    "confirmer": "تأكيد",
+    "envoyer": "إرسال",
+    "charger": "تحميل",
+    "rechercher": "بحث",
+    "filtrer": "تصفية",
+    "reinitialiser": "إعادة تعيين",
+    "voir": "عرض",
+    "voirDetails": "التفاصيل",
+    "reserver": "احجز",
+    "comparer": "قارن",
+    "telecharger": "تحميل",
+    "imprimer": "طباعة",
+    "copier": "نسخ",
+    "copie": "تم النسخ",
+    "ajouter": "إضافة",
+    "choisir": "اختر",
+    "continuer": "متابعة",
+    "seConnecter": "تسجيل الدخول",
+    "sInscrire": "إنشاء حساب",
+    "seDeconnecter": "تسجيل الخروج",
+    "contacter": "اتصل",
+    "appeler": "اتصل",
+    "whatsapp": "واتساب",
+    "oui": "نعم",
+    "non": "لا",
+    "tous": "الكل",
+    "aucun": "لا شيء",
+    "toutVoir": "عرض الكل"
+  },
+  "etats": {
+    "chargement": "جاري التحميل...",
+    "erreur": "حدث خطأ.",
+    "aucunResultat": "لا توجد نتائج.",
+    "enAttente": "قيد الانتظار",
+    "valide": "مؤكد",
+    "refuse": "مرفوض",
+    "annule": "ملغى",
+    "paye": "مدفوع",
+    "impaye": "غير مدفوع",
+    "disponible": "متاح",
+    "indisponible": "غير متاح",
+    "actif": "نشط",
+    "inactif": "غير نشط",
+    "confirme": "مؤكد",
+    "enCours": "قيد المعالجة",
+    "termine": "مكتمل"
+  },
+  "messages": {
+    "erreurGenerale": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "erreurReseau": "تعذر الاتصال. تحقق من الشبكة وحاول مرة أخرى.",
+    "champRequis": "هذا الحقل إلزامي.",
+    "emailInvalide": "البريد الإلكتروني غير صالح.",
+    "telephoneInvalide": "رقم الهاتف غير صالح.",
+    "confirmation": "هل أنت متأكد؟"
+  },
+  "unites": {
+    "dh": "درهم",
+    "dhParJour": "درهم/يوم",
+    "km": "كم",
+    "places": "مقاعد",
+    "annee": "سنة",
+    "heure": "ساعة",
+    "heures": "ساعات",
+    "minute": "دقيقة",
+    "minutes": "دقائق",
+    "octet": "بايت",
+    "kiloOctet": "كيلوبايت",
+    "megaOctet": "ميغابايت"
+  },
+  "dureeJours_zero": "{{count}} يوم",
+  "dureeJours_one": "يوم واحد",
+  "dureeJours_two": "يومان",
+  "dureeJours_few": "{{count}} أيام",
+  "dureeJours_many": "{{count}} يومًا",
+  "dureeJours_other": "{{count}} يوم",
+  "errorBoundary": {
+    "titre": "حدث خطأ",
+    "description": "واجه التطبيق مشكلة غير متوقعة. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.",
+    "reessayer": "إعادة المحاولة",
+    "accueil": "الرئيسية"
+  },
+  "meta": {
+    "titre": "FIRAS BKA CAR — كراء السيارات في طنجة",
+    "description": "FIRAS BKA CAR - كراء السيارات في طنجة، المغرب. احجز سيارتك عبر الإنترنت."
+  },
+  "favoris": {
+    "connexionRequise": "سجّل الدخول لإضافة السيارات إلى المفضلة.",
+    "ajoute": "تمت الإضافة إلى المفضلة.",
+    "retire": "تمت الإزالة من المفضلة.",
+    "erreurMaj": "تعذر تحديث المفضلة.",
+    "erreurSuppression": "تعذر الحذف من المفضلة."
+  },
+  "confirm": {
+    "titre": "تأكيد",
+    "message": "هل أنت متأكد؟",
+    "confirmer": "تأكيد",
+    "annuler": "إلغاء"
+  },
+  "toast": {
+    "fermer": "إغلاق الإشعار"
+  }
+}

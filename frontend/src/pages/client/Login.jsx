@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/AuthLayout';
 import { Eye, EyeOff, Loader2, AlertTriangle, Check } from 'lucide-react';
 
 export default function ClientLogin() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -24,9 +26,9 @@ export default function ClientLogin() {
       navigate(from && typeof from === 'string' && from.startsWith('/') ? from : '/client/profil', { replace: true });
     } catch (err) {
       if (err.response?.status === 429) {
-        setError('Trop de tentatives. Veuillez réessayer dans 1 minute.');
+        setError(t('auth.tropDeTentatives'));
       } else {
-        setError(err.response?.data?.message || 'Identifiants incorrects. Veuillez réessayer.');
+        setError(err.response?.data?.message || t('auth.identifiantsIncorrects'));
       }
     } finally {
       setLoading(false);
@@ -34,7 +36,7 @@ export default function ClientLogin() {
   };
 
   return (
-    <AuthLayout title="Connexion" subtitle="Accédez à votre espace client" image="/images/photo1.jpg">
+    <AuthLayout title={t('auth.titre')} subtitle={t('auth.sousTitre')} image="/images/photo1.jpg">
       <form onSubmit={handleSubmit} className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 sm:p-7">
         {/* Error */}
         {error && (
@@ -51,7 +53,7 @@ export default function ClientLogin() {
           {/* Email */}
           <div>
             <label htmlFor="login-email" className="text-white/70 text-[11px] font-medium uppercase tracking-wider mb-1.5 block">
-              Email
+              {t('auth.email')}
             </label>
             <input
               id="login-email"
@@ -61,7 +63,7 @@ export default function ClientLogin() {
               autoComplete="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="vous@exemple.com"
+              placeholder={t('auth.emailPlaceholder')}
               className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
             />
           </div>
@@ -70,10 +72,10 @@ export default function ClientLogin() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label htmlFor="login-password" className="text-white/70 text-[11px] font-medium uppercase tracking-wider">
-                Mot de passe
+                {t('auth.motDePasse')}
               </label>
               <Link to="/client/activer" className="text-primary-light text-[11px] hover:underline transition-colors">
-                Première connexion ?
+                {t('auth.premiereConnexion')}
               </Link>
             </div>
             <div className="relative">
@@ -84,13 +86,13 @@ export default function ClientLogin() {
                 autoComplete="current-password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pr-11 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
+                className="w-full bg-[#0a0a0a] border border-white/[0.08] rounded-xl px-4 py-2.5 pe-11 text-white text-sm focus:border-[#dc2626]/50 focus:ring-1 focus:ring-[#dc2626]/20 outline-none transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
-                aria-label={showPw ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-muted hover:text-white/60 transition-colors p-0.5"
+                aria-label={showPw ? t('auth.masquerMotDePasse') : t('auth.afficherMotDePasse')}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -114,7 +116,7 @@ export default function ClientLogin() {
               onChange={(e) => setRemember(e.target.checked)}
               className="sr-only"
             />
-            <span className="text-white/70 text-sm group-hover/check:text-white/70 transition-colors">Se souvenir de moi</span>
+            <span className="text-white/70 text-sm group-hover/check:text-white/70 transition-colors">{t('auth.seSouvenir')}</span>
           </label>
         </div>
 
@@ -125,14 +127,14 @@ export default function ClientLogin() {
           className="w-full bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-white/[0.06] disabled:text-disabled disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 mt-6 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
-          {loading ? 'Connexion en cours...' : 'Se connecter'}
+          {loading ? t('auth.connexionEnCours') : t('actions.seConnecter')}
         </button>
 
         {/* Register link */}
         <p className="text-center text-muted text-sm mt-5">
-          Pas encore de compte ?{' '}
+          {t('auth.pasDeCompte')}{' '}
           <Link to="/client/register" className="text-primary-light hover:underline font-medium">
-            S'inscrire
+            {t('actions.sInscrire')}
           </Link>
         </p>
       </form>

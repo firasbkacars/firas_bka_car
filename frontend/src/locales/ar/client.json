@@ -1,0 +1,357 @@
+{
+  "auth": {
+    "titre": "تسجيل الدخول",
+    "sousTitre": "ادخل إلى فضائك الشخصي",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "motDePasse": "كلمة المرور",
+    "premiereConnexion": "أول تسجيل دخول؟",
+    "afficherMotDePasse": "إظهار كلمة المرور",
+    "masquerMotDePasse": "إخفاء كلمة المرور",
+    "seSouvenir": "تذكرني",
+    "connexionEnCours": "جارٍ تسجيل الدخول...",
+    "tropDeTentatives": "محاولات كثيرة. يرجى المحاولة مجددًا بعد دقيقة واحدة.",
+    "identifiantsIncorrects": "بيانات الدخول غير صحيحة. يرجى المحاولة مجددًا.",
+    "pasDeCompte": "ليس لديك حساب بعد؟"
+  },
+  "register": {
+    "titre": "إنشاء حساب",
+    "sousTitre": "انضم إلينا لحجز سيارتك",
+    "nomComplet": "الاسم الكامل *",
+    "email": "البريد الإلكتروني *",
+    "telephone": "الهاتف *",
+    "telephonePlaceholder": "06XXXXXXXX",
+    "motDePasse": "كلمة المرور *",
+    "motDePassePlaceholder": "8 أحرف على الأقل",
+    "confirmerMotDePasse": "تأكيد كلمة المرور *",
+    "confirmerPlaceholder": "أعد كتابة كلمة المرور",
+    "nationalite": "الجنسية *",
+    "optionMarocaine": "مغربية — البطاقة الوطنية (CIN)",
+    "optionEtrangere": "أجنبية — جواز السفر",
+    "numeroPasseport": "رقم جواز السفر *",
+    "passeportPlaceholder": "X1234567",
+    "cin": "CIN *",
+    "cinPlaceholder": "AB123456",
+    "adresse": "العنوان",
+    "codeParrainage": "رمز الإحالة",
+    "optionnel": "(اختياري)",
+    "parrainagePlaceholder": "مثال: ABCD1234",
+    "cguAccepte": "أوافق على",
+    "cguLien": "الشروط العامة للاستخدام",
+    "force": "القوة:",
+    "forceFaible": "ضعيفة",
+    "forceMoyen": "متوسطة",
+    "forceFort": "قوية",
+    "erreurTelephone": "صيغة غير صالحة (06XXXXXXXX أو 07XXXXXXXX)",
+    "erreurCin": "يجب أن يتكون رقم CIN من حرف أو حرفين كبيرين متبوعين بـ 4 إلى 6 أرقام (مثال: A12345 أو AB123456)",
+    "erreurPasseport": "يجب أن يتكون رقم جواز السفر من 6 إلى 20 حرفًا كبيرًا أو رقمًا",
+    "motsDePasseDifferents": "كلمتا المرور غير متطابقتين",
+    "motsDePasseIdentiques": "كلمتا المرور متطابقتان",
+    "dejaReserve": "هل سبق أن حجزت عبر الهاتف؟",
+    "activerCompte": "فعّل حسابك",
+    "dejaReserveFin": "باستخدام البريد الإلكتروني الذي قدمته للوكالة.",
+    "documentsInfo": "بعد التسجيل، سيتعين عليك رفع صورة واضحة لرخصة السياقة و{{piece}} في ملفك الشخصي. تُرفض الصور الضبابية أو الداكنة جدًا أو المقتطعة أو بصيغة PDF تلقائيًا.",
+    "passeport": "جواز السفر",
+    "carteNationale": "البطاقة الوطنية",
+    "succesTitre": "تم التسجيل بنجاح",
+    "succesSousTitre": "جارٍ تحويلك إلى ملفك الشخصي...",
+    "succesCompteCree": "تم إنشاء الحساب بنجاح",
+    "succesDerniereEtape": "الخطوة الأخيرة: ارفع رخصة السياقة و{{piece}} من ملفك الشخصي.",
+    "inscriptionEnCours": "جارٍ إنشاء الحساب...",
+    "erreurInscription": "حدث خطأ أثناء التسجيل",
+    "dejaCompte": "لديك حساب بالفعل؟"
+  },
+  "activation": {
+    "verifierTitre": "تحقق من بريدك الإلكتروني",
+    "verifierSousTitre": "أُرسل إليك رابط التفعيل للتو",
+    "consultezTitre": "اطلع على رسائلك الإلكترونية",
+    "consultezTexteDebut": "إذا كان هناك حساب مؤهل للبريد",
+    "consultezTexteFin": "، فستتلقى رابطًا صالحًا لمدة 7 أيام لتعيين كلمة المرور.",
+    "spam": "تذكر التحقق من مجلد الرسائل غير المرغوب فيها.",
+    "retourConnexion": "العودة إلى تسجيل الدخول",
+    "titre": "تفعيل حسابي",
+    "sousTitre": "هل حجزت عبر الهاتف؟ عيّن كلمة المرور الخاصة بك.",
+    "intro": "أنشأ فريقنا حسابك عند إجراء الحجز. أدخل عنوان البريد الإلكتروني الذي قدمته لتلقي رابط التفعيل.",
+    "email": "البريد الإلكتروني",
+    "envoiEnCours": "جارٍ الإرسال...",
+    "recevoirLien": "استلام رابط التفعيل",
+    "dejaActive": "هل تم تفعيل الحساب بالفعل؟",
+    "erreurEnvoi": "تعذر إرسال الطلب في الوقت الحالي.",
+    "chargementTitre": "تفعيل الحساب",
+    "chargementSousTitre": "جارٍ التحقق من الرابط...",
+    "verificationEnCours": "جارٍ التحقق...",
+    "lienInvalide": "رابط غير صالح",
+    "impossibleActiver": "تعذر تفعيل هذا الحساب",
+    "demanderNouveauLien": "طلب رابط جديد",
+    "definirMotDePasse": "عيّن كلمة المرور الخاصة بك",
+    "bienvenue": "مرحبًا {{nom}}",
+    "compteLieDebut": "الحساب مرتبط بالبريد",
+    "compteLieFin": ". اختر كلمة مرور للوصول إلى حجوزاتك.",
+    "motDePasse": "كلمة المرور *",
+    "confirmerMotDePasse": "تأكيد كلمة المرور *",
+    "motDePassePlaceholder": "8 أحرف على الأقل",
+    "confirmerPlaceholder": "أعد كتابة كلمة المرور",
+    "erreurLongueur": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+    "erreurConfirmation": "تأكيد كلمة المرور غير مطابق.",
+    "erreurActivation": "حدث خطأ أثناء تفعيل الحساب.",
+    "lienExpire": "رابط التفعيل هذا غير صالح أو منتهي الصلاحية.",
+    "activationEnCours": "جارٍ التفعيل...",
+    "activer": "تفعيل حسابي"
+  },
+  "profil": {
+    "titre": "ملفي الشخصي",
+    "changerPhoto": "تغيير صورة الملف الشخصي",
+    "choisirPhoto": "اختيار صورة للملف الشخصي",
+    "cliquerPhoto": "انقر على الصورة لتغييرها",
+    "deconnexion": "تسجيل الخروج",
+    "profilMisAJour": "تم تحديث الملف الشخصي بنجاح!",
+    "erreurMiseAJour": "حدث خطأ أثناء التحديث",
+    "codeCopie": "تم نسخ رمز الإحالة.",
+    "codeCopieErreur": "تعذر نسخ الرمز.",
+    "formatNonSupporte": "صيغة غير مدعومة (JPG أو PNG أو WebP)",
+    "photoTropLourde": "حجم الصورة يتجاوز 2 ميغابايت",
+    "photoMiseAJour": "تم تحديث صورة الملف الشخصي!",
+    "erreurUploadPhoto": "حدث خطأ أثناء رفع الصورة",
+    "carteEnvoyee": "تم إرسال البطاقة الوطنية. سيتحقق منها أحد الموظفين.",
+    "passeportEnvoye": "تم إرسال جواز السفر. سيتحقق منه أحد الموظفين.",
+    "permisEnvoye": "تم إرسال رخصة السياقة. سيتحقق منها أحد الموظفين.",
+    "erreurEnvoiDocument": "تعذر إرسال المستند. تحقق من الصورة وحاول مجددًا.",
+    "erreurEnvoiPermis": "تعذر إرسال رخصة السياقة. تحقق من الصورة وحاول مجددًا.",
+    "reservations": {
+      "titre": "حجوزاتي",
+      "sousTitre": "اطلع على سجل جميع حجوزاتك.",
+      "aucune": "لا توجد حجوزات حتى الآن.",
+      "parcourir": "تصفح سياراتنا",
+      "duAu": "من {{debut}} إلى {{fin}}",
+      "regle": "{{montant}} مدفوع",
+      "aRegler": "{{montant}} مستحق",
+      "priseEnCharge": "الاستلام",
+      "retour": "الإرجاع",
+      "modePaiement": "طريقة الدفع",
+      "carteBancaire": "بطاقة بنكية (CMI)",
+      "especes": "نقدًا",
+      "paiements": "المدفوعات",
+      "encaisseSur": "{{paye}} مدفوع من أصل {{total}}",
+      "dontRembourse": "منها {{montant}} مُسترد",
+      "ouverture": "جارٍ الفتح...",
+      "payer": "ادفع {{montant}}",
+      "payerAcompte": "ادفع العربون {{montant}}",
+      "telechargerFacture": "تحميل الفاتورة",
+      "contrat": "العقد",
+      "reserverNouveau": "احجز مجددًا",
+      "prolongerTitre": "تمديد الحجز",
+      "dateRetourActuelle": "تاريخ الإرجاع الحالي: {{date}}",
+      "nouvelleDate": "تاريخ الإرجاع الجديد",
+      "prolonger": "تمديد",
+      "confirmerAnnulation": "تأكيد الإلغاء؟",
+      "acompteEncaisse": "العربون المحصل:",
+      "remboursement": "استرداد",
+      "aucunRemboursement": "دون استرداد",
+      "calculEnCours": "جارٍ الحساب...",
+      "ilReste": "تبقى {{heures}} ساعة قبل الاستلام.",
+      "soit": "أي {{montant}}.",
+      "annulationEnCours": "جارٍ الإلغاء...",
+      "prolongee": "تم تمديد الحجز لمدة {{jours}} من الأيام. المبلغ الإضافي: {{montant}}",
+      "erreurProlongation": "حدث خطأ أثناء التمديد",
+      "annuleeRemboursement": "تم إلغاء الحجز. المبلغ المسترد: {{montant}}",
+      "annuleeSansRemboursement": "تم إلغاء الحجز. لا يوجد استرداد وفقًا للسياسة.",
+      "erreurAnnulation": "حدث خطأ أثناء الإلغاء",
+      "paiementIndisponible": "الدفع الإلكتروني غير متاح في الوقت الحالي.",
+      "erreurPaiement": "تعذر بدء عملية الدفع",
+      "erreurFacture": "حدث خطأ أثناء تحميل الفاتورة",
+      "erreurContrat": "حدث خطأ أثناء تحميل العقد"
+    },
+    "paliers": {
+      "gratuit": {
+        "libelle": "استرداد كامل",
+        "detail": "أكثر من 48 ساعة قبل الاستلام."
+      },
+      "partiel": {
+        "libelle": "استرداد 50%",
+        "detail": "بين 24 و48 ساعة قبل الاستلام."
+      },
+      "tardif": {
+        "libelle": "الاحتفاظ بالعربون",
+        "detail": "أقل من 24 ساعة قبل الاستلام."
+      }
+    },
+    "fidelite": {
+      "titre": "برنامج الولاء",
+      "sousTitre": "اكسب نقاطًا مع كل كراء واستفد من خصومات حصرية.",
+      "reduction": "خصم {{pourcent}}% على كراءاتك",
+      "points": "نقاط",
+      "locationsEffectuees": "عمليات الكراء المنجزة",
+      "pointsCumules": "النقاط المكتسبة",
+      "prochainNiveau": "المستوى التالي",
+      "plusQue": "تبقّى {{count}} من عمليات الكراء فقط للحصول على خصم {{pourcent}}%",
+      "niveauxTitre": "مستويات الولاء",
+      "remise": "خصم {{pourcent}}%",
+      "erreur": "تعذر تحميل معلومات الولاء.",
+      "niveaux": {
+        "bronze": "برونزي",
+        "argent": "فضي",
+        "or": "ذهبي",
+        "platine": "بلاتيني"
+      }
+    },
+    "parrainage": {
+      "titre": "الإحالة",
+      "sousTitre": "شارك رمزك: تكسب 50 نقطة عن كل تسجيل و100 نقطة عندما يُكمل صديقك المُحال أول عملية كراء.",
+      "copier": "نسخ",
+      "partager": "مشاركة",
+      "filleuls": "المُحالون",
+      "premiereLocation": "أول عملية كراء",
+      "pointsGagnes": "النقاط المكتسبة",
+      "chargement": "جارٍ تحميل رمز الإحالة...",
+      "messagePartage": "سجّل في FIRAS BKA CAR باستخدام رمز الإحالة الخاص بي {{code}}: {{url}}"
+    },
+    "infos": {
+      "titre": "معلوماتي",
+      "nomComplet": "الاسم الكامل",
+      "telephone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailNonModifiable": "لا يمكن تعديل البريد الإلكتروني",
+      "nationalite": "الجنسية",
+      "optionMarocaine": "مغربية — البطاقة الوطنية",
+      "optionEtrangere": "أجنبية — جواز السفر",
+      "pieceDependNationalite": "يعتمد المستند المطلوب رفعه على جنسيتك.",
+      "numeroPasseport": "رقم جواز السفر",
+      "passeportAide": "من 6 إلى 20 حرفًا كبيرًا أو رقمًا.",
+      "cin": "CIN",
+      "cinAide": "مثال: A12345 أو AB123456.",
+      "expirationPermis": "انتهاء صلاحية الرخصة",
+      "expirationAide": "ضروري للتحقق من رخصة السياقة.",
+      "adresse": "العنوان",
+      "retourAccueil": "العودة إلى الرئيسية",
+      "enregistrement": "جارٍ الحفظ...",
+      "enregistrerModifs": "حفظ التغييرات"
+    },
+    "ecritures": {
+      "titre": "تفاصيل القيود",
+      "remboursement": "استرداد",
+      "encaissement": "تحصيل"
+    }
+  },
+  "dashboard": {
+    "titre": "لوحة التحكم",
+    "filAriane": "لوحة التحكم",
+    "stats": {
+      "totalDepense": "إجمالي المصروفات",
+      "reservations": "الحجوزات",
+      "enCours": "قيد التنفيذ",
+      "favoris": "المفضلة"
+    },
+    "favoris": {
+      "titre": "سياراتي المفضلة",
+      "parcourir": "تصفح",
+      "aucun": "لا توجد سيارات مفضلة حتى الآن.",
+      "aide": "انقر على القلب في أي سيارة لإضافتها هنا.",
+      "retirer": "إزالة من المفضلة",
+      "parJour": "/اليوم"
+    },
+    "reservations": {
+      "titre": "آخر حجوزاتي",
+      "toutVoir": "عرض الكل",
+      "aucune": "لا توجد حجوزات حتى الآن.",
+      "libelle": "حجز"
+    }
+  },
+  "messagerie": {
+    "titre": "الرسائل",
+    "filAriane": "الرسائل",
+    "contacterEquipe": "تواصل مع فريقنا",
+    "aucunMessage": "لا توجد رسائل. اطرح علينا سؤالًا!",
+    "placeholder": "رسالتك...",
+    "envoyer": "إرسال الرسالة"
+  },
+  "documents": {
+    "voir": "عرض",
+    "voirDocument": "عرض المستند: {{titre}}",
+    "motifRejet": "سبب الرفض: {{motif}}",
+    "televerser": "رفع {{titre}}",
+    "glisser": "اسحب صورة هنا أو",
+    "parcourir": "تصفح ملفاتك",
+    "formats": "JPG أو PNG أو WebP — بحد أقصى {{taille}} ميغابايت. صورة واضحة ومقروءة وغير مقتطعة.",
+    "apercu": "معاينة: {{titre}}",
+    "envoyer": "إرسال الصورة",
+    "verification": "جارٍ التحقق…",
+    "retirerPhoto": "إزالة الصورة المحددة",
+    "erreurEnvoi": "تعذر إرسال المستند. حاول مجددًا.",
+    "taille": "{{taille}} ميغابايت",
+    "titreIdentite": "وثيقة الهوية",
+    "descIdentiteEtranger": "بصفتك زائرًا أجنبيًا، يجب عليك رفع صورة من جواز سفرك لتتمكن من الحجز.",
+    "descIdentiteMarocain": "يجب عليك رفع صورة من بطاقتك الوطنية (CIN) لتتمكن من الحجز.",
+    "titrePasseport": "جواز السفر",
+    "titreCarteNationale": "البطاقة الوطنية (CIN)",
+    "descriptionIdentite": "صورة واضحة ومقروءة من {{piece}}، مع ظهور الزوايا الأربع.",
+    "noteIdentite": "تُفحص الصورة تلقائيًا (الصيغة والدقة والوضوح والإضاءة). تُرفض الصورة الضبابية أو الداكنة جدًا أو المقتطعة أو المائلة. ثم يتحقق أحد الموظفين من المستند قبل أول حجز لك.",
+    "titrePermis": "رخصة السياقة",
+    "descPermis": "يجب عليك رفع صورة من رخصة السياقة لتتمكن من الحجز.",
+    "descriptionPermis": "صورة واضحة ومقروءة لرخصة السياقة، مع ظهور تاريخ الصلاحية.",
+    "notePermis": "تخضع صورة الرخصة لنفس الفحص التلقائي للجودة. تذكر إدخال تاريخ انتهاء الصلاحية في معلوماتك.",
+    "piecePasseport": "جواز السفر",
+    "pieceCarteNationale": "البطاقة الوطنية",
+    "statuts": {
+      "valide": "مقبول",
+      "en_attente": "قيد التحقق",
+      "rejete": "مرفوض",
+      "expire": "منتهي الصلاحية",
+      "non_fourni": "غير مقدم"
+    },
+    "validation": {
+      "selectionner": "اختر صورة من وثيقتك.",
+      "format": "الصيغة غير مقبولة: أرسل صورة JPG أو PNG أو WebP (بدون PDF).",
+      "tailleMax": "حجم الصورة يتجاوز {{taille}} ميغابايت. قلّل حجمها ثم أعد المحاولة.",
+      "tropCompressee": "الصورة مضغوطة جدًا أو غير مقروءة. أرسل صورة أوضح.",
+      "resolution": "الصورة صغيرة جدًا: الحد الأدنى للدقة هو {{largeur}} × {{hauteur}} بكسل.",
+      "illisible": "تعذر قراءة هذه الصورة. اختر صورة أخرى بصيغة JPG أو PNG أو WebP."
+    }
+  },
+  "statuts": {
+    "vide": "غير محدد",
+    "paiement": {
+      "en_attente": {
+        "label": "قيد الانتظار",
+        "detail": "الدفع في انتظار تأكيد البنك."
+      },
+      "paye": {
+        "label": "مدفوع",
+        "detail": "تم تحصيل الدفع."
+      },
+      "echoue": {
+        "label": "فشل",
+        "detail": "تم رفض الدفع. يمكن محاولة الدفع مجددًا."
+      },
+      "annule": {
+        "label": "ملغى",
+        "detail": "تم التخلي عن الدفع أو إلغاؤه قبل التأكيد."
+      },
+      "expire": {
+        "label": "منتهي الصلاحية",
+        "detail": "انتهت جلسة الدفع دون تأكيد."
+      },
+      "suspect": {
+        "label": "بحاجة إلى تحقق",
+        "detail": "رد البنك غير مكتمل؛ سيتم تأكيد الحالة تلقائيًا."
+      },
+      "rembourse": {
+        "label": "مسترد",
+        "detail": "تم استرداد المبلغ بالكامل للعميل."
+      },
+      "rembourse_partiel": {
+        "label": "استرداد جزئي",
+        "detail": "تم استرداد جزء من المبلغ، ويُحتفظ بالباقي."
+      },
+      "inconnu": {
+        "label": "حالة غير معروفة",
+        "detail": "حالة غير معروفة في الواجهة."
+      }
+    },
+    "reservation": {
+      "confirmee": "مؤكد",
+      "en_cours": "قيد التنفيذ",
+      "terminee": "منتهي",
+      "annulee": "ملغى"
+    }
+  }
+}

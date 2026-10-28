@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 export const DOCUMENT_PHOTO_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 export const DOCUMENT_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -19,27 +21,27 @@ export function validateDocumentPhotoFile(file, options = {}) {
   } = options;
 
   if (!file) {
-    return Promise.resolve({ valid: false, message: 'Selectionnez une photo de votre document.' });
+    return Promise.resolve({ valid: false, message: i18n.t('documents.validation.selectionner') });
   }
 
   if (!DOCUMENT_PHOTO_TYPES.includes(file.type)) {
     return Promise.resolve({
       valid: false,
-      message: 'Format non accepte : envoyez une photo JPG, PNG ou WebP (pas de PDF).',
+      message: i18n.t('documents.validation.format'),
     });
   }
 
   if (file.size > maxSizeMb * 1024 * 1024) {
     return Promise.resolve({
       valid: false,
-      message: `La photo depasse ${maxSizeMb} Mo. Reduisez sa taille avant de recommencer.`,
+      message: i18n.t('documents.validation.tailleMax', { taille: maxSizeMb }),
     });
   }
 
   if (file.size < TAILLE_MIN) {
     return Promise.resolve({
       valid: false,
-      message: 'La photo est trop compressee ou illisible. Envoyez une photo plus nette.',
+      message: i18n.t('documents.validation.tropCompressee'),
     });
   }
 
@@ -59,7 +61,10 @@ export function validateDocumentPhotoFile(file, options = {}) {
       if (shortSide < minShortSide || longSide < minLongSide) {
         resolve({
           valid: false,
-          message: `Photo trop petite : la resolution minimale est de ${minLongSide} x ${minShortSide} pixels.`,
+          message: i18n.t('documents.validation.resolution', {
+            largeur: minLongSide,
+            hauteur: minShortSide,
+          }),
         });
         return;
       }
@@ -71,7 +76,7 @@ export function validateDocumentPhotoFile(file, options = {}) {
       URL.revokeObjectURL(url);
       resolve({
         valid: false,
-        message: "Cette image est illisible. Choisissez une autre photo JPG, PNG ou WebP.",
+        message: i18n.t('documents.validation.illisible'),
       });
     };
 

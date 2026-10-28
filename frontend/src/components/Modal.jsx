@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
 const FOCUSABLE =
@@ -25,6 +26,7 @@ export default function Modal({
   const containerRef = useRef(null);
   const previouslyFocused = useRef(null);
   const titleId = useId();
+  const { t } = useTranslation();
 
   const sizes = {
     sm: 'max-w-sm',
@@ -112,7 +114,7 @@ export default function Modal({
               type="button"
               onClick={onClose}
               className="-me-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white"
-              aria-label="Fermer"
+              aria-label={t('actions.fermer')}
             >
               <X size={18} aria-hidden="true" />
             </button>

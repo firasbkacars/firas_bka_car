@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { formatDate, formatDuration, formatMAD, formatNumber } from '../lib/formatters';
+import { carburantLabel, equipementLabel } from '../lib/vehiculeLabels';
 import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
 
@@ -25,12 +28,13 @@ const FIELD_CLASS =
   'min-h-11 w-full rounded-xl border border-line-strong bg-neutral-800 px-4 text-base text-white outline-none transition-colors placeholder:text-placeholder focus:border-primary sm:text-sm';
 
 function Thumbnail({ src, alt, active, onClick }) {
+  const { t } = useTranslation();
   const [loaded, setLoaded] = useState(false);
   const [err, setErr] = useState(false);
   return (
     <button
       onClick={onClick}
-      aria-label={`Voir ${alt}`}
+      aria-label={t('vehicule.voirImage', { alt })}
       aria-pressed={active}
       className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-colors sm:h-24 sm:w-24 ${
         active ? 'border-primary' : 'border-transparent opacity-60 hover:border-neutral-700 hover:opacity-100'
@@ -50,6 +54,7 @@ function Thumbnail({ src, alt, active, onClick }) {
 }
 
 function DatePicker({ label, id, value, onChange }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(value ? new Date(value + 'T00:00:00') : new Date());
   const today = new Date();
@@ -63,8 +68,8 @@ function DatePicker({ label, id, value, onChange }) {
   for (let i = 0; i < firstDay; i++) days.push(null);
   for (let i = 1; i <= daysInMonth; i++) days.push(i);
 
-  const dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
-  const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const dayNames = t('vehicule.calendrier.jours', { returnObjects: true });
+  const monthNames = t('vehicule.calendrier.mois', { returnObjects: true });
 
   const selectDay = (d) => {
     const selected = new Date(year, month, d);
@@ -85,18 +90,18 @@ function DatePicker({ label, id, value, onChange }) {
         aria-expanded={open}
         className={`${FIELD_CLASS} flex items-center justify-between text-start`}
       >
-        <span className={value ? 'text-white' : 'text-muted'}>{value || 'Sélectionner'}</span>
+        <span className={value ? 'text-white' : 'text-muted'}>{value ? formatDate(value) : t('vehicule.calendrier.selectionner')}</span>
         <span className="text-muted">{IC.calendar('h-4 w-4')}</span>
       </button>
       {open && (
         <div className="absolute z-50 mt-2 w-72 rounded-2xl border border-line bg-surface-raised p-4 shadow-2xl">
           <div className="mb-3 flex items-center justify-between">
-            <button onClick={() => setViewDate(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Mois précédent">
-              {IC.chevronL('h-4 w-4')}
+            <button onClick={() => setViewDate(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisPrecedent')}>
+              {IC.chevronL('h-4 w-4 rtl:rotate-180')}
             </button>
-            <span className="text-sm font-medium text-white">{monthNames[month]} {year}</span>
-            <button onClick={() => setViewDate(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Mois suivant">
-              {IC.chevronR('h-4 w-4')}
+            <span className="text-sm font-medium text-white">{monthNames[month]} {formatNumber(year, { decimals: 0 })}</span>
+            <button onClick={() => setViewDate(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisSuivant')}>
+              {IC.chevronR('h-4 w-4 rtl:rotate-180')}
             </button>
           </div>
           <div className="mb-1 grid grid-cols-7 gap-1">
@@ -136,6 +141,7 @@ function DatePicker({ label, id, value, onChange }) {
 }
 
 function MiniCalendar({ bookedDates = [] }) {
+  const { t } = useTranslation();
   const now = new Date();
   const [view, setView] = useState(new Date(now.getFullYear(), now.getMonth()));
   const year = view.getFullYear();
@@ -146,7 +152,8 @@ function MiniCalendar({ bookedDates = [] }) {
   for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) days.push(null);
   for (let i = 1; i <= daysInMonth; i++) days.push(i);
 
-  const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const dayNames = t('vehicule.calendrier.jours', { returnObjects: true });
+  const monthNames = t('vehicule.calendrier.mois', { returnObjects: true });
 
   const isBooked = (d) => {
     if (!d) return false;
@@ -161,16 +168,16 @@ function MiniCalendar({ bookedDates = [] }) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="mb-4 flex items-center justify-between">
-        <button onClick={() => setView(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Mois précédent">
-          {IC.chevronL('h-4 w-4')}
+        <button onClick={() => setView(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisPrecedent')}>
+          {IC.chevronL('h-4 w-4 rtl:rotate-180')}
         </button>
-        <span className="text-sm font-medium text-white">{monthNames[month]} {year}</span>
-        <button onClick={() => setView(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Mois suivant">
-          {IC.chevronR('h-4 w-4')}
+        <span className="text-sm font-medium text-white">{monthNames[month]} {formatNumber(year, { decimals: 0 })}</span>
+        <button onClick={() => setView(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisSuivant')}>
+          {IC.chevronR('h-4 w-4 rtl:rotate-180')}
         </button>
       </div>
       <div className="mb-1 grid grid-cols-7 gap-1">
-        {['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'].map(d => (
+        {dayNames.map(d => (
           <div key={d} className="py-1 text-center text-xs font-medium text-muted">{d}</div>
         ))}
       </div>
@@ -196,11 +203,11 @@ function MiniCalendar({ bookedDates = [] }) {
       <div className="mt-3 flex items-center gap-4 border-t border-line pt-3">
         <div className="flex items-center gap-2 text-xs text-muted">
           <span className="h-2.5 w-2.5 rounded border border-primary/50 bg-primary/30" aria-hidden="true" />
-          Réservé
+          {t('vehicule.calendrier.reserve')}
         </div>
         <div className="flex items-center gap-2 text-xs text-muted">
           <span className="h-2.5 w-2.5 rounded border border-line-strong bg-white/10" aria-hidden="true" />
-          Aujourd'hui
+          {t('vehicule.calendrier.aujourdhui')}
         </div>
       </div>
     </div>
@@ -208,6 +215,7 @@ function MiniCalendar({ bookedDates = [] }) {
 }
 
 export default function VehiculeDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { client } = useAuth();
@@ -270,12 +278,12 @@ export default function VehiculeDetail() {
       if (reviewForm.commentaire) payload.append('commentaire', reviewForm.commentaire);
       if (reviewPhoto) payload.append('photo', reviewPhoto);
       await api.post('/avis', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setReviewSuccess('Avis envoyé. Il sera visible après modération.');
+      setReviewSuccess(t('vehicule.avis.envoye'));
       setReviewForm({ note: 5, commentaire: '' });
       setReviewPhoto(null);
       fetchAvis();
     } catch (err) {
-      setReviewError(err.response?.data?.message || 'Erreur lors de l\'envoi de l\'avis');
+      setReviewError(err.response?.data?.message || t('vehicule.avis.erreur'));
     } finally {
       setSubmittingReview(false);
     }
@@ -324,10 +332,10 @@ export default function VehiculeDetail() {
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-line bg-surface">
           <AlertTriangle size={40} className="text-muted" aria-hidden="true" />
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-white">Véhicule non trouvé</h1>
-        <p className="mb-6 text-sm text-muted">Ce véhicule n'existe pas ou a été supprimé.</p>
+        <h1 className="mb-2 text-xl font-semibold text-white">{t('vehicule.nonTrouve')}</h1>
+        <p className="mb-6 text-sm text-muted">{t('vehicule.nonTrouveTexte')}</p>
         <Link to="/vehicules" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">
-          Retour au catalogue
+          {t('vehicule.retourCatalogue')}
         </Link>
       </div>
     );
@@ -337,10 +345,10 @@ export default function VehiculeDetail() {
     <div className="min-h-dvh pb-16 pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="Fil d'Ariane">
-          <Link to="/" className="transition-colors hover:text-white">Accueil</Link>
+        <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs text-muted" aria-label={t('vehicule.filAriane')}>
+          <Link to="/" className="transition-colors hover:text-white">{t('nav.accueil')}</Link>
           {IC.chevronR('h-3 w-3 rtl:rotate-180')}
-          <Link to="/vehicules" className="transition-colors hover:text-white">Nos véhicules</Link>
+          <Link to="/vehicules" className="transition-colors hover:text-white">{t('nav.vehicules')}</Link>
           {IC.chevronR('h-3 w-3 rtl:rotate-180')}
           <span className="text-white" aria-current="page">{vehicule.marque} {vehicule.modele}</span>
         </nav>
@@ -353,7 +361,7 @@ export default function VehiculeDetail() {
               {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-white/[0.03]" aria-hidden="true" />}
               <img
                 src={images[activeImg]}
-                alt={`${vehicule.marque} ${vehicule.modele} — vue ${activeImg + 1}`}
+                alt={t('vehicule.imageVue', { vehicule: `${vehicule.marque} ${vehicule.modele}`, index: activeImg + 1 })}
                 onLoad={() => setImgLoaded(true)}
                 onError={(e) => { e.target.src = FALLBACK_IMG; setImgLoaded(true); }}
                 className={`h-[280px] w-full object-cover transition-opacity duration-300 sm:h-[400px] lg:h-[460px] ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -364,16 +372,16 @@ export default function VehiculeDetail() {
                   <button
                     onClick={() => { setActiveImg(i => (i - 1 + images.length) % images.length); setImgLoaded(false); }}
                     className="absolute start-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
-                    aria-label="Image précédente"
+                    aria-label={t('vehicule.imagePrecedente')}
                   >
-                    {IC.chevronL('h-5 w-5')}
+                    {IC.chevronL('h-5 w-5 rtl:rotate-180')}
                   </button>
                   <button
                     onClick={() => { setActiveImg(i => (i + 1) % images.length); setImgLoaded(false); }}
                     className="absolute end-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
-                    aria-label="Image suivante"
+                    aria-label={t('vehicule.imageSuivante')}
                   >
-                    {IC.chevronR('h-5 w-5')}
+                    {IC.chevronR('h-5 w-5 rtl:rotate-180')}
                   </button>
                 </>
               )}
@@ -386,7 +394,7 @@ export default function VehiculeDetail() {
                   <Thumbnail
                     key={i}
                     src={src}
-                    alt={`${vehicule.marque} ${vehicule.modele} vue ${i + 1}`}
+                    alt={t('vehicule.vignetteVue', { vehicule: `${vehicule.marque} ${vehicule.modele}`, index: i + 1 })}
                     active={i === activeImg}
                     onClick={() => { setActiveImg(i); setImgLoaded(false); }}
                   />
@@ -400,19 +408,23 @@ export default function VehiculeDetail() {
                 {vehicule.marque} {vehicule.modele}
               </h1>
               <div className="mb-3 flex flex-wrap gap-2">
-                {[vehicule.transmission === 'automatique' ? 'Automatique' : 'Manuelle', vehicule.carburant, `${vehicule.places} places`].map((tag, i) => (
+                {[
+                  vehicule.transmission === 'automatique' ? t('vehicule.automatique') : t('vehicule.manuelle'),
+                  carburantLabel(vehicule.carburant, t),
+                  `${formatNumber(vehicule.places)} ${t('unites.places')}`,
+                ].map((tag, i) => (
                   <span key={i} className="rounded-full border border-line bg-white/5 px-3 py-1 text-xs text-muted">
                     {tag}
                   </span>
                 ))}
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tabular-nums text-primary-light">{vehicule.prix_jour}</span>
-                <span className="text-sm font-normal text-muted">DH / jour</span>
+                <span className="text-3xl font-bold tabular-nums text-primary-light">{formatMAD(vehicule.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}</span>
+                <span className="text-sm font-normal text-muted">{t('vehicule.parJour')}</span>
               </div>
               {vehicule.montant_caution > 0 && (
                 <p className="mt-1 text-xs text-warning">
-                  Caution remboursable : {vehicule.montant_caution} DH
+                  {t('vehicule.caution', { montant: formatMAD(vehicule.montant_caution, { suffix: t('unites.dh'), decimals: 0 }) })}
                 </p>
               )}
               {vehicule.description && (
@@ -424,15 +436,15 @@ export default function VehiculeDetail() {
 
             {/* Specifications */}
             <div className="mb-6 rounded-2xl border border-line bg-surface p-5">
-              <h2 className="mb-4 font-semibold text-white">Spécifications</h2>
+              <h2 className="mb-4 font-semibold text-white">{t('vehicule.specifications')}</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {[
-                  { icon: IC.calendar, label: 'Année', value: vehicule.annee },
-                  { icon: IC.gauge, label: 'Kilométrage', value: `${vehicule.kilometrage?.toLocaleString()} km` },
-                  { icon: IC.cog, label: 'Transmission', value: vehicule.transmission === 'automatique' ? 'Automatique' : 'Manuelle', wide: true },
-                  { icon: IC.droplet, label: 'Carburant', value: vehicule.carburant },
-                  { icon: IC.bolt, label: 'Puissance', value: vehicule.puissance },
-                  { icon: IC.users, label: 'Places', value: vehicule.places },
+                  { icon: IC.calendar, label: t('vehicule.annee'), value: vehicule.annee },
+                  { icon: IC.gauge, label: t('vehicule.kilometrage'), value: `${formatNumber(vehicule.kilometrage)} ${t('unites.km')}` },
+                  { icon: IC.cog, label: t('vehicule.transmission'), value: vehicule.transmission === 'automatique' ? t('vehicule.automatique') : t('vehicule.manuelle'), wide: true },
+                  { icon: IC.droplet, label: t('vehicule.carburant'), value: carburantLabel(vehicule.carburant, t) },
+                  { icon: IC.bolt, label: t('vehicule.puissance'), value: vehicule.puissance },
+                  { icon: IC.users, label: t('vehicule.places'), value: vehicule.places },
                 ].map((s, i) => (
                   <div key={i} className={`flex items-center gap-3 rounded-xl border border-line bg-white/[0.02] px-4 py-3 ${s.wide ? 'col-span-2 sm:col-span-1' : ''}`}>
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10">
@@ -449,18 +461,18 @@ export default function VehiculeDetail() {
 
             {/* Équipements */}
             <div className="mb-6 rounded-2xl border border-line bg-surface p-5">
-              <h2 className="mb-4 font-semibold text-white">Équipements</h2>
+              <h2 className="mb-4 font-semibold text-white">{t('vehicule.equipements')}</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {(vehicule.equipements || []).map((eq, i) => (
                   <div key={i} className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.02] px-4 py-2.5">
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/10">
                       {IC.check('h-3 w-3 text-success')}
                     </div>
-                    <span className="text-sm text-muted">{eq}</span>
+                    <span className="text-sm text-muted">{equipementLabel(eq, t)}</span>
                   </div>
                 ))}
                 {(!vehicule.equipements || vehicule.equipements.length === 0) && (
-                  <p className="col-span-full text-sm text-muted">Aucun équipement renseigné.</p>
+                  <p className="col-span-full text-sm text-muted">{t('vehicule.aucunEquipement')}</p>
                 )}
               </div>
             </div>
@@ -468,9 +480,9 @@ export default function VehiculeDetail() {
             {/* V6 : position GPS sur carte OpenStreetMap */}
             {(vehicule.latitude != null && vehicule.longitude != null) && (
               <div className="mb-6 rounded-2xl border border-line bg-surface p-5">
-                <h2 className="mb-4 font-semibold text-white">Position du véhicule</h2>
+                <h2 className="mb-4 font-semibold text-white">{t('vehicule.position')}</h2>
                 <iframe
-                  title="Carte de la position du véhicule"
+                  title={t('vehicule.carteTitre')}
                   className="h-64 w-full rounded-xl border border-line"
                   loading="lazy"
                   src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(vehicule.longitude) - 0.01}%2C${Number(vehicule.latitude) - 0.01}%2C${Number(vehicule.longitude) + 0.01}%2C${Number(vehicule.latitude) + 0.01}&layer=mapnik&marker=${vehicule.latitude}%2C${vehicule.longitude}`}
@@ -481,7 +493,7 @@ export default function VehiculeDetail() {
                   rel="noreferrer"
                   className="mt-2 inline-flex min-h-11 items-center text-xs text-primary-light hover:underline"
                 >
-                  Agrandir la carte
+                  {t('vehicule.agrandirCarte')}
                 </a>
               </div>
             )}
@@ -490,7 +502,7 @@ export default function VehiculeDetail() {
             <div className="mb-6">
               <h2 className="mb-4 flex items-center gap-2 font-semibold text-white">
                 {IC.calendar('h-5 w-5 text-primary-light')}
-                Disponibilité
+                {t('vehicule.disponibilite')}
               </h2>
               <MiniCalendar bookedDates={vehicule.reservations || []} />
             </div>
@@ -499,7 +511,7 @@ export default function VehiculeDetail() {
             <div className="mb-6 rounded-2xl border border-line bg-surface p-5">
               <h2 className="mb-4 flex items-center gap-2 font-semibold text-white">
                 <Star className="h-5 w-5 text-primary-light" aria-hidden="true" />
-                Avis clients
+                {t('vehicule.avis.titre')}
               </h2>
 
               {avisLoading ? (
@@ -530,13 +542,13 @@ export default function VehiculeDetail() {
                             />
                           ))}
                         </div>
-                        <div className="mt-1 text-xs text-muted">{avisData.nombre} avis</div>
+                        <div className="mt-1 text-xs text-muted">{t('vehicule.avis.nombre', { count: avisData.nombre })}</div>
                       </div>
                     </div>
                   )}
 
                   {avisData.avis.length === 0 ? (
-                    <p className="py-4 text-center text-sm text-muted">Aucun avis pour ce véhicule.</p>
+                    <p className="py-4 text-center text-sm text-muted">{t('vehicule.avis.aucun')}</p>
                   ) : (
                     <div className="mb-5 space-y-3">
                       {avisData.avis.slice(0, 5).map((avi) => (
@@ -559,7 +571,7 @@ export default function VehiculeDetail() {
                               </div>
                             </div>
                             <span className="ms-auto text-xs text-muted">
-                              {new Date(avi.created_at).toLocaleDateString('fr-FR')}
+                              {formatDate(avi.created_at)}
                             </span>
                           </div>
                           {avi.commentaire && (
@@ -572,22 +584,22 @@ export default function VehiculeDetail() {
 
                   {/* Formulaire d'avis */}
                   <div className="border-t border-line pt-5">
-                    <h3 className="mb-3 text-sm font-medium text-white">Laisser un avis</h3>
+                    <h3 className="mb-3 text-sm font-medium text-white">{t('vehicule.avis.laisser')}</h3>
                     {!client ? (
                       <p className="text-sm text-muted">
-                        <Link to="/client/login" className="text-primary-light hover:underline">Connectez-vous</Link> pour laisser un avis.
+                        <Link to="/client/login" className="text-primary-light hover:underline">{t('vehicule.avis.seConnecter')}</Link> {t('vehicule.avis.pourLaisser')}
                       </p>
                     ) : (
                       <div className="space-y-3">
                         <div>
-                          <span className="mb-2 block text-xs font-medium text-muted">Note</span>
+                          <span className="mb-2 block text-xs font-medium text-muted">{t('vehicule.avis.note')}</span>
                           <div className="flex items-center gap-1">
                             {[1, 2, 3, 4, 5].map(s => (
                               <button
                                 key={s}
                                 type="button"
                                 onClick={() => setReviewForm(p => ({ ...p, note: s }))}
-                                aria-label={`Noter ${s} étoile${s > 1 ? 's' : ''}`}
+                                aria-label={t('vehicule.avis.noter', { count: s })}
                                 aria-pressed={s <= reviewForm.note}
                                 className="inline-flex h-11 w-11 items-center justify-center rounded-xl transition-colors hover:bg-white/5"
                               >
@@ -601,19 +613,19 @@ export default function VehiculeDetail() {
                           </div>
                         </div>
                         <div>
-                          <label className="mb-2 block text-xs font-medium text-muted" htmlFor="avis-commentaire">Commentaire (optionnel)</label>
+                          <label className="mb-2 block text-xs font-medium text-muted" htmlFor="avis-commentaire">{t('vehicule.avis.commentaire')}</label>
                           <textarea
                             id="avis-commentaire"
                             value={reviewForm.commentaire}
                             onChange={(e) => setReviewForm(p => ({ ...p, commentaire: e.target.value }))}
                             rows={3}
                             maxLength={1000}
-                            placeholder="Partagez votre expérience..."
+                            placeholder={t('vehicule.avis.commentairePlaceholder')}
                             className={`${FIELD_CLASS} min-h-28 resize-none py-3`}
                           />
                         </div>
                         <div>
-                          <label className="mb-2 block text-xs font-medium text-muted" htmlFor="avis-photo">Photo (optionnel, 2 Mo max)</label>
+                          <label className="mb-2 block text-xs font-medium text-muted" htmlFor="avis-photo">{t('vehicule.avis.photo')}</label>
                           <input
                             id="avis-photo"
                             type="file"
@@ -630,7 +642,7 @@ export default function VehiculeDetail() {
                           className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
                         >
                           <Send size={14} aria-hidden="true" />
-                          {submittingReview ? 'Envoi...' : 'Envoyer'}
+                          {submittingReview ? t('vehicule.avis.envoi') : t('actions.envoyer')}
                         </button>
                       </div>
                     )}
@@ -646,19 +658,19 @@ export default function VehiculeDetail() {
               <div className="rounded-2xl border border-line bg-surface p-6">
                 <h2 className="mb-5 flex items-center gap-2 font-semibold text-white">
                   {IC.calendar('h-5 w-5 text-primary-light')}
-                  Réserver ce véhicule
+                  {t('vehicule.reserver')}
                 </h2>
 
                 <div className="mb-5 space-y-3">
                   <DatePicker
-                    label="Date de prise en charge"
+                    label={t('vehicule.datePrise')}
                     id="date-debut"
                     value={dates.dateDebut}
                     onChange={(v) => setDates(p => ({ ...p, dateDebut: v }))}
                   />
                   <div>
                     <label htmlFor="heure-debut" className="mb-1.5 block text-xs font-medium text-muted">
-                      Heure
+                      {t('vehicule.heure')}
                     </label>
                     <input
                       id="heure-debut"
@@ -669,14 +681,14 @@ export default function VehiculeDetail() {
                     />
                   </div>
                   <DatePicker
-                    label="Date de retour"
+                    label={t('vehicule.dateRetour')}
                     id="date-fin"
                     value={dates.dateFin}
                     onChange={(v) => setDates(p => ({ ...p, dateFin: v }))}
                   />
                   <div>
                     <label htmlFor="heure-fin" className="mb-1.5 block text-xs font-medium text-muted">
-                      Heure
+                      {t('vehicule.heure')}
                     </label>
                     <input
                       id="heure-fin"
@@ -691,22 +703,22 @@ export default function VehiculeDetail() {
                 {/* Price Summary */}
                 <div className="mb-5 space-y-2 border-t border-line pt-4" aria-live="polite">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted">Prix / jour</span>
-                    <span className="font-medium tabular-nums text-white">{vehicule.prix_jour} DH</span>
+                    <span className="text-muted">{t('vehicule.prixParJour')}</span>
+                    <span className="font-medium tabular-nums text-white">{formatMAD(vehicule.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="flex items-center gap-1.5 text-muted">
                       {IC.clock('h-3.5 w-3.5')}
-                      Durée
+                      {t('vehicule.duree')}
                     </span>
                     <span className={`font-medium tabular-nums ${duree ? 'text-white' : 'text-muted'}`}>
-                      {duree ? `${duree} jour${duree > 1 ? 's' : ''}` : '—'}
+                      {duree ? formatDuration(duree) : '—'}
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between border-t border-line pt-2">
-                    <span className="font-semibold text-white">Total</span>
+                    <span className="font-semibold text-white">{t('vehicule.total')}</span>
                     <span className={`text-2xl font-bold tabular-nums ${total ? 'text-primary-light' : 'text-muted'}`}>
-                      {total ? `${total} DH` : '—'}
+                      {total ? formatMAD(total, { suffix: t('unites.dh'), decimals: 0 }) : '—'}
                     </span>
                   </div>
                 </div>
@@ -717,20 +729,20 @@ export default function VehiculeDetail() {
                   disabled={!hasDates}
                   className="mb-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-disabled"
                 >
-                  Réserver maintenant
+                  {t('vehicule.reserverMaintenant')}
                 </button>
                 {!hasDates && (
-                  <p className="mb-3 text-center text-xs text-muted">Sélectionnez vos dates pour réserver</p>
+                  <p className="mb-3 text-center text-xs text-muted">{t('vehicule.selectionnezDates')}</p>
                 )}
 
                 <a
-                  href={`https://wa.me/212774623448?text=Je suis intéressé par le ${vehicule.marque} ${vehicule.modele}`}
+                  href={`https://wa.me/212774623448?text=${t('vehicule.whatsappMessage', { vehicule: `${vehicule.marque} ${vehicule.modele}` })}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-success/30 bg-success/10 px-5 text-sm font-semibold text-success transition-colors hover:bg-success/15"
                 >
                   {IC.whatsapp('h-5 w-5')}
-                  Contacter par WhatsApp
+                  {t('vehicule.whatsapp')}
                 </a>
               </div>
             </div>

@@ -1,0 +1,449 @@
+{
+  "reservation": {
+    "chargement": "جارٍ تحميل الحجز...",
+    "filAriane": {
+      "label": "مسار التنقل",
+      "finaliser": "إتمام الحجز"
+    },
+    "titre": "أكمل حجزك",
+    "parametresErreur": "تعذّر تحميل الأسعار المعتمدة. المبالغ المعروضة تقديرية: يعيد الخادم احتساب المجموع النهائي عند التأكيد.",
+    "erreurs": {
+      "vehiculeIndisponible": "السيارة غير متاحة",
+      "chargementImpossible": "تعذّر التحميل",
+      "vehiculeNonTrouve": "السيارة غير موجودة.",
+      "vehiculePlusDisponible": "هذه السيارة لم تعد متاحة.",
+      "chargementVehicule": "تعذّر تحميل السيارة. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "dateRetourAvantPrise": "يجب أن يكون تاريخ الإرجاع بعد تاريخ الاستلام.",
+      "datePrisePassee": "تاريخ الاستلام قد مضى.",
+      "codePromoInvalide": "رمز الخصم غير صالح",
+      "codePromoRetire": "تمت إزالة رمز الخصم: تغيّر المجموع. أعد تطبيقه.",
+      "reservationEchouee": "حدث خطأ أثناء إنشاء الحجز. يرجى المحاولة مرة أخرى.",
+      "paiementInitImpossible": "تعذّر بدء عملية الدفع.",
+      "reservationCreeePaiementProfil": "{{message}} تم إنشاء حجزك بنجاح: يمكنك الدفع من ملفك الشخصي.",
+      "reservationCreee": "{{message}} تم إنشاء حجزك.",
+      "permisEnvoye": "تم إرسال رخصة السياقة. سيتحقق منها أحد الموظفين.",
+      "permisEnvoiEchoue": "تعذّر إرسال رخصة السياقة. حاول مرة أخرى."
+    },
+    "documents": {
+      "mettreAJour": "تحديث وثيقة هويتي",
+      "televerser": "تحميل وثيقة هويتي",
+      "identite": {
+        "passeport": "جواز السفر",
+        "carteNationale": "البطاقة الوطنية",
+        "cin": "CIN",
+        "rejeteeTitrePasseport": "تم رفض جواز السفر",
+        "rejeteeTitreCin": "تم رفض البطاقة الوطنية",
+        "rejeteeDescriptionPasseport": "تم رفض جواز سفرك. حمّل صورة جديدة واضحة ومقروءة من ملفك الشخصي.",
+        "rejeteeDescriptionCin": "تم رفض بطاقتك الوطنية. حمّل صورة جديدة واضحة ومقروءة من ملفك الشخصي.",
+        "motif": "السبب: {{motif}}",
+        "enAttenteTitrePasseport": "جواز السفر قيد التحقق",
+        "enAttenteTitreCin": "البطاقة الوطنية قيد التحقق",
+        "enAttenteDescription": "{{document}} قيد التحقق من طرف أحد الموظفين. يمكنك الحجز بعد تأكيد الوثيقة.",
+        "requiseTitrePasseport": "جواز السفر مطلوب",
+        "requiseTitreCin": "البطاقة الوطنية مطلوبة",
+        "requiseDescription": "يجب تحميل صورة من {{document}} قبل التمكن من الحجز. تُقبل فقط صور JPG أو PNG أو WebP الواضحة والمقروءة."
+      },
+      "permis": {
+        "rejeteTitre": "تم رفض رخصة السياقة",
+        "rejeteDescription": "تم رفض رخصة سياقتك. يرجى تحميل وثيقة جديدة.",
+        "enAttenteTitre": "رخصة السياقة قيد التحقق",
+        "enAttenteDescription": "رخصة سياقتك قيد التحقق من طرف أحد الموظفين. يمكنك الحجز بعد تأكيدها.",
+        "requisTitre": "رخصة السياقة مطلوبة",
+        "requisDescription": "يجب تحميل صورة من رخصة سياقتك قبل التمكن من الحجز.",
+        "uploader": "تحميل الرخصة",
+        "envoi": "جارٍ الإرسال...",
+        "televerserAria": "تحميل رخصة السياقة"
+      }
+    },
+    "formulaire": {
+      "vosInformations": "معلوماتك",
+      "nomComplet": "الاسم الكامل",
+      "telephone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "pieceIdentite": "وثيقة الهوية ({{document}})",
+      "permisConduire": "رخصة السياقة",
+      "statuts": {
+        "validee": "مؤكدة",
+        "rejetee": "مرفوضة",
+        "nonFournie": "غير مقدمة",
+        "permisValide": "رخصة سارية",
+        "permisRejete": "رخصة مرفوضة",
+        "nonUploade": "غير محمّلة"
+      },
+      "agence": "وكالة الاستلام",
+      "agencePlaceholder": "اختر وكالة",
+      "agencePriseRetour": "الاستلام والإرجاع: {{lieu}}",
+      "agenceDefaut": "افتراضيًا: {{agence}} - {{lieu}}",
+      "agenceSelectionner": "اختر وكالة للاستلام.",
+      "notes": "ملاحظات (اختياري)",
+      "notesPlaceholder": "طلبات خاصة، مقعد أطفال، إلخ.",
+      "conducteur": {
+        "titre": "سائق إضافي (اختياري)",
+        "supplement": "تُضاف رسوم قدرها {{montant}} في اليوم عند إضافة سائق إضافي.",
+        "nom": "اسم السائق",
+        "nomPlaceholder": "الاسم الكامل",
+        "telephone": "الهاتف",
+        "permis": "رقم الرخصة",
+        "permisPlaceholder": "رقم رخصة السياقة"
+      },
+      "paiement": {
+        "titre": "طريقة الدفع",
+        "especes": "نقدًا",
+        "especesDesc": "الدفع عند الاستلام",
+        "cmi": "بطاقة بنكية",
+        "cmiDesc": "Visa / Mastercard عبر CMI",
+        "securise": "دفع آمن عبر المركز النقدي بين البنوك. لا تُخزَّن بطاقتك على خوادمنا."
+      }
+    },
+    "resume": {
+      "titre": "ملخص الطلب",
+      "parJour": "{{prix}} / يوم",
+      "places_zero": "{{count}} مقعد",
+      "places_one": "مقعد واحد",
+      "places_two": "مقعدان",
+      "places_few": "{{count}} مقاعد",
+      "places_many": "{{count}} مقعدًا",
+      "places_other": "{{count}} مقعد",
+      "datePrise": "تاريخ الاستلام",
+      "dateRetour": "تاريخ الإرجاع",
+      "duree": "المدة",
+      "prixLigne": "{{prix}} × {{duree}}",
+      "assurance": "تأمين شامل",
+      "incluse": "مشمول",
+      "kilometrage": "مسافة غير محدودة",
+      "inclus": "مشمول",
+      "conducteurLigne": "سائق إضافي ({{jours}} يوم × {{montant}})",
+      "codePromo": "رمز الخصم",
+      "codePromoPlaceholder": "أدخل رمزك",
+      "appliquer": "تطبيق",
+      "remise": "خصم ترويجي",
+      "total": "المجموع",
+      "acompte": "العربون المستحق الآن ({{taux}}%)",
+      "reste": "المتبقي عند الاستلام",
+      "caution": "مبلغ الضمان (قابل للاسترداد)",
+      "cmiTitre": "دفع آمن عبر CMI",
+      "cmiDescription": "أدخل معلومات بطاقتك في الإطار أدناه.",
+      "cmiIframeTitre": "نموذج الدفع CMI",
+      "paiementCree": "تم إنشاء الحجز. أكمل الدفع في الإطار أدناه."
+    },
+    "conditions": {
+      "titre": "شروط الكراء",
+      "penaliteRetard": "غرامة التأخير: {{pourcentage}}% من السعر اليومي عن كل يوم تأخير",
+      "annulationGratuite": "إلغاء مجاني إذا تم قبل أكثر من {{heures}} ساعة من الاستلام",
+      "remboursementPartiel": "استرداد 50% إذا تم بين {{heuresPartiel}} ساعة و{{heuresGratuit}} ساعة قبل الاستلام",
+      "acompteNonRemboursable": "العربون غير قابل للاسترداد إذا تم قبل أقل من {{heures}} ساعة",
+      "caution": "مبلغ ضمان قدره {{montant}} يُسترد بعد التحقق من حالة السيارة",
+      "acceptation": "قرأت وأوافق على شروط الكراء وسياسة الإلغاء"
+    },
+    "cta": {
+      "reessayer": "إعادة المحاولة",
+      "voirVehicules": "عرض السيارات",
+      "datesInvalides": "التواريخ غير صالحة للحجز",
+      "identiteEnAttente": "وثيقة الهوية في انتظار التأكيد",
+      "identiteRequise": "وثيقة الهوية مطلوبة ({{document}})",
+      "permisRequis": "رخصة السياقة مطلوبة للحجز",
+      "accepterConditions": "اقبل الشروط",
+      "ouverturePaiement": "جارٍ فتح صفحة الدفع...",
+      "reservationEnCours": "جارٍ إنشاء الحجز...",
+      "payerCmi": "أدِّ {{montant}} عبر CMI",
+      "payerAcompte": "أدِّ العربون {{montant}}",
+      "mention": "يُطلب عربون بنسبة {{taux}}% لتأكيد الحجز. يُدفع الباقي عند الاستلام."
+    }
+  },
+  "confirmation": {
+    "titre": "تم تأكيد الحجز!",
+    "sousTitre": "شكرًا لثقتك. تم إنجاز حجزك بنجاح.",
+    "erreurs": {
+      "connectezVous": "سجّل الدخول للاطلاع على هذا الحجز.",
+      "aucuneReservation": "لم يتم العثور على أي حجز.",
+      "introuvable": "الحجز غير موجود."
+    },
+    "retourAccueil": "العودة إلى الرئيسية",
+    "voirVehicules": "عرض السيارات",
+    "numero": {
+      "titre": "رقم الحجز",
+      "note": "احتفظ بهذا الرقم لأي مراجعة مستقبلية."
+    },
+    "details": {
+      "titre": "تفاصيل الكراء",
+      "priseEnCharge": "الاستلام",
+      "retour": "الإرجاع",
+      "lieu": "المكان"
+    },
+    "vehicule": {
+      "titre": "السيارة"
+    },
+    "paiement": {
+      "titre": "الدفع",
+      "total": "إجمالي الكراء",
+      "acompte": "العربون",
+      "regleSur": "تم أداء {{paye}} من أصل {{total}}",
+      "valide": "تم تأكيد {{total}}",
+      "statut": "الحالة",
+      "confirmee": "مؤكد"
+    },
+    "acompte": {
+      "titre": "أدِّ عربونك",
+      "description": "أدِّ عربونك البالغ {{montant}} بالوسيلة المقترحة في صفحة الدفع، ثم أرسل إثبات الدفع. ستتحقق الوكالة من الدفع.",
+      "payer": "أداء العربون"
+    },
+    "aide": {
+      "titre": "هل تحتاج إلى مساعدة؟",
+      "texte": "فريقنا رهن إشارتك للإجابة عن أي سؤال.",
+      "whatsapp": "الدردشة على WhatsApp"
+    }
+  },
+  "acompte": {
+    "chargement": "جارٍ تحميل بيانات دفع العربون...",
+    "erreurs": {
+      "envoiImpossible": "تعذّر الإرسال. تحقق من اتصالك وحاول مرة أخرى.",
+      "introuvable": "الحجز غير موجود. تحقق من الرقم أو سجّل الدخول بالحساب الذي قام بالحجز.",
+      "connexionRequise": "سجّل الدخول بالحساب الذي قام بهذا الحجز لأداء العربون.",
+      "chargementImpossible": "تعذّر تحميل هذا الحجز في الوقت الحالي."
+    },
+    "filAriane": {
+      "label": "مسار التنقل",
+      "mesReservations": "حجوزاتي",
+      "payer": "أداء العربون"
+    },
+    "etape": "الخطوة 3 من 3",
+    "titre": "أداء العربون",
+    "sousTitre": "يؤكد العربون حجزك. يُدفع باقي الكراء ومبلغ الضمان عند الاستلام.",
+    "connexion": {
+      "titre": "أداء العربون",
+      "descriptionAvant": "سجّل الدخول بالحساب الذي قام بالحجز",
+      "descriptionApres": "للاطلاع على المبلغ وإرسال إثبات الدفع.",
+      "retourVehicules": "العودة إلى السيارات"
+    },
+    "indisponible": {
+      "titre": "الدفع غير متاح",
+      "introuvable": "الحجز غير موجود.",
+      "mesReservations": "حجوزاتي",
+      "contacter": "التواصل مع الوكالة"
+    },
+    "annulee": {
+      "titre": "تم إلغاء الحجز",
+      "description": "تم إغلاق متابعة العربون لهذا الحجز. إذا تم أداء دفعة بالفعل، تواصل مع الوكالة لمعرفة إجراءات الاسترداد."
+    },
+    "sansAcompte": {
+      "titre": "لا يوجد عربون مستحق الأداء",
+      "description": "هذا الحجز لا يتطلب عربونًا. توجّه إلى الوكالة في التاريخ المحدد: يتم الدفع عند الاستلام."
+    },
+    "valide": {
+      "titre": "تم تأكيد العربون",
+      "description": "أكدت الوكالة عربونك. يُدفع باقي الكراء عند الاستلام."
+    },
+    "agence": {
+      "titre": "أداء العربون في الوكالة",
+      "description": "تم تسجيل حجزك. لا يتوفر أي دفع إلكتروني في الوقت الحالي: توجّه إلى الوكالة لأداء العربون وتأكيد حجزك.",
+      "montant": "المبلغ المستحق",
+      "taux": "عربون بنسبة {{taux}} % من الإجمالي.",
+      "reste": "يُدفع باقي الكراء عند الاستلام.",
+      "agence": "الوكالة",
+      "reservation": "الحجز {{numero}}",
+      "etape1": "توجّه إلى الوكالة مع رقم حجزك.",
+      "etape2": "أدِّ العربون البالغ {{montant}} مباشرة في عين المكان.",
+      "etape3": "تسجّل الوكالة الدفع: يصبح عربونك «مؤكدًا»."
+    },
+    "moyens": {
+      "titre": "طريقة أداء العربون",
+      "description": "تُعرض فقط وسائل الدفع المتاحة لهذا الحجز.",
+      "virement": "تحويل بنكي",
+      "virementDesc": "من تطبيقك البنكي",
+      "wafacash": "Wafacash / Cash Plus",
+      "wafacashDesc": "إيداع نقدي في وكالة تحويل"
+    },
+    "virement": {
+      "titre": "المعلومات البنكية للوكالة",
+      "ribLabel": "RIB (24 رقمًا)",
+      "copie": "تم النسخ",
+      "copier": "نسخ RIB",
+      "copieAria": "تم نسخ RIB إلى الحافظة.",
+      "beneficiaire": "المستفيد",
+      "banque": "البنك",
+      "montant": "المبلغ بالضبط",
+      "motifTitre": "ذكر سبب التحويل إلزامي",
+      "motifAvant": "أدخل رقم حجزك",
+      "motifApres": "في خانة سبب التحويل حتى تتمكن الوكالة من العثور على دفعتك."
+    },
+    "wafacash": {
+      "titre": "تحويل عبر وكالة Wafacash أو Cash Plus",
+      "description": "لا حاجة إلى حساب بنكي: أودع المبلغ نقدًا في أي وكالة تحويل باستخدام المعلومات أدناه.",
+      "beneficiaire": "المستفيد",
+      "cin": "رقم CIN",
+      "telephone": "الهاتف",
+      "montant": "المبلغ بالضبط",
+      "recuTitre": "احتفظ بالإيصال الورقي",
+      "recuAvant": "التقط له صورة وأرسلها أدناه مع رقم حجزك",
+      "recuApres": "حتى تتمكن الوكالة من العثور على دفعتك."
+    },
+    "recu": {
+      "titre": "إثبات الدفع",
+      "formats": "JPG أو PNG أو PDF، بحد أقصى 5 Mo.",
+      "badgeVerification": "الإيصال قيد التحقق",
+      "badgeAEnvoyer": "الإيصال في انتظار الإرسال",
+      "choisirAria": "اختيار إيصال الدفع",
+      "tailleRemplacer": "{{taille}} · انقر لاستبدال الملف",
+      "envoyeLe": "أُرسل الإيصال في {{date}} · انقر للاستبدال",
+      "ajouter": "إضافة صورة أو ملف PDF للإيصال",
+      "formatsCourt": "JPG أو PNG أو PDF، بحد أقصى 5 Mo",
+      "dejaEnregistre": "يوجد إيصال مسجّل بالفعل. اختر ملفًا لاستبداله.",
+      "envoyeTitre": "تم إرسال الإيصال",
+      "envoyeDescription": "إثبات الدفع الخاص بك في انتظار التأكيد. يمكنك استبدال الملف ما دام العربون غير مؤكد.",
+      "envoiEnCours": "جارٍ الإرسال...",
+      "envoyerNouveau": "إرسال إيصال جديد",
+      "envoyer": "إرسال الإيصال",
+      "mention": "إرسال الإيصال لا يُعد أداءً للدفع: تتحقق الوكالة من العملية قبل تأكيد العربون.",
+      "erreurs": {
+        "format": "الصيغة غير مقبولة: أرسل ملفًا بصيغة JPG أو PNG أو PDF.",
+        "taille": "حجم الإثبات يتجاوز 5 Mo.",
+        "methode": "اختر وسيلة دفع متاحة. تواصل مع الوكالة إذا لزم الأمر."
+      }
+    },
+    "recap": {
+      "titre": "ملخص",
+      "reservation": "الحجز",
+      "total": "إجمالي الكراء",
+      "dejaRegle": "المدفوع سابقًا",
+      "resteAcompte": "المتبقي من العربون",
+      "acompte": "العربون",
+      "acompteTaux": "العربون ({{taux}} %)",
+      "reste": "المتبقي عند الاستلام"
+    },
+    "statut": {
+      "titre": "حالة الحجز",
+      "etapesAria": "مراحل الحجز"
+    },
+    "bandeau": {
+      "annulee": {
+        "surtitre": "الدفع مغلق",
+        "titre": "تم إلغاء الحجز",
+        "description": "لا يمكن أداء أي عربون لهذا الحجز. تواصل مع الوكالة إذا تم أداء دفعة بالفعل."
+      },
+      "sansAcompte": {
+        "surtitre": "لا يوجد مبلغ مستحق",
+        "titre": "لا يُطلب أي عربون",
+        "description": "هذا الحجز لا يتطلب عربونًا. يتم الدفع عند الاستلام.",
+        "legende": "العربون"
+      },
+      "valide": {
+        "surtitre": "تم تأكيد الدفع",
+        "titre": "تم تأكيد العربون",
+        "description": "أكدت الوكالة عربونك. يُدفع باقي الكراء عند الاستلام.",
+        "legende": "العربون المؤكد"
+      },
+      "recu": {
+        "surtitre": "التحقق جارٍ",
+        "titre": "الإيصال قيد التحقق",
+        "description": "تم استلام إثبات الدفع الخاص بك. تتحقق الوكالة من الدفع قبل تأكيد العربون.",
+        "legendePartiel": "المتبقي للتحقق",
+        "legende": "العربون المصرّح به"
+      },
+      "agence": {
+        "surtitre": "إجراء مطلوب",
+        "titre": "عربون يجب أداؤه في الوكالة",
+        "description": "لا يتوفر أي دفع إلكتروني. توجّه إلى الوكالة لأداء العربون وتأكيد حجزك.",
+        "legende": "المبلغ المستحق"
+      },
+      "aPayer": {
+        "surtitre": "إجراء مطلوب",
+        "titre": "عربون مستحق الأداء",
+        "description": "اختر طريقة دفع، وأدِّ المبلغ ثم أرسل إثبات الدفع.",
+        "legendePartiel": "المتبقي للأداء",
+        "legende": "العربون المستحق"
+      }
+    },
+    "etapes": {
+      "reservation": {
+        "titre": "تم تسجيل الحجز",
+        "description": "تم تسجيل معلوماتك وسيارتك."
+      },
+      "paiement": {
+        "titre": "الدفع في الوكالة",
+        "description": "توجّه إلى الوكالة لأداء العربون.",
+        "titreRecu": "الإيصال قيد التحقق",
+        "descriptionRecu": "تتحقق الوكالة من دفعتك.",
+        "titreAEnvoyer": "الإيصال في انتظار الإرسال",
+        "descriptionAEnvoyer": "أضف إثبات الدفع."
+      },
+      "validation": {
+        "titre": "تم تأكيد العربون من الوكالة",
+        "description": "تم تأكيد الدفع وربطه بحجزك."
+      },
+      "priseEnCharge": {
+        "titre": "استلام السيارة",
+        "description": "يُدفع باقي الكراء في الوكالة."
+      }
+    }
+  },
+  "paiementRetour": {
+    "resultats": {
+      "paye": {
+        "titre": "تم تأكيد الدفع",
+        "description": "تم استلام عربونك. تم تأكيد حجزك."
+      },
+      "echoue": {
+        "titre": "تم رفض الدفع",
+        "description": "رفض بنكك العملية. لم يُخصم أي مبلغ."
+      },
+      "annule": {
+        "titre": "تم إلغاء الدفع",
+        "description": "لقد تخلّيت عن الدفع. لا يزال حجزك قيد الانتظار."
+      },
+      "expire": {
+        "titre": "انتهت الجلسة",
+        "description": "انتهت جلسة الدفع. يمكنك المحاولة مرة أخرى."
+      },
+      "suspect": {
+        "titre": "الدفع بحاجة إلى تحقق",
+        "description": "تم رصد خلل. سيتحقق فريقنا من دفعتك."
+      },
+      "en_attente": {
+        "titre": "الدفع قيد المعالجة",
+        "description": "لم يصل تأكيد بنكك بعد. يُرجى الانتظار بعض الوقت."
+      },
+      "rembourse": {
+        "titre": "تم استرداد الدفع",
+        "description": "تم استرداد هذه الدفعة. سيُعاد إليك المبلغ حسب وسيلة الدفع المستخدمة."
+      },
+      "rembourse_partiel": {
+        "titre": "تم استرداد جزء من الدفع",
+        "description": "تم استرداد جزء من هذه الدفعة. التفاصيل متاحة في ملفك الشخصي."
+      },
+      "unknown": {
+        "titre": "النتيجة غير متاحة",
+        "description": "تعذّر علينا تحديد نتيجة الدفع."
+      }
+    },
+    "invalide": {
+      "titre": "رابط الدفع غير صالح",
+      "description": "لا يحتوي هذا الرابط على مرجع المعاملة. راجع حجوزاتك للتحقق من حالة دفعتك.",
+      "voirReservations": "عرض حجوزاتي"
+    },
+    "verification": {
+      "enCours": "جارٍ التحقق...",
+      "attenteBanque": "في انتظار تأكيد البنك...",
+      "delai": "يستغرق التأكيد وقتًا أطول من المتوقع. سيُطبَّق تلقائيًا؛ يمكنك التواصل مع الوكالة إذا لزم الأمر."
+    },
+    "detail": {
+      "reservation": "الحجز",
+      "montant": "المبلغ",
+      "rembourse": "منه مسترد",
+      "carte": "البطاقة",
+      "date": "التاريخ",
+      "transaction": "المعاملة"
+    },
+    "erreurs": {
+      "relancer": "تعذّر إعادة بدء الدفع.",
+      "facture": "تعذّر تحميل الفاتورة."
+    },
+    "actions": {
+      "telechargerFacture": "تحميل الفاتورة",
+      "ouverturePaiement": "جارٍ فتح صفحة الدفع...",
+      "reessayer": "إعادة المحاولة في الدفع",
+      "voirReservations": "عرض حجوزاتي",
+      "contacter": "التواصل مع الوكالة - {{telephone}}"
+    },
+    "note": "لا يتم تخزين أي بيانات بنكية لدى FIRAS BKA CAR. تُعالَج عملية الدفع عبر المركز النقدي بين البنوك."
+  }
+}

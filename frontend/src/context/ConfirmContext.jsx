@@ -1,8 +1,11 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 
 const ConfirmContext = createContext(null);
 
 export function ConfirmProvider({ children }) {
+  const { t } = useTranslation();
   const [state, setState] = useState(null);
   const resolverRef = useRef(null);
 
@@ -16,14 +19,14 @@ export function ConfirmProvider({ children }) {
     return new Promise((resolve) => {
       resolverRef.current = resolve;
       setState({
-        title: options.title ?? 'Confirmation',
-        message: options.message ?? 'Êtes-vous sûr ?',
-        confirmLabel: options.confirmLabel ?? 'Confirmer',
-        cancelLabel: options.cancelLabel ?? 'Annuler',
+        title: options.title ?? t('confirm.titre'),
+        message: options.message ?? t('confirm.message'),
+        confirmLabel: options.confirmLabel ?? t('confirm.confirmer'),
+        cancelLabel: options.cancelLabel ?? t('confirm.annuler'),
         danger: options.danger ?? true,
       });
     });
-  }, []);
+  }, [t]);
 
   const value = useMemo(() => ({ confirm }), [confirm]);
 
@@ -39,7 +42,7 @@ export function useConfirm() {
   const ctx = useContext(ConfirmContext);
   if (!ctx) {
     return {
-      confirm: async () => window.confirm('Êtes-vous sûr ?'),
+      confirm: async () => window.confirm(i18n.t('confirm.message')),
     };
   }
   return ctx;

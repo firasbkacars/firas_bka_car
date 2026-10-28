@@ -1,15 +1,18 @@
 import { ChevronRight, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function PageHeader({ title, breadcrumbs = [] }) {
+  const { t } = useTranslation();
+
   return (
     <div className="border-b border-line pb-8 pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {breadcrumbs.length > 0 && (
-          <nav aria-label="Fil d'Ariane" className="mb-3 flex items-center gap-1.5 text-xs text-muted">
+          <nav aria-label={t('header.filAriane')} className="mb-3 flex items-center gap-1.5 text-xs text-muted">
             <Link to="/" className="flex items-center gap-1 py-1 transition-colors hover:text-white">
               <Home size={12} aria-hidden="true" />
-              Accueil
+              {t('nav.accueil')}
             </Link>
             {breadcrumbs.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1.5">

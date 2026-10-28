@@ -1,0 +1,357 @@
+{
+  "auth": {
+    "titre": "Log in",
+    "sousTitre": "Access your customer account",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "motDePasse": "Password",
+    "premiereConnexion": "First time logging in?",
+    "afficherMotDePasse": "Show password",
+    "masquerMotDePasse": "Hide password",
+    "seSouvenir": "Remember me",
+    "connexionEnCours": "Logging in...",
+    "tropDeTentatives": "Too many attempts. Please try again in 1 minute.",
+    "identifiantsIncorrects": "Incorrect credentials. Please try again.",
+    "pasDeCompte": "Don't have an account yet?"
+  },
+  "register": {
+    "titre": "Create an account",
+    "sousTitre": "Join us to book your car",
+    "nomComplet": "Full name *",
+    "email": "Email *",
+    "telephone": "Phone *",
+    "telephonePlaceholder": "06XXXXXXXX",
+    "motDePasse": "Password *",
+    "motDePassePlaceholder": "Min. 8 characters",
+    "confirmerMotDePasse": "Confirm password *",
+    "confirmerPlaceholder": "Re-enter the password",
+    "nationalite": "Nationality *",
+    "optionMarocaine": "Moroccan — national ID card (CIN)",
+    "optionEtrangere": "Foreign — passport",
+    "numeroPasseport": "Passport number *",
+    "passeportPlaceholder": "X1234567",
+    "cin": "CIN *",
+    "cinPlaceholder": "AB123456",
+    "adresse": "Address",
+    "codeParrainage": "Referral code",
+    "optionnel": "(optional)",
+    "parrainagePlaceholder": "e.g. ABCD1234",
+    "cguAccepte": "I accept the",
+    "cguLien": "terms and conditions of use",
+    "force": "Strength:",
+    "forceFaible": "Weak",
+    "forceMoyen": "Medium",
+    "forceFort": "Strong",
+    "erreurTelephone": "Invalid format (06XXXXXXXX or 07XXXXXXXX)",
+    "erreurCin": "The CIN must contain 1 to 2 uppercase letters followed by 4 to 6 digits (e.g. A12345 or AB123456)",
+    "erreurPasseport": "The passport number must contain 6 to 20 uppercase letters or digits",
+    "motsDePasseDifferents": "Passwords do not match",
+    "motsDePasseIdentiques": "Passwords match",
+    "dejaReserve": "Already booked by phone?",
+    "activerCompte": "Activate your account",
+    "dejaReserveFin": "using the email address you gave the agency.",
+    "documentsInfo": "After signing up, you will need to upload a clear photo of your driving licence and your {{piece}} in your profile. Blurred, too dark, cropped or PDF photos are automatically rejected.",
+    "passeport": "passport",
+    "carteNationale": "national ID card",
+    "succesTitre": "Registration successful",
+    "succesSousTitre": "Redirecting to your profile...",
+    "succesCompteCree": "Account created successfully",
+    "succesDerniereEtape": "Last step: upload your driving licence and your {{piece}} from your profile.",
+    "inscriptionEnCours": "Signing up...",
+    "erreurInscription": "Registration failed",
+    "dejaCompte": "Already have an account?"
+  },
+  "activation": {
+    "verifierTitre": "Check your inbox",
+    "verifierSousTitre": "An activation link has just been sent to you",
+    "consultezTitre": "Check your emails",
+    "consultezTexteDebut": "If an account is eligible for",
+    "consultezTexteFin": ", you will receive a link valid for 7 days to set your password.",
+    "spam": "Remember to check your spam folder.",
+    "retourConnexion": "Back to login",
+    "titre": "Activate my account",
+    "sousTitre": "Booked by phone? Set your password.",
+    "intro": "Your account was created by our team when you booked. Enter the email address you provided to receive your activation link.",
+    "email": "Email",
+    "envoiEnCours": "Sending...",
+    "recevoirLien": "Receive the activation link",
+    "dejaActive": "Account already activated?",
+    "erreurEnvoi": "Unable to send the request right now.",
+    "chargementTitre": "Account activation",
+    "chargementSousTitre": "Checking the link...",
+    "verificationEnCours": "Checking...",
+    "lienInvalide": "Invalid link",
+    "impossibleActiver": "Unable to activate this account",
+    "demanderNouveauLien": "Request a new link",
+    "definirMotDePasse": "Set your password",
+    "bienvenue": "Welcome {{nom}}",
+    "compteLieDebut": "Account linked to",
+    "compteLieFin": ". Choose a password to access your bookings.",
+    "motDePasse": "Password *",
+    "confirmerMotDePasse": "Confirm password *",
+    "motDePassePlaceholder": "Min. 8 characters",
+    "confirmerPlaceholder": "Re-enter the password",
+    "erreurLongueur": "The password must contain at least 8 characters.",
+    "erreurConfirmation": "The password confirmation does not match.",
+    "erreurActivation": "Account activation failed.",
+    "lienExpire": "This activation link is invalid or has expired.",
+    "activationEnCours": "Activating...",
+    "activer": "Activate my account"
+  },
+  "profil": {
+    "titre": "My profile",
+    "changerPhoto": "Change profile photo",
+    "choisirPhoto": "Choose a profile photo",
+    "cliquerPhoto": "Click the photo to change it",
+    "deconnexion": "Log out",
+    "profilMisAJour": "Profile updated successfully!",
+    "erreurMiseAJour": "Update failed",
+    "codeCopie": "Referral code copied.",
+    "codeCopieErreur": "Unable to copy the code.",
+    "formatNonSupporte": "Unsupported format (JPG, PNG or WebP)",
+    "photoTropLourde": "The photo exceeds 2 MB",
+    "photoMiseAJour": "Profile photo updated!",
+    "erreurUploadPhoto": "Photo upload failed",
+    "carteEnvoyee": "National ID card sent. It will be checked by an agent.",
+    "passeportEnvoye": "Passport sent. It will be checked by an agent.",
+    "permisEnvoye": "Licence sent. It will be checked by an agent.",
+    "erreurEnvoiDocument": "The document could not be sent. Check the photo and try again.",
+    "erreurEnvoiPermis": "The licence could not be sent. Check the photo and try again.",
+    "reservations": {
+      "titre": "My bookings",
+      "sousTitre": "View the history of all your bookings.",
+      "aucune": "No bookings yet.",
+      "parcourir": "Browse our cars",
+      "duAu": "from {{debut}} to {{fin}}",
+      "regle": "{{montant}} paid",
+      "aRegler": "{{montant}} due",
+      "priseEnCharge": "Pick-up",
+      "retour": "Return",
+      "modePaiement": "Payment method",
+      "carteBancaire": "Bank card (CMI)",
+      "especes": "Cash",
+      "paiements": "Payments",
+      "encaisseSur": "{{paye}} paid of {{total}}",
+      "dontRembourse": "including {{montant}} refunded",
+      "ouverture": "Opening...",
+      "payer": "Pay {{montant}}",
+      "payerAcompte": "Pay the deposit {{montant}}",
+      "telechargerFacture": "Download the invoice",
+      "contrat": "Contract",
+      "reserverNouveau": "Book again",
+      "prolongerTitre": "Extend the booking",
+      "dateRetourActuelle": "Current return date: {{date}}",
+      "nouvelleDate": "New return date",
+      "prolonger": "Extend",
+      "confirmerAnnulation": "Confirm cancellation?",
+      "acompteEncaisse": "Deposit received:",
+      "remboursement": "Refund",
+      "aucunRemboursement": "No refund",
+      "calculEnCours": "Calculating...",
+      "ilReste": "{{heures}} hours left before pick-up.",
+      "soit": "That is {{montant}}.",
+      "annulationEnCours": "Cancelling...",
+      "prolongee": "Booking extended by {{jours}} day(s). Extra charge: {{montant}}",
+      "erreurProlongation": "Extension failed",
+      "annuleeRemboursement": "Booking cancelled. Refund: {{montant}}",
+      "annuleeSansRemboursement": "Booking cancelled. No refund under the policy.",
+      "erreurAnnulation": "Cancellation failed",
+      "paiementIndisponible": "Online payment is not available at the moment.",
+      "erreurPaiement": "Unable to start the payment",
+      "erreurFacture": "Invoice download failed",
+      "erreurContrat": "Contract download failed"
+    },
+    "paliers": {
+      "gratuit": {
+        "libelle": "Full refund",
+        "detail": "More than 48 hours before pick-up."
+      },
+      "partiel": {
+        "libelle": "50% refund",
+        "detail": "Between 24 and 48 hours before pick-up."
+      },
+      "tardif": {
+        "libelle": "Deposit retained",
+        "detail": "Less than 24 hours before pick-up."
+      }
+    },
+    "fidelite": {
+      "titre": "Loyalty programme",
+      "sousTitre": "Earn points with every rental and enjoy exclusive discounts.",
+      "reduction": "{{pourcent}}% discount on your rentals",
+      "points": "points",
+      "locationsEffectuees": "Rentals completed",
+      "pointsCumules": "Points earned",
+      "prochainNiveau": "Next tier",
+      "plusQue": "Only {{count}} more rental(s) for a {{pourcent}}% discount",
+      "niveauxTitre": "Loyalty tiers",
+      "remise": "{{pourcent}}% off",
+      "erreur": "Unable to load loyalty information.",
+      "niveaux": {
+        "bronze": "Bronze",
+        "argent": "Silver",
+        "or": "Gold",
+        "platine": "Platinum"
+      }
+    },
+    "parrainage": {
+      "titre": "Referral programme",
+      "sousTitre": "Share your code: you earn 50 points for each sign-up and 100 points when your referral completes their first rental.",
+      "copier": "Copy",
+      "partager": "Share",
+      "filleuls": "Referrals",
+      "premiereLocation": "First rental",
+      "pointsGagnes": "Points earned",
+      "chargement": "Loading your referral code...",
+      "messagePartage": "Sign up to FIRAS BKA CAR with my referral code {{code}}: {{url}}"
+    },
+    "infos": {
+      "titre": "My details",
+      "nomComplet": "Full name",
+      "telephone": "Phone",
+      "email": "Email",
+      "emailNonModifiable": "Email cannot be changed",
+      "nationalite": "Nationality",
+      "optionMarocaine": "Moroccan — national ID card",
+      "optionEtrangere": "Foreign — passport",
+      "pieceDependNationalite": "The document to upload depends on your nationality.",
+      "numeroPasseport": "Passport number",
+      "passeportAide": "6 to 20 uppercase letters or digits.",
+      "cin": "CIN",
+      "cinAide": "e.g. A12345 or AB123456.",
+      "expirationPermis": "Licence expiry date",
+      "expirationAide": "Required to validate your licence.",
+      "adresse": "Address",
+      "retourAccueil": "Back to home",
+      "enregistrement": "Saving...",
+      "enregistrerModifs": "Save changes"
+    },
+    "ecritures": {
+      "titre": "Transaction details",
+      "remboursement": "Refund",
+      "encaissement": "Payment received"
+    }
+  },
+  "dashboard": {
+    "titre": "My dashboard",
+    "filAriane": "Dashboard",
+    "stats": {
+      "totalDepense": "Total spent",
+      "reservations": "Bookings",
+      "enCours": "In progress",
+      "favoris": "Favourites"
+    },
+    "favoris": {
+      "titre": "My favourite cars",
+      "parcourir": "Browse",
+      "aucun": "No favourite cars yet.",
+      "aide": "Click the heart on a car to add it here.",
+      "retirer": "Remove from favourites",
+      "parJour": "/day"
+    },
+    "reservations": {
+      "titre": "My latest bookings",
+      "toutVoir": "View all",
+      "aucune": "No bookings yet.",
+      "libelle": "Booking"
+    }
+  },
+  "messagerie": {
+    "titre": "Messages",
+    "filAriane": "Messages",
+    "contacterEquipe": "Contact our team",
+    "aucunMessage": "No messages. Ask us a question!",
+    "placeholder": "Your message...",
+    "envoyer": "Send message"
+  },
+  "documents": {
+    "voir": "View",
+    "voirDocument": "View document: {{titre}}",
+    "motifRejet": "Rejection reason: {{motif}}",
+    "televerser": "Upload {{titre}}",
+    "glisser": "Drag a photo here or",
+    "parcourir": "browse your files",
+    "formats": "JPG, PNG or WebP — {{taille}} MB max. Clear, legible, uncropped photo.",
+    "apercu": "Preview: {{titre}}",
+    "envoyer": "Upload photo",
+    "verification": "Checking…",
+    "retirerPhoto": "Remove selected photo",
+    "erreurEnvoi": "The document could not be uploaded. Please try again.",
+    "taille": "{{taille}} MB",
+    "titreIdentite": "Identity document",
+    "descIdentiteEtranger": "As a foreign customer, you must upload a photo of your passport to be able to book.",
+    "descIdentiteMarocain": "You must upload a photo of your national ID card (CIN) to be able to book.",
+    "titrePasseport": "Passport",
+    "titreCarteNationale": "National ID card (CIN)",
+    "descriptionIdentite": "A clear, legible photo of your {{piece}}, with all four corners visible.",
+    "noteIdentite": "The photo is checked automatically (format, resolution, sharpness and brightness). Blurred, too dark, cropped or skewed photos are rejected. An agent then validates the document before your first booking.",
+    "titrePermis": "Driving licence",
+    "descPermis": "You must upload a photo of your driving licence to be able to book.",
+    "descriptionPermis": "A clear, legible photo of the licence, with the expiry date visible.",
+    "notePermis": "The licence photo goes through the same automatic quality check. Remember to enter the expiry date in your details.",
+    "piecePasseport": "passport",
+    "pieceCarteNationale": "national ID card",
+    "statuts": {
+      "valide": "Validated",
+      "en_attente": "Awaiting validation",
+      "rejete": "Rejected",
+      "expire": "Expired",
+      "non_fourni": "Not provided"
+    },
+    "validation": {
+      "selectionner": "Select a photo of your document.",
+      "format": "Unsupported format: send a JPG, PNG or WebP photo (no PDF).",
+      "tailleMax": "The photo exceeds {{taille}} MB. Reduce its size and try again.",
+      "tropCompressee": "The photo is too compressed or unreadable. Send a sharper photo.",
+      "resolution": "Photo too small: the minimum resolution is {{largeur}} x {{hauteur}} pixels.",
+      "illisible": "This image cannot be read. Choose another JPG, PNG or WebP photo."
+    }
+  },
+  "statuts": {
+    "vide": "Not specified",
+    "paiement": {
+      "en_attente": {
+        "label": "Pending",
+        "detail": "Payment awaiting bank confirmation."
+      },
+      "paye": {
+        "label": "Paid",
+        "detail": "Payment received."
+      },
+      "echoue": {
+        "label": "Failed",
+        "detail": "The payment was declined. A new payment can be attempted."
+      },
+      "annule": {
+        "label": "Cancelled",
+        "detail": "The payment was abandoned or cancelled before confirmation."
+      },
+      "expire": {
+        "label": "Expired",
+        "detail": "The payment session expired without confirmation."
+      },
+      "suspect": {
+        "label": "To review",
+        "detail": "The bank response is incomplete; the status will be confirmed automatically."
+      },
+      "rembourse": {
+        "label": "Refunded",
+        "detail": "Amount fully refunded to the customer."
+      },
+      "rembourse_partiel": {
+        "label": "Partially refunded",
+        "detail": "Part of the amount was refunded; the rest is retained."
+      },
+      "inconnu": {
+        "label": "Unknown status",
+        "detail": "Status not recognised by the interface."
+      }
+    },
+    "reservation": {
+      "confirmee": "Confirmed",
+      "en_cours": "In progress",
+      "terminee": "Completed",
+      "annulee": "Cancelled"
+    }
+  }
+}

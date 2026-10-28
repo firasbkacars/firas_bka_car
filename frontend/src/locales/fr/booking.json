@@ -1,0 +1,445 @@
+{
+  "reservation": {
+    "chargement": "Chargement de la réservation...",
+    "filAriane": {
+      "label": "Fil d'Ariane",
+      "finaliser": "Finaliser la réservation"
+    },
+    "titre": "Finalisez votre réservation",
+    "parametresErreur": "Les tarifs paramétrés n'ont pas pu être chargés. Les montants affichés sont des estimations : le total exact est recalculé par le serveur au moment de la validation.",
+    "erreurs": {
+      "vehiculeIndisponible": "Véhicule indisponible",
+      "chargementImpossible": "Chargement impossible",
+      "vehiculeNonTrouve": "Véhicule non trouvé.",
+      "vehiculePlusDisponible": "Ce véhicule n'est plus disponible.",
+      "chargementVehicule": "Impossible de charger le véhicule. Vérifiez votre connexion puis réessayez.",
+      "dateRetourAvantPrise": "La date de retour doit être postérieure à la date de prise en charge.",
+      "datePrisePassee": "La date de prise en charge est déjà passée.",
+      "codePromoInvalide": "Code promo invalide",
+      "codePromoRetire": "Code promo retiré : le total a changé. Réappliquez-le.",
+      "reservationEchouee": "Erreur lors de la réservation. Veuillez réessayer.",
+      "paiementInitImpossible": "Initialisation du paiement impossible.",
+      "reservationCreeePaiementProfil": "{{message}} Votre réservation a bien été créée : vous pourrez payer depuis votre profil.",
+      "reservationCreee": "{{message}} Votre réservation a été créée.",
+      "permisEnvoye": "Permis transmis. Il sera vérifié par un agent.",
+      "permisEnvoiEchoue": "Erreur lors de l'envoi du permis. Réessayez."
+    },
+    "documents": {
+      "mettreAJour": "Mettre à jour ma pièce d'identité",
+      "televerser": "Téléverser ma pièce d'identité",
+      "identite": {
+        "passeport": "passeport",
+        "carteNationale": "carte nationale",
+        "cin": "CIN",
+        "rejeteeTitrePasseport": "Passeport rejeté",
+        "rejeteeTitreCin": "Carte nationale rejetée",
+        "rejeteeDescriptionPasseport": "Votre passeport a été rejeté. Téléversez une nouvelle photo nette et lisible depuis votre profil.",
+        "rejeteeDescriptionCin": "Votre carte nationale a été rejetée. Téléversez une nouvelle photo nette et lisible depuis votre profil.",
+        "motif": "Motif : {{motif}}",
+        "enAttenteTitrePasseport": "Passeport en cours de vérification",
+        "enAttenteTitreCin": "Carte nationale en cours de vérification",
+        "enAttenteDescription": "Votre {{document}} est en attente de validation par un agent. Vous pourrez réserver une fois le document validé.",
+        "requiseTitrePasseport": "Passeport requis",
+        "requiseTitreCin": "Carte nationale requise",
+        "requiseDescription": "Vous devez téléverser une photo de votre {{document}} avant de pouvoir réserver. Seules les photos JPG, PNG ou WebP nettes et lisibles sont acceptées."
+      },
+      "permis": {
+        "rejeteTitre": "Permis rejeté",
+        "rejeteDescription": "Votre permis a été rejeté. Veuillez re-uploader un nouveau document.",
+        "enAttenteTitre": "Permis en cours de vérification",
+        "enAttenteDescription": "Votre permis est en attente de validation par un agent. Vous pourrez réserver une fois validé.",
+        "requisTitre": "Permis de conduire requis",
+        "requisDescription": "Vous devez télécharger une photo de votre permis de conduire avant de pouvoir réserver.",
+        "uploader": "Uploader le permis",
+        "envoi": "Envoi...",
+        "televerserAria": "Téléverser le permis de conduire"
+      }
+    },
+    "formulaire": {
+      "vosInformations": "Vos informations",
+      "nomComplet": "Nom complet",
+      "telephone": "Téléphone",
+      "email": "Email",
+      "pieceIdentite": "Pièce d'identité ({{document}})",
+      "permisConduire": "Permis de conduire",
+      "statuts": {
+        "validee": "Validée",
+        "rejetee": "Rejetée",
+        "nonFournie": "Non fournie",
+        "permisValide": "Permis valide",
+        "permisRejete": "Permis rejeté",
+        "nonUploade": "Non uploadé"
+      },
+      "agence": "Agence de prise en charge",
+      "agencePlaceholder": "Sélectionnez une agence",
+      "agencePriseRetour": "Prise en charge et retour : {{lieu}}",
+      "agenceDefaut": "Par défaut : {{agence}} - {{lieu}}",
+      "agenceSelectionner": "Sélectionnez une agence de prise en charge.",
+      "notes": "Notes (optionnel)",
+      "notesPlaceholder": "Demandes spéciales, siège bébé, etc.",
+      "conducteur": {
+        "titre": "Conducteur additionnel (optionnel)",
+        "supplement": "Supplément de {{montant}} par jour si un conducteur additionnel est ajouté.",
+        "nom": "Nom du conducteur",
+        "nomPlaceholder": "Nom complet",
+        "telephone": "Téléphone",
+        "permis": "N° Permis",
+        "permisPlaceholder": "Numéro de permis"
+      },
+      "paiement": {
+        "titre": "Mode de paiement",
+        "especes": "Espèces",
+        "especesDesc": "Paiement à la prise en charge",
+        "cmi": "Carte bancaire",
+        "cmiDesc": "Visa / Mastercard via CMI",
+        "securise": "Paiement sécurisé via le Centre Monétique Interbancaire. Votre carte n'est jamais stockée par nos serveurs."
+      }
+    },
+    "resume": {
+      "titre": "Résumé de la commande",
+      "parJour": "{{prix}} / jour",
+      "places_one": "{{count}} place",
+      "places_other": "{{count}} places",
+      "datePrise": "Date de prise en charge",
+      "dateRetour": "Date de retour",
+      "duree": "Durée",
+      "prixLigne": "{{prix}} × {{duree}}",
+      "assurance": "Assurance tous risques",
+      "incluse": "Incluse",
+      "kilometrage": "Kilométrage illimité",
+      "inclus": "Inclus",
+      "conducteurLigne": "Conducteur additionnel ({{jours}} j × {{montant}})",
+      "codePromo": "Code promo",
+      "codePromoPlaceholder": "Entrez votre code",
+      "appliquer": "Appliquer",
+      "remise": "Remise promo",
+      "total": "Total",
+      "acompte": "Acompte à payer maintenant ({{taux}}%)",
+      "reste": "Reste à payer à la prise en charge",
+      "caution": "Caution (remboursable)",
+      "cmiTitre": "Paiement sécurisé CMI",
+      "cmiDescription": "Saisissez les informations de votre carte dans le cadre ci-dessous.",
+      "cmiIframeTitre": "Formulaire de paiement CMI",
+      "paiementCree": "Réservation créée. Finalisez le paiement dans le cadre ci-dessous."
+    },
+    "conditions": {
+      "titre": "Conditions de location",
+      "penaliteRetard": "Pénalité de retard : {{pourcentage}}% du prix journalier par jour de retard",
+      "annulationGratuite": "Annulation gratuite si plus de {{heures}} h avant la prise en charge",
+      "remboursementPartiel": "Remboursement de 50 % si entre {{heuresPartiel}} h et {{heuresGratuit}} h avant",
+      "acompteNonRemboursable": "Acompte non remboursable si moins de {{heures}} h avant",
+      "caution": "Caution de {{montant}} remboursée après vérification de l'état du véhicule",
+      "acceptation": "J'ai lu et j'accepte les conditions de location et la politique d'annulation"
+    },
+    "cta": {
+      "reessayer": "Réessayer",
+      "voirVehicules": "Voir les véhicules",
+      "datesInvalides": "Dates invalides pour réserver",
+      "identiteEnAttente": "Pièce d'identité en attente de validation",
+      "identiteRequise": "Pièce d'identité requise ({{document}})",
+      "permisRequis": "Permis requis pour réserver",
+      "accepterConditions": "Acceptez les conditions",
+      "ouverturePaiement": "Ouverture du paiement...",
+      "reservationEnCours": "Réservation en cours...",
+      "payerCmi": "Payer {{montant}} via CMI",
+      "payerAcompte": "Payer l'acompte {{montant}}",
+      "mention": "Acompte de {{taux}}% requis pour confirmer la réservation. Le reste est payé à la prise en charge."
+    }
+  },
+  "confirmation": {
+    "titre": "Réservation confirmée !",
+    "sousTitre": "Merci pour votre confiance. Votre réservation a été effectuée avec succès.",
+    "erreurs": {
+      "connectezVous": "Connectez-vous pour consulter cette réservation.",
+      "aucuneReservation": "Aucune réservation trouvée.",
+      "introuvable": "Réservation introuvable."
+    },
+    "retourAccueil": "Retour à l'accueil",
+    "voirVehicules": "Voir les véhicules",
+    "numero": {
+      "titre": "Numéro de réservation",
+      "note": "Conservez ce numéro pour toute référence future."
+    },
+    "details": {
+      "titre": "Détails de la location",
+      "priseEnCharge": "Prise en charge",
+      "retour": "Retour",
+      "lieu": "Lieu"
+    },
+    "vehicule": {
+      "titre": "Véhicule"
+    },
+    "paiement": {
+      "titre": "Paiement",
+      "total": "Total de la location",
+      "acompte": "Acompte",
+      "regleSur": "{{paye}} réglé sur {{total}}",
+      "valide": "{{total}} validé",
+      "statut": "Statut",
+      "confirmee": "Confirmée"
+    },
+    "acompte": {
+      "titre": "Réglez votre acompte",
+      "description": "Réglez votre acompte de {{montant}} selon le moyen proposé sur la page de paiement, puis envoyez votre justificatif. L'agence validera le paiement.",
+      "payer": "Payer l'acompte"
+    },
+    "aide": {
+      "titre": "Besoin d'aide ?",
+      "texte": "Notre équipe est à votre disposition pour toute question.",
+      "whatsapp": "Discuter sur WhatsApp"
+    }
+  },
+  "acompte": {
+    "chargement": "Chargement du paiement de l'acompte...",
+    "erreurs": {
+      "envoiImpossible": "Envoi impossible. Vérifiez votre connexion et réessayez.",
+      "introuvable": "Réservation introuvable. Vérifiez le numéro ou connectez-vous avec le compte qui a réservé.",
+      "connexionRequise": "Connectez-vous avec le compte qui a effectué cette réservation pour payer l'acompte.",
+      "chargementImpossible": "Impossible de charger cette réservation pour le moment."
+    },
+    "filAriane": {
+      "label": "Fil d'Ariane",
+      "mesReservations": "Mes réservations",
+      "payer": "Payer l'acompte"
+    },
+    "etape": "Étape 3 sur 3",
+    "titre": "Payer l'acompte",
+    "sousTitre": "L'acompte confirme votre réservation. Le reste de la location et la caution se règlent à la prise en charge.",
+    "connexion": {
+      "titre": "Payer l'acompte",
+      "descriptionAvant": "Connectez-vous avec le compte qui a effectué la réservation",
+      "descriptionApres": "pour consulter le montant et envoyer votre justificatif.",
+      "retourVehicules": "Retour aux véhicules"
+    },
+    "indisponible": {
+      "titre": "Paiement indisponible",
+      "introuvable": "Réservation introuvable.",
+      "mesReservations": "Mes réservations",
+      "contacter": "Contacter l'agence"
+    },
+    "annulee": {
+      "titre": "Réservation annulée",
+      "description": "Le suivi de l'acompte est clos pour cette réservation. Si un paiement a déjà été effectué, contactez l'agence pour connaître les modalités de remboursement."
+    },
+    "sansAcompte": {
+      "titre": "Aucun acompte à payer",
+      "description": "Cette réservation ne demande pas d'acompte. Présentez-vous à l'agence à la date prévue : le règlement se fait à la prise en charge."
+    },
+    "valide": {
+      "titre": "Acompte validé",
+      "description": "Votre acompte a été confirmé par l'agence. Le reste de la location est à régler à la prise en charge."
+    },
+    "agence": {
+      "titre": "Régler l'acompte à l'agence",
+      "description": "Votre réservation est bien enregistrée. Aucun paiement en ligne n'est disponible pour le moment : présentez-vous à l'agence pour régler l'acompte et confirmer votre réservation.",
+      "montant": "Montant à régler",
+      "taux": "Acompte de {{taux}} % du total.",
+      "reste": "Le reste de la location se règle à la prise en charge.",
+      "agence": "Agence",
+      "reservation": "Réservation {{numero}}",
+      "etape1": "Présentez-vous à l'agence avec votre numéro de réservation.",
+      "etape2": "Réglez l'acompte de {{montant}} directement sur place.",
+      "etape3": "L'agence enregistre le paiement : votre acompte passe en « validé »."
+    },
+    "moyens": {
+      "titre": "Mode de paiement de l'acompte",
+      "description": "Seuls les moyens disponibles pour cette réservation sont affichés.",
+      "virement": "Virement bancaire",
+      "virementDesc": "Depuis votre application bancaire",
+      "wafacash": "Wafacash / Cash Plus",
+      "wafacashDesc": "Dépôt en espèces en agence de transfert"
+    },
+    "virement": {
+      "titre": "Coordonnées bancaires de l'agence",
+      "ribLabel": "RIB (24 chiffres)",
+      "copie": "Copié",
+      "copier": "Copier le RIB",
+      "copieAria": "RIB copié dans le presse-papiers.",
+      "beneficiaire": "Bénéficiaire",
+      "banque": "Banque",
+      "montant": "Montant exact",
+      "motifTitre": "Motif du virement obligatoire",
+      "motifAvant": "Indiquez votre numéro de réservation",
+      "motifApres": "dans le motif pour que l'agence retrouve votre paiement."
+    },
+    "wafacash": {
+      "titre": "Transfert en agence Wafacash ou Cash Plus",
+      "description": "Aucun compte bancaire nécessaire : déposez les espèces dans n'importe quelle agence de transfert avec les informations ci-dessous.",
+      "beneficiaire": "Bénéficiaire",
+      "cin": "N° CIN",
+      "telephone": "Téléphone",
+      "montant": "Montant exact",
+      "recuTitre": "Conservez le reçu papier",
+      "recuAvant": "Prenez-le en photo et envoyez-le ci-dessous avec votre numéro de réservation",
+      "recuApres": "afin que l'agence retrouve votre paiement."
+    },
+    "recu": {
+      "titre": "Justificatif de paiement",
+      "formats": "JPG, PNG ou PDF, 5 Mo maximum.",
+      "badgeVerification": "Reçu en vérification",
+      "badgeAEnvoyer": "Reçu à envoyer",
+      "choisirAria": "Choisir le reçu de paiement",
+      "tailleRemplacer": "{{taille}} · Touchez pour remplacer le fichier",
+      "envoyeLe": "Reçu envoyé le {{date}} · Touchez pour remplacer",
+      "ajouter": "Ajouter la photo ou le PDF du reçu",
+      "formatsCourt": "JPG, PNG ou PDF, 5 Mo maximum",
+      "dejaEnregistre": "Un reçu est déjà enregistré. Sélectionnez un fichier pour le remplacer.",
+      "envoyeTitre": "Reçu envoyé",
+      "envoyeDescription": "Votre justificatif est en attente de validation. Vous pouvez remplacer le fichier tant que l'acompte n'est pas confirmé.",
+      "envoiEnCours": "Envoi en cours...",
+      "envoyerNouveau": "Envoyer un nouveau reçu",
+      "envoyer": "Envoyer le reçu",
+      "mention": "Un reçu envoyé ne vaut pas paiement : l'agence vérifie l'opération avant de valider l'acompte.",
+      "erreurs": {
+        "format": "Format non accepté : envoyez un JPG, PNG ou PDF.",
+        "taille": "Le justificatif dépasse 5 Mo.",
+        "methode": "Choisissez un mode de paiement disponible. Contactez l'agence si besoin."
+      }
+    },
+    "recap": {
+      "titre": "Récapitulatif",
+      "reservation": "Réservation",
+      "total": "Total de la location",
+      "dejaRegle": "Déjà réglé",
+      "resteAcompte": "Reste de l'acompte",
+      "acompte": "Acompte",
+      "acompteTaux": "Acompte ({{taux}} %)",
+      "reste": "Reste à payer à la prise en charge"
+    },
+    "statut": {
+      "titre": "Statut de la réservation",
+      "etapesAria": "Étapes de la réservation"
+    },
+    "bandeau": {
+      "annulee": {
+        "surtitre": "Paiement clos",
+        "titre": "Réservation annulée",
+        "description": "Aucun acompte ne peut être réglé pour cette réservation. Contactez l'agence si un paiement a déjà été effectué."
+      },
+      "sansAcompte": {
+        "surtitre": "Aucun montant à régler",
+        "titre": "Aucun acompte requis",
+        "description": "Cette réservation ne demande pas d'acompte. Le règlement se fait à la prise en charge.",
+        "legende": "Acompte"
+      },
+      "valide": {
+        "surtitre": "Paiement confirmé",
+        "titre": "Acompte validé",
+        "description": "Votre acompte a été confirmé par l'agence. Le reste de la location est à régler à la prise en charge.",
+        "legende": "Acompte validé"
+      },
+      "recu": {
+        "surtitre": "Vérification en cours",
+        "titre": "Reçu en cours de vérification",
+        "description": "Votre justificatif a bien été reçu. L'agence contrôle le paiement avant de valider l'acompte.",
+        "legendePartiel": "Reste à vérifier",
+        "legende": "Acompte déclaré"
+      },
+      "agence": {
+        "surtitre": "Action requise",
+        "titre": "Acompte à régler à l'agence",
+        "description": "Aucun paiement en ligne n'est disponible. Présentez-vous à l'agence pour régler l'acompte et confirmer votre réservation.",
+        "legende": "Montant à régler"
+      },
+      "aPayer": {
+        "surtitre": "Action requise",
+        "titre": "Acompte à payer",
+        "description": "Choisissez un mode de paiement, effectuez le règlement puis envoyez votre justificatif.",
+        "legendePartiel": "Reste à payer",
+        "legende": "Acompte à payer"
+      }
+    },
+    "etapes": {
+      "reservation": {
+        "titre": "Réservation enregistrée",
+        "description": "Vos informations et votre véhicule sont enregistrés."
+      },
+      "paiement": {
+        "titre": "Paiement à l'agence",
+        "description": "Présentez-vous à l'agence pour régler l'acompte.",
+        "titreRecu": "Reçu en cours de vérification",
+        "descriptionRecu": "L'agence contrôle votre paiement.",
+        "titreAEnvoyer": "Reçu à envoyer",
+        "descriptionAEnvoyer": "Ajoutez votre justificatif de paiement."
+      },
+      "validation": {
+        "titre": "Acompte validé par l'agence",
+        "description": "Le paiement est confirmé et rattaché à votre réservation."
+      },
+      "priseEnCharge": {
+        "titre": "Prise en charge du véhicule",
+        "description": "Le reste de la location est réglé à l'agence."
+      }
+    }
+  },
+  "paiementRetour": {
+    "resultats": {
+      "paye": {
+        "titre": "Paiement confirmé",
+        "description": "Votre acompte a bien été encaissé. Votre réservation est validée."
+      },
+      "echoue": {
+        "titre": "Paiement refusé",
+        "description": "Votre banque a refusé l'opération. Aucun montant n'a été débité."
+      },
+      "annule": {
+        "titre": "Paiement annulé",
+        "description": "Vous avez abandonné le paiement. Votre réservation reste en attente."
+      },
+      "expire": {
+        "titre": "Session expirée",
+        "description": "La session de paiement a expiré. Vous pouvez réessayer."
+      },
+      "suspect": {
+        "titre": "Paiement à vérifier",
+        "description": "Une anomalie a été détectée. Notre équipe va vérifier votre paiement."
+      },
+      "en_attente": {
+        "titre": "Paiement en cours",
+        "description": "La confirmation de votre banque n'est pas encore arrivée. Patientez quelques instants."
+      },
+      "rembourse": {
+        "titre": "Paiement remboursé",
+        "description": "Cet encaissement a été remboursé. Le montant vous sera restitué selon le moyen de paiement utilisé."
+      },
+      "rembourse_partiel": {
+        "titre": "Paiement remboursé partiellement",
+        "description": "Une partie de cet encaissement a été remboursée. Le détail est disponible dans votre profil."
+      },
+      "unknown": {
+        "titre": "Résultat indisponible",
+        "description": "Nous n'avons pas pu déterminer l'issue du paiement."
+      }
+    },
+    "invalide": {
+      "titre": "Lien de paiement invalide",
+      "description": "Ce lien ne contient pas de référence de transaction. Consultez vos réservations pour vérifier l'état de votre paiement.",
+      "voirReservations": "Voir mes réservations"
+    },
+    "verification": {
+      "enCours": "Vérification en cours...",
+      "attenteBanque": "Confirmation de la banque en attente...",
+      "delai": "La confirmation prend plus de temps que prévu. Elle sera appliquée automatiquement ; vous pouvez recontacter l'agence si besoin."
+    },
+    "detail": {
+      "reservation": "Réservation",
+      "montant": "Montant",
+      "rembourse": "Dont remboursé",
+      "carte": "Carte",
+      "date": "Date",
+      "transaction": "Transaction"
+    },
+    "erreurs": {
+      "relancer": "Impossible de relancer le paiement.",
+      "facture": "Téléchargement de la facture impossible."
+    },
+    "actions": {
+      "telechargerFacture": "Télécharger la facture",
+      "ouverturePaiement": "Ouverture du paiement...",
+      "reessayer": "Réessayer le paiement",
+      "voirReservations": "Voir mes réservations",
+      "contacter": "Contacter l'agence - {{telephone}}"
+    },
+    "note": "Aucune donnée bancaire n'est stockée par FIRAS BKA CAR. Le paiement est traité par le Centre Monétique Interbancaire."
+  }
+}

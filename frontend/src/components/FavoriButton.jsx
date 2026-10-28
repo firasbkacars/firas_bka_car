@@ -1,7 +1,9 @@
 import { Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFavoris } from '../context/FavorisContext';
 
 export default function FavoriButton({ vehiculeId, className = '' }) {
+  const { t } = useTranslation();
   const { isFavori, toggle } = useFavoris();
   const active = isFavori(vehiculeId);
 
@@ -14,7 +16,7 @@ export default function FavoriButton({ vehiculeId, className = '' }) {
         toggle(vehiculeId);
       }}
       aria-pressed={active}
-      aria-label={active ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+      aria-label={active ? t('favoris.retirer') : t('favoris.ajouter')}
       className={`z-10 w-11 h-11 flex items-center justify-center transition-transform active:scale-95 ${className}`}
     >
       <span

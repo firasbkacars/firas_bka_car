@@ -1,0 +1,178 @@
+{
+  "home": {
+    "hero": {
+      "badge": "Location de véhicules au Maroc",
+      "titreLigne1": "Louez la",
+      "titreAccent": "voiture",
+      "titreLigne2": "qui vous correspond",
+      "sousTitre": "Des véhicules premium, un service fiable et des prix transparents. Réservez en quelques clics.",
+      "ctaVehicules": "Voir les véhicules",
+      "ctaReserver": "Réserver maintenant"
+    },
+    "recherche": {
+      "lieuPrise": "Lieu de prise",
+      "ville": "Tanger",
+      "dateHeure": "Date & Heure",
+      "ariaDatePrise": "Date & Heure de prise en charge",
+      "ariaHeurePrise": "Heure de prise en charge",
+      "retour": "Retour",
+      "ariaDateRetour": "Date & Heure de retour",
+      "ariaHeureRetour": "Heure de retour"
+    },
+    "marques": {
+      "titre": "Nos marques partenaires"
+    },
+    "avantages": {
+      "prixTitre": "Meilleurs prix",
+      "prixDesc": "Tarifs compétitifs toute l'année, sans frais cachés.",
+      "vehiculesTitre": "Véhicules récents",
+      "vehiculesDesc": "Confort, sécurité et performance garantis.",
+      "supportTitre": "Support 7j/7",
+      "supportDesc": "Une équipe disponible pour vous accompagner."
+    },
+    "vehicule": {
+      "populaire": "Populaire",
+      "auto": "Auto",
+      "manuelle": "Manuelle",
+      "details": "Détails"
+    },
+    "flotte": {
+      "badge": "Flotte",
+      "titre": "Véhicules populaires"
+    },
+    "cta": {
+      "titre": "Prêt à rouler ?",
+      "desc": "Parcourez notre flotte et trouvez le véhicule idéal pour votre prochain trajet.",
+      "bouton": "Explorer la flotte"
+    }
+  },
+  "services": {
+    "titre": "Nos services",
+    "sousTitre": "Des services complets pour une expérience sans stress.",
+    "items": {
+      "courteDuree": {
+        "titre": "Location courte durée",
+        "desc": "Louez pour un jour, un week-end ou une semaine. Idéal pour des trajets ponctuels."
+      },
+      "longueDuree": {
+        "titre": "Location longue durée",
+        "desc": "Contrats mensuels avantageux pour les particuliers et les entreprises."
+      },
+      "transfert": {
+        "titre": "Transfert aéroport",
+        "desc": "Service de navette entre l'aéroport de Tanger et votre destination."
+      },
+      "remplacement": {
+        "titre": "Véhicule de remplacement",
+        "desc": "En cas de panne, nous vous fournissons un véhicule de courtoisie."
+      },
+      "siegesBebe": {
+        "titre": "Sièges bébé",
+        "desc": "Sièges homologués disponibles gratuitement sur demande."
+      },
+      "reservation": {
+        "titre": "Réservation en ligne",
+        "desc": "Réservez en quelques clics depuis votre téléphone ou ordinateur."
+      }
+    }
+  },
+  "apropos": {
+    "titre": "À propos de nous",
+    "sousTitre": "FIRAS BKA CAR, votre partenaire de confiance à Tanger.",
+    "histoire": {
+      "titre": "Notre histoire",
+      "p1": "Fondée à Tanger, FIRAS BKA CAR est née de la volonté d'offrir un service de location de véhicules de qualité à des prix honnêtes. Notre agence, située dans le quartier de Branes 1 (Rue 50, Tanger), dessert les clients depuis plusieurs années avec professionnalisme et passion.",
+      "p2": "Notre flotte est soigneusement sélectionnée et régulièrement entretenue pour vous garantir sécurité et confort à chaque déplacement."
+    },
+    "engagements": {
+      "titre": "Nos engagements",
+      "items": [
+        "Véhicules récents et bien entretenus",
+        "Prix transparents, sans frais cachés",
+        "Assurance tous risques incluse",
+        "Kilométrage illimité",
+        "Service client disponible 7j/7",
+        "Livraison et retour à l'aéroport",
+        "Réception de paiement par carte bancaire"
+      ]
+    },
+    "faq": {
+      "titre": "Questions fréquentes",
+      "sousTitre": "Trouvez rapidement les réponses à vos questions.",
+      "items": [
+        {
+          "q": "Quels documents sont nécessaires pour louer ?",
+          "a": "Vous devez présenter un permis de conduire valide, une pièce d'identité (CIN ou passeport) et un justificatif de domicile."
+        },
+        {
+          "q": "Quel est le kilométrage autorisé ?",
+          "a": "Toutes nos locations incluent un kilométrage illimité. Vous pouvez rouler sans vous soucier des kms."
+        },
+        {
+          "q": "L'assurance est-elle incluse ?",
+          "a": "Oui, une assurance tous risques est incluse dans chaque location. Vous êtes couvert en cas de dommages."
+        },
+        {
+          "q": "Peut-on récupérer le véhicule à l'aéroport ?",
+          "a": "Oui, nous assurons un service de navette depuis et vers l'aéroport Ibn Battouta de Tanger."
+        },
+        {
+          "q": "Comment puis-je payer ?",
+          "a": "Nous acceptons les espèces, Visa, Mastercard et le paiement CMI. L'acompte de 30% est requis à la réservation."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "hero": {
+      "titreDebut": "Contactez",
+      "titreFin": "-nous",
+      "sousTitre": "Nous sommes à votre disposition pour toute question. Notre équipe vous répond sous 24 heures."
+    },
+    "coordonnees": {
+      "titre": "Nos coordonnées",
+      "adresse": "Adresse",
+      "adresseValeur": "Lot 583N, Rue 50, Branes 1, Tanger 90060, Maroc",
+      "telephone": "Téléphone",
+      "horaires": "Horaires",
+      "lunSam": "Lun – Sam : 8h00 – 20h00",
+      "dimanche": "Dimanche : 9h00 – 18h00"
+    },
+    "carte": {
+      "titre": "Localisation FIRAS BKA CAR",
+      "itineraire": "Itinéraire Google Maps",
+      "waze": "Waze"
+    },
+    "form": {
+      "titre": "Envoyez-nous un message",
+      "sousTitre": "Remplissez le formulaire et nous vous répondrons rapidement.",
+      "succesTitre": "Message envoyé !",
+      "succesDesc": "Nous vous répondrons dans les plus brefs délais.",
+      "nom": "Nom complet",
+      "nomPlaceholder": "Votre nom",
+      "contact": "Téléphone ou email",
+      "contactPlaceholder": "06 XX XX XX XX",
+      "sujet": "Sujet",
+      "sujetPlaceholder": "Ex: Demande de réservation",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez votre demande...",
+      "envoiEnCours": "Envoi en cours...",
+      "envoyer": "Envoyer le message",
+      "erreurEnvoi": "Impossible d'envoyer le message. Réessayez ou contactez-nous sur WhatsApp.",
+      "ou": "ou",
+      "whatsapp": "Contactez-nous directement sur WhatsApp"
+    },
+    "garanties": {
+      "reponseTitre": "Réponse sous 24h",
+      "reponseDesc": "Nous traitons chaque demande rapidement",
+      "devisTitre": "Devis gratuit",
+      "devisDesc": "Estimation sans engagement",
+      "supportTitre": "Support complet",
+      "supportDesc": "Accompagnement de A à Z"
+    }
+  },
+  "notFound": {
+    "titre": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée."
+  }
+}

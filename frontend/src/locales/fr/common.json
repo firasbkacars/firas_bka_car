@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "accueil": "Accueil",
+    "vehicules": "Nos véhicules",
+    "services": "Services",
+    "apropos": "À propos",
+    "contact": "Contact",
+    "tableauDeBord": "Tableau de bord",
+    "messagerie": "Messagerie",
+    "profil": "Profil",
+    "deconnexion": "Déconnexion",
+    "connexion": "Connexion",
+    "inscription": "Inscription"
+  },
+  "header": {
+    "ouvrirMenu": "Ouvrir le menu",
+    "fermerMenu": "Fermer le menu",
+    "allerContenu": "Aller au contenu principal",
+    "filAriane": "Fil d'Ariane"
+  },
+  "hero": {
+    "titre": "Louez la voiture idéale",
+    "sousTitre": "Flotte rénovée, tarifs transparents, réservation en ligne en 2 minutes.",
+    "cta": "Voir les véhicules"
+  },
+  "footer": {
+    "tagline": "Votre partenaire de confiance pour la location de véhicules à Tanger. Flotte moderne, service premium, prix compétitifs.",
+    "navigation": "Navigation",
+    "vehicules": "Véhicules",
+    "contact": "Contact",
+    "categories": {
+      "berlines": "Berlines",
+      "suv": "SUV",
+      "citadines": "Citadines",
+      "utilitaires": "Utilitaires",
+      "populaires": "Véhicules populaires"
+    },
+    "services": {
+      "courteDuree": "Location courte durée",
+      "longueDuree": "Location longue durée",
+      "transfert": "Transfert aéroport",
+      "conducteur": "Conducteur additionnel",
+      "assurance": "Assurance tous risques"
+    },
+    "horaires": "Lun - Sam : 8h - 20h",
+    "dimanche": "Dimanche : fermé",
+    "droits": "Tous droits réservés.",
+    "espaceAdmin": "Espace admin",
+    "contactezNous": "Contactez-nous",
+    "adresse": "Lot 583N, Rue 50, Branes 1",
+    "ville": "Tanger 90060, Maroc"
+  },
+  "authLayout": {
+    "retourAccueil": "Retour à l'accueil",
+    "tagline": "Location de véhicules premium à Tanger. Réservez en quelques clics."
+  },
+  "langue": {
+    "label": "Langue",
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  },
+  "communs": {
+    "rechercher": "Rechercher",
+    "filtrer": "Filtrer",
+    "comparer": "Comparer",
+    "reserver": "Réserver",
+    "voirDetails": "Voir les détails",
+    "charger": "Chargement..."
+  },
+  "actions": {
+    "enregistrer": "Enregistrer",
+    "annuler": "Annuler",
+    "supprimer": "Supprimer",
+    "modifier": "Modifier",
+    "fermer": "Fermer",
+    "retour": "Retour",
+    "suivant": "Suivant",
+    "precedent": "Précédent",
+    "confirmer": "Confirmer",
+    "envoyer": "Envoyer",
+    "charger": "Charger",
+    "rechercher": "Rechercher",
+    "filtrer": "Filtrer",
+    "reinitialiser": "Réinitialiser",
+    "voir": "Voir",
+    "voirDetails": "Voir les détails",
+    "reserver": "Réserver",
+    "comparer": "Comparer",
+    "telecharger": "Télécharger",
+    "imprimer": "Imprimer",
+    "copier": "Copier",
+    "copie": "Copié",
+    "ajouter": "Ajouter",
+    "choisir": "Choisir",
+    "continuer": "Continuer",
+    "seConnecter": "Se connecter",
+    "sInscrire": "S'inscrire",
+    "seDeconnecter": "Se déconnecter",
+    "contacter": "Contacter",
+    "appeler": "Appeler",
+    "whatsapp": "WhatsApp",
+    "oui": "Oui",
+    "non": "Non",
+    "tous": "Tous",
+    "aucun": "Aucun",
+    "toutVoir": "Tout voir"
+  },
+  "etats": {
+    "chargement": "Chargement...",
+    "erreur": "Une erreur est survenue.",
+    "aucunResultat": "Aucun résultat.",
+    "enAttente": "En attente",
+    "valide": "Validé",
+    "refuse": "Refusé",
+    "annule": "Annulé",
+    "paye": "Payé",
+    "impaye": "Impayé",
+    "disponible": "Disponible",
+    "indisponible": "Indisponible",
+    "actif": "Actif",
+    "inactif": "Inactif",
+    "confirme": "Confirmé",
+    "enCours": "En cours",
+    "termine": "Terminé"
+  },
+  "messages": {
+    "erreurGenerale": "Une erreur est survenue. Réessayez.",
+    "erreurReseau": "Connexion impossible. Vérifiez votre réseau et réessayez.",
+    "champRequis": "Ce champ est obligatoire.",
+    "emailInvalide": "Adresse e-mail invalide.",
+    "telephoneInvalide": "Numéro de téléphone invalide.",
+    "confirmation": "Êtes-vous sûr ?"
+  },
+  "unites": {
+    "dh": "DH",
+    "dhParJour": "DH/j",
+    "km": "km",
+    "places": "places",
+    "annee": "année",
+    "heure": "heure",
+    "heures": "heures",
+    "minute": "minute",
+    "minutes": "minutes",
+    "octet": "o",
+    "kiloOctet": "Ko",
+    "megaOctet": "Mo"
+  },
+  "dureeJours_one": "{{count}} jour",
+  "dureeJours_other": "{{count}} jours",
+  "errorBoundary": {
+    "titre": "Une erreur est survenue",
+    "description": "L'application a rencontré un problème inattendu. Vous pouvez réessayer ou retourner à l'accueil.",
+    "reessayer": "Réessayer",
+    "accueil": "Accueil"
+  },
+  "meta": {
+    "titre": "FIRAS BKA CAR — Location de voitures à Tanger",
+    "description": "FIRAS BKA CAR - Location de voitures à Tanger, Maroc. Réservez votre véhicule en ligne."
+  },
+  "favoris": {
+    "connexionRequise": "Connectez-vous pour ajouter des favoris.",
+    "ajoute": "Ajouté aux favoris.",
+    "retire": "Retiré des favoris.",
+    "erreurMaj": "Erreur lors de la mise à jour des favoris.",
+    "erreurSuppression": "Erreur lors de la suppression."
+  },
+  "confirm": {
+    "titre": "Confirmation",
+    "message": "Êtes-vous sûr ?",
+    "confirmer": "Confirmer",
+    "annuler": "Annuler"
+  },
+  "toast": {
+    "fermer": "Fermer la notification"
+  }
+}

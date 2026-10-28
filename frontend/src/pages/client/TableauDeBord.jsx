@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useFavoris } from '../../context/FavorisContext';
 import api from '../../services/api';
-import { formatMAD } from '../../lib/formatters';
+import { formatMAD, formatDate } from '../../lib/formatters';
 import { Heart, Car, Wallet, Calendar, Trash2, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import { Skeleton } from '../../components/Skeleton';
@@ -11,6 +12,7 @@ import { Skeleton } from '../../components/Skeleton';
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
 export default function TableauDeBord() {
+  const { t } = useTranslation();
   const { token, loading: authLoading } = useAuth();
   const { remove } = useFavoris();
   const navigate = useNavigate();
@@ -53,15 +55,15 @@ export default function TableauDeBord() {
   const reservationsActives = reservations.filter((r) => ['confirmee', 'en_cours'].includes(r.statut)).length;
 
   const stats = [
-    { label: 'Total dépensé', value: formatMAD(totalDepense), icon: <Wallet size={18} className="text-primary-light" /> },
-    { label: 'Réservations', value: reservations.length, icon: <Calendar size={18} className="text-primary-light" /> },
-    { label: 'En cours', value: reservationsActives, icon: <Car size={18} className="text-primary-light" /> },
-    { label: 'Favoris', value: favoris.length, icon: <Heart size={18} className="text-primary-light" /> },
+    { label: t('dashboard.stats.totalDepense'), value: formatMAD(totalDepense), icon: <Wallet size={18} className="text-primary-light" /> },
+    { label: t('dashboard.stats.reservations'), value: reservations.length, icon: <Calendar size={18} className="text-primary-light" /> },
+    { label: t('dashboard.stats.enCours'), value: reservationsActives, icon: <Car size={18} className="text-primary-light" /> },
+    { label: t('dashboard.stats.favoris'), value: favoris.length, icon: <Heart size={18} className="text-primary-light" /> },
   ];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <PageHeader title="Mon tableau de bord" breadcrumbs={[{ label: 'Tableau de bord' }]} />
+      <PageHeader title={t('dashboard.titre')} breadcrumbs={[{ label: t('dashboard.filAriane') }]} />
 
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 pb-20">
         {/* Stats */}
@@ -84,10 +86,10 @@ export default function TableauDeBord() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-semibold flex items-center gap-2">
               <Heart size={18} className="text-primary-light" />
-              Mes véhicules favoris
+              {t('dashboard.favoris.titre')}
             </h2>
             <Link to="/vehicules" className="text-primary-light text-sm hover:underline flex items-center gap-1">
-              Parcourir <ChevronRight size={14} />
+              {t('dashboard.favoris.parcourir')} <ChevronRight size={14} className="rtl:rotate-180" />
             </Link>
           </div>
 
@@ -98,8 +100,8 @@ export default function TableauDeBord() {
           ) : favoris.length === 0 ? (
             <div className="text-center py-10">
               <Heart size={40} className="mx-auto text-muted mb-3" />
-              <p className="text-muted text-sm">Aucun véhicule favori pour le moment.</p>
-              <p className="text-muted text-xs mt-1">Cliquez sur le cœur d'un véhicule pour l'ajouter ici.</p>
+              <p className="text-muted text-sm">{t('dashboard.favoris.aucun')}</p>
+              <p className="text-muted text-xs mt-1">{t('dashboard.favoris.aide')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -122,12 +124,12 @@ export default function TableauDeBord() {
                     <div className="p-4 flex items-center justify-between">
                       <div>
                         <h3 className="text-white text-sm font-semibold">{v.marque} {v.modele}</h3>
-                        <p className="text-primary-light font-bold text-sm mt-0.5">{formatMAD(v.prix_jour)}<span className="text-muted text-xs font-normal">/jour</span></p>
+                        <p className="text-primary-light font-bold text-sm mt-0.5">{formatMAD(v.prix_jour)}<span className="text-muted text-xs font-normal">{t('dashboard.favoris.parJour')}</span></p>
                       </div>
                       <button
                         type="button"
                         onClick={() => remove(v.id)}
-                        aria-label="Retirer des favoris"
+                        aria-label={t('dashboard.favoris.retirer')}
                         className="text-muted hover:text-red-500 transition-colors p-2"
                       >
                         <Trash2 size={16} />
@@ -145,10 +147,10 @@ export default function TableauDeBord() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-semibold flex items-center gap-2">
               <Calendar size={18} className="text-primary-light" />
-              Mes dernières réservations
+              {t('dashboard.reservations.titre')}
             </h2>
             <Link to="/client/profil" className="text-primary-light text-sm hover:underline flex items-center gap-1">
-              Tout voir <ChevronRight size={14} />
+              {t('dashboard.reservations.toutVoir')} <ChevronRight size={14} className="rtl:rotate-180" />
             </Link>
           </div>
 
@@ -159,24 +161,24 @@ export default function TableauDeBord() {
           ) : reservations.length === 0 ? (
             <div className="text-center py-10">
               <Calendar size={40} className="mx-auto text-muted mb-3" />
-              <p className="text-muted text-sm">Aucune réservation pour le moment.</p>
+              <p className="text-muted text-sm">{t('dashboard.reservations.aucune')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {reservations.slice(0, 5).map((res) => (
                 <div key={res.id} className="flex items-center justify-between bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
                   <div>
-                    <p className="text-white text-sm font-medium">{res.vehicule ? `${res.vehicule.marque} ${res.vehicule.modele}` : 'Réservation'}</p>
-                    <p className="text-muted text-xs mt-0.5">{res.numero} · {res.date_debut ? new Date(res.date_debut).toLocaleDateString('fr-FR') : ''}</p>
+                    <p className="text-white text-sm font-medium">{res.vehicule ? `${res.vehicule.marque} ${res.vehicule.modele}` : t('dashboard.reservations.libelle')}</p>
+                    <p className="text-muted text-xs mt-0.5">{res.numero} · {formatDate(res.date_debut)}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <p className="text-white font-bold text-sm">{formatMAD(res.prix_total)}</p>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       res.statut === 'annulee' ? 'bg-red-500/10 text-red-400'
                         : res.statut === 'terminee' ? 'bg-green-500/10 text-green-400'
                           : 'bg-blue-500/10 text-blue-400'
                     }`}>
-                      {res.statut === 'confirmee' ? 'Confirmée' : res.statut === 'en_cours' ? 'En cours' : res.statut === 'terminee' ? 'Terminée' : 'Annulée'}
+                      {t(`statuts.reservation.${res.statut}`, { defaultValue: res.statut })}
                     </span>
                   </div>
                 </div>

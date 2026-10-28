@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
+import { formatDate, formatMAD, formatNumber } from '../lib/formatters';
+import { carburantLabel, categorieLabel } from '../lib/vehiculeLabels';
 import {
   AlertTriangle, ArrowUpDown, Calendar, Check, ChevronDown, ChevronRight,
   Fuel, GitCompareArrows, Headphones, MapPin, RefreshCw, Search, Settings2,
@@ -14,39 +17,38 @@ const SELECT_CLASS =
   'min-h-11 w-full appearance-none rounded-xl border border-line-strong bg-neutral-800 pe-10 text-base text-white outline-none transition-colors hover:border-neutral-600 focus:border-primary sm:text-sm';
 
 const TRANSMISSION_OPTIONS = [
-  { value: '', label: 'Toutes' },
-  { value: 'automatique', label: 'Automatique' },
-  { value: 'manuelle', label: 'Manuelle' },
+  { value: '', labelKey: 'vehicules.filtres.toutes' },
+  { value: 'automatique', labelKey: 'vehicules.filtres.automatique' },
+  { value: 'manuelle', labelKey: 'vehicules.filtres.manuelle' },
 ];
 
 const CARBURANT_OPTIONS = [
-  { value: '', label: 'Tous' },
-  { value: 'essence', label: 'Essence' },
-  { value: 'diesel', label: 'Diesel' },
-  { value: 'hybride', label: 'Hybride' },
+  { value: '', labelKey: 'vehicules.filtres.tous' },
+  { value: 'essence', labelKey: 'vehicules.filtres.essence' },
+  { value: 'diesel', labelKey: 'vehicules.filtres.diesel' },
+  { value: 'hybride', labelKey: 'vehicules.filtres.hybride' },
 ];
 
 const FILTER_LABELS = {
-  agence_id: 'Agence',
-  categorie: 'Catégorie',
-  marque: 'Marque',
-  transmission: 'Transmission',
-  carburant: 'Carburant',
-  prix_max: 'Budget',
+  agence_id: 'vehicules.filtres.agence',
+  categorie: 'vehicules.filtres.categorie',
+  marque: 'vehicules.filtres.marque',
+  transmission: 'vehicules.filtres.transmission',
+  carburant: 'vehicules.filtres.carburant',
+  prix_max: 'vehicules.filtres.budget',
 };
 
-function formatPrice(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return value;
-  return number.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
-}
-
-function formatFilterValue(key, value, agences) {
-  if (key === 'prix_max') return `≤ ${formatPrice(value)} DH`;
-  if (key === 'transmission') return value === 'automatique' ? 'Automatique' : 'Manuelle';
-  if (key === 'carburant') return value.charAt(0).toUpperCase() + value.slice(1);
+function formatFilterValue(key, value, agences, t) {
+  if (key === 'prix_max') {
+    return t('vehicules.filtres.prixMax', {
+      prix: formatMAD(value, { suffix: t('unites.dh'), decimals: 0 }),
+    });
+  }
+  if (key === 'transmission') return value === 'automatique' ? t('vehicules.filtres.automatique') : t('vehicules.filtres.manuelle');
+  if (key === 'carburant') return carburantLabel(value, t);
+  if (key === 'categorie') return categorieLabel(value, t);
   if (key === 'agence_id') {
-    return agences.find((agence) => String(agence.id) === String(value))?.nom || 'Agence sélectionnée';
+    return agences.find((agence) => String(agence.id) === String(value))?.nom || t('vehicules.filtres.agenceSelectionnee');
   }
   return value;
 }
@@ -85,6 +87,7 @@ function Spec({ icon: Icon, label, value }) {
 }
 
 function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
+  const { t } = useTranslation();
   const photo = v.photos?.[0];
   const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
   const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
@@ -97,9 +100,9 @@ function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
         type="button"
         role="checkbox"
         aria-checked={isSelected}
-        aria-label={`Comparer ${v.marque} ${v.modele}`}
+        aria-label={t('vehicules.carte.comparer', { vehicule: `${v.marque} ${v.modele}` })}
         disabled={compareDisabled}
-        title={compareDisabled ? 'Maximum 3 véhicules' : undefined}
+        title={compareDisabled ? t('vehicules.carte.maximum') : undefined}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -144,13 +147,13 @@ function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
               {v.populaire && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white">
                   <Star size={11} fill="currentColor" aria-hidden="true" />
-                  Populaire
+                  {t('vehicules.carte.populaire')}
                 </span>
               )}
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
-              Disponible
+              {t('etats.disponible')}
             </span>
           </div>
         </div>
@@ -167,43 +170,47 @@ function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
             </div>
             {v.categorie && (
               <span className="mt-0.5 shrink-0 rounded-full border border-line bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-muted">
-                {v.categorie}
+                {categorieLabel(v.categorie, t)}
               </span>
             )}
           </div>
 
           <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 text-xs text-muted">
-            <Spec icon={Calendar} label="Année" value={v.annee || '—'} />
+            <Spec icon={Calendar} label={t('vehicules.carte.annee')} value={v.annee || '—'} />
             <Spec
               icon={Settings2}
-              label="Transmission"
-              value={v.transmission === 'automatique' ? 'Automatique' : 'Manuelle'}
+              label={t('vehicules.carte.transmission')}
+              value={v.transmission === 'automatique' ? t('vehicules.filtres.automatique') : t('vehicules.filtres.manuelle')}
             />
             <Spec
               icon={Fuel}
-              label="Carburant"
-              value={v.carburant ? v.carburant.charAt(0).toUpperCase() + v.carburant.slice(1) : '—'}
+              label={t('vehicules.carte.carburant')}
+              value={v.carburant ? carburantLabel(v.carburant, t) : '—'}
             />
-            <Spec icon={Users} label="Places" value={v.places ? `${v.places} places` : '—'} />
+            <Spec
+              icon={Users}
+              label={t('vehicules.carte.places')}
+              value={v.places ? `${formatNumber(v.places)} ${t('unites.places')}` : '—'}
+            />
           </dl>
 
           <div className="mt-auto pt-5">
             <div className="flex items-end justify-between gap-3 border-t border-line pt-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-ink-subtle">
-                  À partir de
+                  {t('vehicules.carte.aPartirDe')}
                 </p>
                 <p className="mt-1 text-xl font-bold leading-none tabular-nums text-white">
-                  {formatPrice(v.prix_jour)}
-                  <span className="ms-1 text-xs font-normal text-muted">DH / jour</span>
+                  {formatMAD(v.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}
+                  <span className="ms-1 text-xs font-normal text-muted">{t('vehicules.carte.parJour')}</span>
                 </p>
               </div>
               <span className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-white/[0.03] px-3.5 text-xs font-semibold text-white transition-colors group-hover:border-primary group-hover:bg-primary">
-                Détails
+                {t('vehicules.carte.details')}
                 <ChevronRight
                   size={14}
                   aria-hidden="true"
-                  className="transition-transform group-hover:translate-x-0.5"
+                  className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180"
                 />
               </span>
             </div>
@@ -215,28 +222,29 @@ function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
 }
 
 function EmptyState({ onReset, hasFilters }) {
+  const { t } = useTranslation();
   return (
     <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-surface/50 px-6 py-20 text-center">
       <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-line bg-white/[0.03]">
         <Search size={28} className="text-muted" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-white">Aucun véhicule ne correspond</h3>
+      <h3 className="text-lg font-semibold text-white">{t('vehicules.etats.aucunTitre')}</h3>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-        Élargissez votre budget ou retirez un filtre pour voir plus de véhicules.
+        {t('vehicules.etats.aucunTexte')}
       </p>
       {hasFilters ? (
         <button
           onClick={onReset}
           className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
         >
-          Réinitialiser les filtres
+          {t('vehicules.filtres.reinitialiserTous')}
         </button>
       ) : (
         <Link
           to="/"
           className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl border border-line-strong bg-neutral-800 px-5 text-sm font-semibold text-white transition-colors hover:bg-neutral-700"
         >
-          Retour à l'accueil
+          {t('vehicules.etats.retourAccueil')}
         </Link>
       )}
     </div>
@@ -244,21 +252,22 @@ function EmptyState({ onReset, hasFilters }) {
 }
 
 function ErrorState({ onRetry }) {
+  const { t } = useTranslation();
   return (
     <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-danger/20 bg-danger/5 px-6 py-20 text-center">
       <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-danger/20 bg-danger/10">
         <AlertTriangle size={28} className="text-danger" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-white">Impossible de charger la flotte</h3>
+      <h3 className="text-lg font-semibold text-white">{t('vehicules.etats.erreurTitre')}</h3>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-        Vérifiez votre connexion puis réessayez.
+        {t('vehicules.etats.erreurTexte')}
       </p>
       <button
         onClick={onRetry}
         className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl border border-line-strong bg-neutral-800 px-5 text-sm font-semibold text-white transition-colors hover:bg-neutral-700"
       >
         <RefreshCw size={16} aria-hidden="true" />
-        Réessayer
+        {t('vehicules.etats.reessayer')}
       </button>
     </div>
   );
@@ -311,17 +320,18 @@ function OptionPill({ name, value, checked, onChange, className = '', children }
 }
 
 function FiltersContent({ idPrefix, filters, agences, onChange }) {
+  const { t } = useTranslation();
   const priceValue = filters.prix_max || 1500;
 
   return (
     <div className="space-y-6">
       <SelectControl
         id={`${idPrefix}-agence`}
-        label="Agence"
+        label={t('vehicules.filtres.agence')}
         value={filters.agence_id}
         onChange={(e) => onChange('agence_id', e.target.value)}
       >
-        <option value="">Toutes les agences</option>
+        <option value="">{t('vehicules.filtres.toutesAgences')}</option>
         {agences.map((agence) => (
           <option key={agence.id} value={agence.id}>{agence.nom}</option>
         ))}
@@ -329,24 +339,24 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
 
       <SelectControl
         id={`${idPrefix}-categorie`}
-        label="Catégorie"
+        label={t('vehicules.filtres.categorie')}
         value={filters.categorie}
         onChange={(e) => onChange('categorie', e.target.value)}
       >
-        <option value="">Toutes catégories</option>
-        <option value="Berline">Berline</option>
-        <option value="Compacte">Compacte</option>
-        <option value="Citadine">Citadine</option>
-        <option value="SUV">SUV</option>
+        <option value="">{t('vehicules.filtres.toutesCategories')}</option>
+        <option value="Berline">{t('vehicules.categories.berline')}</option>
+        <option value="Compacte">{t('vehicules.categories.compacte')}</option>
+        <option value="Citadine">{t('vehicules.categories.citadine')}</option>
+        <option value="SUV">{t('vehicules.categories.suv')}</option>
       </SelectControl>
 
       <SelectControl
         id={`${idPrefix}-marque`}
-        label="Marque"
+        label={t('vehicules.filtres.marque')}
         value={filters.marque}
         onChange={(e) => onChange('marque', e.target.value)}
       >
-        <option value="">Toutes marques</option>
+        <option value="">{t('vehicules.filtres.toutesMarques')}</option>
         <option value="BMW">BMW</option>
         <option value="Mercedes">Mercedes</option>
         <option value="Audi">Audi</option>
@@ -359,7 +369,7 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
 
       <fieldset>
         <legend className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">
-          Transmission
+          {t('vehicules.filtres.transmission')}
         </legend>
         <div className="grid grid-cols-2 gap-2">
           {TRANSMISSION_OPTIONS.map((opt, index) => (
@@ -371,7 +381,7 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
               onChange={() => onChange('transmission', opt.value)}
               className={index === 0 ? 'col-span-2' : ''}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </OptionPill>
           ))}
         </div>
@@ -379,7 +389,7 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
 
       <fieldset>
         <legend className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">
-          Carburant
+          {t('vehicules.filtres.carburant')}
         </legend>
         <div className="grid grid-cols-2 gap-2">
           {CARBURANT_OPTIONS.map((opt) => (
@@ -390,7 +400,7 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
               checked={filters.carburant === opt.value}
               onChange={() => onChange('carburant', opt.value)}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </OptionPill>
           ))}
         </div>
@@ -399,10 +409,12 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-3">
           <label htmlFor={`${idPrefix}-prix`} className="text-xs font-medium uppercase tracking-wider text-muted">
-            Budget max / jour
+            {t('vehicules.filtres.budgetMax')}
           </label>
           <span className="text-sm font-semibold tabular-nums text-white">
-            {filters.prix_max ? `≤ ${formatPrice(filters.prix_max)} DH` : 'Tous les prix'}
+            {filters.prix_max
+              ? t('vehicules.filtres.prixMax', { prix: formatMAD(filters.prix_max, { suffix: t('unites.dh'), decimals: 0 }) })
+              : t('vehicules.filtres.tousLesPrix')}
           </span>
         </div>
         <div className="py-1.5">
@@ -415,14 +427,16 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
             value={priceValue}
             onChange={(e) => onChange('prix_max', e.target.value === '1500' ? '' : e.target.value)}
             aria-valuetext={
-              filters.prix_max ? `${formatPrice(filters.prix_max)} dirhams par jour maximum` : 'Tous les prix'
+              filters.prix_max
+                ? t('vehicules.filtres.prixMaxAria', { prix: formatMAD(filters.prix_max, { suffix: t('unites.dh'), decimals: 0 }) })
+                : t('vehicules.filtres.tousLesPrix')
             }
             className="w-full cursor-pointer accent-primary"
           />
         </div>
         <div className="mt-1 flex justify-between text-xs tabular-nums text-ink-subtle">
-          <span>200 DH</span>
-          <span>1 500 DH</span>
+          <span>{formatMAD(200, { suffix: t('unites.dh'), decimals: 0 })}</span>
+          <span>{formatMAD(1500, { suffix: t('unites.dh'), decimals: 0 })}</span>
         </div>
       </div>
     </div>
@@ -430,6 +444,7 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
 }
 
 export default function Vehicules() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [vehicules, setVehicules] = useState([]);
@@ -593,19 +608,22 @@ export default function Vehicules() {
       .map(([key, value]) => ({
         key,
         scope: 'filters',
-        label: `${FILTER_LABELS[key]} : ${formatFilterValue(key, value, agences)}`,
+        label: t('vehicules.filtres.chip', {
+          label: t(FILTER_LABELS[key]),
+          value: formatFilterValue(key, value, agences, t),
+        }),
       })),
-    ...(search.date_debut ? [{ key: 'date_debut', scope: 'search', label: `Du ${search.date_debut}` }] : []),
-    ...(search.date_fin ? [{ key: 'date_fin', scope: 'search', label: `Au ${search.date_fin}` }] : []),
-    ...(search.populaire ? [{ key: 'populaire', scope: 'search', label: 'Populaires uniquement' }] : []),
+    ...(search.date_debut ? [{ key: 'date_debut', scope: 'search', label: t('vehicules.filtres.du', { date: formatDate(search.date_debut) }) }] : []),
+    ...(search.date_fin ? [{ key: 'date_fin', scope: 'search', label: t('vehicules.filtres.au', { date: formatDate(search.date_fin) }) }] : []),
+    ...(search.populaire ? [{ key: 'populaire', scope: 'search', label: t('vehicules.filtres.populairesUniquement') }] : []),
   ];
 
   const compareFull = compareList.length >= 3;
   const resultLabel = loading
-    ? 'Chargement…'
+    ? t('vehicules.resultats.chargement')
     : error
-      ? 'Résultats indisponibles'
-      : `véhicule${total !== 1 ? 's' : ''} disponible${total !== 1 ? 's' : ''}`;
+      ? t('vehicules.resultats.indisponibles')
+      : t('vehicules.resultats.vehiculesDisponibles', { count: total });
 
   return (
     <div className="min-h-dvh bg-dark-bg">
@@ -622,36 +640,35 @@ export default function Vehicules() {
         <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent" aria-hidden="true" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-28 sm:px-6 lg:px-8 lg:pb-14 lg:pt-32">
-          <nav className="flex items-center gap-2 text-xs text-muted" aria-label="Fil d'Ariane">
-            <Link to="/" className="transition-colors hover:text-white">Accueil</Link>
+          <nav className="flex items-center gap-2 text-xs text-muted" aria-label={t('vehicules.filAriane')}>
+            <Link to="/" className="transition-colors hover:text-white">{t('nav.accueil')}</Link>
             <ChevronRight size={12} aria-hidden="true" className="rtl:rotate-180" />
-            <span className="text-white" aria-current="page">Nos véhicules</span>
+            <span className="text-white" aria-current="page">{t('nav.vehicules')}</span>
           </nav>
 
           <div className="mt-8 max-w-2xl">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-primary-light">
               <span className="h-px w-8 bg-primary" aria-hidden="true" />
-              Catalogue
+              {t('vehicules.catalogue')}
             </p>
             <h1 className="mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl">
-              Notre flotte
+              {t('vehicules.titre')}
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-muted">
-              Des véhicules récents, entretenus et prêts à partir. Filtrez selon vos besoins
-              et réservez en quelques clics.
+              {t('vehicules.sousTitre')}
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheck size={16} className="text-primary-light" aria-hidden="true" />
-                Véhicules récents
+                {t('vehicules.vehiculesRecents')}
               </span>
               <span className="inline-flex items-center gap-2">
                 <Headphones size={16} className="text-primary-light" aria-hidden="true" />
-                Support 7j/7
+                {t('vehicules.support')}
               </span>
               <span className="inline-flex items-center gap-2">
                 <MapPin size={16} className="text-primary-light" aria-hidden="true" />
-                Tanger
+                {t('vehicules.ville')}
               </span>
             </div>
           </div>
@@ -667,7 +684,7 @@ export default function Vehicules() {
               <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
                 <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
                   <SlidersHorizontal size={16} className="text-primary-light" aria-hidden="true" />
-                  Filtres
+                  {t('vehicules.filtres.titre')}
                   {activeFilterCount > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
                       {activeFilterCount}
@@ -679,10 +696,10 @@ export default function Vehicules() {
                     onClick={resetFilters}
                     className="text-xs font-medium text-muted underline underline-offset-2 transition-colors hover:text-white"
                   >
-                    Tout effacer
+                    {t('vehicules.filtres.toutEffacer')}
                   </button>
                 ) : (
-                  <span className="text-xs text-ink-subtle">Aucun filtre</span>
+                  <span className="text-xs text-ink-subtle">{t('vehicules.filtres.aucun')}</span>
                 )}
               </div>
               <div className="overscroll-contain p-5 lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto">
@@ -714,18 +731,18 @@ export default function Vehicules() {
               >
                 <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
                   <div>
-                    <h2 id="filters-title" className="text-base font-semibold text-white">Filtres</h2>
+                    <h2 id="filters-title" className="text-base font-semibold text-white">{t('vehicules.filtres.titre')}</h2>
                     <p className="mt-0.5 text-xs text-muted">
                       {activeFilterCount > 0
-                        ? `${activeFilterCount} filtre${activeFilterCount !== 1 ? 's' : ''} actif${activeFilterCount !== 1 ? 's' : ''}`
-                        : 'Affinez votre recherche'}
+                        ? t('vehicules.filtres.actifs', { count: activeFilterCount })
+                        : t('vehicules.filtres.affiner')}
                     </p>
                   </div>
                   <button
                     ref={closeBtnRef}
                     onClick={() => setFiltersOpen(false)}
                     className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white"
-                    aria-label="Fermer les filtres"
+                    aria-label={t('vehicules.filtres.fermer')}
                   >
                     <X size={20} aria-hidden="true" />
                   </button>
@@ -744,14 +761,14 @@ export default function Vehicules() {
                       onClick={resetFilters}
                       className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-line bg-white/[0.03] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.06]"
                     >
-                      Réinitialiser
+                      {t('vehicules.filtres.reinitialiser')}
                     </button>
                   )}
                   <button
                     onClick={() => setFiltersOpen(false)}
                     className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
                   >
-                    Voir les résultats
+                    {t('vehicules.filtres.voirResultats')}
                   </button>
                 </div>
               </div>
@@ -763,7 +780,7 @@ export default function Vehicules() {
             <div className="flex flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-subtle">
-                  Résultats
+                  {t('vehicules.resultats.titre')}
                 </p>
                 <p className="mt-1 flex items-baseline gap-1.5 text-sm text-muted" aria-live="polite">
                   {!loading && !error && (
@@ -783,7 +800,7 @@ export default function Vehicules() {
                   className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-medium text-white transition-colors hover:border-neutral-600 lg:hidden"
                 >
                   <SlidersHorizontal size={16} aria-hidden="true" />
-                  Filtres
+                  {t('vehicules.filtres.titre')}
                   {activeFilterCount > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
                       {activeFilterCount}
@@ -797,17 +814,17 @@ export default function Vehicules() {
                     aria-hidden="true"
                     className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted"
                   />
-                  <label htmlFor="tri" className="sr-only">Trier par</label>
+                  <label htmlFor="tri" className="sr-only">{t('vehicules.resultats.trierPar')}</label>
                   <select
                     id="tri"
                     value={tri}
                     onChange={(e) => setTri(e.target.value)}
                     className={`${SELECT_CLASS} ps-9`}
                   >
-                    <option value="popularite">Popularité</option>
-                    <option value="prix_asc">Prix croissant</option>
-                    <option value="prix_desc">Prix décroissant</option>
-                    <option value="annee">Année</option>
+                    <option value="popularite">{t('vehicules.resultats.popularite')}</option>
+                    <option value="prix_asc">{t('vehicules.resultats.prixAsc')}</option>
+                    <option value="prix_desc">{t('vehicules.resultats.prixDesc')}</option>
+                    <option value="annee">{t('vehicules.resultats.annee')}</option>
                   </select>
                   <ChevronDown
                     size={16}
@@ -828,14 +845,14 @@ export default function Vehicules() {
                   >
                     {chip.label}
                     <X size={13} aria-hidden="true" />
-                    <span className="sr-only">Retirer ce filtre</span>
+                    <span className="sr-only">{t('vehicules.filtres.retirer')}</span>
                   </button>
                 ))}
                 <button
                   onClick={resetFilters}
                   className="inline-flex min-h-11 items-center px-2 text-xs text-muted underline underline-offset-2 transition-colors hover:text-white"
                 >
-                  Tout effacer
+                  {t('vehicules.filtres.toutEffacer')}
                 </button>
               </div>
             )}
@@ -884,7 +901,7 @@ export default function Vehicules() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-white" aria-live="polite">
-                    Comparaison <span className="font-normal text-muted">({compareList.length}/3)</span>
+                    {t('vehicules.comparaison.titre')} <span className="font-normal text-muted">({compareList.length}/3)</span>
                   </p>
                   <div className="mt-1 hidden items-center gap-1.5 overflow-x-auto sm:flex">
                     {compareList.map((v) => (
@@ -896,14 +913,14 @@ export default function Vehicules() {
                         <button
                           onClick={() => removeFromCompare(v.id)}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-danger"
-                          aria-label={`Retirer ${v.marque} ${v.modele} de la comparaison`}
+                          aria-label={t('vehicules.comparaison.retirer', { vehicule: `${v.marque} ${v.modele}` })}
                         >
                           <X size={12} aria-hidden="true" />
                         </button>
                       </span>
                     ))}
                     {compareList.length < 2 && (
-                      <span className="text-xs text-muted">Ajoutez un 2e véhicule pour comparer.</span>
+                      <span className="text-xs text-muted">{t('vehicules.comparaison.ajouterSecond')}</span>
                     )}
                   </div>
                 </div>
@@ -914,7 +931,7 @@ export default function Vehicules() {
                   onClick={() => setCompareList([])}
                   className="hidden min-h-11 items-center px-2 text-xs text-muted transition-colors hover:text-white sm:inline-flex"
                 >
-                  Vider
+                  {t('vehicules.comparaison.vider')}
                 </button>
                 <button
                   onClick={goToCompare}
@@ -925,9 +942,9 @@ export default function Vehicules() {
                       : 'cursor-not-allowed bg-white/5 text-disabled'
                   }`}
                 >
-                  Comparer
+                  {t('actions.comparer')}
                   <span className="tabular-nums">({compareList.length})</span>
-                  <ChevronRight size={16} aria-hidden="true" />
+                  <ChevronRight size={16} aria-hidden="true" className="rtl:rotate-180" />
                 </button>
               </div>
             </div>

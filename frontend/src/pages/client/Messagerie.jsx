@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MessageSquare, Send } from 'lucide-react';
 import api from '../../services/api';
 import PageHeader from '../../components/PageHeader';
+import { formatDateTime } from '../../lib/formatters';
 
 export default function Messagerie() {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [texte, setTexte] = useState('');
   const [sending, setSending] = useState(false);
@@ -44,14 +47,14 @@ export default function Messagerie() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <PageHeader
-        title="Messagerie"
-        breadcrumbs={[{ label: 'Messagerie', path: '/client/tableau-de-bord' }]}
+        title={t('messagerie.titre')}
+        breadcrumbs={[{ label: t('messagerie.filAriane'), path: '/client/tableau-de-bord' }]}
       />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl flex flex-col" style={{ height: '65vh' }}>
           <div className="p-4 border-b border-white/[0.06] flex items-center gap-2 text-white font-medium">
             <MessageSquare size={18} className="text-primary-light" />
-            Contactez notre équipe
+            {t('messagerie.contacterEquipe')}
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {loading ? (
@@ -60,7 +63,7 @@ export default function Messagerie() {
               </div>
             ) : messages.length === 0 ? (
               <p className="text-center text-muted text-sm pt-12">
-                Aucun message. Posez-nous une question !
+                {t('messagerie.aucunMessage')}
               </p>
             ) : messages.map((m) => (
               <div key={m.id} className={`flex ${m.from_admin ? 'justify-start' : 'justify-end'}`}>
@@ -69,7 +72,7 @@ export default function Messagerie() {
                 }`}>
                   <p className="whitespace-pre-wrap">{m.message}</p>
                   <span className="block text-[10px] mt-1 text-white/60">
-                    {new Date(m.created_at).toLocaleString('fr-FR')}
+                    {formatDateTime(m.created_at)}
                   </span>
                 </div>
               </div>
@@ -77,15 +80,16 @@ export default function Messagerie() {
             <div ref={bottomRef} />
           </div>
           <form onSubmit={envoyer} className="p-3 border-t border-white/[0.06] flex gap-2">
-            <input aria-label="Votre message..."
+            <input aria-label={t('messagerie.placeholder')}
               value={texte}
               onChange={(e) => setTexte(e.target.value)}
-              placeholder="Votre message..."
+              placeholder={t('messagerie.placeholder')}
               className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-placeholder"
             />
             <button type="submit" disabled={sending || !texte.trim()}
+              aria-label={t('messagerie.envoyer')}
               className="bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white px-4 rounded-xl transition">
-              <Send size={16} />
+              <Send size={16} className="rtl:rotate-180" />
             </button>
           </form>
         </div>

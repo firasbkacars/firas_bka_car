@@ -1,0 +1,357 @@
+{
+  "auth": {
+    "titre": "Connexion",
+    "sousTitre": "Accédez à votre espace client",
+    "email": "Email",
+    "emailPlaceholder": "vous@exemple.com",
+    "motDePasse": "Mot de passe",
+    "premiereConnexion": "Première connexion ?",
+    "afficherMotDePasse": "Afficher le mot de passe",
+    "masquerMotDePasse": "Masquer le mot de passe",
+    "seSouvenir": "Se souvenir de moi",
+    "connexionEnCours": "Connexion en cours...",
+    "tropDeTentatives": "Trop de tentatives. Veuillez réessayer dans 1 minute.",
+    "identifiantsIncorrects": "Identifiants incorrects. Veuillez réessayer.",
+    "pasDeCompte": "Pas encore de compte ?"
+  },
+  "register": {
+    "titre": "Créer un compte",
+    "sousTitre": "Rejoignez-nous pour réserver votre voiture",
+    "nomComplet": "Nom complet *",
+    "email": "Email *",
+    "telephone": "Téléphone *",
+    "telephonePlaceholder": "06XXXXXXXX",
+    "motDePasse": "Mot de passe *",
+    "motDePassePlaceholder": "Min. 8 caractères",
+    "confirmerMotDePasse": "Confirmer le mot de passe *",
+    "confirmerPlaceholder": "Retapez le mot de passe",
+    "nationalite": "Nationalité *",
+    "optionMarocaine": "Marocaine — carte nationale (CIN)",
+    "optionEtrangere": "Étrangère — passeport",
+    "numeroPasseport": "Numéro de passeport *",
+    "passeportPlaceholder": "X1234567",
+    "cin": "CIN *",
+    "cinPlaceholder": "AB123456",
+    "adresse": "Adresse",
+    "codeParrainage": "Code de parrainage",
+    "optionnel": "(optionnel)",
+    "parrainagePlaceholder": "Ex : ABCD1234",
+    "cguAccepte": "J'accepte les",
+    "cguLien": "conditions générales d'utilisation",
+    "force": "Force :",
+    "forceFaible": "Faible",
+    "forceMoyen": "Moyen",
+    "forceFort": "Fort",
+    "erreurTelephone": "Format invalide (06XXXXXXXX ou 07XXXXXXXX)",
+    "erreurCin": "Le CIN doit contenir 1 à 2 lettres majuscules suivies de 4 à 6 chiffres (ex: A12345 ou AB123456)",
+    "erreurPasseport": "Le numéro de passeport doit contenir 6 à 20 lettres majuscules ou chiffres",
+    "motsDePasseDifferents": "Les mots de passe ne correspondent pas",
+    "motsDePasseIdentiques": "Les mots de passe correspondent",
+    "dejaReserve": "Vous avez déjà réservé par téléphone ?",
+    "activerCompte": "Activez votre compte",
+    "dejaReserveFin": "avec l'email communiqué à l'agence.",
+    "documentsInfo": "Après l'inscription, vous devrez téléverser une photo nette de votre permis de conduire et de votre {{piece}} dans votre profil. Les photos floues, trop sombres, rognées ou au format PDF sont refusées automatiquement.",
+    "passeport": "passeport",
+    "carteNationale": "carte nationale",
+    "succesTitre": "Inscription réussie",
+    "succesSousTitre": "Redirection vers votre profil...",
+    "succesCompteCree": "Compte créé avec succès",
+    "succesDerniereEtape": "Dernière étape : téléversez votre permis et votre {{piece}} depuis votre profil.",
+    "inscriptionEnCours": "Inscription en cours...",
+    "erreurInscription": "Erreur lors de l'inscription",
+    "dejaCompte": "Déjà un compte ?"
+  },
+  "activation": {
+    "verifierTitre": "Vérifiez votre boîte mail",
+    "verifierSousTitre": "Un lien d'activation vient de vous être envoyé",
+    "consultezTitre": "Consultez vos emails",
+    "consultezTexteDebut": "Si un compte est éligible pour",
+    "consultezTexteFin": ", vous recevrez un lien valable 7 jours pour définir votre mot de passe.",
+    "spam": "Pensez à vérifier vos courriers indésirables.",
+    "retourConnexion": "Retour à la connexion",
+    "titre": "Activer mon compte",
+    "sousTitre": "Vous avez réservé par téléphone ? Définissez votre mot de passe.",
+    "intro": "Votre compte a été créé par notre équipe lors de votre réservation. Indiquez l'adresse email communiquée pour recevoir votre lien d'activation.",
+    "email": "Email",
+    "envoiEnCours": "Envoi en cours...",
+    "recevoirLien": "Recevoir le lien d'activation",
+    "dejaActive": "Compte déjà activé ?",
+    "erreurEnvoi": "Impossible d'envoyer la demande pour le moment.",
+    "chargementTitre": "Activation du compte",
+    "chargementSousTitre": "Vérification du lien...",
+    "verificationEnCours": "Vérification en cours...",
+    "lienInvalide": "Lien invalide",
+    "impossibleActiver": "Impossible d'activer ce compte",
+    "demanderNouveauLien": "Demander un nouveau lien",
+    "definirMotDePasse": "Définissez votre mot de passe",
+    "bienvenue": "Bienvenue {{nom}}",
+    "compteLieDebut": "Compte lié à",
+    "compteLieFin": ". Choisissez un mot de passe pour accéder à vos réservations.",
+    "motDePasse": "Mot de passe *",
+    "confirmerMotDePasse": "Confirmer le mot de passe *",
+    "motDePassePlaceholder": "Min. 8 caractères",
+    "confirmerPlaceholder": "Retapez le mot de passe",
+    "erreurLongueur": "Le mot de passe doit contenir au moins 8 caractères.",
+    "erreurConfirmation": "La confirmation du mot de passe ne correspond pas.",
+    "erreurActivation": "Erreur lors de l'activation du compte.",
+    "lienExpire": "Ce lien d'activation est invalide ou a expiré.",
+    "activationEnCours": "Activation en cours...",
+    "activer": "Activer mon compte"
+  },
+  "profil": {
+    "titre": "Mon profil",
+    "changerPhoto": "Changer la photo de profil",
+    "choisirPhoto": "Choisir une photo de profil",
+    "cliquerPhoto": "Cliquez sur la photo pour la changer",
+    "deconnexion": "Déconnexion",
+    "profilMisAJour": "Profil mis à jour avec succès !",
+    "erreurMiseAJour": "Erreur lors de la mise à jour",
+    "codeCopie": "Code de parrainage copié.",
+    "codeCopieErreur": "Impossible de copier le code.",
+    "formatNonSupporte": "Format non supporté (JPG, PNG ou WebP)",
+    "photoTropLourde": "La photo dépasse 2 Mo",
+    "photoMiseAJour": "Photo de profil mise à jour !",
+    "erreurUploadPhoto": "Erreur lors de l'upload de la photo",
+    "carteEnvoyee": "Carte nationale envoyée. Elle sera vérifiée par un agent.",
+    "passeportEnvoye": "Passeport envoyé. Il sera vérifié par un agent.",
+    "permisEnvoye": "Permis envoyé. Il sera vérifié par un agent.",
+    "erreurEnvoiDocument": "L'envoi du document a échoué. Vérifiez la photo et réessayez.",
+    "erreurEnvoiPermis": "L'envoi du permis a échoué. Vérifiez la photo et réessayez.",
+    "reservations": {
+      "titre": "Mes réservations",
+      "sousTitre": "Consultez l'historique de toutes vos réservations.",
+      "aucune": "Aucune réservation pour le moment.",
+      "parcourir": "Parcourir nos véhicules",
+      "duAu": "du {{debut}} au {{fin}}",
+      "regle": "{{montant}} réglé",
+      "aRegler": "{{montant}} à régler",
+      "priseEnCharge": "Prise en charge",
+      "retour": "Retour",
+      "modePaiement": "Mode de paiement",
+      "carteBancaire": "Carte bancaire (CMI)",
+      "especes": "Espèces",
+      "paiements": "Paiements",
+      "encaisseSur": "{{paye}} encaissés sur {{total}}",
+      "dontRembourse": "dont {{montant}} remboursé(s)",
+      "ouverture": "Ouverture...",
+      "payer": "Payer {{montant}}",
+      "payerAcompte": "Payer l'acompte {{montant}}",
+      "telechargerFacture": "Télécharger la facture",
+      "contrat": "Contrat",
+      "reserverNouveau": "Réserver à nouveau",
+      "prolongerTitre": "Prolonger la réservation",
+      "dateRetourActuelle": "Date de retour actuelle : {{date}}",
+      "nouvelleDate": "Nouvelle date de retour",
+      "prolonger": "Prolonger",
+      "confirmerAnnulation": "Confirmer l'annulation ?",
+      "acompteEncaisse": "Acompte encaissé :",
+      "remboursement": "Remboursement",
+      "aucunRemboursement": "Aucun remboursement",
+      "calculEnCours": "Calcul en cours...",
+      "ilReste": "il reste {{heures}} h avant la prise en charge.",
+      "soit": "Soit {{montant}}.",
+      "annulationEnCours": "Annulation...",
+      "prolongee": "Réservation prolongée de {{jours}} jour(s). Supplément : {{montant}}",
+      "erreurProlongation": "Erreur lors de la prolongation",
+      "annuleeRemboursement": "Réservation annulée. Remboursement : {{montant}}",
+      "annuleeSansRemboursement": "Réservation annulée. Aucun remboursement selon la politique.",
+      "erreurAnnulation": "Erreur lors de l'annulation",
+      "paiementIndisponible": "Le paiement en ligne n'est pas disponible pour le moment.",
+      "erreurPaiement": "Impossible d'initier le paiement",
+      "erreurFacture": "Erreur lors du téléchargement de la facture",
+      "erreurContrat": "Erreur lors du téléchargement du contrat"
+    },
+    "paliers": {
+      "gratuit": {
+        "libelle": "Remboursement intégral",
+        "detail": "Plus de 48 h avant la prise en charge."
+      },
+      "partiel": {
+        "libelle": "Remboursement de 50 %",
+        "detail": "Entre 24 h et 48 h avant la prise en charge."
+      },
+      "tardif": {
+        "libelle": "Acompte conservé",
+        "detail": "Moins de 24 h avant la prise en charge."
+      }
+    },
+    "fidelite": {
+      "titre": "Programme de fidélité",
+      "sousTitre": "Gagnez des points à chaque location et bénéficiez de réductions exclusives.",
+      "reduction": "{{pourcent}}% de réduction sur vos locations",
+      "points": "points",
+      "locationsEffectuees": "Locations effectuées",
+      "pointsCumules": "Points cumulés",
+      "prochainNiveau": "Prochain niveau",
+      "plusQue": "Plus que {{count}} location(s) pour {{pourcent}}% de réduction",
+      "niveauxTitre": "Niveaux de fidélité",
+      "remise": "{{pourcent}}% de remise",
+      "erreur": "Impossible de charger les informations de fidélité.",
+      "niveaux": {
+        "bronze": "Bronze",
+        "argent": "Argent",
+        "or": "Or",
+        "platine": "Platine"
+      }
+    },
+    "parrainage": {
+      "titre": "Parrainage",
+      "sousTitre": "Partagez votre code : vous gagnez 50 points par inscription et 100 points quand votre filleul termine sa première location.",
+      "copier": "Copier",
+      "partager": "Partager",
+      "filleuls": "Filleul(s)",
+      "premiereLocation": "Première location",
+      "pointsGagnes": "Points gagnés",
+      "chargement": "Chargement du code de parrainage...",
+      "messagePartage": "Inscrivez-vous sur FIRAS BKA CAR avec mon code parrain {{code}} : {{url}}"
+    },
+    "infos": {
+      "titre": "Mes informations",
+      "nomComplet": "Nom complet",
+      "telephone": "Téléphone",
+      "email": "Email",
+      "emailNonModifiable": "L'email ne peut pas être modifié",
+      "nationalite": "Nationalité",
+      "optionMarocaine": "Marocaine — carte nationale",
+      "optionEtrangere": "Étrangère — passeport",
+      "pieceDependNationalite": "La pièce à téléverser dépend de votre nationalité.",
+      "numeroPasseport": "Numéro de passeport",
+      "passeportAide": "6 à 20 lettres majuscules ou chiffres.",
+      "cin": "CIN",
+      "cinAide": "Ex : A12345 ou AB123456.",
+      "expirationPermis": "Expiration du permis",
+      "expirationAide": "Nécessaire pour la validation de votre permis.",
+      "adresse": "Adresse",
+      "retourAccueil": "Retour à l'accueil",
+      "enregistrement": "Enregistrement...",
+      "enregistrerModifs": "Enregistrer les modifications"
+    },
+    "ecritures": {
+      "titre": "Détail des écritures",
+      "remboursement": "Remboursement",
+      "encaissement": "Encaissement"
+    }
+  },
+  "dashboard": {
+    "titre": "Mon tableau de bord",
+    "filAriane": "Tableau de bord",
+    "stats": {
+      "totalDepense": "Total dépensé",
+      "reservations": "Réservations",
+      "enCours": "En cours",
+      "favoris": "Favoris"
+    },
+    "favoris": {
+      "titre": "Mes véhicules favoris",
+      "parcourir": "Parcourir",
+      "aucun": "Aucun véhicule favori pour le moment.",
+      "aide": "Cliquez sur le cœur d'un véhicule pour l'ajouter ici.",
+      "retirer": "Retirer des favoris",
+      "parJour": "/jour"
+    },
+    "reservations": {
+      "titre": "Mes dernières réservations",
+      "toutVoir": "Tout voir",
+      "aucune": "Aucune réservation pour le moment.",
+      "libelle": "Réservation"
+    }
+  },
+  "messagerie": {
+    "titre": "Messagerie",
+    "filAriane": "Messagerie",
+    "contacterEquipe": "Contactez notre équipe",
+    "aucunMessage": "Aucun message. Posez-nous une question !",
+    "placeholder": "Votre message...",
+    "envoyer": "Envoyer le message"
+  },
+  "documents": {
+    "voir": "Voir",
+    "voirDocument": "Voir le document : {{titre}}",
+    "motifRejet": "Motif du rejet : {{motif}}",
+    "televerser": "Téléverser {{titre}}",
+    "glisser": "Glissez une photo ici ou",
+    "parcourir": "parcourez vos fichiers",
+    "formats": "JPG, PNG ou WebP — {{taille}} Mo max. Photo nette, lisible et non rognée.",
+    "apercu": "Aperçu : {{titre}}",
+    "envoyer": "Envoyer la photo",
+    "verification": "Vérification…",
+    "retirerPhoto": "Retirer la photo sélectionnée",
+    "erreurEnvoi": "L'envoi du document a échoué. Réessayez.",
+    "taille": "{{taille}} Mo",
+    "titreIdentite": "Pièce d'identité",
+    "descIdentiteEtranger": "En tant que client étranger, vous devez téléverser une photo de votre passeport pour pouvoir réserver.",
+    "descIdentiteMarocain": "Vous devez téléverser une photo de votre carte nationale (CIN) pour pouvoir réserver.",
+    "titrePasseport": "Passeport",
+    "titreCarteNationale": "Carte nationale (CIN)",
+    "descriptionIdentite": "Photo nette et lisible de votre {{piece}}, avec les quatre coins visibles.",
+    "noteIdentite": "La photo est vérifiée automatiquement (format, résolution, netteté et luminosité). Une photo floue, trop sombre, rognée ou de travers est refusée. Un agent valide ensuite le document avant votre première réservation.",
+    "titrePermis": "Permis de conduire",
+    "descPermis": "Vous devez téléverser une photo de votre permis pour pouvoir réserver.",
+    "descriptionPermis": "Photo nette et lisible du permis, avec la date de validité visible.",
+    "notePermis": "La photo du permis est soumise au même contrôle automatique de qualité. Pensez à renseigner la date d'expiration dans vos informations.",
+    "piecePasseport": "passeport",
+    "pieceCarteNationale": "carte nationale",
+    "statuts": {
+      "valide": "Validé",
+      "en_attente": "En attente de validation",
+      "rejete": "Rejeté",
+      "expire": "Expiré",
+      "non_fourni": "Non fourni"
+    },
+    "validation": {
+      "selectionner": "Sélectionnez une photo de votre document.",
+      "format": "Format non accepté : envoyez une photo JPG, PNG ou WebP (pas de PDF).",
+      "tailleMax": "La photo dépasse {{taille}} Mo. Réduisez sa taille avant de recommencer.",
+      "tropCompressee": "La photo est trop compressée ou illisible. Envoyez une photo plus nette.",
+      "resolution": "Photo trop petite : la résolution minimale est de {{largeur}} x {{hauteur}} pixels.",
+      "illisible": "Cette image est illisible. Choisissez une autre photo JPG, PNG ou WebP."
+    }
+  },
+  "statuts": {
+    "vide": "Non renseigné",
+    "paiement": {
+      "en_attente": {
+        "label": "En attente",
+        "detail": "Paiement en attente de confirmation par la banque."
+      },
+      "paye": {
+        "label": "Payé",
+        "detail": "Paiement encaissé."
+      },
+      "echoue": {
+        "label": "Échoué",
+        "detail": "Le paiement a été refusé. Un nouveau paiement peut être tenté."
+      },
+      "annule": {
+        "label": "Annulé",
+        "detail": "Le paiement a été abandonné ou annulé avant confirmation."
+      },
+      "expire": {
+        "label": "Expiré",
+        "detail": "La session de paiement a expiré sans être confirmée."
+      },
+      "suspect": {
+        "label": "À vérifier",
+        "detail": "Le retour de la banque est incomplet ; le statut sera confirmé automatiquement."
+      },
+      "rembourse": {
+        "label": "Remboursé",
+        "detail": "Montant intégralement remboursé au client."
+      },
+      "rembourse_partiel": {
+        "label": "Remboursé partiel",
+        "detail": "Une partie du montant a été remboursée, le reste est conservé."
+      },
+      "inconnu": {
+        "label": "Statut inconnu",
+        "detail": "Statut non reconnu par l'interface."
+      }
+    },
+    "reservation": {
+      "confirmee": "Confirmée",
+      "en_cours": "En cours",
+      "terminee": "Terminée",
+      "annulee": "Annulée"
+    }
+  }
+}

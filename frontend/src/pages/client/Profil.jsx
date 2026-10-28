@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { XCircle, CheckCircle2, UploadCloud, Loader2, Calendar, Download, ChevronDown, Car, Award, Trophy, AlertTriangle, Clock, CreditCard, ReceiptText, Users, Copy, Link2, Landmark } from 'lucide-react';
@@ -13,13 +14,6 @@ const STATUS_COLORS = {
   en_cours: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400',
   terminee: 'bg-green-500/10 border-green-500/20 text-green-400',
   annulee: 'bg-red-500/10 border-red-500/20 text-red-400',
-};
-
-const STATUS_LABELS = {
-  confirmee: 'Confirmée',
-  en_cours: 'En cours',
-  terminee: 'Terminée',
-  annulee: 'Annulée',
 };
 
 /**
@@ -38,9 +32,9 @@ function messageErreurApi(err, fallback) {
  * toujours de /annulation-preview, calcule par le backend.
  */
 const PALIERS_ANNULATION = [
-  { cle: 'gratuit', heuresMin: 48, taux: 1, libelle: 'Remboursement intégral', detail: 'Plus de 48 h avant la prise en charge.' },
-  { cle: 'partiel', heuresMin: 24, taux: 0.5, libelle: 'Remboursement de 50 %', detail: 'Entre 24 h et 48 h avant la prise en charge.' },
-  { cle: 'tardif', heuresMin: 0, taux: 0, libelle: 'Acompte conservé', detail: 'Moins de 24 h avant la prise en charge.' },
+  { cle: 'gratuit', heuresMin: 48, taux: 1 },
+  { cle: 'partiel', heuresMin: 24, taux: 0.5 },
+  { cle: 'tardif', heuresMin: 0, taux: 0 },
 ];
 
 function palierApplicable(heures) {
@@ -99,6 +93,7 @@ function statutPaiementReservation(res) {
 }
 
 export default function ClientProfil() {
+  const { t } = useTranslation();
   const { client, token, loading: authLoading, logout, updateProfile, uploadPermis, uploadPhoto, uploadIdentityDocument } = useAuth();
   const navigate = useNavigate();
 
@@ -215,9 +210,9 @@ export default function ClientProfil() {
     if (!parrainage?.code_parrainage) return;
     try {
       await navigator.clipboard.writeText(parrainage.code_parrainage);
-      showToast('Code de parrainage copié.');
+      showToast(t('profil.codeCopie'));
     } catch {
-      showToast('Impossible de copier le code.', 'error');
+      showToast(t('profil.codeCopieErreur'), 'error');
     }
   };
 
@@ -236,9 +231,9 @@ export default function ClientProfil() {
     setSaving(true);
     try {
       await updateProfile({ ...form, est_etranger: Boolean(form.est_etranger) });
-      showToast('Profil mis a jour avec succes !');
+      showToast(t('profil.profilMisAJour'));
     } catch (err) {
-      showToast(messageErreurApi(err, 'Erreur lors de la mise a jour'), 'error');
+      showToast(messageErreurApi(err, t('profil.erreurMiseAJour')), 'error');
     } finally {
       setSaving(false);
     }
@@ -248,11 +243,11 @@ export default function ClientProfil() {
     try {
       await uploadIdentityDocument(type, file);
       showToast(type === 'carte_nationale'
-        ? 'Carte nationale envoyee. Elle sera verifiee par un agent.'
-        : 'Passeport envoye. Il sera verifie par un agent.');
+        ? t('profil.carteEnvoyee')
+        : t('profil.passeportEnvoye'));
     } catch (err) {
       showToast(
-        messageErreurApi(err, "L'envoi du document a echoue. Verifiez la photo et reessayez."),
+        messageErreurApi(err, t('profil.erreurEnvoiDocument')),
         'error'
       );
       throw err;
@@ -264,19 +259,19 @@ export default function ClientProfil() {
     e.target.value = '';
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      showToast('Format non supporte (JPG, PNG ou WebP)', 'error');
+      showToast(t('profil.formatNonSupporte'), 'error');
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      showToast('La photo depasse 2 Mo', 'error');
+      showToast(t('profil.photoTropLourde'), 'error');
       return;
     }
     setUploadingPhoto(true);
     try {
       await uploadPhoto(file);
-      showToast('Photo de profil mise a jour !');
+      showToast(t('profil.photoMiseAJour'));
     } catch (err) {
-      showToast(messageErreurApi(err, "Erreur lors de l'upload de la photo"), 'error');
+      showToast(messageErreurApi(err, t('profil.erreurUploadPhoto')), 'error');
     } finally {
       setUploadingPhoto(false);
     }
@@ -290,7 +285,7 @@ export default function ClientProfil() {
 
   const estEtranger = Boolean(client?.est_etranger);
   const typeIdentite = estEtranger ? 'passeport' : 'carte_nationale';
-  const libelleIdentite = estEtranger ? 'passeport' : 'carte nationale';
+  const libelleIdentite = estEtranger ? t('documents.piecePasseport') : t('documents.pieceCarteNationale');
   const cheminIdentite = estEtranger ? client?.passeport_document : client?.carte_nationale;
   const statutIdentite = estEtranger ? client?.passeport_statut : client?.carte_nationale_statut;
   const motifIdentite = estEtranger ? client?.passeport_rejet_motif : client?.carte_nationale_rejet_motif;
@@ -339,10 +334,10 @@ export default function ClientProfil() {
         return;
       }
 
-      showToast('Le paiement en ligne n\'est pas disponible pour le moment.', 'error');
+      showToast(t('profil.reservations.paiementIndisponible'), 'error');
     } catch (err) {
       showToast(
-        err.response?.data?.message || 'Impossible d\'initier le paiement',
+        err.response?.data?.message || t('profil.reservations.erreurPaiement'),
         'error'
       );
       setPayingId(null);
@@ -359,9 +354,12 @@ export default function ClientProfil() {
       setProlongingId(null);
       setProlongDate('');
       fetchReservations();
-      showToast(`Réservation prolongée de ${data.jours_supplementaires} jour(s). Supplément : ${formatMAD(data.prix_supplement)}`);
+      showToast(t('profil.reservations.prolongee', {
+        jours: data.jours_supplementaires,
+        montant: formatMAD(data.prix_supplement),
+      }));
     } catch (err) {
-      showToast(err.response?.data?.message || 'Erreur lors de la prolongation', 'error');
+      showToast(err.response?.data?.message || t('profil.reservations.erreurProlongation'), 'error');
       setProlongingId(null);
     }
   };
@@ -380,7 +378,7 @@ export default function ClientProfil() {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      showToast('Erreur lors du telechargement de la facture', 'error');
+      showToast(t('profil.reservations.erreurFacture'), 'error');
     }
   };
 
@@ -398,7 +396,7 @@ export default function ClientProfil() {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      showToast('Erreur lors du telechargement du contrat', 'error');
+      showToast(t('profil.reservations.erreurContrat'), 'error');
     }
   };
 
@@ -411,11 +409,11 @@ export default function ClientProfil() {
       const remb = parseFloat(data.montant_rembourse) || 0;
       showToast(
         remb > 0
-          ? `Réservation annulée. Remboursement : ${formatMAD(remb)}`
-          : 'Réservation annulée. Aucun remboursement selon la politique.'
+          ? t('profil.reservations.annuleeRemboursement', { montant: formatMAD(remb) })
+          : t('profil.reservations.annuleeSansRemboursement')
       );
     } catch (err) {
-      showToast(err.response?.data?.message || 'Erreur lors de l\'annulation', 'error');
+      showToast(err.response?.data?.message || t('profil.reservations.erreurAnnulation'), 'error');
     } finally {
       setCancellingId(null);
     }
@@ -424,12 +422,12 @@ export default function ClientProfil() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <PageHeader
-        title="Mon profil"
-        breadcrumbs={[{ label: 'Mon profil' }]}
+        title={t('profil.titre')}
+        breadcrumbs={[{ label: t('profil.titre') }]}
       />
 
       {toast && (
-        <div className="fixed top-24 right-6 z-50 animate-in fade-in slide-in-from-right-4">
+        <div className="fixed top-24 end-6 z-50 animate-in fade-in slide-in-from-right-4">
           <div className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg border backdrop-blur-sm text-sm font-medium ${
             toast.type === 'error'
               ? 'bg-red-500/10 border-red-500/20 text-red-400'
@@ -449,7 +447,7 @@ export default function ClientProfil() {
               onClick={() => avatarInputRef.current?.click()}
               disabled={uploadingPhoto}
               className="relative w-16 h-16 rounded-full bg-[#dc2626] flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden group cursor-pointer disabled:opacity-60"
-              aria-label="Changer la photo de profil"
+              aria-label={t('profil.changerPhoto')}
             >
               {photoSrc ? (
                 <img
@@ -467,7 +465,7 @@ export default function ClientProfil() {
                   <UploadCloud size={20} />
                 )}
               </span>
-              <input aria-label="Choisir une photo de profil"
+              <input aria-label={t('profil.choisirPhoto')}
                 ref={avatarInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -476,16 +474,16 @@ export default function ClientProfil() {
               />
             </button>
             <div>
-              <h2 className="text-white font-semibold text-lg">{client?.nom_complet || 'Mon profil'}</h2>
+              <h2 className="text-white font-semibold text-lg">{client?.nom_complet || t('profil.titre')}</h2>
               <p className="text-muted text-sm">{client?.email}</p>
-              <p className="text-muted text-xs mt-0.5">Cliquez sur la photo pour la changer</p>
+              <p className="text-muted text-xs mt-0.5">{t('profil.cliquerPhoto')}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
             className="text-muted hover:text-red-500 text-sm font-medium transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
           >
-            Deconnexion
+            {t('profil.deconnexion')}
           </button>
         </div>
 
@@ -493,10 +491,10 @@ export default function ClientProfil() {
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <h2 className="text-white font-semibold mb-2 flex items-center gap-2">
             <Calendar size={18} className="text-primary-light" />
-            Mes reservations
+            {t('profil.reservations.titre')}
           </h2>
           <p className="text-muted text-sm mb-5">
-            Consultez l'historique de toutes vos reservations.
+            {t('profil.reservations.sousTitre')}
           </p>
 
           {reservationsLoading ? (
@@ -516,9 +514,9 @@ export default function ClientProfil() {
           ) : reservations.length === 0 ? (
             <div className="text-center py-8">
               <Car size={40} className="mx-auto text-muted mb-3" />
-              <p className="text-muted text-sm">Aucune reservation pour le moment.</p>
+              <p className="text-muted text-sm">{t('profil.reservations.aucune')}</p>
               <Link to="/vehicules" className="text-primary-light text-sm hover:underline mt-2 inline-block">
-                Parcourir nos vehicules
+                {t('profil.reservations.parcourir')}
               </Link>
             </div>
           ) : (
@@ -528,7 +526,7 @@ export default function ClientProfil() {
                   <button
                     type="button"
                     aria-expanded={expandedReservation === res.id}
-                    className="w-full flex items-center gap-4 p-4 text-left cursor-pointer hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#dc2626] transition-colors"
+                    className="w-full flex items-center gap-4 p-4 text-start cursor-pointer hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#dc2626] transition-colors"
                     onClick={() => setExpandedReservation(expandedReservation === res.id ? null : res.id)}
                   >
                     <div className="w-10 h-10 rounded-lg bg-[#dc2626]/10 flex items-center justify-center shrink-0">
@@ -540,7 +538,7 @@ export default function ClientProfil() {
                           {res.vehicule?.marque} {res.vehicule?.modele}
                         </span>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[res.statut] || ''}`}>
-                          {STATUS_LABELS[res.statut] || res.statut}
+                          {t(`statuts.reservation.${res.statut}`, { defaultValue: res.statut })}
                         </span>
                         <StatutPaiement
                           statut={statutPaiementReservation(res)}
@@ -548,15 +546,18 @@ export default function ClientProfil() {
                         />
                       </div>
                       <p className="text-muted text-xs mt-1">
-                        {res.numero} - {formatDate(res.date_debut)} au {formatDate(res.date_fin)}
+                        {res.numero} - {t('profil.reservations.duAu', {
+                          debut: formatDate(res.date_debut),
+                          fin: formatDate(res.date_fin),
+                        })}
                       </p>
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="text-end shrink-0">
                       <div className="text-primary-light font-bold text-sm">{formatMAD(res.prix_total)}</div>
                       <div className={`text-xs ${parseFloat(res.acompte_paye || 0) > 0 ? 'text-green-400' : 'text-muted'}`}>
                         {parseFloat(res.acompte_paye || 0) > 0
-                          ? `${formatMAD(res.acompte_paye)} réglé`
-                          : `${formatMAD(res.acompte || 0)} à régler`}
+                          ? t('profil.reservations.regle', { montant: formatMAD(res.acompte_paye) })
+                          : t('profil.reservations.aRegler', { montant: formatMAD(res.acompte || 0) })}
                       </div>
                     </div>
                     <ChevronDown
@@ -570,7 +571,7 @@ export default function ClientProfil() {
                     <div className="border-t border-white/[0.04] px-4 py-4 bg-white/[0.01]">
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-muted text-xs uppercase tracking-wider">Prise en charge</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">{t('profil.reservations.priseEnCharge')}</p>
                           <p className="text-white text-sm mt-1">{formatDateTime(res.date_debut)}</p>
                           {res.agence && (
                             <p className="text-white text-xs mt-0.5">
@@ -581,24 +582,27 @@ export default function ClientProfil() {
                           <p className="text-muted text-xs">{res.lieu_prise}</p>
                         </div>
                         <div>
-                          <p className="text-muted text-xs uppercase tracking-wider">Retour</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">{t('profil.reservations.retour')}</p>
                           <p className="text-white text-sm mt-1">{formatDateTime(res.date_fin)}</p>
                           <p className="text-muted text-xs">{res.lieu_retour}</p>
                         </div>
                         <div>
-                          <p className="text-muted text-xs uppercase tracking-wider">Mode de paiement</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">{t('profil.reservations.modePaiement')}</p>
                           <p className="text-white text-sm mt-1">
-                            {res.mode_paiement === 'cmi' ? 'Carte bancaire (CMI)' : 'Espèces'}
+                            {res.mode_paiement === 'cmi' ? t('profil.reservations.carteBancaire') : t('profil.reservations.especes')}
                           </p>
                         </div>
                         <div>
-                          <p className="text-muted text-xs uppercase tracking-wider">Paiements</p>
+                          <p className="text-muted text-xs uppercase tracking-wider">{t('profil.reservations.paiements')}</p>
                           <p className="text-white text-sm mt-1">
-                            {formatMAD(res.acompte_paye || 0)} encaissés sur {formatMAD(res.acompte || 0)}
+                            {t('profil.reservations.encaisseSur', {
+                              paye: formatMAD(res.acompte_paye || 0),
+                              total: formatMAD(res.acompte || 0),
+                            })}
                           </p>
                           {parseFloat(res.rembourse || 0) > 0 && (
                             <p className="text-blue-400 text-xs mt-0.5">
-                              dont {formatMAD(res.rembourse)} remboursé(s)
+                              {t('profil.reservations.dontRembourse', { montant: formatMAD(res.rembourse) })}
                             </p>
                           )}
                         </div>
@@ -616,8 +620,8 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#dc2626]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                           >
                             {payingId === res.id
-                              ? <><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Ouverture...</>
-                              : <><CreditCard size={14} aria-hidden="true" /> Payer {formatMAD(res.acompte_restant ?? res.acompte)}</>}
+                              ? <><Loader2 size={14} className="animate-spin" aria-hidden="true" /> {t('profil.reservations.ouverture')}</>
+                              : <><CreditCard size={14} aria-hidden="true" /> {t('profil.reservations.payer', { montant: formatMAD(res.acompte_restant ?? res.acompte) })}</>}
                           </button>
                         )}
                         {res.mode_paiement !== 'cmi' &&
@@ -628,7 +632,7 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#dc2626]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             <Landmark size={14} aria-hidden="true" />
-                            Payer l'acompte {formatMAD(res.acompte_restant ?? res.acompte)}
+                            {t('profil.reservations.payerAcompte', { montant: formatMAD(res.acompte_restant ?? res.acompte) })}
                           </Link>
                         )}
                         {parseFloat(res.acompte_paye || 0) > 0 && (
@@ -638,7 +642,7 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 text-primary-light px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             <Download size={14} aria-hidden="true" />
-                            Télécharger la facture
+                            {t('profil.reservations.telechargerFacture')}
                           </button>
                         )}
                         {['confirmee', 'en_cours', 'terminee'].includes(res.statut) && (
@@ -648,7 +652,7 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             <Download size={14} aria-hidden="true" />
-                            Contrat
+                            {t('profil.reservations.contrat')}
                           </button>
                         )}
                         {res.statut === 'terminee' && (
@@ -657,7 +661,7 @@ export default function ClientProfil() {
                             className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             <Car size={14} />
-                            Reserver a nouveau
+                            {t('profil.reservations.reserverNouveau')}
                           </Link>
                         )}
                         {['confirmee', 'en_cours'].includes(res.statut) && (
@@ -666,13 +670,13 @@ export default function ClientProfil() {
                               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
                                 <p className="text-blue-400 text-sm mb-2 flex items-center gap-2">
                                   <Clock size={14} />
-                                  Prolonger la reservation
+                                  {t('profil.reservations.prolongerTitre')}
                                 </p>
                                 <p className="text-gray-400 text-xs mb-2">
-                                  Date de retour actuelle : {formatDate(res.date_fin)}
+                                  {t('profil.reservations.dateRetourActuelle', { date: formatDate(res.date_fin) })}
                                 </p>
                                 <div className="flex items-center gap-2">
-                                  <input aria-label="Nouvelle date de retour"
+                                  <input aria-label={t('profil.reservations.nouvelleDate')}
                                     type="date"
                                     value={prolongDate}
                                     min={new Date(res.date_fin).toISOString().split('T')[0]}
@@ -684,13 +688,13 @@ export default function ClientProfil() {
                                     disabled={!prolongDate}
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
                                   >
-                                    Confirmer
+                                    {t('actions.confirmer')}
                                   </button>
                                   <button
                                     onClick={() => { setProlongingId(null); setProlongDate(''); }}
                                     className="text-muted hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
                                   >
-                                    Annuler
+                                    {t('actions.annuler')}
                                   </button>
                                 </div>
                               </div>
@@ -700,7 +704,7 @@ export default function ClientProfil() {
                                 className="flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                               >
                                 <Clock size={14} />
-                                Prolonger
+                                {t('profil.reservations.prolonger')}
                               </button>
                             )}
                           </div>
@@ -711,7 +715,7 @@ export default function ClientProfil() {
                               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 w-full">
                                 <p className="text-red-400 text-sm mb-2 flex items-center gap-2">
                                   <AlertTriangle size={14} />
-                                  Confirmer l'annulation ?
+                                  {t('profil.reservations.confirmerAnnulation')}
                                 </p>
                                 {(() => {
                                   const remb = previews[res.id];
@@ -720,7 +724,7 @@ export default function ClientProfil() {
                                   return (
                                     <div className="mb-3 space-y-2">
                                       <p className="text-gray-400 text-xs">
-                                        Acompte encaissé :{' '}
+                                        {t('profil.reservations.acompteEncaisse')}{' '}
                                         <span className="text-white font-medium">
                                           {remb ? formatMAD(remb.acompte_paye) : '...'}
                                         </span>
@@ -728,7 +732,7 @@ export default function ClientProfil() {
                                       {remb ? (
                                         <>
                                           <p className={`text-xs font-medium ${parseFloat(remb.montant_rembourse) > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                            {parseFloat(remb.montant_rembourse) > 0 ? 'Remboursement' : 'Aucun remboursement'} :{' '}
+                                            {parseFloat(remb.montant_rembourse) > 0 ? t('profil.reservations.remboursement') : t('profil.reservations.aucunRemboursement')} :{' '}
                                             <span className="font-bold">{formatMAD(remb.montant_rembourse)}</span>
                                           </p>
 
@@ -751,14 +755,14 @@ export default function ClientProfil() {
                                                     className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${actif ? 'bg-[#dc2626]' : 'bg-gray-700'}`}
                                                   />
                                                   <span>
-                                                    <span className="font-medium">{p.libelle}</span>
+                                                    <span className="font-medium">{t(`profil.paliers.${p.cle}.libelle`)}</span>
                                                     {' — '}
                                                     {typeof heures === 'number'
-                                                      ? `il reste ${heures.toFixed(1)} h avant la prise en charge. `
-                                                      : `${p.detail} `}
+                                                      ? `${t('profil.reservations.ilReste', { heures: heures.toFixed(1) })} `
+                                                      : `${t(`profil.paliers.${p.cle}.detail`)} `}
                                                     {p.taux > 0 && remb.acompte_paye != null
-                                                      ? `Soit ${formatMAD(parseFloat(remb.acompte_paye) * p.taux)}.`
-                                                      : p.detail}
+                                                      ? t('profil.reservations.soit', { montant: formatMAD(parseFloat(remb.acompte_paye) * p.taux) })
+                                                      : t(`profil.paliers.${p.cle}.detail`)}
                                                   </span>
                                                 </li>
                                               );
@@ -770,7 +774,7 @@ export default function ClientProfil() {
                                           </p>
                                         </>
                                       ) : (
-                                        <p className="text-muted text-xs">Calcul en cours...</p>
+                                        <p className="text-muted text-xs">{t('profil.reservations.calculEnCours')}</p>
                                       )}
                                     </div>
                                   );
@@ -781,13 +785,13 @@ export default function ClientProfil() {
                                     disabled={cancellingId === res.id}
                                     className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
                                   >
-                                    {cancellingId === res.id ? 'Annulation...' : 'Confirmer'}
+                                    {cancellingId === res.id ? t('profil.reservations.annulationEnCours') : t('actions.confirmer')}
                                   </button>
                                   <button
                                     onClick={() => setCancelConfirm(null)}
                                     className="text-muted hover:text-white px-3 py-1.5 rounded-lg text-xs transition hover:bg-white/5"
                                   >
-                                    Non
+                                    {t('actions.non')}
                                   </button>
                                 </div>
                               </div>
@@ -797,7 +801,7 @@ export default function ClientProfil() {
                                 className="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                               >
                                 <XCircle size={14} />
-                                Annuler
+                                {t('actions.annuler')}
                               </button>
                             )}
                           </>
@@ -813,16 +817,16 @@ export default function ClientProfil() {
 
         {/* Pièce d'identité obligatoire */}
         <div id="documents-identite" className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
-          <h2 className="text-white font-semibold mb-2">Pièce d'identité</h2>
+          <h2 className="text-white font-semibold mb-2">{t('documents.titreIdentite')}</h2>
           <p className="text-muted text-sm mb-5">
             {estEtranger
-              ? 'En tant que client étranger, vous devez téléverser une photo de votre passeport pour pouvoir réserver.'
-              : 'Vous devez téléverser une photo de votre carte nationale (CIN) pour pouvoir réserver.'}
+              ? t('documents.descIdentiteEtranger')
+              : t('documents.descIdentiteMarocain')}
           </p>
 
           <DocumentUpload
-            titre={estEtranger ? 'Passeport' : 'Carte nationale (CIN)'}
-            description={`Photo nette et lisible de votre ${libelleIdentite}, avec les quatre coins visibles.`}
+            titre={estEtranger ? t('documents.titrePasseport') : t('documents.titreCarteNationale')}
+            description={t('documents.descriptionIdentite', { piece: libelleIdentite })}
             documentPath={cheminIdentite}
             statut={statutIdentite}
             motif={motifIdentite}
@@ -832,22 +836,20 @@ export default function ClientProfil() {
           />
 
           <p className="text-muted text-xs mt-4 leading-relaxed">
-            La photo est vérifiée automatiquement (format, résolution, netteté et luminosité).
-            Une photo floue, trop sombre, rognée ou de travers est refusée. Un agent valide
-            ensuite le document avant votre première réservation.
+            {t('documents.noteIdentite')}
           </p>
         </div>
 
         {/* Permis de conduire */}
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
-          <h2 className="text-white font-semibold mb-2">Permis de conduire</h2>
+          <h2 className="text-white font-semibold mb-2">{t('documents.titrePermis')}</h2>
           <p className="text-muted text-sm mb-5">
-            Vous devez téléverser une photo de votre permis pour pouvoir réserver.
+            {t('documents.descPermis')}
           </p>
 
           <DocumentUpload
-            titre="Permis de conduire"
-            description="Photo nette et lisible du permis, avec la date de validité visible."
+            titre={t('documents.titrePermis')}
+            description={t('documents.descriptionPermis')}
             documentPath={client?.permis_conduire}
             statut={client?.permis_statut}
             motif={client?.permis_rejet_motif}
@@ -856,10 +858,10 @@ export default function ClientProfil() {
             onUpload={async (file) => {
               try {
                 await uploadPermis(file);
-                showToast('Permis envoye. Il sera verifie par un agent.');
+                showToast(t('profil.permisEnvoye'));
               } catch (err) {
                 showToast(
-                  messageErreurApi(err, "L'envoi du permis a echoue. Verifiez la photo et reessayez."),
+                  messageErreurApi(err, t('profil.erreurEnvoiPermis')),
                   'error'
                 );
                 throw err;
@@ -868,8 +870,7 @@ export default function ClientProfil() {
           />
 
           <p className="text-muted text-xs mt-4 leading-relaxed">
-            La photo du permis est soumise au même contrôle automatique de qualité.
-            Pensez à renseigner la date d'expiration dans vos informations.
+            {t('documents.notePermis')}
           </p>
         </div>
 
@@ -877,10 +878,10 @@ export default function ClientProfil() {
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 mb-6">
           <h2 className="text-white font-semibold mb-2 flex items-center gap-2">
             <Award size={18} className="text-yellow-500" />
-            Programme de fidelite
+            {t('profil.fidelite.titre')}
           </h2>
           <p className="text-muted text-sm mb-5">
-            Gagnez des points a chaque location et beneficiez de reductions exclusives.
+            {t('profil.fidelite.sousTitre')}
           </p>
 
           {fideliteLoading ? (
@@ -900,13 +901,13 @@ export default function ClientProfil() {
                       <div className="flex items-center gap-3">
                         <Trophy size={24} className={tier.icon} />
                         <div>
-                          <p className="text-white font-medium text-lg capitalize">{fidelite.niveau_actuel}</p>
-                          <p className="text-gray-400 text-sm">{fidelite.reduction_actuelle}% de reduction sur vos locations</p>
+                          <p className="text-white font-medium text-lg capitalize">{t(`profil.fidelite.niveaux.${fidelite.niveau_actuel}`, { defaultValue: fidelite.niveau_actuel })}</p>
+                          <p className="text-gray-400 text-sm">{t('profil.fidelite.reduction', { pourcent: fidelite.reduction_actuelle })}</p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-end">
                         <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
-                        <p className="text-muted text-xs">points</p>
+                        <p className="text-muted text-xs">{t('profil.fidelite.points')}</p>
                       </div>
                     </div>
                   </div>
@@ -917,11 +918,11 @@ export default function ClientProfil() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-2xl">{fidelite.nombre_locations}</p>
-                  <p className="text-muted text-sm">Locations effectuees</p>
+                  <p className="text-muted text-sm">{t('profil.fidelite.locationsEffectuees')}</p>
                 </div>
                 <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-2xl">{fidelite.points_fidelite}</p>
-                  <p className="text-muted text-sm">Points cumules</p>
+                  <p className="text-muted text-sm">{t('profil.fidelite.pointsCumules')}</p>
                 </div>
               </div>
 
@@ -929,8 +930,8 @@ export default function ClientProfil() {
               {fidelite.prochain_niveau && (
                 <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-gray-400 text-sm">Prochain niveau</p>
-                    <span className="text-white text-sm font-medium capitalize">{fidelite.prochain_niveau.niveau}</span>
+                    <p className="text-gray-400 text-sm">{t('profil.fidelite.prochainNiveau')}</p>
+                    <span className="text-white text-sm font-medium capitalize">{t(`profil.fidelite.niveaux.${fidelite.prochain_niveau.niveau}`, { defaultValue: fidelite.prochain_niveau.niveau })}</span>
                   </div>
                   <div className="w-full bg-white/[0.06] rounded-full h-2">
                     <div
@@ -941,14 +942,17 @@ export default function ClientProfil() {
                     />
                   </div>
                   <p className="text-muted text-xs mt-2">
-                    Plus que {fidelite.prochain_niveau.locations_restantes} location(s) pour {fidelite.prochain_niveau.reduction}% de reduction
+                    {t('profil.fidelite.plusQue', {
+                      count: fidelite.prochain_niveau.locations_restantes,
+                      pourcent: fidelite.prochain_niveau.reduction,
+                    })}
                   </p>
                 </div>
               )}
 
               {/* Niveaux disponibles */}
               <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
-                <p className="text-gray-400 text-sm mb-3">Niveaux de fidelite</p>
+                <p className="text-gray-400 text-sm mb-3">{t('profil.fidelite.niveauxTitre')}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {Object.entries(fidelite.niveaux).map(([nom, config]) => {
                     const tier = TIER_STYLES[nom] || TIER_FALLBACK;
@@ -960,8 +964,8 @@ export default function ClientProfil() {
                           actif ? `bg-white/[0.04] ${tier.badge}` : 'bg-white/[0.02] border-white/[0.04]'
                         }`}
                       >
-                        <p className={`text-xs font-medium capitalize ${actif ? '' : 'text-white'}`}>{nom}</p>
-                        <p className={`text-[10px] mt-0.5 ${actif ? '' : 'text-muted'}`}>{config.reduction}% off</p>
+                        <p className={`text-xs font-medium capitalize ${actif ? '' : 'text-white'}`}>{t(`profil.fidelite.niveaux.${nom}`, { defaultValue: nom })}</p>
+                        <p className={`text-[10px] mt-0.5 ${actif ? '' : 'text-muted'}`}>{t('profil.fidelite.remise', { pourcent: config.reduction })}</p>
                         <p className={`text-[10px] ${actif ? '' : 'text-muted'}`}>{config.locations_min}+</p>
                       </div>
                     );
@@ -970,7 +974,7 @@ export default function ClientProfil() {
               </div>
             </div>
           ) : (
-            <p className="text-muted text-sm">Impossible de charger les informations de fidelite.</p>
+            <p className="text-muted text-sm">{t('profil.fidelite.erreur')}</p>
           )}
         </div>
 
@@ -978,10 +982,10 @@ export default function ClientProfil() {
         <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-1 flex items-center gap-2">
             <Users size={18} className="text-primary-light" />
-            Parrainage
+            {t('profil.parrainage.titre')}
           </h2>
           <p className="text-gray-400 text-sm mb-4">
-            Partagez votre code : vous gagnez 50 points par inscription et 100 points quand votre filleul termine sa première location.
+            {t('profil.parrainage.sousTitre')}
           </p>
           {parrainage ? (
             <>
@@ -994,44 +998,47 @@ export default function ClientProfil() {
                   className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
                 >
                   <Copy size={14} />
-                  Copier
+                  {t('profil.parrainage.copier')}
                 </button>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Inscrivez-vous sur FIRAS BKA CAR avec mon code parrain ${parrainage.code_parrainage} : ${window.location.origin}/client/register`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(t('profil.parrainage.messagePartage', {
+                    code: parrainage.code_parrainage,
+                    url: `${window.location.origin}/client/register`,
+                  }))}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
                 >
                   <Link2 size={14} />
-                  Partager
+                  {t('profil.parrainage.partager')}
                 </a>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-xl">{parrainage.nombre_filleuls}</p>
-                  <p className="text-muted text-xs mt-1">Filleul(s)</p>
+                  <p className="text-muted text-xs mt-1">{t('profil.parrainage.filleuls')}</p>
                 </div>
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
                   <p className="text-white font-semibold text-xl">{parrainage.filleuls_recompenses}</p>
-                  <p className="text-muted text-xs mt-1">Première location</p>
+                  <p className="text-muted text-xs mt-1">{t('profil.parrainage.premiereLocation')}</p>
                 </div>
                 <div className="bg-white/[0.03] rounded-xl p-4 text-center">
                   <p className="text-primary-light font-semibold text-xl">{parrainage.points_totaux}</p>
-                  <p className="text-muted text-xs mt-1">Points gagnés</p>
+                  <p className="text-muted text-xs mt-1">{t('profil.parrainage.pointsGagnes')}</p>
                 </div>
               </div>
             </>
           ) : (
-            <p className="text-muted text-sm">Chargement du code de parrainage...</p>
+            <p className="text-muted text-sm">{t('profil.parrainage.chargement')}</p>
           )}
         </div>
 
         {/* Informations personnelles */}
         <form onSubmit={handleUpdate} className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-          <h2 className="text-white font-semibold mb-5">Mes informations</h2>
+          <h2 className="text-white font-semibold mb-5">{t('profil.infos.titre')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="profil-nom" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Nom complet</label>
+              <label htmlFor="profil-nom" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.nomComplet')}</label>
               <input
                 id="profil-nom"
                 type="text"
@@ -1041,7 +1048,7 @@ export default function ClientProfil() {
               />
             </div>
             <div>
-              <label htmlFor="profil-tel" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Téléphone</label>
+              <label htmlFor="profil-tel" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.telephone')}</label>
               <input
                 id="profil-tel"
                 type="tel"
@@ -1051,7 +1058,7 @@ export default function ClientProfil() {
               />
             </div>
             <div>
-              <label htmlFor="profil-email" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Email</label>
+              <label htmlFor="profil-email" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.email')}</label>
               <input
                 id="profil-email"
                 type="email"
@@ -1059,27 +1066,27 @@ export default function ClientProfil() {
                 readOnly
                 className="w-full bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5 text-white/70 text-sm cursor-not-allowed"
               />
-              <p className="text-muted text-xs mt-1">L'email ne peut pas être modifié</p>
+              <p className="text-muted text-xs mt-1">{t('profil.infos.emailNonModifiable')}</p>
             </div>
             <div>
-              <label htmlFor="profil-nationalite" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Nationalité</label>
+              <label htmlFor="profil-nationalite" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.nationalite')}</label>
               <select
                 id="profil-nationalite"
                 value={form.est_etranger ? 'etranger' : 'marocain'}
                 onChange={(e) => setForm({ ...form, est_etranger: e.target.value === 'etranger' })}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
               >
-                <option value="marocain">Marocaine — carte nationale</option>
-                <option value="etranger">Étrangère — passeport</option>
+                <option value="marocain">{t('profil.infos.optionMarocaine')}</option>
+                <option value="etranger">{t('profil.infos.optionEtrangere')}</option>
               </select>
               <p className="text-muted text-xs mt-1">
-                La pièce à téléverser dépend de votre nationalité.
+                {t('profil.infos.pieceDependNationalite')}
               </p>
             </div>
             <div>
               {form.est_etranger ? (
                 <>
-                  <label htmlFor="profil-passeport" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Numéro de passeport</label>
+                  <label htmlFor="profil-passeport" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.numeroPasseport')}</label>
                   <input
                     id="profil-passeport"
                     type="text"
@@ -1088,11 +1095,11 @@ export default function ClientProfil() {
                     placeholder="X1234567"
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626] outline-none transition"
                   />
-                  <p className="text-muted text-xs mt-1">6 à 20 lettres majuscules ou chiffres.</p>
+                  <p className="text-muted text-xs mt-1">{t('profil.infos.passeportAide')}</p>
                 </>
               ) : (
                 <>
-                  <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">CIN</label>
+                  <label htmlFor="profil-cin" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.cin')}</label>
                   <input
                     id="profil-cin"
                     type="text"
@@ -1101,12 +1108,12 @@ export default function ClientProfil() {
                     placeholder="AB123456"
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-placeholder focus:border-[#dc2626] outline-none transition"
                   />
-                  <p className="text-muted text-xs mt-1">Ex : A12345 ou AB123456.</p>
+                  <p className="text-muted text-xs mt-1">{t('profil.infos.cinAide')}</p>
                 </>
               )}
             </div>
             <div>
-              <label htmlFor="profil-permis-exp" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Expiration du permis</label>
+              <label htmlFor="profil-permis-exp" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.expirationPermis')}</label>
               <input
                 id="profil-permis-exp"
                 type="date"
@@ -1114,10 +1121,10 @@ export default function ClientProfil() {
                 onChange={(e) => setForm({ ...form, date_expiration_permis: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-[#dc2626] outline-none transition"
               />
-              <p className="text-muted text-xs mt-1">Nécessaire pour la validation de votre permis.</p>
+              <p className="text-muted text-xs mt-1">{t('profil.infos.expirationAide')}</p>
             </div>
             <div className="md:col-span-2">
-              <label htmlFor="profil-adresse" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">Adresse</label>
+              <label htmlFor="profil-adresse" className="text-gray-400 text-xs mb-1.5 block uppercase tracking-wider">{t('profil.infos.adresse')}</label>
               <input
                 id="profil-adresse"
                 type="text"
@@ -1130,7 +1137,7 @@ export default function ClientProfil() {
 
           <div className="mt-6 flex items-center justify-between">
             <Link to="/" className="text-muted hover:text-white text-sm transition-colors">
-              Retour à l'accueil
+              {t('profil.infos.retourAccueil')}
             </Link>
             <button
               type="submit"
@@ -1140,10 +1147,10 @@ export default function ClientProfil() {
               {saving ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  Enregistrement...
+                  {t('profil.infos.enregistrement')}
                 </>
               ) : (
-                'Enregistrer les modifications'
+                t('profil.infos.enregistrerModifs')
               )}
             </button>
           </div>
@@ -1160,6 +1167,7 @@ export default function ClientProfil() {
  * remboursement est une ecriture compensatrice, jamais un encaissement.
  */
 function HistoriquePaiements({ paiements }) {
+  const { t } = useTranslation();
   if (!paiements?.length) return null;
 
   const tries = [...paiements].sort((a, b) => {
@@ -1172,7 +1180,7 @@ function HistoriquePaiements({ paiements }) {
     <div className="border-t border-white/[0.04] pt-3">
       <p className="text-muted text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
         <ReceiptText size={12} aria-hidden="true" />
-        Détail des écritures
+        {t('profil.ecritures.titre')}
       </p>
       <ul className="space-y-1">
         {tries.map((p) => {
@@ -1187,9 +1195,9 @@ function HistoriquePaiements({ paiements }) {
                 {p.date_paiement ? formatDateTime(p.date_paiement) : '—'}
               </span>
               <span className={`flex-1 min-w-0 truncate ${estRemboursement ? 'text-blue-300' : 'text-white/80'}`}>
-                {estRemboursement ? 'Remboursement' : 'Encaissement'}
+                {estRemboursement ? t('profil.ecritures.remboursement') : t('profil.ecritures.encaissement')}
                 {p.transaction_id && (
-                  <span className="text-muted font-mono text-[10px] ml-2">{p.transaction_id}</span>
+                  <span className="text-muted font-mono text-[10px] ms-2">{p.transaction_id}</span>
                 )}
               </span>
               <span className={`shrink-0 font-medium ${signe < 0 ? 'text-blue-400' : 'text-white'}`}>

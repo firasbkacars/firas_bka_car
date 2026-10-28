@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Phone, MessageCircle, Wallet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft, CheckCircle2, Phone, MessageCircle, Wallet } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '../components/Skeleton';
-import { formatMAD } from '../lib/formatters';
+import { formatMAD, formatDate } from '../lib/formatters';
 
 export default function Confirmation() {
   const { state } = useLocation();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
   const { token } = useAuth();
 
   const [reservation, setReservation] = useState(state?.reservation ?? null);
@@ -26,7 +28,9 @@ export default function Confirmation() {
 
     if (!numero || !token) {
       setLoading(false);
-      setError(numero ? 'Connectez-vous pour consulter cette réservation.' : 'Aucune réservation trouvée.');
+      setError(numero
+        ? t('confirmation.erreurs.connectezVous')
+        : t('confirmation.erreurs.aucuneReservation'));
       return;
     }
 
@@ -39,7 +43,7 @@ export default function Confirmation() {
         setReservation(data);
         setVehicule(data.vehicule ?? null);
       } catch {
-        if (!cancelled) setError('Réservation introuvable.');
+        if (!cancelled) setError(t('confirmation.erreurs.introuvable'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -48,7 +52,7 @@ export default function Confirmation() {
     return () => {
       cancelled = true;
     };
-  }, [state, numero, token]);
+  }, [state, numero, token, t]);
 
   if (loading) {
     return (
@@ -75,10 +79,10 @@ export default function Confirmation() {
   if (!reservation) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-24 pb-20 text-center">
-        <p className="text-gray-400 mb-4">{error || 'Aucune réservation trouvée.'}</p>
+        <p className="text-gray-400 mb-4">{error || t('confirmation.erreurs.aucuneReservation')}</p>
         <div className="flex items-center justify-center gap-4 text-sm">
-          <Link to="/" className="text-primary-light hover:underline">Retour à l'accueil</Link>
-          <Link to="/vehicules" className="text-primary-light hover:underline">Voir les véhicules</Link>
+          <Link to="/" className="text-primary-light hover:underline">{t('confirmation.retourAccueil')}</Link>
+          <Link to="/vehicules" className="text-primary-light hover:underline">{t('confirmation.voirVehicules')}</Link>
         </div>
       </div>
     );
@@ -106,39 +110,39 @@ export default function Confirmation() {
         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 size={40} className="text-green-500" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Réservation confirmée !</h1>
-        <p className="text-gray-400">Merci pour votre confiance. Votre réservation a été effectuée avec succès.</p>
+        <h1 className="text-3xl font-bold text-white mb-2">{t('confirmation.titre')}</h1>
+        <p className="text-gray-400">{t('confirmation.sousTitre')}</p>
       </div>
 
       {/* Reservation Number */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 text-center mb-6">
-        <p className="text-gray-400 text-sm mb-2">Numéro de réservation</p>
+        <p className="text-gray-400 text-sm mb-2">{t('confirmation.numero.titre')}</p>
         <p className="text-primary-light font-bold text-3xl tracking-wider">{reservation.numero}</p>
-        <p className="text-muted text-xs mt-2">Conservez ce numéro pour toute référence future.</p>
+        <p className="text-muted text-xs mt-2">{t('confirmation.numero.note')}</p>
       </div>
 
       {/* Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
-          <h3 className="text-white font-semibold mb-3">Détails de la location</h3>
+          <h3 className="text-white font-semibold mb-3">{t('confirmation.details.titre')}</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-gray-400">
-              <span>Prise en charge</span>
-              <span className="text-white">{reservation.date_debut ? new Date(reservation.date_debut).toLocaleDateString('fr-FR') : '-'} à {reservation.date_debut ? new Date(reservation.date_debut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+              <span>{t('confirmation.details.priseEnCharge')}</span>
+              <span className="text-end text-white">{formatDate(reservation.date_debut, { withTime: true })}</span>
             </div>
             <div className="flex justify-between text-gray-400">
-              <span>Retour</span>
-              <span className="text-white">{reservation.date_fin ? new Date(reservation.date_fin).toLocaleDateString('fr-FR') : '-'} à {reservation.date_fin ? new Date(reservation.date_fin).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+              <span>{t('confirmation.details.retour')}</span>
+              <span className="text-end text-white">{formatDate(reservation.date_fin, { withTime: true })}</span>
             </div>
             <div className="flex justify-between text-gray-400">
-              <span>Lieu</span>
-              <span className="text-white">{reservation.lieu_prise}</span>
+              <span>{t('confirmation.details.lieu')}</span>
+              <span className="text-end text-white">{reservation.lieu_prise}</span>
             </div>
           </div>
         </div>
 
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
-          <h3 className="text-white font-semibold mb-3">Véhicule</h3>
+          <h3 className="text-white font-semibold mb-3">{t('confirmation.vehicule.titre')}</h3>
           {vehicule && (
             <div className="flex items-center gap-3">
               <img
@@ -158,24 +162,27 @@ export default function Confirmation() {
 
       {/* Payment */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 mb-6">
-        <h3 className="text-white font-semibold mb-3">Paiement</h3>
+        <h3 className="text-white font-semibold mb-3">{t('confirmation.paiement.titre')}</h3>
         <div className="flex justify-between items-center">
-          <span className="text-gray-400">Total de la location</span>
+          <span className="text-gray-400">{t('confirmation.paiement.total')}</span>
           <span className="text-primary-light font-bold text-2xl">{formatMAD(reservation.prix_total)}</span>
         </div>
         {acompteTotal > 0 && (
           <div className="flex justify-between items-center mt-2">
-            <span className="text-gray-400">Acompte</span>
+            <span className="text-gray-400">{t('confirmation.paiement.acompte')}</span>
             <span className={acompteRestant > 0.009 ? 'text-amber-400 font-semibold' : 'text-green-500 font-semibold'}>
               {acompteRestant > 0.009
-                ? `${formatMAD(acomptePaye)} réglé sur ${formatMAD(acompteTotal)}`
-                : `${formatMAD(acompteTotal)} validé`}
+                ? t('confirmation.paiement.regleSur', {
+                    paye: formatMAD(acomptePaye),
+                    total: formatMAD(acompteTotal),
+                  })
+                : t('confirmation.paiement.valide', { total: formatMAD(acompteTotal) })}
             </span>
           </div>
         )}
         <div className="flex justify-between items-center mt-2">
-          <span className="text-gray-400">Statut</span>
-          <span className="bg-green-500/20 text-green-500 px-3 py-1 rounded-full text-sm font-medium">Confirmée</span>
+          <span className="text-gray-400">{t('confirmation.paiement.statut')}</span>
+          <span className="bg-green-500/20 text-green-500 px-3 py-1 rounded-full text-sm font-medium">{t('confirmation.paiement.confirmee')}</span>
         </div>
       </div>
 
@@ -186,17 +193,15 @@ export default function Confirmation() {
               <Wallet size={20} className="text-primary-light" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-white font-semibold">Réglez votre acompte</h3>
+              <h3 className="text-white font-semibold">{t('confirmation.acompte.titre')}</h3>
               <p className="mt-1 text-sm leading-relaxed text-gray-400">
-                Réglez votre acompte de {formatMAD(acompteRestant)} selon le moyen proposé
-                sur la page de paiement, puis envoyez votre justificatif. L'agence validera
-                le paiement.
+                {t('confirmation.acompte.description', { montant: formatMAD(acompteRestant) })}
               </p>
               <Link
                 to={`/paiement/acompte/${encodeURIComponent(reservation.numero)}`}
                 className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
               >
-                Payer l'acompte
+                {t('confirmation.acompte.payer')}
               </Link>
             </div>
           </div>
@@ -205,8 +210,8 @@ export default function Confirmation() {
 
       {/* Help */}
       <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 text-center">
-        <h3 className="text-white font-semibold mb-3">Besoin d'aide ?</h3>
-        <p className="text-gray-400 text-sm mb-4">Notre équipe est à votre disposition pour toute question.</p>
+        <h3 className="text-white font-semibold mb-3">{t('confirmation.aide.titre')}</h3>
+        <p className="text-gray-400 text-sm mb-4">{t('confirmation.aide.texte')}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a href="tel:+212774623448" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
             <Phone size={14} /> +212 774 623 448
@@ -217,13 +222,16 @@ export default function Confirmation() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
           >
-            <MessageCircle size={14} /> Discuter sur WhatsApp
+            <MessageCircle size={14} /> {t('confirmation.aide.whatsapp')}
           </a>
         </div>
       </div>
 
       <div className="text-center mt-8">
-        <Link to="/" className="text-primary-light hover:underline">← Retour à l'accueil</Link>
+        <Link to="/" className="inline-flex items-center gap-1.5 text-primary-light hover:underline">
+          <ArrowLeft size={14} aria-hidden="true" className="rtl:rotate-180" />
+          {t('confirmation.retourAccueil')}
+        </Link>
       </div>
     </div>
   );
