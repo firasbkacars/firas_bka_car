@@ -279,7 +279,9 @@ export default function Finalisation() {
       });
       reservation = data;
     } catch (err) {
-      const message = err.response?.data?.message || t('reservation.erreurs.reservationEchouee');
+      const message = err.response?.status === 429
+        ? t('reservation.erreurs.tropDeTentatives')
+        : err.response?.data?.message || t('reservation.erreurs.reservationEchouee');
       setSubmitError(message);
       setDocumentManquant(err.response?.data?.document_manquant || null);
       toast.error(message);

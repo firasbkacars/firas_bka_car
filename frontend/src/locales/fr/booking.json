@@ -18,6 +18,7 @@
       "codePromoInvalide": "Code promo invalide",
       "codePromoRetire": "Code promo retiré : le total a changé. Réappliquez-le.",
       "reservationEchouee": "Erreur lors de la réservation. Veuillez réessayer.",
+      "tropDeTentatives": "Trop de tentatives. Patientez une minute avant de réessayer.",
       "paiementInitImpossible": "Initialisation du paiement impossible.",
       "reservationCreeePaiementProfil": "{{message}} Votre réservation a bien été créée : vous pourrez payer depuis votre profil.",
       "reservationCreee": "{{message}} Votre réservation a été créée.",

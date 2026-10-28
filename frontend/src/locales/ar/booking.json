@@ -18,6 +18,7 @@
       "codePromoInvalide": "رمز الخصم غير صالح",
       "codePromoRetire": "تمت إزالة رمز الخصم: تغيّر المجموع. أعد تطبيقه.",
       "reservationEchouee": "حدث خطأ أثناء إنشاء الحجز. يرجى المحاولة مرة أخرى.",
+      "tropDeTentatives": "محاولات كثيرة جدًا. انتظر دقيقة ثم أعد المحاولة.",
       "paiementInitImpossible": "تعذّر بدء عملية الدفع.",
       "reservationCreeePaiementProfil": "{{message}} تم إنشاء حجزك بنجاح: يمكنك الدفع من ملفك الشخصي.",
       "reservationCreee": "{{message}} تم إنشاء حجزك.",

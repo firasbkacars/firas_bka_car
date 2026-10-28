@@ -96,21 +96,21 @@ function ToastViewport({ toasts, onDismiss }) {
       aria-live="polite"
       aria-atomic="false"
     >
-      {toasts.map((t) => {
-        const { Icon, className } = VARIANTS[t.type] || VARIANTS.info;
-        const assertive = t.type === 'error';
+      {toasts.map((toast) => {
+        const { Icon, className } = VARIANTS[toast.type] || VARIANTS.info;
+        const assertive = toast.type === 'error';
         return (
           <div
-            key={t.id}
+            key={toast.id}
             role={assertive ? 'alert' : 'status'}
             aria-live={assertive ? 'assertive' : 'polite'}
-            className={`pointer-events-auto flex items-start gap-2.5 px-4 py-3 rounded-xl border shadow-lg backdrop-blur-sm text-sm font-medium toast-in ${t.leaving ? 'toast-out' : ''} ${className}`}
+            className={`pointer-events-auto flex items-start gap-2.5 px-4 py-3 rounded-xl border shadow-lg backdrop-blur-sm text-sm font-medium toast-in ${toast.leaving ? 'toast-out' : ''} ${className}`}
           >
-            <Icon size={16} className={`shrink-0 mt-0.5 ${t.type === 'loading' ? 'animate-spin' : ''}`} aria-hidden="true" />
-            <span className="flex-1 leading-snug">{t.message}</span>
+            <Icon size={16} className={`shrink-0 mt-0.5 ${toast.type === 'loading' ? 'animate-spin' : ''}`} aria-hidden="true" />
+            <span className="flex-1 leading-snug">{toast.message}</span>
             <button
               type="button"
-              onClick={() => onDismiss(t.id)}
+              onClick={() => onDismiss(toast.id)}
               className="shrink-0 -me-1 -mt-0.5 p-0.5 rounded opacity-60 hover:opacity-100 transition-opacity"
               aria-label={t('toast.fermer')}
             >

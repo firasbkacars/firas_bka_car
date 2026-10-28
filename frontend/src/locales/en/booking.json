@@ -18,6 +18,7 @@
       "codePromoInvalide": "Invalid promo code",
       "codePromoRetire": "Promo code removed: the total has changed. Apply it again.",
       "reservationEchouee": "Something went wrong while creating your booking. Please try again.",
+      "tropDeTentatives": "Too many attempts. Please wait a minute and try again.",
       "paiementInitImpossible": "Unable to start the payment.",
       "reservationCreeePaiementProfil": "{{message}} Your booking has been created: you can pay from your profile.",
       "reservationCreee": "{{message}} Your booking has been created.",
