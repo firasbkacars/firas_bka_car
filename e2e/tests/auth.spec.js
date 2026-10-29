@@ -69,6 +69,15 @@ test.describe('inscription client', () => {
   });
 });
 
+test('le visuel auth reste visible dans la fenêtre sur login et register', async ({ page }) => {
+  for (const path of ['/client/login', '/client/register']) {
+    await page.goto(path);
+    await expect(
+      page.getByText('Location de véhicules premium à Tanger. Réservez en quelques clics.'),
+    ).toBeInViewport();
+  }
+});
+
 test('connexion du client seed', async ({ page }) => {
   await page.goto('/client/login');
   await page.fill('#login-email', 'mohammed@gmail.com');

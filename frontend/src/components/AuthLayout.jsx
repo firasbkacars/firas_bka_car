@@ -7,24 +7,28 @@ export default function AuthLayout({ children, title, subtitle, image }) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#0a0a0a]">
       {image && (
-        <div className="hidden md:block w-1/2 relative">
-          <img
-            src={image}
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute bottom-8 start-8 z-10">
-            <Link to="/">
-              <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-10" />
-            </Link>
-            <p className="text-white/80 text-sm mt-2 max-w-xs leading-relaxed">
-              {t('authLayout.tagline')}
-            </p>
+        <div className="relative hidden w-1/2 md:block">
+          <div className="sticky top-0 h-screen p-4 lg:p-6">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 lg:rounded-3xl">
+              <img
+                src={image}
+                alt=""
+                aria-hidden="true"
+                loading="eager"
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+              <div className="absolute inset-x-0 bottom-0 z-10 p-6 lg:p-8">
+                <Link to="/" className="inline-block">
+                  <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-10" />
+                </Link>
+                <p className="text-white/80 text-sm mt-3 max-w-xs leading-relaxed">
+                  {t('authLayout.tagline')}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
