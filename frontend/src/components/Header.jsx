@@ -104,7 +104,10 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="shrink-0">
-            <img src="/images/logo.png" alt="FIRAS BKA CAR" className="h-11" />
+            <picture>
+              <source srcSet="/images/logo.webp" type="image/webp" />
+              <img src="/images/logo.png" alt="FIRAS BKA CAR" width="264" height="88" decoding="async" className="h-11 w-auto" />
+            </picture>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">

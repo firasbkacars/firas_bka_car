@@ -1,8 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Check } from 'lucide-react';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 
 export default function APropos() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.apropos.titre'),
+    description: t('seo.apropos.description'),
+    canonical: canonicalFor('/a-propos'),
+  });
   const engagements = t('apropos.engagements.items', { returnObjects: true });
   const faq = t('apropos.faq.items', { returnObjects: true });
 

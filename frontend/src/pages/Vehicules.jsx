@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatDate, formatMAD, formatNumber } from '../lib/formatters';
 import { carburantLabel, categorieLabel } from '../lib/vehiculeLabels';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 import {
   AlertTriangle, ArrowUpDown, Calendar, Check, ChevronDown, ChevronRight,
   Fuel, GitCompareArrows, Headphones, MapPin, RefreshCw, Search, Settings2,
@@ -445,6 +447,11 @@ function FiltersContent({ idPrefix, filters, agences, onChange }) {
 
 export default function Vehicules() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.vehicules.titre'),
+    description: t('seo.vehicules.description'),
+    canonical: canonicalFor('/vehicules'),
+  });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [vehicules, setVehicules] = useState([]);

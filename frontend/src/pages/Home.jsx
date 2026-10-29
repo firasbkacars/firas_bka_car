@@ -7,6 +7,8 @@ import { Skeleton } from '../components/Skeleton';
 import FavoriButton from '../components/FavoriButton';
 import { formatNumber } from '../lib/formatters';
 import { carburantLabel } from '../lib/vehiculeLabels';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
@@ -92,6 +94,11 @@ function VehicleCardSkeleton() {
 
 export default function Home() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.home.titre'),
+    description: t('seo.home.description'),
+    canonical: canonicalFor('/'),
+  });
   const navigate = useNavigate();
   const [vehiculesPopulaires, setVehiculesPopulaires] = useState([]);
   const [populairesLoading, setPopulairesLoading] = useState(true);
@@ -127,12 +134,19 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative flex min-h-[90dvh] items-end overflow-hidden">
-        <img
-          src="/images/hero-bg.jpg"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          onError={(e) => { e.target.style.display = 'none'; }}
-        />
+        <picture>
+          <source srcSet="/images/hero-bg.webp" type="image/webp" />
+          <img
+            src="/images/hero-bg.jpg"
+            alt=""
+            width="1600"
+            height="854"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/70 to-dark-bg/30" aria-hidden="true" />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:px-8">
@@ -141,9 +155,9 @@ export default function Home() {
               {t('home.hero.badge')}
             </span>
             <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
-              {t('home.hero.titreLigne1')}
+              {t('home.hero.titreLigne1')}{' '}
               <br />
-              <span className="text-primary-light">{t('home.hero.titreAccent')}</span>
+              <span className="text-primary-light">{t('home.hero.titreAccent')}</span>{' '}
               <br />
               {t('home.hero.titreLigne2')}
             </h1>

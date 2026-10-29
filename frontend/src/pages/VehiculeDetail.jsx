@@ -5,6 +5,8 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatDuration, formatMAD, formatNumber } from '../lib/formatters';
 import { carburantLabel, equipementLabel } from '../lib/vehiculeLabels';
+import { useSeo } from '../lib/useSeo';
+import { absoluteUrl, canonicalFor } from '../lib/seo';
 import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
 
@@ -99,7 +101,7 @@ function DatePicker({ label, id, value, onChange }) {
             <button onClick={() => setViewDate(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisPrecedent')}>
               {IC.chevronL('h-4 w-4 rtl:rotate-180')}
             </button>
-            <span className="text-sm font-medium text-white">{monthNames[month]} {formatNumber(year, { decimals: 0 })}</span>
+            <span className="text-sm font-medium text-white">{monthNames[month]} {year}</span>
             <button onClick={() => setViewDate(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisSuivant')}>
               {IC.chevronR('h-4 w-4 rtl:rotate-180')}
             </button>
@@ -171,7 +173,7 @@ function MiniCalendar({ bookedDates = [] }) {
         <button onClick={() => setView(new Date(year, month - 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisPrecedent')}>
           {IC.chevronL('h-4 w-4 rtl:rotate-180')}
         </button>
-        <span className="text-sm font-medium text-white">{monthNames[month]} {formatNumber(year, { decimals: 0 })}</span>
+        <span className="text-sm font-medium text-white">{monthNames[month]} {year}</span>
         <button onClick={() => setView(new Date(year, month + 1))} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label={t('vehicule.calendrier.moisSuivant')}>
           {IC.chevronR('h-4 w-4 rtl:rotate-180')}
         </button>
@@ -293,6 +295,33 @@ export default function VehiculeDetail() {
     ? vehicule.photos.map(p => p && !p.startsWith('http') && !p.startsWith('/') ? `/storage/${p}` : p)
     : [FALLBACK_IMG];
   const hasDates = dates.dateDebut && dates.dateFin;
+
+  const nomVehicule = vehicule ? `${vehicule.marque} ${vehicule.modele}` : '';
+  useSeo({
+    title: vehicule
+      ? t('seo.vehicule.titre', { nom: nomVehicule, prix: formatNumber(vehicule.prix_jour) })
+      : (loading ? null : t('seo.notFound.titre')),
+    description: vehicule
+      ? [
+          t('seo.vehicule.description', {
+            nom: nomVehicule,
+            annee: vehicule.annee,
+            carburant: carburantLabel(vehicule.carburant, t),
+            transmission: vehicule.transmission === 'automatique'
+              ? t('vehicules.filtres.automatique')
+              : t('vehicules.filtres.manuelle'),
+            places: vehicule.places,
+            prix: formatNumber(vehicule.prix_jour),
+          }),
+          Number(vehicule.montant_caution) > 0
+            ? t('seo.vehicule.caution', { caution: formatNumber(vehicule.montant_caution) })
+            : '',
+        ].filter(Boolean).join(' ')
+      : (loading ? undefined : t('seo.notFound.description')),
+    canonical: vehicule ? canonicalFor(`/vehicules/${vehicule.id}`) : null,
+    robots: vehicule ? 'index, follow' : 'noindex, nofollow',
+    image: vehicule ? (vehicule.photos?.[0] ? absoluteUrl(images[0]) : undefined) : null,
+  });
 
   const { duree, total } = useMemo(() => {
     if (!hasDates || !vehicule) return { duree: null, total: null };

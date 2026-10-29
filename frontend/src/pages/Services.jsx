@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Car, CalendarRange, Plane, Wrench, Baby, Smartphone } from 'lucide-react';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 
 const services = [
   { icon: Car, key: 'courteDuree' },
@@ -12,6 +14,11 @@ const services = [
 
 export default function Services() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.services.titre'),
+    description: t('seo.services.description'),
+    canonical: canonicalFor('/services'),
+  });
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-24 pb-16">

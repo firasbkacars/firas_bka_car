@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck, Loader2 } from 'lucide-react';
 import api from '../services/api';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 
 const AGENCE_GPS = { lat: 35.7650625, lng: -5.8305469 };
 const GOOGLE_MAPS_EMBED = `https://www.google.com/maps?q=${AGENCE_GPS.lat},${AGENCE_GPS.lng}&z=17&output=embed`;
@@ -43,6 +45,11 @@ function InfoCard({ icon: Icon, title, children }) {
 
 export default function Contact() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.contact.titre'),
+    description: t('seo.contact.description'),
+    canonical: canonicalFor('/contact'),
+  });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');

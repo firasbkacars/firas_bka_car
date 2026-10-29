@@ -1,9 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft } from 'lucide-react';
+import { useSeo } from '../lib/useSeo';
 
 export default function NotFound() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.notFound.titre'),
+    description: t('seo.notFound.description'),
+    canonical: null,
+    robots: 'noindex, nofollow',
+    image: null,
+  });
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 pt-24 pb-16">

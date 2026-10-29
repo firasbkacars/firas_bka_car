@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://firasbkacar.com/sitemap.xml

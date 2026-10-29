@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatMAD, formatNumber } from '../lib/formatters';
 import { carburantLabel, categorieLabel, equipementLabel } from '../lib/vehiculeLabels';
+import { useSeo } from '../lib/useSeo';
+import { canonicalFor } from '../lib/seo';
 import PageHeader from '../components/PageHeader';
 import { Check, ArrowLeft, SlidersHorizontal, Plus } from 'lucide-react';
 
@@ -33,6 +35,12 @@ const FILTRES_VIDES = {
 
 export default function Compare() {
   const { t } = useTranslation();
+  useSeo({
+    title: t('seo.compare.titre'),
+    description: t('seo.compare.description'),
+    canonical: canonicalFor('/vehicules/compare'),
+    robots: 'noindex, follow',
+  });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [vehicules, setVehicules] = useState([]);

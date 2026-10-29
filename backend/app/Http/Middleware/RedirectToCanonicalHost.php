@@ -7,11 +7,12 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Redirige le sous-domaine www vers le domaine canonique.
+ * Redirige les hôtes secondaires vers le domaine canonique.
  *
  * Les jetons d'authentification vivent dans localStorage : deux origines
- * (www et apex) impliquent donc deux sessions distinctes. On garde une seule
- * origine pour eviter une deconnexion apparente d'une page a l'autre.
+ * (www, fly.dev, apex) impliquent donc deux sessions distinctes. On garde une
+ * seule origine pour éviter une déconnexion apparente d'une page à l'autre et
+ * pour éviter le contenu dupliqué dans les moteurs de recherche.
  */
 class RedirectToCanonicalHost
 {
@@ -20,9 +21,16 @@ class RedirectToCanonicalHost
         $canonical = config('app.canonical_host');
         $host = $request->getHost();
 
+        if (! is_string($canonical) || $canonical === '' || $host === $canonical) {
+            return $next($request);
+        }
+
+        $isWww = $host === 'www.'.$canonical;
+        $isPlatformHost = str_ends_with($host, '.fly.dev')
+            || str_ends_with($host, '.onrender.com');
+
         if (
-            is_string($canonical) && $canonical !== ''
-            && $host === 'www.'.$canonical
+            ($isWww || $isPlatformHost)
             && in_array($request->method(), ['GET', 'HEAD'], true)
         ) {
             return redirect()->away('https://'.$canonical.$request->getRequestUri(), 301);

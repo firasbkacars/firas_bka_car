@@ -1,6 +1,7 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { applySeo, isPrivatePath, ogLocale } from './lib/seo'
 import { AuthProvider } from './context/AuthContext'
 import { FavorisProvider } from './context/FavorisContext'
 import ScrollToTop from './components/ScrollToTop'
@@ -43,22 +44,40 @@ import ClientMessagerie from './pages/client/Messagerie'
 import AdminLayout from './components/admin/AdminLayout'
 import NotFound from './pages/NotFound'
 
-function App() {
+/**
+ * Les pages publiques posent elles-mêmes leurs métadonnées. Ce garde-fou
+ * couvre les routes privées (admin, client, réservation, paiement), qui
+ * n'ont pas de composant SEO et ne doivent jamais être indexées.
+ */
+function PrivateSeoGuard() {
+  const { pathname } = useLocation()
   const { t, i18n } = useTranslation()
 
-  // Titre et description suivent la langue active (SEO / partage).
   useEffect(() => {
-    document.title = t('meta.titre')
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute('content', t('meta.description'))
-  }, [t, i18n.language])
+    if (!isPrivatePath(pathname)) return
+
+    applySeo({
+      title: t('seo.private.titre'),
+      description: t('seo.private.description'),
+      canonical: null,
+      robots: 'noindex, nofollow',
+      image: null,
+      locale: ogLocale(i18n.language),
+    })
+  }, [pathname, t, i18n.language])
+
+  return null
+}
+
+function App() {
+  const { t } = useTranslation()
 
   return (
     <AuthProvider>
       <FavorisProvider>
         <a href="#main-content" className="skip-link">{t('header.allerContenu')}</a>
         <ScrollToTop />
+        <PrivateSeoGuard />
         <main id="main-content" tabIndex={-1}>
           <Routes>
           <Route path="/" element={<><Header /><Home /><Footer /></>} />

@@ -1,0 +1,41 @@
+{
+  "seo": {
+    "home": {
+      "titre": "Car rental in Tangier — FIRAS BKA CAR",
+      "description": "Rent a car in Tangier from 280 MAD/day. 8 recent vehicles, transparent prices. Book online."
+    },
+    "vehicules": {
+      "titre": "Our rental vehicles in Tangier — FIRAS BKA CAR",
+      "description": "Discover our car rental fleet in Tangier: city cars, SUVs and sedans. Prices, deposit and availability online."
+    },
+    "services": {
+      "titre": "Car rental services in Tangier — FIRAS BKA CAR",
+      "description": "Short and long-term rental, airport transfer, replacement vehicle, baby seats and online booking in Tangier."
+    },
+    "apropos": {
+      "titre": "About FIRAS BKA CAR — Rental agency in Tangier",
+      "description": "Car rental agency in Branes 1, Tangier. Our story, our commitments and answers to frequently asked questions."
+    },
+    "contact": {
+      "titre": "Contact — FIRAS BKA CAR Tangier",
+      "description": "Phone, WhatsApp, address and contact form. The FIRAS BKA CAR team replies within 24 hours."
+    },
+    "compare": {
+      "titre": "Vehicle comparison — FIRAS BKA CAR",
+      "description": "Compare rental vehicles in Tangier: price, deposit, transmission, fuel and equipment."
+    },
+    "vehicule": {
+      "titre": "Rent a {{nom}} in Tangier — {{prix}} MAD/day",
+      "description": "{{nom}} {{annee}} for rent in Tangier: {{carburant}}, {{transmission}}, {{places}} seats. {{prix}} MAD/day.",
+      "caution": "Deposit {{caution}} MAD."
+    },
+    "notFound": {
+      "titre": "Page not found — FIRAS BKA CAR",
+      "description": "The page you are looking for does not exist or has been moved."
+    },
+    "private": {
+      "titre": "Private area — FIRAS BKA CAR",
+      "description": "Area reserved for customers and administration."
+    }
+  }
+}

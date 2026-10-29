@@ -1,0 +1,41 @@
+{
+  "seo": {
+    "home": {
+      "titre": "Location de voiture à Tanger — FIRAS BKA CAR",
+      "description": "Louez une voiture à Tanger dès 280 MAD/jour. 8 véhicules récents, prix transparents. Réservez en ligne."
+    },
+    "vehicules": {
+      "titre": "Nos véhicules de location à Tanger — FIRAS BKA CAR",
+      "description": "Découvrez notre flotte de voitures de location à Tanger : citadines, SUV et berlines. Prix, caution et disponibilité en ligne."
+    },
+    "services": {
+      "titre": "Services de location de voiture à Tanger — FIRAS BKA CAR",
+      "description": "Location courte et longue durée, transfert aéroport, véhicule de remplacement, sièges bébé et réservation en ligne à Tanger."
+    },
+    "apropos": {
+      "titre": "À propos de FIRAS BKA CAR — Agence de location à Tanger",
+      "description": "Agence de location de voitures à Branes 1, Tanger. Notre histoire, nos engagements et les réponses aux questions fréquentes."
+    },
+    "contact": {
+      "titre": "Contact — FIRAS BKA CAR Tanger",
+      "description": "Téléphone, WhatsApp, adresse et formulaire de contact. L'équipe FIRAS BKA CAR vous répond sous 24 heures."
+    },
+    "compare": {
+      "titre": "Comparateur de véhicules — FIRAS BKA CAR",
+      "description": "Comparez les véhicules de location à Tanger : prix, caution, transmission, carburant et équipements."
+    },
+    "vehicule": {
+      "titre": "Location {{nom}} à Tanger — {{prix}} MAD/jour",
+      "description": "{{nom}} {{annee}} à louer à Tanger : {{carburant}}, {{transmission}}, {{places}} places. {{prix}} MAD/jour.",
+      "caution": "Caution {{caution}} MAD."
+    },
+    "notFound": {
+      "titre": "Page introuvable — FIRAS BKA CAR",
+      "description": "La page que vous recherchez n'existe pas ou a été déplacée."
+    },
+    "private": {
+      "titre": "Espace privé — FIRAS BKA CAR",
+      "description": "Espace réservé aux clients et à l'administration."
+    }
+  }
+}
