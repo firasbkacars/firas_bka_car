@@ -88,7 +88,7 @@ class PermisValidation extends Mailable implements ShouldQueue
                 </div>
                 <div class='footer'>
                     <p>FIRAS BKA CAR - Location de vehicules</p>
-                    <p>Tel: +212 774 623 448</p>
+                    <p>Tel: +212 603 477 786</p>
                 </div>
             </div>
         </body>

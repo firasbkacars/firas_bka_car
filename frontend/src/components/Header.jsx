@@ -204,11 +204,11 @@ export default function Header() {
             <div className="h-6 w-px bg-line" />
 
             <a
-              href="tel:+212774623448"
+              href="tel:+212603477786"
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/20"
             >
               <Phone size={16} aria-hidden="true" />
-              +212 774 623 448
+              +212 603 477 786
             </a>
           </div>
 
@@ -302,9 +302,9 @@ export default function Header() {
                   {t('nav.connexion')}
                 </Link>
               )}
-              <a href="tel:+212774623448" className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">
+              <a href="tel:+212603477786" className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">
                 <Phone size={16} aria-hidden="true" />
-                +212 774 623 448
+                +212 603 477 786
               </a>
             </div>
           </div>

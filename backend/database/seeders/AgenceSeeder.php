@@ -13,7 +13,7 @@ class AgenceSeeder extends Seeder
             'nom' => 'FIRAS BKA CAR Tanger',
             'adresse' => 'Lot 583N, Rue 50, Branes 1, Tanger 90060',
             'ville' => 'Tanger',
-            'telephone' => '+212 522 00 00 00',
+            'telephone' => '+212 603 477 786',
             'email' => 'firasbkacars@gmail.com',
             'active' => true,
         ]);

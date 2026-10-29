@@ -213,11 +213,11 @@ export default function Confirmation() {
         <h3 className="text-white font-semibold mb-3">{t('confirmation.aide.titre')}</h3>
         <p className="text-gray-400 text-sm mb-4">{t('confirmation.aide.texte')}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="tel:+212774623448" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
-            <Phone size={14} /> +212 774 623 448
+          <a href="tel:+212603477786" className="flex items-center gap-2 bg-[#2a2a2a] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#333] transition">
+            <Phone size={14} /> +212 603 477 786
           </a>
           <a
-            href="https://wa.me/212774623448"
+            href="https://wa.me/212603477786"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"

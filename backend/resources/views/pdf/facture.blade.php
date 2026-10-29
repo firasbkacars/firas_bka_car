@@ -42,7 +42,7 @@
                 <h1>FIRAS BKA CAR</h1>
                 <p>Location de véhicules</p>
                 <p>Lot 583N, Rue 50, Branes 1, Tanger 90060</p>
-                <p>Tel: +212 774 623 448</p>
+                <p>Tel: +212 603 477 786</p>
             </div>
             <div class="invoice-title">
                 <h2>FACTURE</h2>
@@ -217,7 +217,7 @@
 
         <div class="footer">
             <p>Merci pour votre confiance - FIRAS BKA CAR</p>
-            <p>Lot 583N, Rue 50, Branes 1, Tanger 90060 | Tel: +212 774 623 448</p>
+            <p>Lot 583N, Rue 50, Branes 1, Tanger 90060 | Tel: +212 603 477 786</p>
         </div>
     </div>
 </body>

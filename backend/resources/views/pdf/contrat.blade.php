@@ -156,7 +156,7 @@
                 <div class="brand-name">FIRAS BKA CAR</div>
                 <div class="company-line">Location de vehicules</div>
                 <div class="company-line">Lot 583N, Rue 50, Branes 1, Tanger 90060</div>
-                <div class="company-line">Tel : +212 774 623 448 - firasbkacars@gmail.com</div>
+                <div class="company-line">Tel : +212 603 477 786 - firasbkacars@gmail.com</div>
             </td>
             <td class="doc-title" style="width: 45%;">
                 <h1>CONTRAT DE LOCATION</h1>
@@ -183,7 +183,7 @@
                         @if ($mentionsLegales !== '')
                             <p>{{ $mentionsLegales }}</p>
                         @endif
-                        <p>Tel : +212 774 623 448</p>
+                        <p>Tel : +212 603 477 786</p>
                         @if ($agence)
                             <p class="muted">Agence de depart : {{ $agence->nom }} - {{ $agence->adresse }}, {{ $agence->ville }}</p>
                         @endif
@@ -379,7 +379,7 @@
 
     <div class="footer">
         Contrat N° {{ $numeroContrat }} - Reservation N° {{ $reservation->numero }} - FIRAS BKA CAR
-        - Lot 583N, Rue 50, Branes 1, Tanger 90060 - Tel : +212 774 623 448
+        - Lot 583N, Rue 50, Branes 1, Tanger 90060 - Tel : +212 603 477 786
     </div>
 </body>
 </html>

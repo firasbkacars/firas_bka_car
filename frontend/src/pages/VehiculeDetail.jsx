@@ -736,7 +736,7 @@ export default function VehiculeDetail() {
                 )}
 
                 <a
-                  href={`https://wa.me/212774623448?text=${t('vehicule.whatsappMessage', { vehicule: `${vehicule.marque} ${vehicule.modele}` })}`}
+                  href={`https://wa.me/212603477786?text=${t('vehicule.whatsappMessage', { vehicule: `${vehicule.marque} ${vehicule.modele}` })}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-success/30 bg-success/10 px-5 text-sm font-semibold text-success transition-colors hover:bg-success/15"

@@ -108,7 +108,7 @@ export default function Contact() {
                   <p>{t('contact.coordonnees.adresseValeur')}</p>
                 </InfoCard>
                 <InfoCard icon={Phone} title={t('contact.coordonnees.telephone')}>
-                  <p>+212 774 623 448</p>
+                  <p>+212 603 477 786</p>
                 </InfoCard>
                 <InfoCard icon={Clock} title={t('contact.coordonnees.horaires')}>
                   <p>{t('contact.coordonnees.lunSam')}</p>
@@ -203,7 +203,7 @@ export default function Contact() {
               </div>
 
               <a
-                href="https://wa.me/212774623448?text=Bonjour, je souhaite avoir des informations."
+                href="https://wa.me/212603477786?text=Bonjour, je souhaite avoir des informations."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] px-6 py-3 rounded-lg font-semibold hover:bg-[#25D366]/20 transition w-full text-sm"

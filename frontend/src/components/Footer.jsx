@@ -67,7 +67,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://wa.me/212774623448"
+                href="https://wa.me/212603477786"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -121,12 +121,12 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-sm mb-5 uppercase tracking-wider">{t('footer.contact')}</h3>
             <ul className="space-y-4">
               <li>
-                <a href="tel:+212774623448" className="group flex items-start gap-3 py-1">
+                <a href="tel:+212603477786" className="group flex items-start gap-3 py-1">
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                     <Phone size={14} aria-hidden="true" className="text-primary-light" />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium group-hover:text-primary-light transition-colors">+212 774 623 448</p>
+                    <p className="text-white text-sm font-medium group-hover:text-primary-light transition-colors">+212 603 477 786</p>
                   </div>
                 </a>
               </li>
@@ -197,7 +197,7 @@ export default function Footer() {
                 {t('footer.espaceAdmin')}
               </Link>
               <a
-                href="https://wa.me/212774623448"
+                href="https://wa.me/212603477786"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary/10 px-3 text-xs font-medium text-primary-light transition-colors hover:bg-primary/20"
