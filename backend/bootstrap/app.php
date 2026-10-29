@@ -3,6 +3,7 @@
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\EnsureClient;
 use App\Http\Middleware\LogSlowRequests;
+use App\Http\Middleware\RedirectToCanonicalHost;
 use App\Http\Middleware\SanitizeStrings;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(prepend: [
+            RedirectToCanonicalHost::class,
             SecurityHeaders::class,
             LogSlowRequests::class,
         ]);

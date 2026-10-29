@@ -210,6 +210,22 @@ class SecurityTest extends TestCase
         $this->get('/assets/index-ancien-bundle.css')->assertNotFound();
     }
 
+    public function test_www_host_redirects_to_canonical_domain(): void
+    {
+        config(['app.canonical_host' => 'firasbkacar.com']);
+
+        $this->get('https://www.firasbkacar.com/vehicules?marque=Dacia')
+            ->assertStatus(301)
+            ->assertRedirect('https://firasbkacar.com/vehicules?marque=Dacia');
+    }
+
+    public function test_canonical_host_is_served_normally(): void
+    {
+        config(['app.canonical_host' => 'firasbkacar.com']);
+
+        $this->get('https://firasbkacar.com/')->assertOk();
+    }
+
     public function test_unknown_api_route_returns_404_json(): void
     {
         $this->getJson('/api/does-not-exist')->assertNotFound();

@@ -214,7 +214,7 @@ export default function Profil({ navigation }) {
       <View style={styles.identite}>
         {profil.photo_profil ? (
           <Image
-            source={{ uri: `https://firasbkacar.fly.dev/storage/${profil.photo_profil}` }}
+            source={{ uri: `https://firasbkacar.com/storage/${profil.photo_profil}` }}
             style={styles.avatar}
             accessibilityLabel="Photo de profil"
           />

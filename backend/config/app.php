@@ -72,6 +72,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Canonical Host
+    |--------------------------------------------------------------------------
+    |
+    | Hote canonique du site public. Le sous-domaine www y est redirige en 301
+    | pour conserver une seule origine (et donc une seule session locale).
+    |
+    */
+
+    'canonical_host' => env('CANONICAL_HOST', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

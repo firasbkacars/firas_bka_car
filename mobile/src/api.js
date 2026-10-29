@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * En developpement, remplacer BASE_URL par l'adresse de la machine
  * (ex : http://192.168.1.10:8000/api) ou par l'URL Fly.io.
  */
-export const BASE_URL = 'https://firasbkacar.fly.dev/api';
+export const BASE_URL = 'https://firasbkacar.com/api';
 
 const api = axios.create({
   baseURL: BASE_URL,

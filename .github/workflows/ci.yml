@@ -78,7 +78,7 @@ jobs:
         working-directory: frontend
         run: npm run build
         env:
-          VITE_API_URL: https://firasbkacar.fly.dev/api
+          VITE_API_URL: https://firasbkacar.com/api
 
   e2e:
     name: E2E (Playwright)

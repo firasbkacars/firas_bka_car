@@ -46,7 +46,7 @@ export default function VehicleDetail({ navigation, route }) {
 
   const photo = vehicule.photos?.[0];
   const uri = photo && !photo.startsWith('http') && !photo.startsWith('/')
-    ? `https://firasbkacar.fly.dev/storage/${photo}`
+    ? `https://firasbkacar.com/storage/${photo}`
     : (photo || FALLBACK);
 
   return (

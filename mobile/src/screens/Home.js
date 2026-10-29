@@ -66,7 +66,7 @@ export default function Home({ navigation }) {
       renderItem={({ item }) => {
         const photo = item.photos?.[0];
         const uri = photo && !photo.startsWith('http') && !photo.startsWith('/')
-          ? `https://firasbkacar.fly.dev/storage/${photo}`
+          ? `https://firasbkacar.com/storage/${photo}`
           : (photo || FALLBACK);
         return (
           <TouchableOpacity
