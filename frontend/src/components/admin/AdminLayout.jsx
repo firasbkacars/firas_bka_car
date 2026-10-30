@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -254,7 +254,15 @@ export default function AdminLayout() {
           </div>
         </header>
         <div className="p-4 sm:p-6">
-          <Outlet />
+          <Suspense
+            fallback={(
+              <div className="flex min-h-[50vh] items-center justify-center" role="status" aria-live="polite">
+                <span className="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-primary" aria-hidden="true" />
+              </div>
+            )}
+          >
+            <Outlet />
+          </Suspense>
         </div>
       </main>
     </div>

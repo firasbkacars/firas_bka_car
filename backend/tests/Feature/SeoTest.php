@@ -46,6 +46,10 @@ class SeoTest extends TestCase
         $response->assertSee('rel="canonical" href="https://firasbkacar.com/"', false);
         $response->assertSee('property="og:title"', false);
         $response->assertSee('name="twitter:card" content="summary_large_image"', false);
+        $response->assertSee(
+            'rel="preload" as="image" href="https://firasbkacar.com/images/hero-bg.webp"',
+            false
+        );
 
         $html = $response->getContent();
         $this->assertSame(1, substr_count($html, '<meta name="description"'));
@@ -86,6 +90,10 @@ class SeoTest extends TestCase
         );
         $response->assertSee(
             'property="og:image" content="https://firasbkacar.com/storage/vehicules/test.jpg"',
+            false
+        );
+        $response->assertSee(
+            'rel="preload" as="image" href="https://firasbkacar.com/storage/vehicules/test.jpg"',
             false
         );
     }
@@ -180,5 +188,132 @@ class SeoTest extends TestCase
         $this->get('https://www.firasbkacar.com/contact')
             ->assertStatus(301)
             ->assertRedirect('https://firasbkacar.com/contact');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function jsonLdFrom(string $html): array
+    {
+        preg_match('/<script type="application\/ld\+json" id="seo-jsonld">(.*?)<\/script>/is', $html, $matches);
+
+        $this->assertNotEmpty($matches[1] ?? null, 'Bloc JSON-LD absent.');
+
+        $decoded = json_decode($matches[1], true, 512, JSON_THROW_ON_ERROR);
+
+        return $decoded;
+    }
+
+    /**
+     * @param  array<string, mixed>  $graph
+     * @return array<string, mixed>
+     */
+    private function schemaOfType(array $graph, string $type): array
+    {
+        foreach ($graph['@graph'] as $node) {
+            if (($node['@type'] ?? null) === $type) {
+                return $node;
+            }
+        }
+
+        $this->fail('Type JSON-LD absent : '.$type);
+    }
+
+    public function test_home_exposes_organization_website_and_webpage_json_ld(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($html, 'id="seo-jsonld"'));
+
+        $graph = $this->jsonLdFrom($html);
+
+        $this->assertSame('https://schema.org', $graph['@context']);
+
+        $organization = $this->schemaOfType($graph, 'AutoRental');
+        $this->assertSame('FIRAS BKA CAR', $organization['name']);
+        $this->assertSame('+212603477786', $organization['telephone']);
+        $this->assertSame('Tanger', $organization['address']['addressLocality']);
+        $this->assertSame('MA', $organization['address']['addressCountry']);
+        $this->assertSame('MAD', $organization['currenciesAccepted']);
+
+        $website = $this->schemaOfType($graph, 'WebSite');
+        $this->assertSame('https://firasbkacar.com/#website', $website['@id']);
+        $this->assertSame(['fr-MA', 'ar-MA', 'en'], $website['inLanguage']);
+
+        $webpage = $this->schemaOfType($graph, 'WebPage');
+        $this->assertSame('https://firasbkacar.com/#webpage', $webpage['@id']);
+        $this->assertSame('fr-MA', $webpage['inLanguage']);
+
+        foreach ($graph['@graph'] as $node) {
+            $this->assertNotSame('BreadcrumbList', $node['@type']);
+        }
+    }
+
+    public function test_vehicle_page_exposes_vehicle_offer_and_breadcrumb_json_ld(): void
+    {
+        $vehicule = $this->createVehicule([
+            'kilometrage' => 45000,
+            'photos' => ['vehicules/test.jpg', 'vehicules/test-2.jpg'],
+        ]);
+
+        $html = $this->get('/vehicules/'.$vehicule->id)->assertOk()->getContent();
+        $graph = $this->jsonLdFrom($html);
+
+        $vehicle = $this->schemaOfType($graph, 'Vehicle');
+        $this->assertSame('Dacia Duster', $vehicle['name']);
+        $this->assertSame('Dacia', $vehicle['brand']['name']);
+        $this->assertSame('Duster', $vehicle['model']);
+        $this->assertSame('2023', $vehicle['vehicleModelDate']);
+        $this->assertSame('Manual', $vehicle['vehicleTransmission']);
+        $this->assertSame('Diesel', $vehicle['fuelType']);
+        $this->assertSame(5, $vehicle['seatingCapacity']);
+        $this->assertSame(45000, $vehicle['mileageFromOdometer']['value']);
+        $this->assertSame('KMT', $vehicle['mileageFromOdometer']['unitCode']);
+        $this->assertSame('https://firasbkacar.com/storage/vehicules/test.jpg', $vehicle['image'][0]);
+
+        $offer = $vehicle['offers'];
+        $this->assertSame('Offer', $offer['@type']);
+        $this->assertEquals(400, $offer['price']);
+        $this->assertSame('MAD', $offer['priceCurrency']);
+        $this->assertSame('https://schema.org/InStock', $offer['availability']);
+        $this->assertSame('https://schema.org/LeaseOut', $offer['businessFunction']);
+        $this->assertSame('DAY', $offer['priceSpecification']['unitCode']);
+        $this->assertSame('https://firasbkacar.com/#organization', $offer['offeredBy']['@id']);
+
+        $breadcrumb = $this->schemaOfType($graph, 'BreadcrumbList');
+        $this->assertCount(3, $breadcrumb['itemListElement']);
+        $this->assertSame('Accueil', $breadcrumb['itemListElement'][0]['name']);
+        $this->assertSame('Véhicules', $breadcrumb['itemListElement'][1]['name']);
+        $this->assertSame('Dacia Duster', $breadcrumb['itemListElement'][2]['name']);
+        $this->assertSame(
+            'https://firasbkacar.com/vehicules/'.$vehicule->id,
+            $breadcrumb['itemListElement'][2]['item']
+        );
+
+        $webpage = $this->schemaOfType($graph, 'WebPage');
+        $this->assertSame(
+            'https://firasbkacar.com/vehicules/'.$vehicule->id.'#vehicle',
+            $webpage['mainEntity']['@id']
+        );
+    }
+
+    public function test_static_pages_expose_a_two_level_breadcrumb(): void
+    {
+        $html = $this->get('/services')->assertOk()->getContent();
+        $graph = $this->jsonLdFrom($html);
+
+        $breadcrumb = $this->schemaOfType($graph, 'BreadcrumbList');
+        $this->assertCount(2, $breadcrumb['itemListElement']);
+        $this->assertSame('Services', $breadcrumb['itemListElement'][1]['name']);
+        $this->assertSame('https://firasbkacar.com/services', $breadcrumb['itemListElement'][1]['item']);
+    }
+
+    public function test_private_and_error_pages_have_no_json_ld(): void
+    {
+        foreach (['/admin/login', '/client/profil', '/route-inconnue', '/vehicules/14', '/vehicules/compare'] as $path) {
+            $html = $this->get($path)->getContent();
+
+            $this->assertStringNotContainsString('application/ld+json', $html, $path);
+        }
     }
 }
