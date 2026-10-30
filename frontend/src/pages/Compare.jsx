@@ -7,9 +7,8 @@ import { carburantLabel, categorieLabel, equipementLabel } from '../lib/vehicule
 import { useSeo } from '../lib/useSeo';
 import { canonicalFor } from '../lib/seo';
 import PageHeader from '../components/PageHeader';
+import VehiclePhoto from '../components/VehiclePhoto';
 import { Check, ArrowLeft, SlidersHorizontal, Plus } from 'lucide-react';
-
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=400&q=80';
 
 const SPECS = [
   { key: 'marque', labelKey: 'compare.specs.marque' },
@@ -180,8 +179,6 @@ export default function Compare() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {catalogue.map((v) => {
-                const photo = v.photos?.[0];
-                const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
                 const selected = selectedIds.includes(v.id);
                 return (
                   <button
@@ -194,9 +191,8 @@ export default function Compare() {
                     } disabled:opacity-40`}
                   >
                     <div className="relative h-36 bg-white/[0.02]">
-                      <img src={resolvedPhoto || FALLBACK_IMG} alt={`${v.marque} ${v.modele}`} loading="lazy"
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = FALLBACK_IMG; }} />
+                      <VehiclePhoto path={v.photos?.[0]} alt={`${v.marque} ${v.modele}`}
+                        className="w-full h-full object-cover" />
                       <div className={`absolute top-2 end-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                         selected ? 'bg-[#dc2626] text-white' : 'bg-black/60 text-white/60'
                       }`}>
@@ -256,17 +252,13 @@ export default function Compare() {
         {/* Vehicle Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {vehicules.map(v => {
-            const photo = v.photos?.[0];
-            const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
             return (
               <div key={v.id} className="bg-[#111] border border-white/[0.06] rounded-2xl overflow-hidden">
                 <div className="relative h-40 bg-white/[0.02]">
-                  <img
-                    src={resolvedPhoto || FALLBACK_IMG}
+                  <VehiclePhoto
+                    path={v.photos?.[0]}
                     alt={`${v.marque} ${v.modele}`}
-                    loading="lazy"
                     className="w-full h-full object-cover"
-                    onError={(e) => { e.target.src = FALLBACK_IMG; }}
                   />
                   <div className="absolute bottom-2 end-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg">
                     <span className="text-primary-light font-bold">{formatMAD(v.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}</span>

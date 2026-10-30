@@ -12,8 +12,7 @@ import {
   ShieldCheck, SlidersHorizontal, Star, Users, X,
 } from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
-
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
+import VehiclePhoto from '../components/VehiclePhoto';
 
 const SELECT_CLASS =
   'min-h-11 w-full appearance-none rounded-xl border border-line-strong bg-neutral-800 pe-10 text-base text-white outline-none transition-colors hover:border-neutral-600 focus:border-primary sm:text-sm';
@@ -90,9 +89,6 @@ function Spec({ icon: Icon, label, value }) {
 
 function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
   const { t } = useTranslation();
-  const photo = v.photos?.[0];
-  const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
-  const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
   const [imgLoaded, setImgLoaded] = useState(false);
   const compareDisabled = compareFull && !isSelected;
 
@@ -132,11 +128,9 @@ function VehicleCard({ v, isSelected, compareFull, onToggleCompare }) {
           {!imgLoaded && (
             <div className="absolute inset-0 animate-pulse bg-white/[0.03]" aria-hidden="true" />
           )}
-          <img
-            src={imgSrc}
+          <VehiclePhoto
+            path={v.photos?.[0]}
             alt={`${v.marque} ${v.modele}`}
-            loading="lazy"
-            onError={() => setImgSrc(FALLBACK_IMG)}
             onLoad={() => setImgLoaded(true)}
             className={`h-full w-full object-cover transition-[opacity,transform] duration-200 group-hover:scale-[1.02] ${
               imgLoaded ? 'opacity-100' : 'opacity-0'

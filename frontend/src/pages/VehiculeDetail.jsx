@@ -9,6 +9,7 @@ import { useSeo } from '../lib/useSeo';
 import { absoluteUrl, canonicalFor } from '../lib/seo';
 import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
+import VehiclePhoto from '../components/VehiclePhoto';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=800&q=80';
 
@@ -417,11 +418,13 @@ export default function VehiculeDetail() {
             {/* Main Image */}
             <div className="relative mb-4 overflow-hidden rounded-2xl border border-line bg-surface">
               {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-white/[0.03]" aria-hidden="true" />}
-              <img
-                src={images[activeImg]}
+              <VehiclePhoto
+                key={vehicule.photos?.[activeImg] || 'fallback'}
+                path={vehicule.photos?.[activeImg]}
                 alt={t('vehicule.imageVue', { vehicule: `${vehicule.marque} ${vehicule.modele}`, index: activeImg + 1 })}
                 onLoad={() => setImgLoaded(true)}
-                onError={(e) => { e.target.src = FALLBACK_IMG; setImgLoaded(true); }}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 640px"
+                fetchPriority="high"
                 className={`h-[280px] w-full object-cover transition-opacity duration-300 sm:h-[400px] lg:h-[460px] ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
               />
               <FavoriButton vehiculeId={vehicule.id} className="absolute end-1 top-1" />
@@ -821,45 +824,36 @@ export default function VehiculeDetail() {
               </Link>
             </div>
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {similaires.map((v) => {
-                const photo = v.photos?.[0];
-                const src = photo && !photo.startsWith('http') && !photo.startsWith('/')
-                  ? `/storage/${photo}`
-                  : (photo || FALLBACK_IMG);
-
-                return (
-                  <li key={v.id}>
-                    <Link
-                      to={`/vehicules/${v.id}`}
-                      className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-primary/40"
-                    >
-                      <div className="aspect-[16/10] overflow-hidden bg-white/[0.02]">
-                        <img
-                          src={src}
-                          alt={`${v.marque} ${v.modele}`}
-                          loading="lazy"
-                          onError={(e) => { e.target.src = FALLBACK_IMG; }}
-                          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">
-                          {v.marque}
-                        </p>
-                        <h3 className="mt-1 text-base font-semibold text-white transition-colors group-hover:text-primary-light">
-                          {v.modele}
-                        </h3>
-                        <p className="mt-2 text-sm text-muted">
-                          <span className="text-lg font-bold tabular-nums text-white">
-                            {formatMAD(v.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}
-                          </span>{' '}
-                          {t('vehicules.carte.parJour')}
-                        </p>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
+              {similaires.map((v) => (
+                <li key={v.id}>
+                  <Link
+                    to={`/vehicules/${v.id}`}
+                    className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-primary/40"
+                  >
+                    <div className="aspect-[16/10] overflow-hidden bg-white/[0.02]">
+                      <VehiclePhoto
+                        path={v.photos?.[0]}
+                        alt={`${v.marque} ${v.modele}`}
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">
+                        {v.marque}
+                      </p>
+                      <h3 className="mt-1 text-base font-semibold text-white transition-colors group-hover:text-primary-light">
+                        {v.modele}
+                      </h3>
+                      <p className="mt-2 text-sm text-muted">
+                        <span className="text-lg font-bold tabular-nums text-white">
+                          {formatMAD(v.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}
+                        </span>{' '}
+                        {t('vehicules.carte.parJour')}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </section>
         )}

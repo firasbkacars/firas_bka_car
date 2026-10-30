@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Agence;
 use App\Models\Vehicule;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Métadonnées SEO injectées dans le HTML initial.
@@ -221,9 +222,41 @@ class Seo
             'robots' => 'index, follow',
             'image' => $photo ?? self::baseUrl().self::DEFAULT_IMAGE,
             'preloadImage' => $photo,
+            'preloadSrcset' => self::photoSrcset($vehicule),
             'type' => 'website',
             'noindex' => false,
         ];
+    }
+
+    /**
+     * Variantes WebP réellement présentes sur le disque, pour le préchargement
+     * responsive. Retourne null si aucune variante n'a encore été générée.
+     */
+    private static function photoSrcset(Vehicule $vehicule): ?string
+    {
+        $photo = $vehicule->photos[0] ?? null;
+
+        if (! is_string($photo) || $photo === '') {
+            return null;
+        }
+
+        if (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://')) {
+            return null;
+        }
+
+        $extension = pathinfo($photo, PATHINFO_EXTENSION);
+        $base = $extension === '' ? $photo : substr($photo, 0, -strlen($extension) - 1);
+        $entries = [];
+
+        foreach ([320, 640, 960, 1280] as $width) {
+            $variant = $base.'-'.$width.'.webp';
+
+            if (Storage::disk('public')->exists($variant)) {
+                $entries[] = self::photoUrl($variant).' '.$width.'w';
+            }
+        }
+
+        return $entries === [] ? null : implode(', ', $entries);
     }
 
     private static function vehiclePhoto(Vehicule $vehicule): ?string
@@ -683,7 +716,15 @@ class Seo
         }
 
         if (! empty($meta['preloadImage'])) {
-            $tags[] = '<link rel="preload" as="image" href="'.self::escape($meta['preloadImage']).'" fetchpriority="high" data-seo-preload>';
+            $preload = '<link rel="preload" as="image" href="'.self::escape($meta['preloadImage']).'"';
+
+            if (! empty($meta['preloadSrcset'])) {
+                $preload .= ' imagesrcset="'.self::escape($meta['preloadSrcset']).'"'
+                    .' imagesizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 640px"'
+                    .' type="image/webp"';
+            }
+
+            $tags[] = $preload.' fetchpriority="high" data-seo-preload>';
         }
 
         $tags[] = '<meta property="og:site_name" content="'.self::SITE_NAME.'">';

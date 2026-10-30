@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Vehicule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SeoTest extends TestCase
@@ -306,6 +307,23 @@ class SeoTest extends TestCase
         $this->assertCount(2, $breadcrumb['itemListElement']);
         $this->assertSame('Services', $breadcrumb['itemListElement'][1]['name']);
         $this->assertSame('https://firasbkacar.com/services', $breadcrumb['itemListElement'][1]['item']);
+    }
+
+    public function test_vehicle_preload_exposes_webp_srcset_when_variants_exist(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('vehicules/test-640.webp', 'variant');
+        Storage::disk('public')->put('vehicules/test-1280.webp', 'variant');
+
+        $vehicule = $this->createVehicule(['photos' => ['vehicules/test.jpg']]);
+
+        $response = $this->get('/vehicules/'.$vehicule->id)->assertOk();
+
+        $response->assertSee(
+            'imagesrcset="https://firasbkacar.com/storage/vehicules/test-640.webp 640w, https://firasbkacar.com/storage/vehicules/test-1280.webp 1280w"',
+            false
+        );
+        $response->assertSee('type="image/webp"', false);
     }
 
     public function test_private_and_error_pages_have_no_json_ld(): void

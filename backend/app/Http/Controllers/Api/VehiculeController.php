@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vehicule;
+use App\Support\VehicleImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -186,6 +187,7 @@ class VehiculeController extends Controller
         if (! empty($vehicule->photos)) {
             foreach ($vehicule->photos as $photo) {
                 if (Storage::disk('public')->exists($photo)) {
+                    VehicleImage::deleteVariants($photo);
                     Storage::disk('public')->delete($photo);
                 }
             }

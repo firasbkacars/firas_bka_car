@@ -5,12 +5,11 @@ import { Car, Shield, Headphones, MapPin, Calendar, ChevronRight, Star, Fuel, Us
 import api from '../services/api';
 import { Skeleton } from '../components/Skeleton';
 import FavoriButton from '../components/FavoriButton';
+import VehiclePhoto from '../components/VehiclePhoto';
 import { formatNumber } from '../lib/formatters';
 import { carburantLabel } from '../lib/vehiculeLabels';
 import { useSeo } from '../lib/useSeo';
 import { canonicalFor } from '../lib/seo';
-
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&q=80';
 
 const BRANDS = [
   { name: 'Renault', logo: '/images/brands/renault.svg' },
@@ -29,9 +28,6 @@ const FIELD_CLASS =
 
 function VehicleCard({ v }) {
   const { t } = useTranslation();
-  const photo = v.photos?.[0];
-  const resolvedPhoto = photo && !photo.startsWith('http') && !photo.startsWith('/') ? `/storage/${photo}` : photo;
-  const [imgSrc, setImgSrc] = useState(resolvedPhoto || FALLBACK_IMG);
 
   return (
     <Link
@@ -39,11 +35,9 @@ function VehicleCard({ v }) {
       className="group overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-neutral-700"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
-        <img
-          src={imgSrc}
+        <VehiclePhoto
+          path={v.photos?.[0]}
           alt={`${v.marque} ${v.modele}`}
-          loading="lazy"
-          onError={() => setImgSrc(FALLBACK_IMG)}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" aria-hidden="true" />

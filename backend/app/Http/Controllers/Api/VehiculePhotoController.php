@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Vehicule;
+use App\Support\VehicleImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,6 +22,7 @@ class VehiculePhotoController extends Controller
         $paths = [];
         foreach ($request->file('photos') as $file) {
             $path = $file->store('vehicules', 'public');
+            VehicleImage::generate($path);
             $paths[] = $path;
         }
 
@@ -50,6 +52,7 @@ class VehiculePhotoController extends Controller
         }
 
         if (Storage::disk('public')->exists($validated['photo_path'])) {
+            VehicleImage::deleteVariants($validated['photo_path']);
             Storage::disk('public')->delete($validated['photo_path']);
         }
 
