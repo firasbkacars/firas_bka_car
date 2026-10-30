@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Phone, Clock, MessageCircle, Send, Navigation, Shield, Headphones, FileCheck, Loader2 } from 'lucide-react';
 import api from '../services/api';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { useSeo } from '../lib/useSeo';
 import { canonicalFor } from '../lib/seo';
 
@@ -87,11 +88,7 @@ export default function Contact() {
       <section className="relative pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#dc2626]/5 via-transparent to-transparent" />
         <div className="max-w-6xl mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-2 text-muted text-sm mb-4">
-            <span>{t('nav.accueil')}</span>
-            <span>/</span>
-            <span className="text-white/70">{t('nav.contact')}</span>
-          </div>
+          <Breadcrumbs items={[{ label: t('nav.contact') }]} className="mb-4" />
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             {t('contact.hero.titreDebut')}<span className="text-primary-light">{t('contact.hero.titreFin')}</span>
           </h1>

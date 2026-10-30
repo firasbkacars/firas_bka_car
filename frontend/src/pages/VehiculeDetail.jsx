@@ -222,6 +222,7 @@ export default function VehiculeDetail() {
   const navigate = useNavigate();
   const { client } = useAuth();
   const [vehicule, setVehicule] = useState(null);
+  const [similaires, setSimilaires] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
   const [dates, setDates] = useState({ dateDebut: '', heureDebut: '10:00', dateFin: '', heureFin: '10:00' });
@@ -245,10 +246,38 @@ export default function VehiculeDetail() {
     try {
       const { data } = await api.get(`/vehicules/${id}`);
       setVehicule(data);
+      fetchSimilaires(data);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Maillage interne : trois véhicules de la même catégorie, issus de l'API.
+   * En cas d'échec, la section disparaît simplement — aucune donnée inventée.
+   */
+  const fetchSimilaires = async (vehiculeCourant) => {
+    if (!vehiculeCourant?.categorie) {
+      setSimilaires([]);
+      return;
+    }
+
+    try {
+      const { data } = await api.get('/vehicules', {
+        params: { categorie: vehiculeCourant.categorie, per_page: 4 },
+      });
+      const liste = data.data || data.vehicules || [];
+
+      setSimilaires(
+        (Array.isArray(liste) ? liste : [])
+          .filter((v) => v.id !== vehiculeCourant.id)
+          .slice(0, 3)
+      );
+    } catch (err) {
+      console.error(err);
+      setSimilaires([]);
     }
   };
 
@@ -777,6 +806,63 @@ export default function VehiculeDetail() {
             </div>
           </aside>
         </div>
+
+        {similaires.length > 0 && (
+          <section className="mt-14" aria-labelledby="vehicules-similaires">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <h2 id="vehicules-similaires" className="text-xl font-semibold text-white">
+                {t('vehicule.similaires.titre')}
+              </h2>
+              <Link
+                to="/vehicules"
+                className="text-sm font-medium text-primary-light transition-colors hover:text-white"
+              >
+                {t('vehicule.similaires.voirTout')}
+              </Link>
+            </div>
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {similaires.map((v) => {
+                const photo = v.photos?.[0];
+                const src = photo && !photo.startsWith('http') && !photo.startsWith('/')
+                  ? `/storage/${photo}`
+                  : (photo || FALLBACK_IMG);
+
+                return (
+                  <li key={v.id}>
+                    <Link
+                      to={`/vehicules/${v.id}`}
+                      className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-primary/40"
+                    >
+                      <div className="aspect-[16/10] overflow-hidden bg-white/[0.02]">
+                        <img
+                          src={src}
+                          alt={`${v.marque} ${v.modele}`}
+                          loading="lazy"
+                          onError={(e) => { e.target.src = FALLBACK_IMG; }}
+                          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">
+                          {v.marque}
+                        </p>
+                        <h3 className="mt-1 text-base font-semibold text-white transition-colors group-hover:text-primary-light">
+                          {v.modele}
+                        </h3>
+                        <p className="mt-2 text-sm text-muted">
+                          <span className="text-lg font-bold tabular-nums text-white">
+                            {formatMAD(v.prix_jour, { suffix: t('unites.dh'), decimals: 0 })}
+                          </span>{' '}
+                          {t('vehicules.carte.parJour')}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
     </div>
   );

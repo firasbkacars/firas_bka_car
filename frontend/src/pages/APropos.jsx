@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Check } from 'lucide-react';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { useSeo } from '../lib/useSeo';
 import { canonicalFor } from '../lib/seo';
 
@@ -15,6 +16,7 @@ export default function APropos() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-24 pb-16">
+      <Breadcrumbs items={[{ label: t('nav.apropos') }]} className="mb-4" />
       <h1 className="text-3xl font-bold text-white mb-2">{t('apropos.titre')}</h1>
       <p className="text-gray-400 mb-8">{t('apropos.sousTitre')}</p>
 

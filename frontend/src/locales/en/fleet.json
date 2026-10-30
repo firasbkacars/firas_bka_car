@@ -177,7 +177,11 @@
     "reserverMaintenant": "Book now",
     "selectionnezDates": "Select your dates to book",
     "whatsapp": "Contact via WhatsApp",
-    "whatsappMessage": "I'm interested in the {{vehicule}}"
+    "whatsappMessage": "I'm interested in the {{vehicule}}",
+    "similaires": {
+      "titre": "Similar vehicles",
+      "voirTout": "View all vehicles"
+    }
   },
   "compare": {
     "titre": "Vehicle comparison",

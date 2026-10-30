@@ -177,7 +177,11 @@
     "reserverMaintenant": "Réserver maintenant",
     "selectionnezDates": "Sélectionnez vos dates pour réserver",
     "whatsapp": "Contacter par WhatsApp",
-    "whatsappMessage": "Je suis intéressé par le {{vehicule}}"
+    "whatsappMessage": "Je suis intéressé par le {{vehicule}}",
+    "similaires": {
+      "titre": "Véhicules similaires",
+      "voirTout": "Voir tous les véhicules"
+    }
   },
   "compare": {
     "titre": "Comparateur de véhicules",

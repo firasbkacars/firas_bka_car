@@ -192,7 +192,11 @@
     "reserverMaintenant": "احجز الآن",
     "selectionnezDates": "اختر تواريخك للحجز",
     "whatsapp": "تواصل عبر واتساب",
-    "whatsappMessage": "أنا مهتم بـ {{vehicule}}"
+    "whatsappMessage": "أنا مهتم بـ {{vehicule}}",
+    "similaires": {
+      "titre": "سيارات مشابهة",
+      "voirTout": "عرض جميع السيارات"
+    }
   },
   "compare": {
     "titre": "مقارنة السيارات",

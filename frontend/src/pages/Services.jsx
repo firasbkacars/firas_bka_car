@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Car, CalendarRange, Plane, Wrench, Baby, Smartphone } from 'lucide-react';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { useSeo } from '../lib/useSeo';
 import { canonicalFor } from '../lib/seo';
 
@@ -22,6 +23,7 @@ export default function Services() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-24 pb-16">
+      <Breadcrumbs items={[{ label: t('nav.services') }]} className="mb-4" />
       <h1 className="text-3xl font-bold text-white mb-2">{t('services.titre')}</h1>
       <p className="text-gray-400 mb-8">{t('services.sousTitre')}</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
