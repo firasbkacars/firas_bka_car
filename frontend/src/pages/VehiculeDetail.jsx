@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
@@ -7,6 +7,7 @@ import { formatDate, formatDuration, formatMAD, formatNumber } from '../lib/form
 import { carburantLabel, equipementLabel } from '../lib/vehiculeLabels';
 import { useSeo } from '../lib/useSeo';
 import { absoluteUrl, canonicalFor } from '../lib/seo';
+import { readInitialData } from '../lib/initialData';
 import { Calendar, Gauge, Settings, Droplet, Zap, Users, Check, Clock, MessageCircle, ChevronLeft, ChevronRight, AlertTriangle, Star, Send } from 'lucide-react';
 import FavoriButton from '../components/FavoriButton';
 import VehiclePhoto from '../components/VehiclePhoto';
@@ -222,12 +223,19 @@ export default function VehiculeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { client } = useAuth();
-  const [vehicule, setVehicule] = useState(null);
+  const initialData = useMemo(() => readInitialData(), []);
+  const initialVehicule = useMemo(() => {
+    const vehiculeInitial = initialData?.vehicule;
+
+    return vehiculeInitial && String(vehiculeInitial.id) === String(id) ? vehiculeInitial : null;
+  }, [initialData, id]);
+  const initialVehiculeConsumed = useRef(false);
+  const [vehicule, setVehicule] = useState(initialVehicule);
   const [similaires, setSimilaires] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialVehicule);
   const [activeImg, setActiveImg] = useState(0);
   const [dates, setDates] = useState({ dateDebut: '', heureDebut: '10:00', dateFin: '', heureFin: '10:00' });
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(Boolean(initialVehicule));
   const [avisData, setAvisData] = useState({ avis: [], moyenne: 0, nombre: 0 });
   const [avisLoading, setAvisLoading] = useState(true);
   const [reviewForm, setReviewForm] = useState({ note: 5, commentaire: '' });
@@ -235,13 +243,6 @@ export default function VehiculeDetail() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
-
-  useEffect(() => {
-    fetchVehicule();
-    fetchAvis();
-    setActiveImg(0);
-    setImgLoaded(false);
-  }, [id]);
 
   const fetchVehicule = async () => {
     try {
@@ -293,6 +294,26 @@ export default function VehiculeDetail() {
       setAvisLoading(false);
     }
   };
+
+  useEffect(() => {
+    const useInitialData = !initialVehiculeConsumed.current && Boolean(initialVehicule);
+    initialVehiculeConsumed.current = true;
+
+    if (useInitialData) {
+      // Les données serveur sont déjà complètes (véhicule + réservations) :
+      // on évite un second rendu intégral de la fiche après l'appel API.
+      fetchSimilaires(initialVehicule);
+    } else {
+      fetchVehicule();
+    }
+
+    fetchAvis();
+    setActiveImg(0);
+    setImgLoaded(useInitialData);
+    // L'effet suit uniquement l'identifiant : les données initiales ne sont
+    // consommées qu'au premier montage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const submitReview = async () => {
     if (!client) {

@@ -84,7 +84,17 @@ class Seo
                 $meta = self::forVehicule($vehicule);
                 $meta['jsonld'] = self::vehicleGraph($meta, $vehicule);
 
-                return ['status' => 200, 'meta' => $meta];
+                $vehicule->load(['reservations' => function ($query) {
+                    $query->where('statut', '!=', 'annulee')
+                        ->select('id', 'vehicule_id', 'date_debut', 'date_fin', 'statut');
+                }]);
+
+                return [
+                    'status' => 200,
+                    'meta' => $meta,
+                    'content' => self::vehicleShell($vehicule),
+                    'data' => ['vehicule' => $vehicule->toArray()],
+                ];
             }
 
             if (in_array($id, self::GONE_VEHICLE_IDS, true)) {
@@ -275,6 +285,99 @@ class Seo
         }
 
         return self::baseUrl().'/storage/'.ltrim($photo, '/');
+    }
+
+    /**
+     * Contenu de secours rendu côté serveur pour la fiche véhicule.
+     *
+     * Il est inséré dans `#root` : le navigateur peut peindre le H1, la photo
+     * et le prix avant l'exécution de React, et les crawlers qui n'exécutent
+     * pas JavaScript voient les faits réels du véhicule. React remplace ensuite
+     * ce bloc par son propre rendu, identique en dimensions.
+     */
+    private static function vehicleShell(Vehicule $vehicule): string
+    {
+        $nom = self::escape(trim($vehicule->marque.' '.$vehicule->modele));
+        $prix = self::number($vehicule->prix_jour);
+        $caution = (float) $vehicule->montant_caution;
+        $photo = self::vehiclePhoto($vehicule);
+        $srcset = self::photoSrcset($vehicule);
+        $description = trim((string) $vehicule->description);
+        $transmission = $vehicule->transmission === 'automatique' ? 'Boîte automatique' : 'Boîte manuelle';
+        $carburant = match (strtolower((string) $vehicule->carburant)) {
+            'essence' => 'Essence',
+            'diesel' => 'Diesel',
+            'hybride' => 'Hybride',
+            default => ucfirst((string) $vehicule->carburant),
+        };
+
+        $image = '';
+
+        if ($photo) {
+            $source = $srcset
+                ? '<source type="image/webp" srcset="'.self::escape($srcset).'" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 640px">'
+                : '';
+
+            $image = '<div class="relative mb-4 overflow-hidden rounded-2xl border border-line bg-surface">'
+                .'<picture>'.$source
+                .'<img src="'.self::escape($photo).'" alt="'.self::escape($nom).'" width="1280" height="853"'
+                .' fetchpriority="high" decoding="async"'
+                .' class="h-[280px] w-full object-cover sm:h-[400px] lg:h-[460px]">'
+                .'</picture></div>';
+        }
+
+        $cautionHtml = $caution > 0
+            ? '<p class="mt-1 text-xs text-warning">Caution '.self::number($caution).' DH</p>'
+            : '';
+
+        $descriptionHtml = $description !== ''
+            ? '<p class="mt-3 max-w-xl text-sm leading-relaxed text-muted">'.self::escape($description).'</p>'
+            : '';
+
+        return '<div class="min-h-dvh pb-16 pt-24"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">'
+            .'<nav class="mb-8 flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="Fil d\'Ariane">'
+            .'<a href="/" class="transition-colors hover:text-white">Accueil</a>'
+            .'<span aria-hidden="true">›</span>'
+            .'<a href="/vehicules" class="transition-colors hover:text-white">Véhicules</a>'
+            .'<span aria-hidden="true">›</span>'
+            .'<span class="text-white" aria-current="page">'.$nom.'</span>'
+            .'</nav>'
+            .'<div class="flex flex-col gap-8 lg:flex-row">'
+            .'<div class="min-w-0 flex-1">'
+            .$image
+            .'<div class="mb-6 mt-6">'
+            .'<h1 class="mb-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">'.$nom.'</h1>'
+            .'<div class="mb-3 flex flex-wrap gap-2">'
+            .'<span class="rounded-full border border-line bg-white/5 px-3 py-1 text-xs text-muted">'.$transmission.'</span>'
+            .'<span class="rounded-full border border-line bg-white/5 px-3 py-1 text-xs text-muted">'.$carburant.'</span>'
+            .'<span class="rounded-full border border-line bg-white/5 px-3 py-1 text-xs text-muted">'.(int) $vehicule->places.' places</span>'
+            .'</div>'
+            .'<div class="flex items-baseline gap-2">'
+            .'<span class="text-3xl font-bold tabular-nums text-primary-light">'.$prix.' DH</span>'
+            .'<span class="text-sm font-normal text-muted">/ jour</span>'
+            .'</div>'
+            .$cautionHtml
+            .$descriptionHtml
+            .'</div>'
+            .'<div class="mb-6 rounded-2xl border border-line bg-surface p-5">'
+            .'<h2 class="mb-4 font-semibold text-white">Spécifications</h2>'
+            .'<dl class="grid grid-cols-2 gap-4 sm:grid-cols-3">'
+            .'<div><dt class="text-xs text-muted">Année</dt><dd class="text-sm text-white">'.(int) $vehicule->annee.'</dd></div>'
+            .'<div><dt class="text-xs text-muted">Kilométrage</dt><dd class="text-sm text-white">'.self::number($vehicule->kilometrage).' km</dd></div>'
+            .'<div><dt class="text-xs text-muted">Transmission</dt><dd class="text-sm text-white">'.$transmission.'</dd></div>'
+            .'<div><dt class="text-xs text-muted">Carburant</dt><dd class="text-sm text-white">'.$carburant.'</dd></div>'
+            .'<div><dt class="text-xs text-muted">Puissance</dt><dd class="text-sm text-white">'.self::escape($vehicule->puissance ?: '—').'</dd></div>'
+            .'<div><dt class="text-xs text-muted">Places</dt><dd class="text-sm text-white">'.(int) $vehicule->places.'</dd></div>'
+            .'</dl></div>'
+            .'</div>'
+            .'<aside class="lg:w-80 lg:shrink-0">'
+            .'<div class="rounded-2xl border border-line bg-surface p-5">'
+            .'<p class="text-xs uppercase tracking-wider text-muted">À partir de</p>'
+            .'<p class="mt-2 text-3xl font-bold text-white">'.$prix.' DH <span class="text-sm font-normal text-muted">/ jour</span></p>'
+            .'<a href="/reservation/'.(int) $vehicule->id.'" class="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white">Réserver ce véhicule</a>'
+            .'<a href="https://wa.me/212603477786" class="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-success/30 bg-success/10 px-5 text-sm font-semibold text-success">Contacter via WhatsApp</a>'
+            .'</div></aside>'
+            .'</div></div></div>';
     }
 
     /**
@@ -662,11 +765,13 @@ class Seo
     }
 
     /**
-     * Injecte les balises dans le HTML initial (avant </head>).
+     * Injecte les balises dans le HTML initial (avant </head>), le contenu de
+     * secours dans `#root` et les données initiales pour React.
      *
      * @param  array<string, mixed>  $meta
+     * @param  array<string, mixed>|null  $data
      */
-    public static function injectIntoHtml(string $html, array $meta): string
+    public static function injectIntoHtml(string $html, array $meta, ?string $content = null, ?array $data = null): string
     {
         $title = '<title>'.self::escape($meta['title']).'</title>';
         $description = '<meta name="description" content="'.self::escape($meta['description']).'">';
@@ -697,7 +802,36 @@ class Seo
 
         $tags = implode("\n    ", self::headTags($meta));
 
-        return preg_replace('/<\/head>/i', "    ".$tags."\n  </head>", $html, 1) ?? $html;
+        $html = preg_replace('/<\/head>/i', "    ".$tags."\n  </head>", $html, 1) ?? $html;
+
+        if ($content !== null) {
+            $html = preg_replace(
+                '/<div\s+id=["\']root["\'][^>]*>\s*<\/div>/i',
+                '<div id="root">'.$content.'</div>',
+                $html,
+                1
+            ) ?? $html;
+        }
+
+        $html = preg_replace('/\s*<script[^>]*id=["\']seo-initial-data["\'][^>]*>.*?<\/script>/is', '', $html) ?? $html;
+
+        if ($data !== null) {
+            $json = json_encode(
+                $data,
+                JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+
+            if ($json !== false) {
+                $html = preg_replace(
+                    '/<\/body>/i',
+                    '<script id="seo-initial-data" type="application/json">'.$json."</script>\n</body>",
+                    $html,
+                    1
+                ) ?? $html;
+            }
+        }
+
+        return $html;
     }
 
     /**

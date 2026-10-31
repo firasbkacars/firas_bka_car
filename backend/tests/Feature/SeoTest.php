@@ -99,6 +99,32 @@ class SeoTest extends TestCase
         );
     }
 
+    public function test_vehicle_page_injects_server_rendered_shell_and_initial_data(): void
+    {
+        $vehicule = $this->createVehicule(['description' => 'SUV polyvalent et robuste.']);
+
+        $response = $this->get('/vehicules/'.$vehicule->id)->assertOk();
+
+        $response->assertSee(
+            '<h1 class="mb-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Dacia Duster</h1>',
+            false
+        );
+        $response->assertSee('id="seo-initial-data"', false);
+        $response->assertSee('"marque":"Dacia"', false);
+        $response->assertSee('"modele":"Duster"', false);
+        $response->assertSee('"reservations":[]', false);
+        $response->assertSee('SUV polyvalent et robuste.', false);
+        $response->assertSee('Caution 1 500 DH', false);
+        $response->assertSee('fetchpriority="high"', false);
+    }
+
+    public function test_private_pages_do_not_expose_initial_data(): void
+    {
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertDontSee('seo-initial-data', false);
+    }
+
     public function test_vehicle_canonical_uses_integer_id(): void
     {
         $vehicule = $this->createVehicule();

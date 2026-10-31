@@ -23,7 +23,12 @@ if (! function_exists('spaResponse')) {
         $path = public_path('index.html');
 
         if (is_file($path)) {
-            $html = Seo::injectIntoHtml((string) file_get_contents($path), $meta);
+            $html = Seo::injectIntoHtml(
+                (string) file_get_contents($path),
+                $meta,
+                $resolution['content'] ?? null,
+                $resolution['data'] ?? null
+            );
 
             $headers = [
                 'Content-Type' => 'text/html; charset=UTF-8',
