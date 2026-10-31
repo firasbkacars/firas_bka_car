@@ -630,13 +630,16 @@ export default function Vehicules() {
     <div className="min-h-dvh bg-dark-bg">
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line">
-        <img
-          src="/images/hero-bg.jpg"
-          alt=""
-          aria-hidden="true"
-          loading="eager"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-40"
-        />
+        <picture>
+          <source srcSet="/images/hero-bg.webp" type="image/webp" />
+          <img
+            src="/images/hero-bg.jpg"
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-40"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-r from-dark-bg via-dark-bg/95 to-dark-bg/50" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent" aria-hidden="true" />
 

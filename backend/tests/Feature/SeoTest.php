@@ -118,6 +118,51 @@ class SeoTest extends TestCase
         $response->assertSee('fetchpriority="high"', false);
     }
 
+    public function test_static_public_pages_inject_server_rendered_shell(): void
+    {
+        $vehicule = $this->createVehicule();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Louez la', false)
+            ->assertSee('Voir les véhicules', false)
+            ->assertSee('<h1', false);
+
+        $this->get('/vehicules')
+            ->assertOk()
+            ->assertSee('Notre flotte', false)
+            ->assertSee('/vehicules/'.$vehicule->id, false)
+            ->assertSee('Dacia Duster', false)
+            ->assertSee('400 DH', false);
+
+        $this->get('/services')
+            ->assertOk()
+            ->assertSee('Nos services', false)
+            ->assertSee('Location longue durée', false);
+
+        $this->get('/a-propos')
+            ->assertOk()
+            ->assertSee('À propos de nous', false)
+            ->assertSee('Questions fréquentes', false)
+            ->assertSee('L’acompte de 40% est requis à la réservation.', false);
+
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('Contactez', false)
+            ->assertSee('Lot 583N, Rue 50, Branes 1, Tanger 90060, Maroc', false)
+            ->assertSee('+212 603 477 786', false);
+    }
+
+    public function test_compare_page_and_private_pages_have_no_shell(): void
+    {
+        $compare = $this->get('/vehicules/compare')->assertOk();
+        $compare->assertDontSee('Notre flotte', false);
+
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertDontSee('Notre flotte', false);
+    }
+
     public function test_private_pages_do_not_expose_initial_data(): void
     {
         $this->get('/admin/login')

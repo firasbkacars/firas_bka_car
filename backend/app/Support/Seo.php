@@ -117,7 +117,13 @@ class Seo
                 $meta['jsonld'] = self::pageGraph($meta, $path);
             }
 
-            return ['status' => 200, 'meta' => $meta];
+            $resolution = ['status' => 200, 'meta' => $meta];
+
+            if (! $meta['noindex'] && ($shell = self::staticShell($path)) !== null) {
+                $resolution['content'] = $shell;
+            }
+
+            return $resolution;
         }
 
         return ['status' => 404, 'meta' => self::notFoundMeta()];
@@ -187,7 +193,9 @@ class Seo
             'canonical' => self::baseUrl().($path === '/' ? '/' : $path),
             'robots' => $definition['robots'] ?? 'index, follow',
             'image' => self::baseUrl().self::DEFAULT_IMAGE,
-            'preloadImage' => $path === '/' ? self::baseUrl().'/images/hero-bg.webp' : null,
+            'preloadImage' => in_array($path, ['/', '/vehicules'], true)
+                ? self::baseUrl().'/images/hero-bg.webp'
+                : null,
             'type' => 'website',
             'noindex' => str_contains((string) ($definition['robots'] ?? ''), 'noindex'),
         ];
@@ -378,6 +386,258 @@ class Seo
             .'<a href="https://wa.me/212603477786" class="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-success/30 bg-success/10 px-5 text-sm font-semibold text-success">Contacter via WhatsApp</a>'
             .'</div></aside>'
             .'</div></div></div>';
+    }
+
+    /**
+     * Contenu de secours rendu côté serveur pour les pages publiques statiques.
+     *
+     * Même principe que `vehicleShell()` : le HTML est peint avant l'exécution
+     * de React et reste lisible par les crawlers sans JavaScript. Les textes
+     * proviennent des traductions françaises réellement affichées ; aucune
+     * donnée commerciale non validée n'est ajoutée.
+     */
+    private static function staticShell(string $path): ?string
+    {
+        return match ($path) {
+            '/' => self::homeShell(),
+            '/vehicules' => self::catalogueShell(),
+            '/services' => self::servicesShell(),
+            '/a-propos' => self::aboutShell(),
+            '/contact' => self::contactShell(),
+            default => null,
+        };
+    }
+
+    private static function homeShell(): string
+    {
+        return <<<'HTML'
+<div class="min-h-dvh bg-dark-bg"><section class="relative flex min-h-[90dvh] items-end overflow-hidden"><picture><source srcset="/images/hero-bg.webp" type="image/webp"><img src="/images/hero-bg.jpg" alt="" width="1600" height="854" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover"></picture><div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/70 to-dark-bg/30" aria-hidden="true"></div><div class="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:px-8"><div class="max-w-2xl"><span class="mb-6 inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary-light">Location de véhicules au Maroc</span><h1 class="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">Louez la <br><span class="text-primary-light">voiture</span> <br>qui vous correspond</h1><p class="mt-6 max-w-md text-base leading-relaxed text-muted md:text-lg">Des véhicules premium, un service fiable et des prix transparents. Réservez en quelques clics.</p><div class="mt-8 flex flex-wrap items-center gap-4"><a href="/vehicules" class="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">Voir les véhicules</a><a href="#recherche" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-neutral-700 bg-neutral-800 px-6 text-sm font-semibold text-white transition-colors hover:bg-neutral-700">Réserver maintenant</a></div></div></div></section></div>
+HTML;
+    }
+
+    private static function catalogueShell(): string
+    {
+        $cards = '';
+
+        // Les URLs filtrées gardent uniquement l'en-tête : la grille React
+        // affichera les résultats correspondant aux paramètres.
+        if (request()->query() === []) {
+            $vehicules = Vehicule::query()
+                ->disponibles()
+                ->orderBy('populaire', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get();
+
+            foreach ($vehicules as $vehicule) {
+                $cards .= self::catalogueCard($vehicule);
+            }
+        }
+
+        $grid = $cards === ''
+            ? ''
+            : '<div class="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pt-10">'
+                .'<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">'.$cards.'</div>'
+                .'</div>';
+
+        return '<div class="min-h-dvh bg-dark-bg">'
+            .self::catalogueHero()
+            .$grid
+            .'</div>';
+    }
+
+    private static function catalogueHero(): string
+    {
+        return <<<'HTML'
+<section class="relative overflow-hidden border-b border-line"><picture><source srcset="/images/hero-bg.webp" type="image/webp"><img src="/images/hero-bg.jpg" alt="" aria-hidden="true" loading="eager" class="absolute inset-0 h-full w-full object-cover object-center opacity-40"></picture><div class="absolute inset-0 bg-gradient-to-r from-dark-bg via-dark-bg/95 to-dark-bg/50" aria-hidden="true"></div><div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent" aria-hidden="true"></div><div class="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-28 sm:px-6 lg:px-8 lg:pb-14 lg:pt-32"><nav class="flex items-center gap-2 text-xs text-muted" aria-label="Fil d'Ariane"><a href="/" class="transition-colors hover:text-white">Accueil</a><span aria-hidden="true">›</span><span class="text-white" aria-current="page">Véhicules</span></nav><div class="mt-8 max-w-2xl"><p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-primary-light"><span class="h-px w-8 bg-primary" aria-hidden="true"></span>Catalogue</p><h1 class="mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl">Notre flotte</h1><p class="mt-4 max-w-xl text-base leading-relaxed text-muted">Des véhicules récents, entretenus et prêts à partir. Filtrez selon vos besoins et réservez en quelques clics.</p><div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted"><span>Véhicules récents</span><span>Support 7j/7</span><span>Tanger</span></div></div></div></section>
+HTML;
+    }
+
+    private static function catalogueCard(Vehicule $vehicule): string
+    {
+        $nom = trim($vehicule->marque.' '.$vehicule->modele);
+        $prix = self::number($vehicule->prix_jour);
+        $photo = self::vehiclePhoto($vehicule);
+        $srcset = self::photoSrcset($vehicule);
+        $categorie = match (strtolower((string) $vehicule->categorie)) {
+            'berline' => 'Berline',
+            'compacte' => 'Compacte',
+            'citadine' => 'Citadine',
+            'suv' => 'SUV',
+            'van' => 'Van',
+            default => ucfirst((string) $vehicule->categorie),
+        };
+        $transmission = $vehicule->transmission === 'automatique' ? 'Automatique' : 'Manuelle';
+        $carburant = match (strtolower((string) $vehicule->carburant)) {
+            'essence' => 'Essence',
+            'diesel' => 'Diesel',
+            'hybride' => 'Hybride',
+            default => ucfirst((string) $vehicule->carburant),
+        };
+
+        $image = $photo
+            ? '<picture>'
+                .($srcset ? '<source type="image/webp" srcset="'.self::escape($srcset).'" sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw">' : '')
+                .'<img src="'.self::escape($photo).'" alt="'.self::escape($nom).'" width="1280" height="853" loading="lazy" decoding="async" class="h-full w-full object-cover">'
+                .'</picture>'
+            : '';
+
+        $populaire = $vehicule->populaire
+            ? '<span class="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white">Populaire</span>'
+            : '';
+
+        return '<article class="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface">'
+            .'<a href="/vehicules/'.(int) $vehicule->id.'" class="flex flex-1 flex-col">'
+            .'<div class="relative aspect-[16/10] overflow-hidden bg-white/[0.02]">'.$image
+            .'<div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" aria-hidden="true"></div>'
+            .'<div class="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">'.$populaire
+            .'<span class="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">Disponible</span>'
+            .'</div></div>'
+            .'<div class="flex flex-1 flex-col p-4 md:p-5">'
+            .'<div class="flex items-start justify-between gap-3"><div class="min-w-0">'
+            .'<p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">'.self::escape($vehicule->marque).'</p>'
+            .'<h3 class="mt-1 truncate text-lg font-semibold leading-snug text-white">'.self::escape($vehicule->modele).'</h3>'
+            .'</div><span class="mt-0.5 shrink-0 rounded-full border border-line bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-muted">'.self::escape($categorie).'</span></div>'
+            .'<dl class="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 text-xs text-muted">'
+            .'<div><dt>Année</dt><dd class="text-white">'.(int) $vehicule->annee.'</dd></div>'
+            .'<div><dt>Transmission</dt><dd class="text-white">'.$transmission.'</dd></div>'
+            .'<div><dt>Carburant</dt><dd class="text-white">'.$carburant.'</dd></div>'
+            .'<div><dt>Places</dt><dd class="text-white">'.(int) $vehicule->places.'</dd></div>'
+            .'</dl>'
+            .'<div class="mt-auto pt-5"><div class="flex items-end justify-between gap-3 border-t border-line pt-4"><div>'
+            .'<p class="text-xs font-medium uppercase tracking-[0.16em] text-ink-subtle">À partir de</p>'
+            .'<p class="mt-1 text-xl font-bold leading-none tabular-nums text-white">'.$prix.' DH<span class="ms-1 text-xs font-normal text-muted">/ jour</span></p>'
+            .'</div><span class="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-white/[0.03] px-3.5 text-xs font-semibold text-white">Détails</span></div></div>'
+            .'</div></a></article>';
+    }
+
+    private static function servicesShell(): string
+    {
+        $items = [
+            ['Location courte durée', 'Louez pour un jour, un week-end ou une semaine. Idéal pour des trajets ponctuels.'],
+            ['Location longue durée', 'Contrats mensuels avantageux pour les particuliers et les entreprises.'],
+            ['Transfert aéroport', "Service de navette entre l'aéroport de Tanger et votre destination."],
+            ['Véhicule de remplacement', 'En cas de panne, nous vous fournissons un véhicule de courtoisie.'],
+            ['Sièges bébé', 'Sièges homologués disponibles gratuitement sur demande.'],
+            ['Réservation en ligne', 'Réservez en quelques clics depuis votre téléphone ou ordinateur.'],
+        ];
+
+        $cards = '';
+
+        foreach ($items as [$titre, $description]) {
+            $cards .= '<div class="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">'
+                .'<h2 class="mb-2 text-lg font-bold text-white">'.self::escape($titre).'</h2>'
+                .'<p class="text-sm leading-relaxed text-gray-400">'.self::escape($description).'</p>'
+                .'</div>';
+        }
+
+        return '<div class="min-h-dvh bg-dark-bg"><div class="mx-auto max-w-5xl px-4 pb-16 pt-24">'
+            .self::breadcrumbHtml([['Accueil', '/'], ['Services', null]])
+            .'<h1 class="mb-2 text-3xl font-bold text-white">Nos services</h1>'
+            .'<p class="mb-8 text-gray-400">Des services complets pour une expérience sans stress.</p>'
+            .'<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">'.$cards.'</div>'
+            .'</div></div>';
+    }
+
+    private static function aboutShell(): string
+    {
+        $engagements = [
+            'Véhicules récents et bien entretenus',
+            'Prix transparents, sans frais cachés',
+            'Assurance tous risques incluse',
+            'Kilométrage illimité',
+            'Service client disponible 7j/7',
+            "Livraison et retour à l'aéroport",
+            'Réception de paiement par carte bancaire',
+        ];
+
+        $faq = [
+            ['Quels documents sont nécessaires pour louer ?', 'Vous devez présenter un permis de conduire valide, une pièce d’identité (CIN ou passeport) et un justificatif de domicile.'],
+            ['Quel est le kilométrage autorisé ?', 'Toutes nos locations incluent un kilométrage illimité. Vous pouvez rouler sans vous soucier des kms.'],
+            ["L'assurance est-elle incluse ?", 'Oui, une assurance tous risques est incluse dans chaque location. Vous êtes couvert en cas de dommages.'],
+            ["Peut-on récupérer le véhicule à l'aéroport ?", "Oui, nous assurons un service de navette depuis et vers l'aéroport Ibn Battouta de Tanger."],
+            ['Comment puis-je payer ?', 'Nous acceptons les espèces, Visa, Mastercard et le paiement CMI. L’acompte de 40% est requis à la réservation.'],
+        ];
+
+        $engagementsHtml = '';
+
+        foreach ($engagements as $engagement) {
+            $engagementsHtml .= '<li class="flex items-center gap-2 text-sm text-gray-300">'.self::escape($engagement).'</li>';
+        }
+
+        $faqHtml = '';
+
+        foreach ($faq as [$question, $reponse]) {
+            $faqHtml .= '<div class="border-t border-neutral-800 py-4">'
+                .'<h3 class="font-semibold text-white">'.self::escape($question).'</h3>'
+                .'<p class="mt-2 text-sm leading-relaxed text-gray-400">'.self::escape($reponse).'</p>'
+                .'</div>';
+        }
+
+        return '<div class="min-h-dvh bg-dark-bg"><div class="mx-auto max-w-5xl px-4 pb-16 pt-24">'
+            .self::breadcrumbHtml([['Accueil', '/'], ['À propos', null]])
+            .'<h1 class="mb-2 text-3xl font-bold text-white">À propos de nous</h1>'
+            .'<p class="mb-8 text-gray-400">FIRAS BKA CAR, votre partenaire de confiance à Tanger.</p>'
+            .'<div class="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-2">'
+            .'<div class="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6">'
+            .'<h2 class="mb-4 font-semibold text-white">Notre histoire</h2>'
+            .'<p class="mb-4 text-sm leading-relaxed text-gray-400">Fondée à Tanger, FIRAS BKA CAR est née de la volonté d’offrir un service de location de véhicules de qualité à des prix honnêtes. Notre agence, située dans le quartier de Branes 1 (Rue 50, Tanger), dessert les clients depuis plusieurs années avec professionnalisme et passion.</p>'
+            .'<p class="text-sm leading-relaxed text-gray-400">Notre flotte est soigneusement sélectionnée et régulièrement entretenue pour vous garantir sécurité et confort à chaque déplacement.</p>'
+            .'</div>'
+            .'<div class="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6">'
+            .'<h2 class="mb-4 font-semibold text-white">Nos engagements</h2>'
+            .'<ul class="space-y-3">'.$engagementsHtml.'</ul>'
+            .'</div></div>'
+            .'<h2 class="mb-2 text-2xl font-bold text-white">Questions fréquentes</h2>'
+            .'<p class="mb-4 text-gray-400">Trouvez rapidement les réponses à vos questions.</p>'
+            .'<div>'.$faqHtml.'</div>'
+            .'</div></div>';
+    }
+
+    private static function contactShell(): string
+    {
+        return '<div class="min-h-dvh bg-black"><section class="relative overflow-hidden pb-16 pt-28">'
+            .'<div class="relative z-10 mx-auto max-w-6xl px-4">'
+            .self::breadcrumbHtml([['Accueil', '/'], ['Contact', null]])
+            .'<h1 class="mb-4 text-4xl font-bold text-white md:text-5xl">Contactez<span class="text-primary-light">-nous</span></h1>'
+            .'<p class="max-w-xl text-lg text-white/70">Nous sommes à votre disposition pour toute question. Notre équipe vous répond sous 24 heures.</p>'
+            .'</div></section>'
+            .'<section class="mx-auto max-w-6xl px-4 pb-20">'
+            .'<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">'
+            .'<div class="space-y-6 lg:col-span-2">'
+            .'<div class="rounded-2xl border border-white/[0.06] bg-[#111] p-6">'
+            .'<h2 class="mb-5 text-lg font-semibold text-white">Nos coordonnées</h2>'
+            .'<div class="space-y-5 text-sm text-gray-300">'
+            .'<div><p class="text-xs uppercase tracking-wider text-muted">Adresse</p><p class="mt-1">Lot 583N, Rue 50, Branes 1, Tanger 90060, Maroc</p></div>'
+            .'<div><p class="text-xs uppercase tracking-wider text-muted">Téléphone</p><p class="mt-1"><a href="tel:+212603477786" class="text-white">+212 603 477 786</a></p></div>'
+            .'</div></div>'
+            .'<a href="https://wa.me/212603477786" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-success/30 bg-success/10 px-5 text-sm font-semibold text-success">Contacter via WhatsApp</a>'
+            .'</div>'
+            .'<div class="lg:col-span-3"><div class="rounded-2xl border border-white/[0.06] bg-[#111] p-6">'
+            .'<h2 class="mb-2 text-lg font-semibold text-white">Envoyez-nous un message</h2>'
+            .'<p class="text-sm text-gray-400">Remplissez le formulaire et nous vous répondrons rapidement.</p>'
+            .'</div></div>'
+            .'</div></section></div>';
+    }
+
+    /**
+     * @param  array<int, array{0:string, 1:?string}>  $items
+     */
+    private static function breadcrumbHtml(array $items): string
+    {
+        $html = '<nav class="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="Fil d\'Ariane">';
+
+        foreach ($items as $index => [$label, $href]) {
+            if ($index > 0) {
+                $html .= '<span aria-hidden="true">›</span>';
+            }
+
+            $html .= $href === null
+                ? '<span class="text-white" aria-current="page">'.self::escape($label).'</span>'
+                : '<a href="'.self::escape($href).'" class="transition-colors hover:text-white">'.self::escape($label).'</a>';
+        }
+
+        return $html.'</nav>';
     }
 
     /**
@@ -856,6 +1116,8 @@ class Seo
                 $preload .= ' imagesrcset="'.self::escape($meta['preloadSrcset']).'"'
                     .' imagesizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 640px"'
                     .' type="image/webp"';
+            } elseif (str_ends_with((string) $meta['preloadImage'], '.webp')) {
+                $preload .= ' type="image/webp"';
             }
 
             $tags[] = $preload.' fetchpriority="high" data-seo-preload>';
